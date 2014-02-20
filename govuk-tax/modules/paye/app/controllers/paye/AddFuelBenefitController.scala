@@ -29,6 +29,7 @@ import views.html.paye.add_car_benefit_confirmation
 import controllers.paye.AddFuelBenefitController.FuelBenefitDataWithGrossBenefit
 import scala.concurrent._
 import controllers.paye.data.ActionsAvailable
+import CarBenefit._
 
 
 object AddFuelBenefitController {
@@ -120,7 +121,7 @@ with PayeRegimeRoots {
             addFuelBenefitData => {
               implicit val hc = HeaderCarrier(request)
               val carBenefit = retrieveCarBenefit(payeRootData, employmentSequenceNumber)
-              val carBenefitStartDate = getDateInTaxYear(Some(carBenefit.dateMadeAvailable))
+              val carBenefitStartDate = getDateInTaxYear(Some(carBenefit.dateMadeAvailableOrStartOfTaxYear))
 
               keyStoreService.addKeyStoreEntry(generateKeystoreActionId(taxYear, employmentSequenceNumber), KeystoreUtils.source, keystoreKey, addFuelBenefitData).map {
                 _ =>

@@ -6,7 +6,6 @@ import play.api.mvc._
 import play.api.data.Form
 import play.api.mvc.SimpleResult
 
-import uk.gov.hmrc.utils.TaxYearResolver
 
 import uk.gov.hmrc.common.microservice.paye.domain._
 import uk.gov.hmrc.common.microservice.keystore.KeyStoreConnector
@@ -22,13 +21,13 @@ import models.paye._
 import views.html.paye._
 import views.formatting.Strings
 
-import controllers.common.actions.{HeaderCarrier, Actions}
+import controllers.common.actions.HeaderCarrier
 import controllers.paye.validation.RemoveBenefitValidator.RemoveCarBenefitFormDataValues
-import controllers.paye.validation.BenefitFlowHelper._
 import controllers.paye.validation.RemoveBenefitValidator
 import controllers.paye.validation.AddCarBenefitValidator._
-import controllers.common.{BaseController, SessionTimeoutWrapper}
+import controllers.common.SessionTimeoutWrapper
 import controllers.common.service.Connectors
+import CarBenefit._
 
 class ReplaceBenefitController(keyStoreService: KeyStoreConnector, override val authConnector: AuthConnector, override val auditConnector: AuditConnector)
                               (implicit payeConnector: PayeConnector, txQueueConnector: TxQueueConnector)
@@ -90,7 +89,7 @@ class ReplaceBenefitController(keyStoreService: KeyStoreConnector, override val 
       primaryEmployment <- taxYearData.findPrimaryEmployment
     } yield {
       val rawData = Some(RemoveBenefitValidator.validationlessForm.bindFromRequest().value.get)
-      val removeForm = updateRemoveCarBenefitForm(rawData, activeCarBenefit.dateMadeAvailable, activeCarBenefit.fuelBenefit, getCarFuelBenefitDates(request), now(), taxYearInterval).bindFromRequest()
+      val removeForm = updateRemoveCarBenefitForm(rawData, activeCarBenefit.dateMadeAvailableOrStartOfTaxYear, activeCarBenefit.fuelBenefit, getCarFuelBenefitDates(request), now(), taxYearInterval).bindFromRequest()
 
       val dates = getCarBenefitDates(request)
       val addForm = carBenefitForm(dates).bindFromRequest()

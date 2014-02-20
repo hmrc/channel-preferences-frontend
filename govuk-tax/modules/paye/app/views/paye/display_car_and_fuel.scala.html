@@ -10,10 +10,12 @@
 <table>
     <caption id="@id("company-name")">@Messages("paye.display_car_and_fuel.company_car_provided_by", employerNameString)</caption>
     <tbody>
-        <tr>
-            <th scope="row">@Messages("paye.display_car_and_fuel.date_made_available")</th>
-            <td id="@id("car-benefit-date-available")">@formatDate(carBenefit.dateMadeAvailable)</td>
-        </tr>
+        @carBenefit.dateMadeAvailable.map {dateMadeAvailable =>
+            <tr>
+                <th scope="row">@Messages("paye.display_car_and_fuel.date_made_available")</th>
+                <td id="@id("car-benefit-date-available")">@formatDate(dateMadeAvailable)</td>
+            </tr>
+        }
         @carBenefit.dateWithdrawn.map { dateWithdrawn =>
             <tr>
                 <th scope="row">@Messages("paye.display_car_and_fuel.date_withdrawn")</th>

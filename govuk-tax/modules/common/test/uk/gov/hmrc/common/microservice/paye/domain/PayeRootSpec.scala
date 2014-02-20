@@ -19,7 +19,7 @@ class PayeRootSpec extends BaseSpec with MockitoSugar with ScalaFutures {
 
       implicit val hc = HeaderCarrier()
 
-      val carBenefit = CarBenefit(2013, 1, new LocalDate, new LocalDate, 0.0,0.0,"Diesel", Some(1400),Some(125),3000,0,0,new LocalDate)
+      val carBenefit = CarBenefit(2013, 1, new LocalDate, Some(new LocalDate), 0.0,0.0,"Diesel", Some(1400),Some(125),3000,0,0,new LocalDate)
       val employment = mock[Employment]
       implicit val payeConnector = mock[PayeConnector]
       implicit val txQueueConnector = mock[TxQueueConnector]

@@ -6,7 +6,7 @@ import uk.gov.hmrc.utils.TaxYearResolver
 case class CarBenefit(taxYear: Int,
                       employmentSequenceNumber: Int,
                       startDate: LocalDate,
-                      dateMadeAvailable: LocalDate,
+                      dateMadeAvailable: Option[LocalDate],
                       benefitAmount: BigDecimal,
                       grossAmount: BigDecimal,
                       fuelType: String,
@@ -22,6 +22,8 @@ case class CarBenefit(taxYear: Int,
                       daysUnavailable: Option[Int] = None) {
   def isActive = dateWithdrawn.isEmpty
 
+  def dateMadeAvailableOrStartOfTaxYear = dateMadeAvailable.getOrElse(TaxYearResolver.startOfCurrentTaxYear)
+
   lazy val hasActiveFuel = fuelBenefit.exists(_.isActive)
 
   lazy val activeFuelBenefit = fuelBenefit.filter(_.isActive)
@@ -30,7 +32,7 @@ case class CarBenefit(taxYear: Int,
 
   // Convert back to legacy structure
   def toBenefits: Seq[Benefit] = {
-    val legacyCar = Car(Some(dateMadeAvailable), dateWithdrawn, Some(dateCarRegistered), Some(employeeCapitalContribution),
+    val legacyCar = Car(dateMadeAvailable, dateWithdrawn, Some(dateCarRegistered), Some(employeeCapitalContribution),
       Some(fuelType), co2Emissions, engineSize, None, Some(carValue), Some(employeePayments), None)
 
     val carLegacyBenefit = new Benefit(benefitCode, taxYear, grossAmount, employmentSequenceNumber, None, None, None, None, None, None, dateWithdrawn,
@@ -70,7 +72,7 @@ object CarBenefit {
     CarBenefit(benefit.taxYear,
       benefit.employmentSequenceNumber,
       benefit.getStartDate(TaxYearResolver.startOfCurrentTaxYear), // TODO: Some tests may need a different TYR.
-      car.dateCarMadeAvailable.getOrElse(TaxYearResolver.startOfCurrentTaxYear),
+      car.dateCarMadeAvailable,
       benefit.benefitAmount.getOrElse(0),
       benefit.grossAmount,
       car.fuelType.get,

@@ -62,7 +62,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
         CarBenefit(carBenefitEmployer1.taxYear,
           carBenefitEmployer1.employmentSequenceNumber,
           carBenefitEmployer1.getStartDate(TaxYearResolver.startOfCurrentTaxYear),
-          carBenefitEmployer1.car.get.dateCarMadeAvailable.getOrElse(TaxYearResolver.startOfCurrentTaxYear),
+          carBenefitEmployer1.car.get.dateCarMadeAvailable,
           carBenefitEmployer1.benefitAmount.getOrElse(0),
           carBenefitEmployer1.grossAmount,
           carBenefitEmployer1.car.get.fuelType.get,

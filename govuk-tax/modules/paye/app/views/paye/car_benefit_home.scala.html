@@ -15,7 +15,14 @@
     @carAmountsRow(carName: String, carBenefit: CarBenefit)(implicit idSuffix: Option[String] = None) = {
         <tr>
             <td id="@id("car-name")">@carName</td>
-            <td id="@id("car-available")">@Messages("paye.car_benefit_home.to", formatDate(carBenefit.dateMadeAvailable), formatDate(carBenefit.dateWithdrawn.getOrElse(endOfCurrentTaxYear)))</td>
+            @defining((carBenefit.dateMadeAvailable, carBenefit.dateWithdrawn)) { dateCouple =>
+                @dateCouple match {
+                    case (Some(dateMadeAvailable), Some(dateWithdrawn)) => { <td id="@id("car-available")">@Messages("paye.car_benefit_home.to", formatDate(dateMadeAvailable), formatDate(dateWithdrawn))</td> }
+                    case (None, Some(dateWithdrawn)) => { <td id="@id("car-available")">@Messages("paye.car_benefit_home.to", "", formatDate(dateWithdrawn))</td> }
+                    case (Some(dateMadeAvailable), None) => { <td id="@id("car-available")">@formatDate(dateMadeAvailable)</td> }
+                    case _ => { <td id="@id("car-available")"></td> }
+                }
+            }
             <td id="@id("car-benefit-amount")">@pounds(carBenefit.benefitAmount)</td>
 
             @if(params.fuelGrossAmount.isDefined) {

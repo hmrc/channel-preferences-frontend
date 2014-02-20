@@ -31,7 +31,7 @@ class PayeConnectorSpec extends BaseSpec with ScalaFutures {
       val uri = ""
       val version = 0
       val employmentSeqNumber = 1
-      val carBenefit = CarBenefit(2013, 1, new LocalDate, new LocalDate, 0.0, 0, "Diesel", Some(1400), Some(125), 3000, 0, 0, new LocalDate)
+      val carBenefit = CarBenefit(2013, 1, new LocalDate, Some(new LocalDate), 0.0, 0, "Diesel", Some(1400), Some(125), 3000, 0, 0, new LocalDate)
 
       val capturedBody = ArgumentCaptor.forClass(classOf[AddBenefit])
 

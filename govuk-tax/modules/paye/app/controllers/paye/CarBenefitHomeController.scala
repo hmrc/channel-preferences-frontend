@@ -16,6 +16,7 @@ import play.api.mvc.{Action, Session, SimpleResult}
 import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
 import views.html.paye._
+import CarBenefit._
 
 class CarBenefitHomeController(override val auditConnector: AuditConnector, override val authConnector: AuthConnector)
                               (implicit payeService: PayeConnector, txQueueMicroservice: TxQueueConnector) extends BaseController
@@ -96,7 +97,7 @@ with TaxYearSupport {
       details.transactionHistory)
 
     val carBenefit = details.cars.find(_.isActive)
-    val previousCars = details.cars.filterNot(_.isActive).sortBy(_.dateMadeAvailable.toDate).reverse
+    val previousCars = details.cars.filterNot(_.isActive).sortBy(_.dateWithdrawn.get.toDate).reverse
 
 
     val carBenefitGrossAmount = details.cars.headOption.map(c => BenefitValue(c.grossAmount))

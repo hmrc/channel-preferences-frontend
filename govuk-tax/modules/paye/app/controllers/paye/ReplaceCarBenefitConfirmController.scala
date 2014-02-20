@@ -20,6 +20,7 @@ import views.html.paye.replace_benefit_confirmation
 
 import controllers.common.actions.HeaderCarrier
 import controllers.common.service.Connectors
+import CarBenefit._
 
 class ReplaceCarBenefitConfirmController(keyStoreService: KeyStoreConnector, override val authConnector: AuthConnector, override val auditConnector: AuditConnector)
                                         (implicit payeConnector: PayeConnector, txQueueConnector: TxQueueConnector)

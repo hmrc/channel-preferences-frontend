@@ -7,17 +7,14 @@ import play.api.test.Helpers._
 import org.jsoup.Jsoup
 import uk.gov.hmrc.common.microservice.paye.domain._
 import org.joda.time.LocalDate
-import uk.gov.hmrc.utils.{TaxYearResolver, DateConverter}
+import uk.gov.hmrc.utils.{DateConverter}
 import controllers.DateFieldsHelper
 import org.scalatest.matchers.{MatchResult, Matcher}
-import views.html.paye.{display_car_and_fuel, car_benefit_home, error_no_data_car_benefit_home}
+import views.html.paye.{car_benefit_home, error_no_data_car_benefit_home}
 import uk.gov.hmrc.common.microservice.paye.domain.Car
 import play.api.test.FakeApplication
 import models.paye.{BenefitFixture, EmploymentViews}
 import java.text.SimpleDateFormat
-import views.formatting.Dates
-import play.api.i18n.Messages
-import play.mvc.Content
 import views.formatting.Dates._
 
 class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with DateFieldsHelper {
@@ -86,7 +83,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#company-name").text shouldBe "Company car provided by Weyland-Yutani Corp"
-      doc.select("#car-benefit-date-available").text shouldBe formatDate(activeCar.get.dateMadeAvailable)
+      doc.select("#car-benefit-date-available").text shouldBe formatDate(activeCar.get.dateMadeAvailable.get)
       doc.select("#private-fuel").text shouldBe "No"
     }
 
@@ -114,7 +111,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#company-name").text shouldBe "Company car provided by Weyland-Yutani Corp"
-      doc.select("#car-benefit-date-available").text shouldBe formatDate(activeCar.get.dateMadeAvailable)
+      doc.select("#car-benefit-date-available").text shouldBe formatDate(activeCar.get.dateMadeAvailable.get)
       doc.select("#car-benefit-date-registered").text shouldBe formatDate(activeCar.get.dateCarRegistered)
       doc.select("#car-benefit-car-value").text shouldBe "£12,343"
       doc.select("#car-benefit-employee-capital-contribution").text shouldBe "£0"
@@ -134,7 +131,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       doc.select("#company-name").text shouldBe "Company car provided by Weyland-Yutani Corp"
       doc.select("#car-benefit-engine").text shouldBe "1,400cc or less"
       doc.select("#car-benefit-fuel-type").text shouldBe "Diesel"
-      doc.select("#car-benefit-date-available").text shouldBe formatDate(activeCar.get.dateMadeAvailable)
+      doc.select("#car-benefit-date-available").text shouldBe formatDate(activeCar.get.dateMadeAvailable.get)
       doc.select("#no-car-benefit-container").text shouldBe ""
       doc.select("#private-fuel").text shouldBe s"Stopped ${formatDate(activeCar.get.fuelBenefit.get.dateWithdrawn.get)}"
     }
@@ -191,7 +188,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       doc.select("#company-name").text shouldBe "Company car provided by Your employer"
       doc.select("#car-benefit-engine").text shouldBe "1,400cc or less"
       doc.select("#car-benefit-fuel-type").text shouldBe "Diesel"
-      doc.select("#car-benefit-date-available").text shouldBe formatDate(activeCar.get.dateMadeAvailable)
+      doc.select("#car-benefit-date-available").text shouldBe formatDate(activeCar.get.dateMadeAvailable.get)
       doc.select("#no-car-benefit-container").text shouldBe ""
     }
 
@@ -215,7 +212,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       val doc = Jsoup.parse(contentAsString(result))
       val c = doc.select("#car-name")
       doc.select("#car-name").text shouldBe "Current car"
-      doc.select("#car-available").text shouldBe s"${formatDate(activeCar.get.dateMadeAvailable)} to ${Dates.formatDate(TaxYearResolver.endOfCurrentTaxYear)}"
+      doc.select("#car-available").text shouldBe s"${formatDate(activeCar.get.dateMadeAvailable.get)}"
       doc.select("#car-benefit-amount").text shouldBe "£264"
       doc.select("#fuel-benefit-amount").text shouldBe "£5"
 
@@ -228,6 +225,7 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
       doc.select("#car-available-1").text shouldBe s"11 November 2012 to 12 November 2012"
       doc.select("#car-benefit-amount-1").text shouldBe "£44"
       doc.select("#fuel-benefit-amount-1").text shouldBe "£10"
+
 
       doc.select("#total-amounts").text shouldBe s"Total for the ${currentTaxYear}-${currentTaxYear + 1} tax year"
       doc.select("#total-car-amount").text shouldBe s"£321"
@@ -260,11 +258,43 @@ class CarBenefitHomeTemplateSpec extends PayeBaseSpec with DateConverter with Da
 
       val doc = Jsoup.parse(contentAsString(result))
       doc.select("#car-name").text shouldBe "Current car"
-      doc.select("#car-available").text shouldBe s"${formatDate(activeCar.get.dateMadeAvailable)} to ${formatDate(TaxYearResolver.endOfCurrentTaxYear)}"
+      doc.select("#car-available").text shouldBe s"${formatDate(activeCar.get.dateMadeAvailable.get)}"
       doc.select("#car-benefit-amount").text shouldBe "£264"
       doc.select("#fuel-benefit-amount").text shouldBe "£5"
 
       doc.select("#total-amounts").text shouldBe ""
+    }
+
+    "show benefit summary details for the tax year excluding the total row for a user with only an active car with no dateMadeAvailable" in new WithApplication(FakeApplication()) with BaseData {
+      override val fuelBenefit = Some(fuelBenefitEmployer1)
+      val activeCarNoDateMadeavailable = params.activeCarBenefit.get.copy(dateMadeAvailable = None)
+      val result = car_benefit_home(params.copy(activeCarBenefit = Some(activeCarNoDateMadeavailable)))(johnDensmore)
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select("#car-name").text shouldBe "Current car"
+      doc.select("#car-available").text shouldBe ""
+      doc.select("#car-benefit-amount").text shouldBe "£264"
+      doc.select("#fuel-benefit-amount").text shouldBe "£5"
+
+      doc.select("#total-amounts").text shouldBe ""
+    }
+
+
+    "show benefit summary details for a user with an inactive car with undefined dateMadeAvailable" in new WithApplication(FakeApplication()) with BaseData {
+      override val fuelBenefit = Some(fuelBenefitEmployer1)
+      val carBenefit2 = carBenefit.copy(benefitAmount = Some(13), car = Some(carBenefit.car.get.copy(dateCarMadeAvailable = None, dateCarWithdrawn = Some(LocalDate(2012, 10, 11)))))
+      val previousCarAndFuel1 = CarBenefit(carBenefit2, fuelBenefit)
+      override val previousCars = Seq(previousCarAndFuel1)
+
+      val result = car_benefit_home(params)(johnDensmore)
+
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.select("#car-name-0").text shouldBe "Previous car"
+      doc.select("#car-available-0").text shouldBe s"to 11 October 2012"
+      doc.select("#car-benefit-amount-0").text shouldBe "£13"
+      doc.select("#fuel-benefit-amount-0").text shouldBe "£5"
+
+      doc.select("#total-amounts").text shouldBe s"Total for the ${currentTaxYear}-${currentTaxYear + 1} tax year"
     }
 
     "show benefit summary details for the tax year excluding the total row for a user with no active car and only one previous car" in new WithApplication(FakeApplication()) with BaseData {
