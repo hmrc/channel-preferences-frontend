@@ -197,6 +197,7 @@ error.paye.remove_car_benefit.question3.number_max_5_chars=Enter a number betwee
 error.paye.remove_car_benefit.question3.number_less_than_0=Employee payment must be greater than zero if you have selected yes.
 error.paye.remove_car_benefit.question3.extra_employee_contribution=Either click "Yes" or unspecify the amount you paid your employer for private use of the company car.
 error.paye.remove_car_benefit.question3.missing_employee_contribution=You must specify how much you paid your employer for private use of the company car.
+error.paye.remove_car_benefit.question4.extraDate=Please check the correct option or unspecify the date you gave the car back.
 error.paye.add_fuel_benefit.question1.employer_pay_fuel_cannot_be_false=You can’t add a fuel benefit if your employer doesn’t pay for fuel for private use.
 
 paye.remove_car_benefit_review.title=Tell HMRC about a change to your company car - Check your updated details

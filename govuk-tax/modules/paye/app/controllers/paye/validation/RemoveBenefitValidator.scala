@@ -112,6 +112,7 @@ object RemoveBenefitValidator extends Validators with TaxYearSupport {
       .verifying("error.paye.benefit.date.previous.startdate", data => if (differentDateForFuel(dates.fuelDateType)) {
       isAfterIfDefined(data, benefitStartDate)
     } else true)
+    case FUEL_SAME_DATE => dateTuple(false).verifying("error.paye.remove_car_benefit.question4.extraDate", data => data.isEmpty)
     case _ => ignored(None)
   }
 

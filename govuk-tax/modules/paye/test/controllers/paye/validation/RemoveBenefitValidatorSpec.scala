@@ -9,7 +9,7 @@ import play.api.data.Forms._
 import controllers.paye.CarBenefitFormFields._
 import controllers.paye.validation.RemoveBenefitValidator._
 import play.api.test.{FakeApplication, FakeRequest, WithApplication}
-import org.joda.time.LocalDate
+import org.joda.time.{Interval, LocalDate}
 import play.api.i18n.Messages
 import models.paye.CarFuelBenefitDates
 import scala.Some
@@ -165,11 +165,11 @@ class RemoveBenefitValidatorSpec  extends PayeBaseSpec with MockitoSugar with Da
 
     val carBenefitStartDate = new LocalDate(currentTaxYear, 6, 30)
     val carBenefitEndDate = new LocalDate(currentTaxYear, 7, 30)
-    val dates = CarFuelBenefitDates(Some(carBenefitEndDate), Some(FUEL_DIFFERENT_DATE))
+    val defaultDates = CarFuelBenefitDates(Some(carBenefitEndDate), Some(FUEL_DIFFERENT_DATE))
 
     case class DummyModel( dateFuelWithdrawn: Option[LocalDate])
 
-    def dummyForm = {
+    def dummyForm(dates: CarFuelBenefitDates = defaultDates, benefitStartDate: Option[LocalDate] = Some(carBenefitStartDate), taxYearInterval: Interval = taxYearInterval) = {
       Form(
         mapping(
           dateFuelWithdrawn -> validateFuelDate(dates, Some(carBenefitStartDate), taxYearInterval)
@@ -180,7 +180,7 @@ class RemoveBenefitValidatorSpec  extends PayeBaseSpec with MockitoSugar with Da
       val fuelDate = carBenefitEndDate
       val formWithFuelWithdrawn = buildDateFormField(dateFuelWithdrawn, Some((fuelDate.getYear.toString, fuelDate.getMonthOfYear.toString, fuelDate.getDayOfMonth.toString)))
 
-      val form = dummyForm.bindFromRequest()(FakeRequest().withFormUrlEncodedBody(formWithFuelWithdrawn:_*))
+      val form = dummyForm().bindFromRequest()(FakeRequest().withFormUrlEncodedBody(formWithFuelWithdrawn:_*))
       form.hasErrors shouldBe false
       form.value.get.dateFuelWithdrawn shouldBe Some(fuelDate)
     }
@@ -189,7 +189,7 @@ class RemoveBenefitValidatorSpec  extends PayeBaseSpec with MockitoSugar with Da
       val fuelDate = carBenefitEndDate.minusDays(1)
       val formWithFuelWithdrawn = buildDateFormField(dateFuelWithdrawn, Some((fuelDate.getYear.toString, fuelDate.getMonthOfYear.toString, fuelDate.getDayOfMonth.toString)))
 
-      val form = dummyForm.bindFromRequest()(FakeRequest().withFormUrlEncodedBody(formWithFuelWithdrawn:_*))
+      val form = dummyForm().bindFromRequest()(FakeRequest().withFormUrlEncodedBody(formWithFuelWithdrawn:_*))
       form.hasErrors shouldBe false
       form.value.get.dateFuelWithdrawn shouldBe Some(fuelDate)
     }
@@ -198,7 +198,7 @@ class RemoveBenefitValidatorSpec  extends PayeBaseSpec with MockitoSugar with Da
       val fuelDate = carBenefitEndDate.plusDays(1)
       val fuelWithdrawnDateAfterCarWithdrawn = buildDateFormField(dateFuelWithdrawn, Some((fuelDate.getYear.toString, fuelDate.getMonthOfYear.toString, fuelDate.getDayOfMonth.toString)))
 
-      val form = dummyForm.bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelWithdrawnDateAfterCarWithdrawn:_*))
+      val form = dummyForm().bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelWithdrawnDateAfterCarWithdrawn:_*))
       form.hasErrors shouldBe true
     }
 
@@ -206,13 +206,13 @@ class RemoveBenefitValidatorSpec  extends PayeBaseSpec with MockitoSugar with Da
       val fuelDate = carBenefitStartDate.minusDays(1)
       val fuelWithdrawnBeforeCarBenefitStarted = buildDateFormField(dateFuelWithdrawn, Some((fuelDate.getYear.toString, fuelDate.getMonthOfYear.toString, fuelDate.getDayOfMonth.toString)))
 
-      val form = dummyForm.bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelWithdrawnBeforeCarBenefitStarted:_*))
+      val form = dummyForm().bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelWithdrawnBeforeCarBenefitStarted:_*))
       form.hasErrors shouldBe true
     }
 
     "reject a fuel withdrawn date that is not in the current tax year" in new WithApplication {
       val fuelWithdrawnBeforeCarBenefitStarted = buildDateFormField(dateFuelWithdrawn, Some(("2010", "6", "7")))
-      val form = dummyForm.bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelWithdrawnBeforeCarBenefitStarted:_*))
+      val form = dummyForm().bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelWithdrawnBeforeCarBenefitStarted:_*))
       form.hasErrors shouldBe true
       form.errors(dateFuelWithdrawn).map(err => Messages(err.message)) should contain(s"Enter a date between 6 April $currentTaxYear and 5 April ${currentTaxYear+1}.")
     }
@@ -220,15 +220,16 @@ class RemoveBenefitValidatorSpec  extends PayeBaseSpec with MockitoSugar with Da
     "reject a fuel withdrawn date that is empty" in new WithApplication {
       val fuelWithdrawnBeforeCarBenefitStarted = buildDateFormField(dateFuelWithdrawn, None)
 
-      val form = dummyForm.bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelWithdrawnBeforeCarBenefitStarted:_*))
+      val form = dummyForm().bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelWithdrawnBeforeCarBenefitStarted:_*))
       form.hasErrors shouldBe true
     }
 
     "reject a datefuelwithdrawn of samedate and a provided date" in new WithApplication {
-      val fuelWithdrawnBeforeCarBenefitStarted = buildDateFormField(dateFuelWithdrawn, Some(("2010", "6", "7")))
-      val form = dummyForm.bindFromRequest()(FakeRequest().withFormUrlEncodedBody(fuelWithdrawnBeforeCarBenefitStarted:_*))
+      val fuelWithdrawnBeforeCarBenefitStarted = buildDateFormField(dateFuelWithdrawn, Some(("2014", "1", "1")))
+      implicit val request = FakeRequest().withFormUrlEncodedBody(fuelWithdrawnBeforeCarBenefitStarted: _*)
+      val form = dummyForm(CarFuelBenefitDates(Some(LocalDate(2013, 6, 7)), Some(FUEL_SAME_DATE))).bindFromRequest
       form.hasErrors shouldBe true
-      form.errors(dateFuelWithdrawn)
+      form.errors(dateFuelWithdrawn).map(_.message) should contain("error.paye.remove_car_benefit.question4.extraDate")
     }
   }
 
