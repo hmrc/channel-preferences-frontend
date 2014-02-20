@@ -193,12 +193,12 @@ paye.remove_car_benefit.submit_button=Next
 error.paye.remove_car_benefit.question2.number_of_days_unavailable_less_than_0=Enter a number more than 0.
 error.paye.remove_car_benefit.question2.number_max_3_chars=Enter a number between 1 and 365
 error.paye.remove_car_benefit.question2.car_unavailable_too_long=The car can’t be unavailable for longer than the total number of days you’ve had it from 6 April {0}. Reduce the number of days unavailable or check the date you got the car.
-error.paye.remove_car_benefit.question2.missing_days_unavailable=You must specify the number of consecutive days the car has been unavailable.
+error.paye.remove_car_benefit.question2.missing_days_unavailable=Enter the number of days the car was unavailable.
 error.paye.remove_car_benefit.question2.extra_days_unavailable=Please either click "Yes" or unspecify the number of consecutive days the car has been unavailable.
 error.paye.remove_car_benefit.question3.number_max_5_chars=Enter a number between £1 and £99,999.
 error.paye.remove_car_benefit.question3.number_less_than_0=Employee payment must be greater than zero if you have selected yes.
+error.paye.remove_car_benefit.question3.missing_employee_contribution=Enter a number between £1 and £99,999.
 error.paye.remove_car_benefit.question3.extra_employee_contribution=Please either click "Yes" or unspecify the amount you paid your employer for private use of the company car.
-error.paye.remove_car_benefit.question3.missing_employee_contribution=You must specify how much you paid your employer for private use of the company car.
 error.paye.remove_car_benefit.question4.extraDate=Please check the correct option or unspecify the date you gave the car back.
 error.paye.add_fuel_benefit.question1.employer_pay_fuel_cannot_be_false=You can’t add a fuel benefit if your employer doesn’t pay for fuel for private use.
 

@@ -292,7 +292,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
       status(result) shouldBe BAD_REQUEST
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select("#form-remove-car-benefit .error-notification").text shouldBe "You must specify the number of consecutive days the car has been unavailable."
+      doc.select("#form-remove-car-benefit .error-notification").text shouldBe "Enter the number of days the car was unavailable."
 
     }
 
@@ -357,7 +357,7 @@ class RemoveBenefitControllerSpec extends PayeBaseSpec with MockitoSugar with Da
 
       status(result) shouldBe BAD_REQUEST
       val doc = Jsoup.parse(contentAsString(result))
-      doc.select("#form-remove-car-benefit .error-notification").text shouldBe "You must specify how much you paid your employer for private use of the company car."
+      doc.select("#form-remove-car-benefit .error-notification").text shouldBe "Enter a number between £1 and £99,999."
 
     }
 

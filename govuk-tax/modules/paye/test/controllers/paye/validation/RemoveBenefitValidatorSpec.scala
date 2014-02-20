@@ -87,7 +87,7 @@ class RemoveBenefitValidatorSpec  extends PayeBaseSpec with MockitoSugar with Da
     "reject when the carUnavailable flag is true, but no value is provided." in new WithApplication {
       val form = bindFormWithValue(dummyForm(getValues(carUnavailableVal=Some("true"))), "daysUnavailable", "")
       form.hasErrors shouldBe true
-      form.errors("daysUnavailable").map(err => Messages(err.message)) should contain ("You must specify the number of consecutive days the car has been unavailable.")
+      form.errors("daysUnavailable").map(err => Messages(err.message)) should contain ("Enter the number of days the car was unavailable.")
     }
 
     "not throw when carUnavailable is not a valid boolean" in new WithApplication {
@@ -150,7 +150,7 @@ class RemoveBenefitValidatorSpec  extends PayeBaseSpec with MockitoSugar with Da
     "reject when the employeeContributes flag is true, but no value is provided" in new WithApplication {
       val form = bindFormWithValue(dummyForm(getValues(employeeContributesVal=Some("true"))), "employeeContribution", "")
       form.hasErrors shouldBe true
-      form.errors("employeeContribution").map(err => Messages(err.message)) should contain ("You must specify how much you paid your employer for private use of the company car.")
+      form.errors("employeeContribution").map(err => Messages(err.message)) should contain ("Enter a number between £1 and £99,999.")
     }
 
     "reject when the employeeContributes flag is false, but a value is provided" in new WithApplication {
