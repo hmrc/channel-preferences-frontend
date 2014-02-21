@@ -66,8 +66,8 @@ class OtherServicesControllerSpec extends BaseSpec with MockitoSugar {
 
       val document = Jsoup.parse(contentAsString(result))
 
-      document.getElementById("registrationGenericMessage") should not be null
-      document.getElementById("businessTaxesRegistrationLink") shouldBe null
+      document.getElementById("registration-generic-message") should not be null
+      document.getElementById("business-registration") shouldBe null
 
     }
   }

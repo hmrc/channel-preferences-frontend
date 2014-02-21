@@ -38,50 +38,45 @@
 }
 
 <div>
-    <h2 id="enrollmentHeading">Get online access</h2>
-    <p id="enrollmentMessage">You must already be registered for a tax to get online access to it.<br>
-        <span id="onlineServicesEnrolmentLink">
+    <h2>Get online access</h2>
+    <p>You must already be registered for a tax to get online access to it.<br>
             @Link.toPortalPage(
                 url = PortalConfig.getDestinationUrl("otherServicesEnrolment"),
-                id = Some("otherServicesEnrolmentHref"),
+                id = Some("other-services-enrolment"),
                 value = Some("Enrol for other services")
-            ).toHtml
-        </span>.
+            ).toHtml.
     </p>
 </div>
 <div>
-    <h2 id="deEnrollmentHeading">Stop using an online service</h2>
-    <p id="deEnrollmentMessage">To stop using one of the online services you can
-        <span id="onlineServicesDeEnrolmentLink">
+    <h2>Stop using an online service</h2>
+    <p>To stop using one of the online services you can
             @Link.toPortalPage(
                 url = PortalConfig.getDestinationUrl("servicesDeEnrolment"),
-                id = Some("servicesDeEnrolmentHref"),
+                id = Some("other-services-deenrolment"),
                 value = Some("remove it")
-            ).toHtml
-        </span>.
+            ).toHtml.
     </p>
-
 </div>
 <div>
-    <h2 id="registrationHeading">Register for new business taxes</h2>
+    <h2 id="registration-heading">Register for new business taxes</h2>
 
     @controllers.bt.otherservices.OtherServicesFactory.createRegistrationText(user).map { registrationText =>
 
-            <p id="businessTaxesRegistrationLink">
+            <p>
                 @Link.toPortalPage(
-                    id = Some("businessRegistrationHref"),
+                    id = Some("business-registration"),
                     url = PortalConfig.getDestinationUrl("businessRegistration"),
                     value = Some(registrationText)
                 ).toHtml
             </p>
-            <p id="registrationMessage">
+            <p id="registration-message">
                 You can’t use this service if you’re setting up a limited liability partnership or you’re not the 'nominated partner'
                 in a self-employed business partnership. There are also a few other situations when you’ll need to register a different way.
     }.getOrElse {
-            <p id="registrationGenericMessage">
+            <p id="registration-generic-message">
     }
 
-            Find out about <span id="hmrcWebsiteLink">@Link.toExternalPage(id = Some("otherWaysHref"), url = "http://www.hmrc.gov.uk/online/new.htm#2", value = Some("registering for taxes")).toHtml</span>.
+            Find out about <span id="hmrcWebsiteLink">@Link.toExternalPage(id = Some("hmrc-website"), url = "http://www.hmrc.gov.uk/online/new.htm#2", value = Some("registering for taxes")).toHtml</span>.
         </p>
 
 </div>
