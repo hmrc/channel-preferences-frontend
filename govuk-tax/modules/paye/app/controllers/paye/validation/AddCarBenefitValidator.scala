@@ -13,9 +13,9 @@ import controllers.paye.TaxYearSupport
 import play.api.mvc.Request
 import uk.gov.hmrc.common.microservice.paye.domain.AddCarBenefitConfirmationData
 import play.api.i18n.Messages
-import scala.util.Try
 import uk.gov.hmrc.common.FormBinders
 import FormBinders.numberFromTrimmedString
+import uk.gov.hmrc.utils.TaxYearResolver
 
 object AddCarBenefitValidator extends Validators with TaxYearSupport {
 
@@ -62,7 +62,7 @@ object AddCarBenefitValidator extends Validators with TaxYearSupport {
 
   private[paye] def carBenefitForm(carBenefitValues: CarBenefitValues, timeSource: () => LocalDate = timeSource) = Form[CarBenefitData](
     mapping(
-      providedFrom -> validateProvidedFrom(timeSource, taxYearInterval),
+      providedFrom -> default(validateProvidedFrom(timeSource, taxYearInterval), Some(TaxYearResolver.startOfCurrentTaxYear)),
       carRegistrationDate -> validateCarRegistrationDate(timeSource),
       listPrice -> validateListPrice,
       employeeContributes -> optional(boolean).verifying("error.paye.answer_mandatory", data => data.isDefined),
