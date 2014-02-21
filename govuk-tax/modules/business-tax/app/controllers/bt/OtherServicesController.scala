@@ -35,8 +35,6 @@ class OtherServicesController(governmentGatewayConnector: GovernmentGatewayConne
     }
   }
 
-  case class OtherServiceLink(id: String, url: String, text: String, sso: Boolean = false, newWindow: Boolean = true)
-
   def links(profile: ProfileResponse): Option[List[Link]] = {
 
     profile.affinityGroup match {
