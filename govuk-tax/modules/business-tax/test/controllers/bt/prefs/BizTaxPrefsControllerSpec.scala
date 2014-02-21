@@ -22,6 +22,7 @@ import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
 import java.net.URI
 import org.mockito.Matchers
+import uk.gov.hmrc.common.crypto.Decrypted
 
 abstract class Setup extends WithApplication(FakeApplication()) with MockitoSugar {
   val auditConnector = mock[AuditConnector]
@@ -93,7 +94,7 @@ class BizTaxPrefsControllerSpec extends BaseSpec with MockitoSugar {
     "render an email input field populated with the supplied email address" in new Setup {
       val emailAddress = "bob@bob.com"
 
-      val page = Future.successful(controller.displayPrefsFormAction(Some(emailAddress))(user, request))
+      val page = Future.successful(controller.displayPrefsFormAction(Some(Decrypted(emailAddress)))(user, request))
 
       status(page) shouldBe 200
 

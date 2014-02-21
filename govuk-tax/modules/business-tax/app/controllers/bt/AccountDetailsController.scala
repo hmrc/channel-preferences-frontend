@@ -17,6 +17,7 @@ import uk.gov.hmrc.domain.Email._
 import uk.gov.hmrc.domain.{SaUtr, Email}
 import controllers.common.domain.EmailPreferenceData
 import controllers.common.preferences.PreferencesControllerHelper
+import uk.gov.hmrc.common.crypto.Decrypted
 
 class AccountDetailsController(override val auditConnector: AuditConnector, val preferencesConnector: PreferencesConnector,
                                val emailConnector: EmailConnector)(implicit override val authConnector: AuthConnector) extends BaseController
@@ -31,7 +32,7 @@ with PreferencesControllerHelper {
     user => request => accountDetailsPage(user, request)
   }
 
-  def changeEmailAddress(emailAddress: Option[Email]) = AuthorisedFor(regime = SaRegime).async {
+  def changeEmailAddress(emailAddress: Option[Decrypted[Email]]) = AuthorisedFor(regime = SaRegime).async {
     user => request => changeEmailAddressPage(emailAddress)(user, request)
   }
 
@@ -91,8 +92,8 @@ with PreferencesControllerHelper {
 
   }
 
-  private[bt] def changeEmailAddressPage(emailAddress: Option[Email])(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] =
-    lookupCurrentEmail(email => Future.successful(Ok(views.html.account_details_update_email_address(email, emailForm.fill(EmailPreferenceData(emailAddress))))))
+  private[bt] def changeEmailAddressPage(emailAddress: Option[Decrypted[Email]])(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] =
+    lookupCurrentEmail(email => Future.successful(Ok(views.html.account_details_update_email_address(email, emailForm.fill(EmailPreferenceData(emailAddress.map(_.value)))))))
 
 
 

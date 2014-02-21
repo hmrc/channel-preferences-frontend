@@ -1,6 +1,7 @@
 @(emailAddress: String)(implicit user: uk.gov.hmrc.common.microservice.domain.User, request : Request[_])
 
 @import views.helpers.Link
+@import uk.gov.hmrc.common.crypto.Decrypted
 
 @main(title = "Your Details - Please verify email address", user = Some(user), nav=true) {
     <header class="page-header">
@@ -19,5 +20,5 @@
         <input type="hidden" name="email.confirm" value="@emailAddress" />
         <input type="hidden" name="emailVerified" value="true" />
     }
-    <p>@Link.toInternalPage(id = Some("emailIsNotCorrectLink"), url = controllers.bt.routes.AccountDetailsController.changeEmailAddress(Some(emailAddress)).url, value = Some("Change this email address")).toHtml</p>
+    <p>@Link.toInternalPage(id = Some("emailIsNotCorrectLink"), url = controllers.bt.routes.AccountDetailsController.changeEmailAddress(Some(Decrypted(emailAddress))).url, value = Some("Change this email address")).toHtml</p>
 }
