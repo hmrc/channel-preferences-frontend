@@ -9,7 +9,7 @@ import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
 
 object QueryBinders {
 
-  implicit def stringToEmail(implicit stringBinder: QueryStringBindable[String]) = new QueryStringBindable[Email] {
+  implicit def stringToEmail(implicit stringBinder: QueryStringBindable[String]): QueryStringBindable[Email] = new QueryStringBindable[Email] {
     override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, Email]] = {
       stringBinder.bind(key, params).map {
         case Right(string) =>

@@ -20,7 +20,7 @@ import scala.Some
 class PayeConnectorSpec extends BaseSpec with ScalaFutures {
 
   val carBenefit = Benefit(31, 2013, 321.42, 2, None, None, None, None, None, None, None,
-    Some(Car(None, Some(new LocalDate(2012, 6, 1)), Some(new LocalDate(2012, 12, 12)), Some(0), Some("diesel"), Some(124), Some(1400), Some("A"), Some(BigDecimal("12343.21")), None, None)),
+    Some(Car(None, Some(new LocalDate(2012, 6, 1)), Questionable(new LocalDate(2012, 12, 12), true), Some(0), Some("diesel"), Some(124), Some(1400), Some("A"), Some(BigDecimal("12343.21")), None, None)),
     actions("AB123456C", 2013, 1), Map("withdraw" -> "someUrl/{withdrawDate}"))
 
   "Addition of new benefits" should {
@@ -31,7 +31,7 @@ class PayeConnectorSpec extends BaseSpec with ScalaFutures {
       val uri = ""
       val version = 0
       val employmentSeqNumber = 1
-      val carBenefit = CarBenefit(2013, 1, new LocalDate, Some(new LocalDate), 0.0, 0, "Diesel", Some(1400), Some(125), 3000, 0, 0, new LocalDate)
+      val carBenefit = CarBenefit(2013, 1, new LocalDate, Some(new LocalDate), 0.0, 0, "Diesel", Some(1400), Some(125), 3000, 0, 0, Questionable(new LocalDate, true))
 
       val capturedBody = ArgumentCaptor.forClass(classOf[AddBenefit])
 

@@ -15,7 +15,7 @@ case class CarBenefit(taxYear: Int,
                       carValue: BigDecimal,
                       employeePayments: BigDecimal, // Can be zero
                       employeeCapitalContribution: BigDecimal, // Can be zero
-                      dateCarRegistered: LocalDate,
+                      dateCarRegistered: Questionable[LocalDate],
                       dateWithdrawn: Option[LocalDate] = None,
                       actions: Map[String, String] = Map.empty,
                       fuelBenefit: Option[FuelBenefit] = None,
@@ -32,7 +32,7 @@ case class CarBenefit(taxYear: Int,
 
   // Convert back to legacy structure
   def toBenefits: Seq[Benefit] = {
-    val legacyCar = Car(dateMadeAvailable, dateWithdrawn, Some(dateCarRegistered), Some(employeeCapitalContribution),
+    val legacyCar = Car(dateMadeAvailable, dateWithdrawn, dateCarRegistered, Some(employeeCapitalContribution),
       Some(fuelType), co2Emissions, engineSize, None, Some(carValue), Some(employeePayments), None)
 
     val carLegacyBenefit = new Benefit(benefitCode, taxYear, grossAmount, employmentSequenceNumber, None, None, None, None, None, None, dateWithdrawn,
@@ -81,7 +81,7 @@ object CarBenefit {
       car.carValue.get,
       car.employeePayments.getOrElse(0),
       car.employeeCapitalContribution.getOrElse(0),
-      car.dateCarRegistered.get,
+      car.dateCarRegistered,
       car.dateCarWithdrawn,
       benefit.actions,
       fb,

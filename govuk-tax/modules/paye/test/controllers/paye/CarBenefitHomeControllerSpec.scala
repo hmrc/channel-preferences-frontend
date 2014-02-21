@@ -71,7 +71,7 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
           carBenefitEmployer1.car.get.carValue.get,
           carBenefitEmployer1.car.get.employeePayments.getOrElse(0),
           carBenefitEmployer1.car.get.employeeCapitalContribution.getOrElse(0),
-          carBenefitEmployer1.car.get.dateCarRegistered.get,
+          carBenefitEmployer1.car.get.dateCarRegistered,
           carBenefitEmployer1.car.get.dateCarWithdrawn,
           carBenefitEmployer1.actions)
       val cars = Seq(carBenefit)

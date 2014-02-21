@@ -7,6 +7,7 @@ import org.joda.time.LocalDate
 import org.jsoup.Jsoup
 import play.api.test.Helpers._
 import play.api.i18n.Messages
+import QuestionableConversions._
 
 class DisplayCarAndFuelTemplateSpec extends BaseSpec {
   private val employerName = "Tesco"

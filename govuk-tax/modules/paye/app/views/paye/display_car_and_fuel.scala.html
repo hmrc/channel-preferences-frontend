@@ -22,10 +22,12 @@
                 <td id="@id("car-benefit-date-withdrawn")">@formatDate(dateWithdrawn)</td>
             </tr>
         }
-        <tr>
-            <th scope="row">@Messages("paye.display_car_and_fuel.date_registered")</th>
-            <td id="@id("car-benefit-date-registered")">@formatDate(carBenefit.dateCarRegistered)</td>
-        </tr>
+        @if(carBenefit.dateCarRegistered.displayable) {
+            <tr>
+                <th scope="row">@Messages("paye.display_car_and_fuel.date_registered")</th>
+                <td id="@id("car-benefit-date-registered")">@formatDate(carBenefit.dateCarRegistered.value)</td>
+            </tr>
+        }
         @carBenefit.daysUnavailable.map { daysUnavailable =>
             @if(daysUnavailable > 0) {
                 <tr>

@@ -17,9 +17,16 @@ import play.api.test.FakeRequest
 import models.paye.{ReplaceCarBenefitFormData, CarBenefitData, RemoveCarBenefitFormData}
 import controllers.common.SessionKeys
 
+object QuestionableConversions {
+  implicit def valueToQuestionable[A](a: A) = Questionable(a, displayable = true)
+  implicit def questionableToValue[A](q: Questionable[A]): A = q.value
+}
+
 trait PayeBaseSpec extends BaseSpec  with TaxYearSupport {
 
   import controllers.domain.AuthorityUtils._
+
+  import QuestionableConversions._
 
   lazy val testTaxYear = currentTaxYear
 
@@ -90,7 +97,7 @@ trait PayeBaseSpec extends BaseSpec  with TaxYearSupport {
 
   val fuelGrossAmount = BigDecimal(22.22)
   val carBenefitEmployer1 = Benefit(31, testTaxYear, carGrossAmount, 1, None, None, None, None, None, None, None,
-    Some(Car(Some(LocalDate(testTaxYear - 1, 12, 12)), None, Some(LocalDate(testTaxYear - 1, 12, 12)), Some(0),
+    Some(Car(Some(LocalDate(testTaxYear - 1, 12, 12)), None, LocalDate(testTaxYear - 1, 12, 12), Some(0),
       Some("diesel"), Some(124), Some(1400), None, Some(BigDecimal("12343.21")), Some(BigDecimal("120.21")), None)),
     actions("AB123456C", testTaxYear, 1), Map.empty, benefitAmount = Some(264.42))
 
@@ -121,7 +128,7 @@ trait PayeBaseSpec extends BaseSpec  with TaxYearSupport {
     Employment(sequenceNumber = 2, startDate = LocalDate(testTaxYear, 10, 14), endDate = None, taxDistrictNumber = "899", payeNumber = "1212121", employerName = None, employmentType = 2))
 
   val carBenefit = Benefit(31, testTaxYear, 321.42, 2, None, None, None, None, None, None, None,
-    Some(Car(Some(LocalDate(testTaxYear - 1, 12, 12)), None, Some(LocalDate(testTaxYear - 1, 12, 12)), Some(0), Some("diesel"), Some(124), Some(1400), None, Some(BigDecimal("12343.21")), None, None)), actions("AB123456C", testTaxYear, 1), Map("withdraw" -> s"/paye/C123456/benefit/withdraw/2000/$testTaxYear-05-30/withdrawDate"))
+    Some(Car(Some(LocalDate(testTaxYear - 1, 12, 12)), None, LocalDate(testTaxYear - 1, 12, 12), Some(0), Some("diesel"), Some(124), Some(1400), None, Some(BigDecimal("12343.21")), None, None)), actions("AB123456C", testTaxYear, 1), Map("withdraw" -> s"/paye/C123456/benefit/withdraw/2000/$testTaxYear-05-30/withdrawDate"))
 
   val fuelBenefit = Benefit(29, testTaxYear, 22.22, 2, None, None, None, None, None, None, None,
     None, actions("AB123456C", testTaxYear, 1), Map("withdraw" -> s"/paye/C123456/benefit/withdraw/2000/$testTaxYear-09-10/withdrawDate"))
@@ -142,7 +149,7 @@ trait PayeBaseSpec extends BaseSpec  with TaxYearSupport {
 
 
   val removedCarBenefit = Benefit(31, testTaxYear, 321.42, 1, None, None, None, None, None, None, None,
-    Some(Car(None, Some(LocalDate(testTaxYear, 7, 12)), Some(LocalDate(testTaxYear - 1, 12, 12)), Some(0), Some("diesel"), Some(124), Some(1400), None, Some(BigDecimal("12343.21")), None, None)), actions("RC123456B", testTaxYear, 1), Map.empty)
+    Some(Car(None, Some(LocalDate(testTaxYear, 7, 12)), LocalDate(testTaxYear - 1, 12, 12), Some(0), Some("diesel"), Some(124), Some(1400), None, Some(BigDecimal("12343.21")), None, None)), actions("RC123456B", testTaxYear, 1), Map.empty)
 
   val userWithRemovedCarEmployments = Some(Seq(
     Employment(sequenceNumber = 1, startDate = LocalDate(testTaxYear, 7, 2), endDate = Some(LocalDate(testTaxYear, 10, 8)), taxDistrictNumber = "898", payeNumber = "9900112", employerName = Some("Sansbury"), employmentType = primaryEmploymentType),

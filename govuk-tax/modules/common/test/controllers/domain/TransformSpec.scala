@@ -3,7 +3,7 @@ package controllers.domain
 import java.net.URI
 import org.json4s.MappingException
 import org.joda.time.LocalDate
-import uk.gov.hmrc.common.microservice.paye.domain.{ Car, Benefit }
+import uk.gov.hmrc.common.microservice.paye.domain.{Questionable, Car, Benefit}
 import uk.gov.hmrc.common.BaseSpec
 
 class TransformSpec extends BaseSpec {
@@ -55,8 +55,26 @@ class TransformSpec extends BaseSpec {
     }
 
     "transform a benefit to json" in {
-      val benefit = Benefit(31, 2013, 3333, 1, None, None, None, None, None, None, None, Some(Car(None, None, Some(new LocalDate(2013, 3, 12)), Some(0), Some("diesel"), Some(2), Some(1400), None, Some(9999), None, None)), Map.empty, Map.empty)
-      toRequestBody(benefit) shouldBe """{"benefitType":31,"taxYear":2013,"grossAmount":3333,"employmentSequenceNumber":1,"car":{"dateCarRegistered":"2013-03-12","employeeCapitalContribution":0,"fuelType":"diesel","co2Emissions":2,"engineSize":1400,"carValue":9999},"actions":{},"calculations":{}}"""
+      val benefit = Benefit(31, 2013, 3333, 1, None, None, None, None, None, None, None, Some(Car(None, None, Questionable(new LocalDate(2013, 3, 12), true), Some(0), Some("diesel"), Some(2), Some(1400), None, Some(9999), None, None)), Map.empty, Map.empty)
+      toRequestBody(benefit) shouldBe """{
+                                        |  "benefitType": 31,
+                                        |  "taxYear": 2013,
+                                        |  "grossAmount": 3333,
+                                        |  "employmentSequenceNumber": 1,
+                                        |  "car": {
+                                        |    "dateCarRegistered": {
+                                        |      "value": "2013-03-12",
+                                        |      "displayable": true
+                                        |    },
+                                        |    "employeeCapitalContribution": 0,
+                                        |    "fuelType": "diesel",
+                                        |    "co2Emissions": 2,
+                                        |    "engineSize": 1400,
+                                        |    "carValue": 9999
+                                        |  },
+                                        |  "actions": {},
+                                        |  "calculations": {}
+                                        |}""".stripMargin.replaceAll("\\s","")
     }
 
   }

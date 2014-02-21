@@ -31,6 +31,8 @@ import controllers.paye.CarBenefitFormFields._
 import controllers.common.actions.HeaderCarrier
 import controllers.common.SessionKeys
 
+import QuestionableConversions._
+
 
 class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper with TaxYearSupport {
 
@@ -556,7 +558,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
       val employmentSeqNumberOne = johnDensmoresEmployments(0).sequenceNumber
       val taxYear = testTaxYear
       val uri = s"/car-benefit/$taxYear/$employmentSeqNumberOne/add"
-      val updatedCar = car.copy(dateCarRegistered = Some(carRegistrationDate), fuelType = Some("diesel"), co2Emissions = Some(50), engineSize = Some(1400))
+      val updatedCar = car.copy(dateCarRegistered = carRegistrationDate, fuelType = Some("diesel"), co2Emissions = Some(50), engineSize = Some(1400))
       val updatedCarAndFuel = carAndFuel.copy(carBenefit = carBenefit.copy(car = Some(updatedCar)))
 
       val result = Future.successful(controller.reviewAddCarBenefitAction(johnDensmore,
@@ -773,7 +775,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
 
       val car = Car(dateCarMadeAvailable = carBenefitData.providedFrom,
         dateCarWithdrawn = None,
-        dateCarRegistered = carBenefitData.carRegistrationDate,
+        dateCarRegistered = carBenefitData.carRegistrationDate.get,
         employeeCapitalContribution = carBenefitData.employeeContribution.map(BigDecimal(_)),
         fuelType = carBenefitData.fuelType,
         co2Emissions = carBenefitData.co2Figure,
@@ -830,7 +832,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
 
       val car = Car(dateCarMadeAvailable = carBenefitData.providedFrom,
         dateCarWithdrawn = None,
-        dateCarRegistered = carBenefitData.carRegistrationDate,
+        dateCarRegistered = carBenefitData.carRegistrationDate.get,
         employeeCapitalContribution = carBenefitData.employeeContribution.map(BigDecimal(_)),
         fuelType = carBenefitData.fuelType,
         co2Emissions = carBenefitData.co2Figure,
@@ -888,7 +890,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
 
       val car = Car(dateCarMadeAvailable = carBenefitData.providedFrom,
         dateCarWithdrawn = None,
-        dateCarRegistered = carBenefitData.carRegistrationDate,
+        dateCarRegistered = carBenefitData.carRegistrationDate.get,
         employeeCapitalContribution = carBenefitData.employeeContribution.map(BigDecimal(_)),
         fuelType = carBenefitData.fuelType,
         co2Emissions = carBenefitData.co2Figure,
@@ -1039,7 +1041,7 @@ class AddCarBenefitControllerSpec extends PayeBaseSpec with DateFieldsHelper wit
 
 
 private trait WithCarAndFuelBenefit extends TaxYearSupport {
-  val car = Car(dateCarMadeAvailable = None, dateCarWithdrawn = None, dateCarRegistered = Some(localDate(2011, 10, 3)),
+  val car = Car(dateCarMadeAvailable = None, dateCarWithdrawn = None, dateCarRegistered = localDate(2011, 10, 3),
     employeeCapitalContribution = Some(100), fuelType = Some("electricity"),
     co2Emissions = None, engineSize = None, mileageBand = None,
     carValue = Some(9999), employeePayments = None, daysUnavailable = None)

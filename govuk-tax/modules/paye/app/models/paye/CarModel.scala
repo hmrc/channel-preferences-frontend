@@ -49,7 +49,7 @@ object CarBenefitBuilder {
   private def createCar(carBenefitData: CarBenefitData) = {
     Car(dateCarMadeAvailable = carBenefitData.providedFrom,
       dateCarWithdrawn = None,
-      dateCarRegistered = carBenefitData.carRegistrationDate,
+      dateCarRegistered = Questionable(carBenefitData.carRegistrationDate.get, displayable = true),
       employeeCapitalContribution = carBenefitData.employeeContribution.map(BigDecimal(_)),
       fuelType = carBenefitData.fuelType,
       co2Emissions = carBenefitData.co2Figure,
