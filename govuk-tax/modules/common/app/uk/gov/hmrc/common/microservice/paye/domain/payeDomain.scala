@@ -10,10 +10,12 @@ import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.common.microservice.txqueue.TxQueueConnector
 import controllers.common.actions.HeaderCarrier
 import scala.concurrent._
-import uk.gov.hmrc.common.MdcLoggingExecutionContext.fromLoggingDetails
 import play.api.Logger
 import uk.gov.hmrc.utils.{DateConverter, DateTimeUtils}
 import DateTimeZone._
+import uk.gov.hmrc.common.microservice.{ApplicationException, ErrorTemplateDetails, UnprocessableEntityException}
+import play.api.i18n.Messages
+import ExecutionContext.Implicits.global
 
 object PayeRegime extends TaxRegime {
 
@@ -50,18 +52,30 @@ case class PayeRoot(nino: String,
   def fetchTaxCodes(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier): Future[Seq[TaxCode]] =
     valuesForTaxYear[TaxCode](resource = "taxCode", taxYear = taxYear)
 
-  def fetchCars(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier): Future[Seq[CarBenefit]] =
-    valuesForTaxYear[CarAndFuel](resource = "benefit-cars", taxYear = taxYear).map(_.map(CarBenefit(_)))
+  def fetchCars(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier): Future[Seq[CarBenefit]] = {
+    handleBenefitCarsResult(valuesForTaxYear[CarAndFuel](resource = "benefit-cars", taxYear = taxYear))
+  }
+
+  private[domain] def handleBenefitCarsResult(benefitCarsResult: Future[Seq[CarAndFuel]]): Future[Seq[CarBenefit]] = {
+    benefitCarsResult.map(_.map(CarBenefit(_))).recoverWith {
+      case ude: UnprocessableEntityException =>
+        throw ApplicationException("paye", ErrorTemplateDetails(Messages("paye.error_page.title"),
+          Messages("paye.error_page_bad_data.header"),
+          Messages("paye.error_page_bad_data.message")),
+          ude.getMessage)
+    }
+  }
 
   def fetchEmployments(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier): Future[Seq[Employment]] =
     valuesForTaxYear[Employment](resource = "employments", taxYear = taxYear)
 
   def fetchTransactionHistory(txQueueConnector: TxQueueConnector, now: () => DateTime = () => DateTimeUtils.now)(implicit hc: HeaderCarrier): Future[Seq[TxQueueTransaction]] = {
-    lookupTransactionHistory(txQueueConnector, now().minusDays(30), 0).flatMap { monthOfTransactions =>
-      if (monthOfTransactions.size < 3)
-        lookupTransactionHistory(txQueueConnector, new DateTime(0, UTC), 3)
-      else
-        Future.successful(monthOfTransactions)
+    lookupTransactionHistory(txQueueConnector, now().minusDays(30), 0).flatMap {
+      monthOfTransactions =>
+        if (monthOfTransactions.size < 3)
+          lookupTransactionHistory(txQueueConnector, new DateTime(0, UTC), 3)
+        else
+          Future.successful(monthOfTransactions)
     }
   }
 
@@ -82,6 +96,7 @@ case class PayeRoot(nino: String,
   }
 
   def addBenefitLink(taxYear: Int): Option[String] = links.get("benefits").map(_.replace("{taxYear}", taxYear.toString))
+
   def replaceBenefitLink(taxYear: Int): Option[String] = links.get("benefits").map(_.replace("{taxYear}", taxYear.toString))
 
   private def valuesForTaxYear[T](resource: String, taxYear: Int)(implicit payeConnector: PayeConnector, m: Manifest[T], headerCarrier: HeaderCarrier): Future[Seq[T]] =
@@ -112,9 +127,10 @@ case class TaxYearData(cars: Seq[CarBenefit], employments: Seq[Employment]) {
   }
 
   def hasActiveBenefit(employmentSequenceNumber: Int, benefitType: Int): Boolean = {
-    findActiveCarBenefit(employmentSequenceNumber).map { carBenefit =>
-      if (benefitType == BenefitTypes.FUEL) carBenefit.hasActiveFuel
-      else benefitType == BenefitTypes.CAR
+    findActiveCarBenefit(employmentSequenceNumber).map {
+      carBenefit =>
+        if (benefitType == BenefitTypes.FUEL) carBenefit.hasActiveFuel
+        else benefitType == BenefitTypes.CAR
     }
   }.getOrElse(false)
 }
