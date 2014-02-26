@@ -11,7 +11,7 @@ import uk.gov.hmrc.common.microservice.sa.domain.SaRegime
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.email.EmailConnector
 import scala.concurrent.Future
-import uk.gov.hmrc.domain.{DecryptedEmail, SaUtr, Email}
+import uk.gov.hmrc.domain.{EncryptedEmail, SaUtr, Email}
 import controllers.common.domain.EmailPreferenceData
 import controllers.common.preferences.PreferencesControllerHelper
 import controllers.bt._
@@ -19,7 +19,7 @@ import scala.Some
 import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.common.crypto.Decrypted
+import uk.gov.hmrc.common.crypto.Encrypted
 
 class BizTaxPrefsController(override val auditConnector: AuditConnector, preferencesConnector: PreferencesConnector, emailConnector: EmailConnector)
                        (implicit override val authConnector: AuthConnector)
@@ -36,7 +36,7 @@ class BizTaxPrefsController(override val auditConnector: AuditConnector, prefere
         redirectToBizTaxOrEmailPrefEntryIfNotSetAction(user, request)
   }
 
-  def displayPrefsForm(emailAddress: Option[Decrypted[Email]])(): Action[AnyContent] = AuthorisedFor(SaRegime).async {
+  def displayPrefsForm(emailAddress: Option[Encrypted[Email]])(): Action[AnyContent] = AuthorisedFor(SaRegime).async {
     user =>
       request =>
         displayPrefsFormAction(emailAddress)(user, request)
@@ -67,8 +67,8 @@ class BizTaxPrefsController(override val auditConnector: AuditConnector, prefere
     }
   }
 
-  private[prefs] def displayPrefsFormAction(emailAddress: Option[Decrypted[Email]])(implicit user: User, request: Request[AnyRef]) = {
-    Future.successful(Ok(views.html.preferences.sa_printing_preference(emailForm.fill(EmailPreferenceData(emailAddress.map(_.value))), getSavePrefsCall, getKeepPaperCall)))
+  private[prefs] def displayPrefsFormAction(emailAddress: Option[Encrypted[Email]])(implicit user: User, request: Request[AnyRef]) = {
+    Future.successful(Ok(views.html.preferences.sa_printing_preference(emailForm.fill(EmailPreferenceData(emailAddress.map(_.decryptedValue))), getSavePrefsCall, getKeepPaperCall)))
   }
 
   private[prefs] def submitPrefsFormAction(implicit user: User, request: Request[AnyRef]) = {

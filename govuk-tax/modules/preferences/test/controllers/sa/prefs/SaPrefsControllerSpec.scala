@@ -24,6 +24,7 @@ import play.api.test.FakeApplication
 import java.net.URI
 import play.api.mvc.{AnyContent, Request}
 import controllers.common.preferences.service.SsoPayloadCrypto
+import uk.gov.hmrc.common.crypto.Encrypted
 
 class SaPrefsControllerSpec extends WordSpec with ShouldMatchers with MockitoSugar with BeforeAndAfter with ScalaFutures with OptionValues {
 
@@ -56,12 +57,12 @@ class SaPrefsControllerSpec extends WordSpec with ShouldMatchers with MockitoSug
       val preferencesAlreadyCreated = SaPreference(true, Some(SaEmailPreference(emailAddress, status = Status.verified)))
       when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(Some(preferencesAlreadyCreated)))
 
-      val page = controller.index(validToken, encodedReturnUrl, Some("other@me.com"))(request())
+      val page = controller.index(validToken, encodedReturnUrl, Some(Encrypted("other@me.com")))(request())
       status(page) shouldBe 303
       header("Location", page).value should be (decodedReturnUrlWithEmailAddress)
     }
 
-    "render an email input field" in new SaPrefsControllerApp{
+    "render an email input field" in new SaPrefsControllerApp {
       
       when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))(any())).thenReturn(Future.successful(None))
 
@@ -70,7 +71,7 @@ class SaPrefsControllerSpec extends WordSpec with ShouldMatchers with MockitoSug
       verify(preferencesConnector, times(1)).getPreferencesUnsecured(meq(validUtr))
     }
 
-    "redirect to portal if the token is expired on the landing page" in new SaPrefsControllerApp{
+    "redirect to portal if the token is expired on the landing page" in new SaPrefsControllerApp {
       
 
       val page = controller.index(expiredToken, encodedReturnUrl, None)(request())
@@ -79,7 +80,7 @@ class SaPrefsControllerSpec extends WordSpec with ShouldMatchers with MockitoSug
       header("Location", page).get should equal(decodedReturnUrl)
     }
 
-    "redirect to portal if the token is not valid on the landing page" in new SaPrefsControllerApp{
+    "redirect to portal if the token is not valid on the landing page" in new SaPrefsControllerApp {
       
 
       val page = controller.index(incorrectToken, encodedReturnUrl, None)(request())
@@ -88,7 +89,7 @@ class SaPrefsControllerSpec extends WordSpec with ShouldMatchers with MockitoSug
       header("Location", page).get should equal(decodedReturnUrl)
     }
 
-    "include a link to keep mail preference" in new SaPrefsControllerApp{
+    "include a link to keep mail preference" in new SaPrefsControllerApp {
       
       when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(None))
 
@@ -98,18 +99,18 @@ class SaPrefsControllerSpec extends WordSpec with ShouldMatchers with MockitoSug
       verify(preferencesConnector, times(1)).getPreferencesUnsecured(meq(validUtr))(any())
     }
 
-    "return bad request if redirect_url is not in the whitelist" in new SaPrefsControllerApp{
+    "return bad request if redirect_url is not in the whitelist" in new SaPrefsControllerApp {
       
       val page = controller.index(validToken, encodedUrlNotOnWhitelist, None)(request())
       status(page) shouldBe 400
     }
 
-    "fill the email form if user is coming from the warning page" in new SaPrefsControllerApp{
+    "fill the email form if user is coming from the warning page" in new SaPrefsControllerApp {
       
       val previouslyEnteredAddress = "some@mail.com"
 
       when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(None))
-      val page = controller.index(validToken, encodedReturnUrl, Some(previouslyEnteredAddress))(request)
+      val page = controller.index(validToken, encodedReturnUrl, Some(Encrypted(previouslyEnteredAddress)))(request)
 
       status(page) shouldBe 200
       val html = Jsoup.parse(contentAsString(page))
@@ -124,7 +125,7 @@ class SaPrefsControllerSpec extends WordSpec with ShouldMatchers with MockitoSug
 
   "A post to set preferences" should {
 
-    "redirect to return url if the token is expired when submitting the form" in new SaPrefsControllerApp{
+    "redirect to return url if the token is expired when submitting the form" in new SaPrefsControllerApp {
 
       val page = controller.submitPrefsForm(expiredToken, encodedReturnUrl)(request(Some(emailAddress)))
 
@@ -135,7 +136,7 @@ class SaPrefsControllerSpec extends WordSpec with ShouldMatchers with MockitoSug
       header("Location", page).get should equal(decodedReturnUrl)
     }
 
-    "return a warning page if the email address could not be verified" in new SaPrefsControllerApp{
+    "return a warning page if the email address could not be verified" in new SaPrefsControllerApp {
 
       when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(None))
       when(emailConnector.validateEmailAddress(meq(emailAddress))).thenReturn(Future.successful(false))
@@ -148,7 +149,7 @@ class SaPrefsControllerSpec extends WordSpec with ShouldMatchers with MockitoSug
 
     }
 
-    "show an error if the email is invalid" in new SaPrefsControllerApp{
+    "show an error if the email is invalid" in new SaPrefsControllerApp {
 
       when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(None))
 
@@ -159,7 +160,7 @@ class SaPrefsControllerSpec extends WordSpec with ShouldMatchers with MockitoSug
       verifyZeroInteractions(emailConnector)
     }
 
-    "show an error if the email is not set" in new SaPrefsControllerApp{
+    "show an error if the email is not set" in new SaPrefsControllerApp {
       
 
       when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(None))
@@ -248,7 +249,7 @@ class SaPrefsControllerSpec extends WordSpec with ShouldMatchers with MockitoSug
       header("Location", action).get should include("digital=false")
     }
 
-    "return bad request if redirect_url is not in the whitelist" in new SaPrefsControllerApp{
+    "return bad request if redirect_url is not in the whitelist" in new SaPrefsControllerApp {
       
       val page = controller.submitPrefsForm(validToken, encodedUrlNotOnWhitelist)(request())
       status(page) shouldBe 400
@@ -322,7 +323,7 @@ class SaPrefsControllerSpec extends WordSpec with ShouldMatchers with MockitoSug
   }
 
   "The confirm preferences set page" should {
-    "reject an invalid return url" in new SaPrefsControllerApp{
+    "reject an invalid return url" in new SaPrefsControllerApp {
       
       val result = controller.confirm(validToken, encodedUrlNotOnWhitelist)(request())
       status(result) should be(400)
@@ -365,7 +366,6 @@ class SaPrefsControllerSpec extends WordSpec with ShouldMatchers with MockitoSug
   }
 
 }
-
 
 class SaPrefsControllerApp extends WithApplication(FakeApplication()) with MockitoSugar{
 

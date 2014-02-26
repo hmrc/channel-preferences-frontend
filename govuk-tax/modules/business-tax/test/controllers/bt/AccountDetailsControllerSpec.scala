@@ -17,7 +17,7 @@ import uk.gov.hmrc.common.microservice.email.EmailConnector
 import play.api.test.Helpers._
 import org.mockito.Matchers
 import java.net.URI
-import uk.gov.hmrc.common.crypto.Decrypted
+import uk.gov.hmrc.common.crypto.Encrypted
 
 abstract class Setup extends WithApplication(FakeApplication()) with MockitoSugar {
   val auditConnector = mock[AuditConnector]
@@ -177,7 +177,7 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
       when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Future.successful(Some(saPreferences)))
 
       val existingEmailAddress = "existing@email.com"
-      val result = Future.successful(controller.changeEmailAddressPage(Some(Decrypted(existingEmailAddress)))(user, request))
+      val result = Future.successful(controller.changeEmailAddressPage(Some(Encrypted(existingEmailAddress)))(user, request))
 
       status(result) shouldBe 200
       val page = Jsoup.parse(contentAsString(result))

@@ -4,56 +4,35 @@ import play.api.mvc.QueryStringBindable
 import uk.gov.hmrc.domain.Email
 import play.api.data.format.Formatter
 import play.api.data.{FormError, Forms, Mapping}
-import uk.gov.hmrc.common.crypto.{Decrypted, ApplicationCrypto}
+import uk.gov.hmrc.common.crypto.{Encrypted, ApplicationCrypto}
 import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
 
 object QueryBinders {
+  implicit def encryptedStringToDecryptedEmail(implicit stringBinder: QueryStringBindable[String]) =
+    new EncryptedEmail(ApplicationCrypto.QueryParameterCrypto, stringBinder)
 
-  implicit def stringToEmail(implicit stringBinder: QueryStringBindable[String]) = new QueryStringBindable[Email] {
-    override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, Email]] = {
+  class EncryptedEmail(crypto: Encrypter with Decrypter, stringBinder: QueryStringBindable[String]) extends QueryStringBindable[Encrypted[Email]] {
+    override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, Encrypted[Email]]] =
       stringBinder.bind(key, params).map {
-        case Right(string) =>
+        case Right(encryptedString) =>
           try {
-            Right(Email(string))
+            val decrypted = crypto.decrypt(encryptedString)
+            try {
+              Right(Encrypted(Email(decrypted)))
+            } catch {
+              case e: IllegalArgumentException =>
+                Left("Not a valid email address")
+            }
           } catch {
-            case e: IllegalArgumentException =>
-              Left("Not a valid email address")
+            case e: Exception =>
+              Left("Could not decrypt value")
           }
         case Left(f) => Left(f)
       }
-    }
 
-    override def unbind(key: String, email: Email): String = stringBinder.unbind(key, email.value)
+    override def unbind(key: String, email: Encrypted[Email]): String = stringBinder.unbind(key, crypto.encrypt(email.decryptedValue.value))
   }
-
-  implicit def encryptedStringToDecryptedEmail(implicit stringBinder: QueryStringBindable[String]) =
-    new DecryptedEmailQueryStringBindable(ApplicationCrypto.QueryParameterCrypto, stringBinder)
 }
-
-class DecryptedEmailQueryStringBindable(crypto: Encrypter with Decrypter, stringBinder: QueryStringBindable[String]) extends QueryStringBindable[Decrypted[Email]] {
-
-  override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, Decrypted[Email]]] =
-    stringBinder.bind(key, params).map {
-      case Right(string) =>
-        try {
-          val decrypted = crypto.decrypt(string)
-          try {
-            Right(Decrypted(Email(decrypted)))
-          } catch {
-            case e: IllegalArgumentException =>
-              Left("Not a valid email address")
-          }
-        } catch {
-          case e: Exception =>
-            Left("Could not decrypt value")
-        }
-      case Left(f) => Left(f)
-    }
-
-  override def unbind(key: String, email: Decrypted[Email]): String = stringBinder.unbind(key, crypto.encrypt(email.value.value))
-
-}
-
 
 object FormBinders {
 

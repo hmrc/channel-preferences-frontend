@@ -1,7 +1,7 @@
 @(emailAddress: String)(implicit user: uk.gov.hmrc.common.microservice.domain.User, request : Request[_])
 
 @import views.helpers.Link
-@import uk.gov.hmrc.common.crypto.Decrypted
+@import uk.gov.hmrc.common.crypto.Encrypted
 
 @main(title = "Sign up for email reminders", user = Some(user)) {
    <header class="page-header">
@@ -21,6 +21,6 @@
         <input type="hidden" name="emailVerified" value="true" />
     }
 
-    @Link.toInternalPage(id = Some("email-is-not-correct-link"), url = controllers.bt.prefs.routes.BizTaxPrefsController.displayPrefsForm(Some(Decrypted(emailAddress))).url, value = Some("Change this email address")).toHtml
+    @Link.toInternalPage(id = Some("email-is-not-correct-link"), url = controllers.bt.prefs.routes.BizTaxPrefsController.displayPrefsForm(Some(Encrypted(emailAddress))).url, value = Some("Change this email address")).toHtml
 
 }

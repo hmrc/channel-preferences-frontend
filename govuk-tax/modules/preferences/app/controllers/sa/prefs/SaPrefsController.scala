@@ -17,6 +17,7 @@ import uk.gov.hmrc.common.microservice.preferences.SaPreference
 import controllers.common.preferences.service.Token
 import play.api.mvc.SimpleResult
 import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.common.crypto.Encrypted
 
 class SaPrefsController(whiteList: Set[String], preferencesConnector: PreferencesConnector, emailConnector: EmailConnector) extends BaseController with PreferencesControllerHelper {
 
@@ -24,7 +25,7 @@ class SaPrefsController(whiteList: Set[String], preferencesConnector: Preference
 
   def this() = this(FrontEndConfig.redirectDomainWhiteList, Connectors.preferencesConnector, Connectors.emailConnector)
 
-  def index(encryptedToken: String, encodedReturnUrl: String, emailAddressToPrefill: Option[Email]) =
+  def index(encryptedToken: String, encodedReturnUrl: String, emailAddressToPrefill: Option[Encrypted[Email]]) =
     DecodeAndWhitelist(encodedReturnUrl) {
       returnUrl =>
         DecryptAndValidate(encryptedToken, returnUrl) {
@@ -43,7 +44,7 @@ class SaPrefsController(whiteList: Set[String], preferencesConnector: Preference
 
                   case None =>
                     Logger.debug(s"Requesting preferences from $utr as they have none set")
-                    displayPreferencesForm(emailAddressToPrefill, getSavePrefsCall(token, returnUrl), getKeepPaperCall(token, returnUrl))
+                    displayPreferencesForm(emailAddressToPrefill.map(_.decryptedValue), getSavePrefsCall(token, returnUrl), getKeepPaperCall(token, returnUrl))
                 }
             }
         }
