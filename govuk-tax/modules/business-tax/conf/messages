@@ -60,6 +60,7 @@ epaye.regimeName=Employers Pay As You Earn (PAYE)
 epaye.link.message.accountSummary.viewAccountDetails=View your Employers PAYE account details
 epaye.link.message.accountSummary.makeAPayment=Make an Employers PAYE payment
 epaye.message.nothingToPay=You have nothing to pay.
+epaye.message.balanceInfo=It can take a few days for your balance to show recent payments and charges.
 epaye.message.youHaveOverPaid=You have overpaid by <br/> <span class="h1-heading">{0}</span>
 epaye.message.adjustFuturePayments=Please adjust your future payments.
 epaye.message.dueForPayment=You now have to pay <br/> <span class="h1-heading">{0}</span>
