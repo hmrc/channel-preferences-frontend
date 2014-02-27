@@ -242,6 +242,8 @@ GOVUK.ReportAProblem = function () {
 
       //Initialise validation for the feedback form
       $errorReportForm.validate({
+        onfocusout: false,
+        onkeyup: false,
         errorClass: 'error-notification',
         errorPlacement: function(error, element) {
             error.insertBefore(element);
@@ -253,6 +255,10 @@ GOVUK.ReportAProblem = function () {
         //Unhighlight valid input
         unhighlight: function (element, errorClass) {
             $(element).parent().removeClass('form-field--error');
+        },
+        //When invalid submission, re-enable the submit button
+        invalidHandler: function(){
+            $errorReportForm.find('button').prop("disabled", false);
         },
         //When all fields are valid perform AJAX call
         submitHandler: function (form) {
