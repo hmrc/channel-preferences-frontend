@@ -10,7 +10,7 @@ object FrontEndRedirect extends Controller {
   def carBenefit(token:Option[String]) = token.map { token =>
     s"/paye/company-car/details?token=$token"
   }.getOrElse {
-    "/paye/company-car/landing-redirect"
+    "/paye/company-car/details"
 
   }
   val carBenefitStartPage = "/paye/company-car"
