@@ -10,6 +10,7 @@ import controllers.common.HeaderNames
 import controllers.common.actions.{LoggingDetails, HeaderCarrier}
 import play.api.libs.json.{JsNull, JsValue}
 import uk.gov.hmrc.common.MdcLoggingExecutionContext
+import controllers.common.service.RunMode
 
 trait TaxRegimeConnector[A <: RegimeRoot[_]] extends Connector {
   def linkedResource[T](uri: String)(implicit m: Manifest[T], headerCarrier: HeaderCarrier) = {
@@ -105,11 +106,9 @@ case class UnauthorizedException(message: String, response: Response) extends Ru
 
 case class ForbiddenException(message: String, response: Response) extends RuntimeException(message) with HasResponse
 
-object MicroServiceConfig {
+object MicroServiceConfig extends RunMode {
 
   import play.api.Play.current
-
-  private lazy val env = Play.mode
 
   lazy val protocol = Play.configuration.getString(s"$env.services.protocol").getOrElse("http")
 

@@ -10,15 +10,13 @@ import play.api.libs.json.Json
 
 import uk.gov.hmrc.common.MdcLoggingExecutionContext._
 import controllers.common.actions.{LoggingDetails, HeaderCarrier}
+import controllers.common.service.RunMode
 
-class HealthCheckController extends Controller {
+class HealthCheckController extends Controller with RunMode {
 
-  import play.api.Play.current
 
   import scala.collection.JavaConversions._
   import scala.collection.JavaConverters._
-
-  private lazy val env = Play.mode
 
   private lazy val serviceConfig = Play.current.configuration.getConfig(s"govuk-tax.$env.services")
 

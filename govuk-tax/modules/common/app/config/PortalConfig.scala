@@ -1,12 +1,11 @@
 package config
 
 import play.api.Play
+import controllers.common.service.RunMode
 
-object PortalConfig {
+object PortalConfig extends RunMode {
 
   import play.api.Play.current
-
-  private lazy val env = Play.mode
 
   //TODO: Rename to trustedSsoOutDomain
   def destinationRoot = s"${Play.configuration.getString(s"govuk-tax.$env.portal.destinationRoot").getOrElse("http://localhost:8080/portal/ssoin")}"

@@ -3,8 +3,9 @@
 @import config.PortalConfig
 @import play.api.Play.current
 @import play.api.Play
+@import controllers.common.service.RunMode._
 
-@Play.configuration.getString(s"govuk-tax.${Play.mode}.google-analytics.token") match {
+@Play.configuration.getString(s"govuk-tax.$env.google-analytics.token") match {
 
     case Some(token@_) if !token.equals("N/A") => {
         <script type="text/javascript">

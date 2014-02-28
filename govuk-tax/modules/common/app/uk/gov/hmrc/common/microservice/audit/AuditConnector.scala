@@ -5,6 +5,7 @@ import play.api.Play
 import play.api.Play.current
 import org.joda.time.{DateTimeZone, DateTime}
 import controllers.common.actions.HeaderCarrier
+import controllers.common.service.RunMode
 
 case class AuditEvent(auditSource: String = "frontend",
                       auditType: String,
@@ -12,9 +13,9 @@ case class AuditEvent(auditSource: String = "frontend",
                       detail: Map[String, String] = Map.empty,
                       generatedAt: DateTime = DateTime.now.withZone(DateTimeZone.UTC))
 
-class AuditConnector(override val serviceUrl: String = MicroServiceConfig.auditServiceUrl) extends Connector {
+class AuditConnector(override val serviceUrl: String = MicroServiceConfig.auditServiceUrl) extends Connector with RunMode {
 
-  lazy val enabled : Boolean = Play.configuration.getBoolean(s"govuk-tax.${Play.mode}.services.datastream.enabled").getOrElse(false)
+  lazy val enabled : Boolean = Play.configuration.getBoolean(s"govuk-tax.$env.services.datastream.enabled").getOrElse(false)
 
   def audit(auditEvent: AuditEvent)(implicit hc: HeaderCarrier) : Unit = if (enabled) httpPostF("/write/audit", Some(auditEvent))
 }

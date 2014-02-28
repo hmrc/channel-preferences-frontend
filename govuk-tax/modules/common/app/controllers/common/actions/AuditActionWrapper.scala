@@ -1,6 +1,6 @@
 package controllers.common.actions
 
-import controllers.common.service.Connectors
+import controllers.common.service.{RunMode, Connectors}
 import play.api.{Logger, Play}
 import play.api.Play.current
 import play.api.mvc._
@@ -18,11 +18,11 @@ trait AuditActionWrapper {
   object WithRequestAuditing extends WithRequestAuditing(auditConnector)
 }
 
-class WithRequestAuditing(auditConnector : AuditConnector = Connectors.auditConnector) {
+class WithRequestAuditing(auditConnector : AuditConnector = Connectors.auditConnector) extends RunMode {
 
   import MdcLoggingExecutionContext.fromLoggingDetails
 
-  lazy val traceRequests = Play.configuration.getBoolean(s"govuk-tax.${Play.mode}.services.datastream.traceRequests").getOrElse(false)
+  lazy val traceRequests = Play.configuration.getBoolean(s"govuk-tax.$env.services.datastream.traceRequests").getOrElse(false)
 
   def apply(user: User)(action: User => Action[AnyContent]) = applyAudited(user = Some(user), action = action(user))
   def apply(action: Action[AnyContent]) = applyAudited(user = None, action = action)

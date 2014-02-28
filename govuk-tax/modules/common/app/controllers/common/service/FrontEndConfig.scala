@@ -4,10 +4,9 @@ import scala.collection.JavaConversions._
 import java.util.Collections
 import play.api.Play
 
-object FrontEndConfig {
+object FrontEndConfig extends RunMode {
 
   import play.api.Play.current
-  lazy val env = Play.mode
 
   lazy private val frontendPort = Play.configuration.getInt(s"govuk-tax.$env.platform.frontend.port").map(port => s":$port").getOrElse("")
   lazy val frontendUrl = s"${Play.configuration.getString(s"govuk-tax.$env.platform.frontend.protocol").getOrElse("http")}://${Play.configuration.getString(s"govuk-tax.$env.platform.frontend.host").getOrElse("localhost")}$frontendPort"
