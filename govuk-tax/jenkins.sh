@@ -20,4 +20,5 @@ fi
 
 java    ${SBT_STANDARD_OPTS} ${SBT_EXTRA_PARAMS} \
         -Dbuild.time="`date`" -Dsbt.boot.directory=${SBT_BOOT_DIR} \
+	-Drun.mode=Dev \
         -jar ${SBT_FILE} ${SBT_TARGETS}
