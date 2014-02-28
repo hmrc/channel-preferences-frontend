@@ -48,8 +48,9 @@ class CarBenefitHomeControllerSpec extends PayeBaseSpec with MockitoSugar with D
 
     "return a status of 200 but send the user to the cannot play page when params are not available." in new WithApplication(FakeApplication()) {
       val actualResponse = controller.buildHomePageResponse(None)
-      status(actualResponse) should be(200)
-      contentAsString(actualResponse) should include(i18n.Messages("paye.cannot_play_in_beta.text.p1"))
+      status(actualResponse) should be(303)
+      val actualRedirectLocation = actualResponse.header.headers.get("Location")
+      actualRedirectLocation shouldBe Some(routes.CarBenefitHomeController.cannotPlayInBeta().url)
     }
   }
 

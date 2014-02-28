@@ -70,7 +70,7 @@ with TaxYearSupport {
     }.getOrElse {
       val message = s"Unable to find current/primary employment for user ${user.oid}"
       Logger.error(message)
-      Ok(cannot_play_in_beta(user))
+      SeeOther(routes.CarBenefitHomeController.cannotPlayInBeta().url)
     }
   }
 
