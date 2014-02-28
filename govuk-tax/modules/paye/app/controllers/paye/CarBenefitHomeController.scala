@@ -2,7 +2,7 @@ package controllers.paye
 
 import controllers.common.{SessionKeys, BaseController}
 import uk.gov.hmrc.common.microservice.paye.domain._
-import models.paye.{ EmploymentView, EmploymentViews}
+import models.paye.{EmploymentView, EmploymentViews}
 import play.api.Logger
 import controllers.common.validators.Validators
 import controllers.common.service.Connectors
@@ -16,7 +16,6 @@ import play.api.mvc.{Action, Session, SimpleResult}
 import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
 import views.html.paye._
-import CarBenefit._
 
 class CarBenefitHomeController(override val auditConnector: AuditConnector, override val authConnector: AuthConnector)
                               (implicit payeService: PayeConnector, txQueueMicroservice: TxQueueConnector) extends BaseController
@@ -28,6 +27,10 @@ with TaxYearSupport {
   private val carAndFuelBenefitTypes = Set(BenefitTypes.CAR, BenefitTypes.FUEL)
 
   def this() = this(Connectors.auditConnector, Connectors.authConnector)(Connectors.payeConnector, Connectors.txQueueConnector)
+
+  def landingRedirect  = Action {
+    Redirect(routes.CarBenefitHomeController.carBenefitHome())
+  }
 
   def carBenefitHome = AuthorisedFor(regime = PayeRegime, redirectToOrigin = true).async {
     implicit user =>
@@ -46,7 +49,7 @@ with TaxYearSupport {
       Ok(cannot_play_in_beta(user))
   }
 
-  def idaTokenRequiredInBeta = UnauthorisedAction  {
+  def idaTokenRequiredInBeta = UnauthorisedAction {
     request => Ok(ida_token_required_in_beta())
   }
 
@@ -70,7 +73,6 @@ with TaxYearSupport {
       Ok(cannot_play_in_beta(user))
     }
   }
-
 
 
   private[paye] def assembleCarBenefitData(payeRoot: PayeRoot, taxYear: Int)(implicit hc: HeaderCarrier): Future[RawTaxData] = {
@@ -97,7 +99,7 @@ with TaxYearSupport {
 
 
     val carBenefitGrossAmount = details.cars.headOption.map(c => BenefitValue(c.grossAmount))
-    val fuelBenefitGrossAmount = details.cars.find(_.fuelBenefit.isDefined).flatMap(_.fuelBenefit.map(f=> BenefitValue(f.grossAmount)))
+    val fuelBenefitGrossAmount = details.cars.find(_.fuelBenefit.isDefined).flatMap(_.fuelBenefit.map(f => BenefitValue(f.grossAmount)))
 
     details.employments.find(_.employmentType == Employment.primaryEmploymentType).map {
       primaryEmployment =>

@@ -12,6 +12,8 @@ import org.joda.time.{LocalDate, DateTimeZone, DateTime}
 import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
 import java.net.URI
 import uk.gov.hmrc.utils.DateTimeUtils
+import uk.gov.hmrc.common.microservice.{ErrorTemplateDetails, ApplicationException, UnprocessableEntityException}
+import play.api.i18n.Messages
 
 class PayeRootSpec extends BaseSpec with MockitoSugar with ScalaFutures {
   "The fetchTaxYearData service" should {
@@ -107,6 +109,27 @@ class PayeRootSpec extends BaseSpec with MockitoSugar with ScalaFutures {
           verify(txQueueConnector).transaction(s"/txqueue/current-status/paye/$nino/history/after/1970-01-01?statuses=ACCEPTED,COMPLETED&max-results=3")
           verifyNoMoreInteractions(txQueueConnector)
           Some(actualTxHistory) shouldBe secondTxHistory
+      }
+    }
+  }
+
+  "handle benefit cars result" should {
+    val payeRoot = new PayeRoot("NM439085B", "Mr", "John", None, "Densmore", "johnnyBoy", "1960-12-01", Map.empty, Map.empty, Map.empty)
+    "map an UnprocessableEntityException to an ApplicationException if the future fails" in {
+      val ue = UnprocessableEntityException("Bad data!", null)
+      val result = payeRoot.handleBenefitCarsResult(Future.failed(ue))
+      intercept[Throwable](await(result)) shouldBe ApplicationException(
+        "paye", ErrorTemplateDetails(Messages("paye.error_page.title"),
+          Messages("paye.error_page_bad_data.header"),
+          Messages("paye.error_page_bad_data.message")),
+          message = "Bad data!"
+      )
+    }
+
+    "return the sequence of benefit cars when the future succeeds" in {
+      val result = payeRoot.handleBenefitCarsResult(Future.successful(Seq.empty[CarAndFuel]))
+      whenReady(result) {
+        _ shouldBe Seq.empty[CarBenefit]
       }
     }
   }

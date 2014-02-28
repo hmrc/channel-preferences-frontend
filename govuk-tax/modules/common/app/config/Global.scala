@@ -1,5 +1,7 @@
 package config
 
+
+import GlobalHelper._
 import com.kenshoo.play.metrics.MetricsFilter
 import com.codahale.metrics.graphite.{GraphiteReporter, Graphite}
 import java.net.InetSocketAddress
@@ -15,14 +17,13 @@ import play.api.i18n.Messages
 import uk.gov.hmrc.common.filters.{CacheControlFilter, SessionCookieCryptoFilter, CSRFExceptionsFilter}
 import uk.gov.hmrc.common.crypto.ApplicationCrypto
 import controllers.common.actions.HeaderCarrier
-import uk.gov.hmrc.common.microservice.audit.AuditEvent
 
 object Global
   extends WithFilters(MetricsFilter,
-                      SessionCookieCryptoFilter,
-                      CSRFExceptionsFilter,
-                      CSRFFilter(),
-                      CacheControlFilter.fromConfig("caching.allowedContentTypes")) {
+    SessionCookieCryptoFilter,
+    CSRFExceptionsFilter,
+    CSRFFilter(),
+    CacheControlFilter.fromConfig("caching.allowedContentTypes")) {
 
   import controllers.common.service.Connectors._
 
@@ -61,21 +62,19 @@ object Global
     Some(request.path).filter(_.endsWith("/")).flatMap(p => super.onRouteRequest(request.copy(path = p.dropRight(1))))
   }
 
-  override def onError(request: RequestHeader, ex: Throwable) = {
+  override def onError(request: RequestHeader, ex: Throwable): Future[SimpleResult] = {
     implicit val hc = HeaderCarrier(request)
     Future.successful {
-      auditConnector.audit(createAuditEvent("ServerInternalError", "Unexpected error", request, hc, Option(ex.getMessage)))
-      InternalServerError(views.html.global_error(Messages("global.error.InternalServerError500.title"),
-        Messages("global.error.InternalServerError500.heading"),
-        Messages("global.error.InternalServerError500.message"))
-      )
+      val (event, simpleResult) = resolveError(request, ex)
+      auditConnector.audit(event)
+      simpleResult
     }
   }
 
   override def onHandlerNotFound(request: RequestHeader) = {
     implicit val hc = HeaderCarrier(request)
     Future.successful {
-      auditConnector.audit(createAuditEvent("ServerValidationError", "Resource Endpoint Not Found", request, hc))
+      auditConnector.audit(buildAuditEvent("ServerValidationError", "Resource Endpoint Not Found", request, hc))
       NotFound(views.html.global_error(Messages("global.error.pageNotFound404.title"),
         Messages("global.error.pageNotFound404.heading"),
         Messages("global.error.pageNotFound404.message"))
@@ -83,10 +82,11 @@ object Global
     }
   }
 
+
   override def onBadRequest(request: RequestHeader, error: String) = {
     implicit val hc = HeaderCarrier(request)
     Future.successful {
-      auditConnector.audit(createAuditEvent("ServerValidationError", "Request bad format exception", request, hc))
+      auditConnector.audit(buildAuditEvent("ServerValidationError", "Request bad format exception", request, hc))
       BadRequest(
         views.html.global_error(Messages("global.error.badRequest400.title"),
           Messages("global.error.badRequest400.heading"),
@@ -95,29 +95,4 @@ object Global
     }
   }
 
-  private def createAuditEvent(eventType: String, transactionName: String, request: RequestHeader, hc: HeaderCarrier, errorMessage: Option[String] = None) = {
-    val (details, tags) = buildAuditData(request, hc, transactionName)
-    val errorMap = errorMessage.map(message =>  Map("transactionFailureReason" -> message)).getOrElse(Map())
-    AuditEvent(auditType = eventType,
-      detail = details ++ errorMap,
-      tags = tags)
-  }
-
-  private def buildAuditData(request: RequestHeader, hc: HeaderCarrier, transactionName: String) = {
-    val details = Map[String, String](
-      "input" -> s"Request to ${request.path}",
-      "ipAddress" -> hc.forwarded.getOrElse("-"),
-      "method" -> request.method.toUpperCase,
-      "userAgentString" -> request.headers.get("User-Agent").getOrElse("-"),
-      "referrer" -> request.headers.get("Referer").getOrElse("-"))
-
-    val tags = Map[String, String](
-      "X-Request-ID" -> hc.requestId.getOrElse("-"),
-      "X-Session-ID" -> hc.sessionId.getOrElse("-"),
-      "transactionName" -> transactionName,
-      "path" -> request.path
-    )
-
-    (details, tags)
-  }
 }

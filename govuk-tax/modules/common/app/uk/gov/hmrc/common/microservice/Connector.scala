@@ -88,6 +88,7 @@ trait Connector extends Status with ConnectionLogging {
           case UNAUTHORIZED => throw UnauthorizedException(s"Unauthenticated request trying to hit: ${httpResource(uri)}", res)
           case FORBIDDEN => throw ForbiddenException(s"Not authorised to make this request trying to hit: ${httpResource(uri)}", res)
           case CONFLICT => throw MicroServiceException(s"Invalid state trying to hit: ${httpResource(uri)}", res)
+          case UNPROCESSABLE_ENTITY => throw UnprocessableEntityException(s"Unprocessable entity trying to hit: ${httpResource(uri)}", res)
           case x => throw MicroServiceException(s"Internal server error, response status is: $x trying to hit: ${httpResource(uri)}", res)
         }
     }
@@ -96,9 +97,14 @@ trait Connector extends Status with ConnectionLogging {
   private def transform[TBody](body: Option[TBody]): JsValue = body.map(body => Json.parse(toRequestBody(body))).getOrElse(JsNull)
 }
 
+
 trait HasResponse {
   val response: Response
 }
+case class ErrorTemplateDetails(templateTitle: String,  templateHeading: String, templateMeessage: String)
+case class ApplicationException(domain: String, errorTemplateDetails: ErrorTemplateDetails, message: String) extends RuntimeException(message)
+
+case class UnprocessableEntityException(message: String, response: Response) extends RuntimeException(message) with HasResponse
 
 case class MicroServiceException(message: String, response: Response) extends RuntimeException(message) with HasResponse
 
