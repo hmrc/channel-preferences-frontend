@@ -71,6 +71,9 @@ object IdaWithTokenCheckForBeta extends AuthenticationProvider {
 
   lazy val idaTokenApiConnector = new IdaTokenApiConnector
 
+  override def handleSessionTimeout()(implicit request: Request[AnyContent]): Future[SimpleResult] =
+    Future.successful(Redirect(routes.LoginController.payeSignedOut()))
+
    def redirectToLogin(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]): Future[SimpleResult] = {
      Future.successful(toSamlLogin(getTokenFromRequest).withSession(buildSessionForRedirect(request.session, redirectUrl(request, true))))
   }
