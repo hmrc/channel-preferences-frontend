@@ -46,7 +46,7 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       val rti = RTI(BigDecimal(0))
       val accountSummary = EpayeAccountSummary(rti = Some(rti))
 
-      val expectedMessages = Seq(Msg(epayeNothingToPayMessage, Seq.empty))
+      val expectedMessages = Seq(Msg(epayeNothingToPayMessage, Seq.empty), Msg(epayeBalanceInfoMessage))
 
       testEpayeAccountSummaryBuilder(epayeRegimeNameMessage, Success(Some(accountSummary)), expectedMessages, expectedRtiLinks)
     }
@@ -58,7 +58,7 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
       val overPaidMessage = Msg(epayeYouHaveOverpaidMessage, Seq(MoneyPounds(BigDecimal(8))))
       val adjustFuturePaymentsMessageString = Msg(epayeAdjustFuturePaymentsMessage)
 
-      val expectedMessages = Seq[Msg](overPaidMessage, adjustFuturePaymentsMessageString)
+      val expectedMessages = Seq[Msg](overPaidMessage, adjustFuturePaymentsMessageString, Msg(epayeBalanceInfoMessage))
 
       testEpayeAccountSummaryBuilder(epayeRegimeNameMessage, Success(Some(accountSummary)), expectedMessages, expectedRtiLinks)
     }
@@ -69,7 +69,7 @@ class EpayeAccountSummaryBuilderSpec extends BaseSpec with MockitoSugar {
 
       val dueForPaymentMessageString = Msg(epayeDueForPaymentMessage, Seq(MoneyPounds(BigDecimal(8))))
 
-      val expectedMessages = Seq(dueForPaymentMessageString)
+      val expectedMessages = Seq(dueForPaymentMessageString, Msg(epayeBalanceInfoMessage))
 
       testEpayeAccountSummaryBuilder(epayeRegimeNameMessage, Success(Some(accountSummary)), expectedMessages, expectedRtiLinks)
     }

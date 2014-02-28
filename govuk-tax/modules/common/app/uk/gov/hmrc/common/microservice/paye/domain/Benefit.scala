@@ -50,7 +50,7 @@ object Benefit {
 @deprecated("Use CarBenefit instead", "20/12/2013")
 case class Car(dateCarMadeAvailable: Option[LocalDate] = None,
                dateCarWithdrawn: Option[LocalDate] = None,
-               dateCarRegistered: Option[LocalDate] = None,
+               dateCarRegistered: Questionable[LocalDate],
                employeeCapitalContribution: Option[BigDecimal] = None,
                fuelType: Option[String] = None,
                co2Emissions: Option[Int] = None,
@@ -59,6 +59,8 @@ case class Car(dateCarMadeAvailable: Option[LocalDate] = None,
                carValue: Option[BigDecimal] = None,
                employeePayments: Option[BigDecimal] = None,
                daysUnavailable: Option[Int] = None)
+
+case class Questionable[A](value: A, displayable: Boolean)
 
 object BenefitTypes {
   val FUEL = 29

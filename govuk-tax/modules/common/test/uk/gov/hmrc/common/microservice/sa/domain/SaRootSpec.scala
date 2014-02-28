@@ -76,29 +76,4 @@ class SaRootSpec extends BaseSpec with MockitoSugar with ScalaFutures {
     }
 
   }
-
-  "updateIndividualMainAddress" should {
-
-    "call the SA microservice when the uri is found in the SaRoot for updating the main address" in {
-      val uri = "sa/individual/12345/mainAddress"
-      val saRoot = SaRoot(SaUtr("12345"), Map("individual/details/main-address" -> uri))
-      val saMainAddress = SaAddressForUpdate("line1", "line2", None, None, None, None)
-      implicit val saConnector = mock[SaConnector]
-      val transactionId = Right(TransactionId("12343asdfkjhaslkdfhoi3243kjh3kj4h343"))
-
-      when(saConnector.updateMainAddress(uri, saMainAddress)).thenReturn(transactionId)
-
-      whenReady(saRoot.updateIndividualMainAddress(saMainAddress))(_ shouldBe transactionId)
-      verify(saConnector).updateMainAddress(Matchers.eq(uri), Matchers.any())(Matchers.any())
-    }
-
-    "throw a IllegalStateException when link the uri is not found in the SaRoot" in {
-      val saRoot = SaRoot(SaUtr("12345"), Map[String, String]())
-      implicit val saConnector = mock[SaConnector]
-      val saMainAddress = SaAddressForUpdate("line1", "line2", None, None, None, None)
-
-      evaluating(saRoot.updateIndividualMainAddress(saMainAddress)) should produce[IllegalStateException]
-      verify(saConnector, times(0)).accountSummary(Matchers.anyString())(Matchers.eq(hc))
-    }
-  }
 }

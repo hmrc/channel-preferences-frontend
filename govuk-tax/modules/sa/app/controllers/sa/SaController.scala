@@ -10,7 +10,7 @@ import config.DateTimeProvider
 
 import play.api.mvc.{SimpleResult, Request}
 import controllers.common.validators.{characterValidator, Validators}
-import scala.util.{Success, Try, Left}
+import scala.util.{Success, Try}
 import uk.gov.hmrc.common.microservice.sa.domain.write.TransactionId
 import uk.gov.hmrc.common.microservice.domain.User
 import controllers.sa.{routes => saRoutes}
@@ -130,21 +130,6 @@ class SaController(override val auditConnector: AuditConnector)
           changeAddressForm = changeAddressForm,
           changeAddressFormData = formData))
     )
-
-  private[sa] def confirmChangeAddressAction(implicit user: User, request: Request[_]): Future[SimpleResult] =
-    changeAddressForm.bindFromRequest()(request).fold(
-      errors =>
-        Future.successful(BadRequest(sa_personal_details_update(errors))),
-      formData => {
-        implicit val hc = HeaderCarrier(request)
-        user.regimes.sa.get.updateIndividualMainAddress(formData.toUpdateAddress) map {
-          case Left(errorMessage: String) => Redirect(saRoutes.SaController.changeAddressFailed(encryptParameter(errorMessage)))
-          case Right(transactionId: TransactionId) => Redirect(saRoutes.SaController.changeAddressComplete(encryptParameter(transactionId.oid)))
-        }
-      }
-    )
-
-  private def encryptParameter(value: String): String = SecureParameter(value, now()).encrypt
 
   private def decryptParameter(value: String): Try[SecureParameter] = SecureParameter.decrypt(value)
 

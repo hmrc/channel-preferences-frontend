@@ -1,12 +1,9 @@
 package models.paye
 
-import controllers.paye.FuelBenefitData
 import uk.gov.hmrc.common.microservice.paye.domain._
 import org.joda.time.LocalDate
-import uk.gov.hmrc.common.microservice.paye.domain
 import uk.gov.hmrc.common.microservice.paye.domain.Car
-import uk.gov.hmrc.common.microservice.paye.domain.CarAndFuel
-import scala.Some
+import controllers.paye.QuestionableConversions._
 
 object BenefitFixture {
   val carBenefitRegisteredDate = new LocalDate(2013, 1, 2)
@@ -31,7 +28,7 @@ object BenefitFixture {
     Car(
       Some(carBenefitAvailableDate),
       None,
-      Some(carBenefitRegisteredDate),
+      carBenefitRegisteredDate,
       Some(carEmployeeCapitalContributionVaue),
       Some(carFuelType),
       Some(carCo2Emissions),

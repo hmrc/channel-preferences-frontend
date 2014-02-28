@@ -389,61 +389,6 @@ class SaControllerSpec extends BaseSpec with MockitoSugar {
     }
   }
 
-  "Submit Change Address Confirmation Page" should {
-    // TODO: Post payload validation tests
-    "use the post payload to submit the changed address to the SA service" in new WithApplication(FakeApplication()) {
-
-
-      val add1 = "add1"
-      val add2 = "add2"
-      val utr = SaUtr("123456789012")
-      val uri = s"/sa/individual/$utr/details/main-address"
-
-      val postcodeValid = "ABC 123"
-
-      val transactionId = "sometransactionid"
-
-      val addressForUpdate = SaAddressForUpdate(addressLine1 = add1, addressLine2 = add2, addressLine3 = None, addressLine4 = None, postcode = Some(postcodeValid), additionalDeliveryInformation = None)
-
-      when(saConnector.updateMainAddress(is(uri), is(addressForUpdate))(any())).thenReturn(Right(TransactionId(transactionId)))
-
-      val result = Future.successful(controller.confirmChangeAddressAction(geoffFisher, FakeRequest()
-        .withFormUrlEncodedBody("postcode" -> postcodeValid, "addressLine1" -> add1, "addressLine2" -> add2)))
-
-      val encodedTransactionId = SecureParameter(transactionId, currentTime).encrypt
-
-      status(result) shouldBe 303
-      redirectLocation(result).map(URLDecoder.decode(_, "UTF-8")) shouldBe Some(s"/change-address-complete?id=$encodedTransactionId")
-
-    }
-
-    "redirect to the change address failed page if the address cannot be updated" in new WithApplication(FakeApplication()) {
-
-
-      val add1 = "add1"
-      val add2 = "add2"
-      val utr = SaUtr("123456789012")
-      val uri = s"/sa/individual/$utr/details/main-address"
-      val postcodeValid = "ABC 123"
-
-      val transactionId = "sometransactionid"
-
-      val addressForUpdate = SaAddressForUpdate(addressLine1 = add1, addressLine2 = add2, addressLine3 = None, addressLine4 = None, postcode = Some(postcodeValid), additionalDeliveryInformation = None)
-
-      val errorMessage = "some error occurred"
-      when(saConnector.updateMainAddress(is(uri), is(addressForUpdate))(any())).thenReturn(Left(errorMessage))
-
-      val result = Future.successful(controller.confirmChangeAddressAction(geoffFisher, FakeRequest()
-        .withFormUrlEncodedBody("postcode" -> postcodeValid, "addressLine1" -> add1, "addressLine2" -> add2)))
-
-      val encodedErrorMessage = SecureParameter(errorMessage, currentTime).encrypt
-
-      status(result) shouldBe 303
-      redirectLocation(result).map(URLDecoder.decode(_, "UTF-8")) shouldBe Some(s"/change-address-failed?id=$encodedErrorMessage")
-    }
-
-  }
-
   "The changeAddressCompleteAction method" should {
 
     "display a success message with the transaction id" in new WithApplication(FakeApplication()) {

@@ -5,7 +5,7 @@ import org.joda.time.LocalDate
 
 class TaxYearDataSpec extends BaseSpec {
   // This is the minumum set of data that must be supplied to be able to create a CarBenefit
-  val testCar = Car(carValue = Some(3000), dateCarRegistered = Some(new LocalDate), fuelType = Some("Diesel"), dateCarMadeAvailable = Some(new LocalDate))
+  val testCar = Car(carValue = Some(3000), dateCarRegistered = Questionable(new LocalDate, true), fuelType = Some("Diesel"), dateCarMadeAvailable = Some(new LocalDate))
 
   "TaxYearData" should {
     "return None when asked for active benefit of type FUEL if fuel benefit is present but withdrawn" in {

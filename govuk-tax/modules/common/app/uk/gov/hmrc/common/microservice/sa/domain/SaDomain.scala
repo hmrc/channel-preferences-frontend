@@ -5,7 +5,7 @@ import uk.gov.hmrc.common.microservice.auth.domain.Accounts
 import controllers.common.{GovernmentGateway, FrontEndRedirect}
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.sa.SaConnector
-import uk.gov.hmrc.common.microservice.sa.domain.write.{SaAddressForUpdate, TransactionId}
+import uk.gov.hmrc.common.microservice.sa.domain.write.TransactionId
 import org.joda.time.LocalDate
 import scala.concurrent._
 import uk.gov.hmrc.common.MdcLoggingExecutionContext.fromLoggingDetails
@@ -29,7 +29,6 @@ case class SaJsonRoot(links: Map[String, String])
 case class SaRoot(utr: SaUtr, links: Map[String, String]) extends RegimeRoot[SaUtr] {
 
   private val individualDetailsKey = "individual/details"
-  private val individualMainAddressKey = "individual/details/main-address"
   private val individualAccountSummaryKey = "individual/account-summary"
 
   override val identifier = utr
@@ -47,12 +46,6 @@ case class SaRoot(utr: SaUtr, links: Map[String, String]) extends RegimeRoot[SaU
         case summary => summary
       }
     }.getOrElse(Future.successful(None))
-
-  def updateIndividualMainAddress(address: SaAddressForUpdate)(implicit saConnector: SaConnector, headerCarrier:HeaderCarrier): Future[Either[String, TransactionId]] =
-    saConnector.updateMainAddress(uriFor(individualMainAddressKey), address)
-
-  private def uriFor(key: String) =
-    links.getOrElse(key, throw new IllegalStateException("Missing link for key: " + key))
 }
 
 case class SaPerson(name: SaName, address: SaIndividualAddress)

@@ -60,11 +60,11 @@ case class EpayeAccountSummaryBuilder(epayeConnector: EpayeConnector = new Epaye
   private def createMessages(rti: RTI)(): Seq[Msg] = {
     val balance = rti.balance
     if (balance < 0) {
-      Seq(Msg(epayeYouHaveOverpaidMessage, Seq(MoneyPounds(balance.abs))), Msg(epayeAdjustFuturePaymentsMessage))
+      Seq(Msg(epayeYouHaveOverpaidMessage, Seq(MoneyPounds(balance.abs))), Msg(epayeAdjustFuturePaymentsMessage), Msg(epayeBalanceInfoMessage))
     } else if (balance > 0) {
-      Seq(Msg(epayeDueForPaymentMessage, Seq(MoneyPounds(balance))))
+      Seq(Msg(epayeDueForPaymentMessage, Seq(MoneyPounds(balance))), Msg(epayeBalanceInfoMessage))
     } else {
-      Seq(Msg(epayeNothingToPayMessage))
+      Seq(Msg(epayeNothingToPayMessage), Msg(epayeBalanceInfoMessage))
     }
   }
 
@@ -107,5 +107,6 @@ object EpayeMessageKeys {
   val epayeManageHeading = "epaye.manage.heading"
   val epayeViewAccountDetailsLinkMessage = "epaye.link.message.accountSummary.viewAccountDetails"
   val epayeMakeAPaymentLinkMessage = "epaye.link.message.accountSummary.makeAPayment"
+  val epayeBalanceInfoMessage = "epaye.message.balanceInfo"
 }
 
