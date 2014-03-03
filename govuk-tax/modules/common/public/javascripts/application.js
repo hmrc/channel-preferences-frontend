@@ -236,7 +236,8 @@ GOVUK.ReportAProblem = function () {
       //feedback forms require a hidden field denoting if javascript is enabled
 
       var $feedbackForms = $('.form--feedback'),
-          $errorReportForm = $('.report-error__content form');
+          $errorReportForm = $('.report-error__content form'),
+          $saEmailPrefsForm = $('#form-submit-email-address');
       //we have javascript enabled so change hidden input to reflect this
       $feedbackForms.find('input[name="isJavascript"]').attr("value", true);
 
@@ -263,6 +264,60 @@ GOVUK.ReportAProblem = function () {
         //When all fields are valid perform AJAX call
         submitHandler: function (form) {
            GOVUK.ReportAProblem.submitForm(form, $errorReportForm.attr("action"));
+        }
+      });
+
+      $saEmailPrefsForm.validate({
+          rules: {
+              'email.main': {
+                email: true,
+                required: true,
+                maxlength: 320
+              },
+              'email.confirm': {
+//                email: true,
+//                required: true,
+                equalTo: '#email\\.main'   //the dot needs escaping for it to work in jQuery
+              }
+          },
+          messages: {
+              'email.main': {
+                    email: "Enter a valid email address.",
+                    required: "Enter a valid email address.",
+                    maxlength: 'The email cannot be longer than 320 characters'
+              },
+              'email.confirm': {
+//                    email: "Enter a valid email address.",
+//                    required: "Enter a valid email address.",
+                    equalTo: "Check your email addresses - they don’t match."
+              }
+          },
+          onfocusout: false,
+          onkeyup: false,
+
+          errorClass: 'error-notification',
+          errorPlacement: function(error, element) {
+              element.parents('fieldset').prepend(error);
+          },
+          //Highlight invalid input
+          highlight: function (element, errorClass) {
+              $(element).parents('fieldset').addClass('form-field--error');
+          },
+          //Unhighlight valid input
+//          unhighlight: function (element, errorClass) {
+//             if( $('.error-notification').size() < 2 ) {
+//                  $(element).parents('fieldset').removeClass('form-field--error');
+//             }
+//          },
+          //When invalid submission, re-enable the submit button
+          invalidHandler: function(){
+              $saEmailPrefsForm.find('button').prop("disabled", false);
+          },
+          submitHandler: function(form) {
+              // do other things for a valid form
+                $saEmailPrefsForm.find('button').prop("disabled", "disabled");
+                $(form).find('.form-field--error').removeClass('form-field--error');
+              form.submit();
         }
       });
 
