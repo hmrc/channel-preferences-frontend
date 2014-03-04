@@ -167,7 +167,7 @@ with PayeRegimeRoots {
             } yield {
               val addBenefitsResponse = addBenefitsResponseOption.getOrElse(throw new IllegalStateException("No add benefits response was returned from the addBenefits call to paye"))
               val benefitUpdateConfirmationData = BenefitUpdateConfirmationBuilder.buildBenefitUpdatedConfirmationData(currentTaxYearCode, addBenefitsResponse)
-              Ok(add_car_benefit_confirmation(benefitUpdateConfirmationData, AddFuel)(request))
+              Ok(add_car_benefit_confirmation(benefitUpdateConfirmationData, AddFuel)(user, request))
             }
         }
       }
