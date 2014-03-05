@@ -45,7 +45,7 @@ class IdaLoginControllerSpec extends BaseSpec with MockitoSugar {
     def anyHc = Matchers.any[HeaderCarrier]
 
     val loginTime = new DateTime(2014, 1, 22, 11, 33, 55, 555, DateTimeZone.UTC)
-    val idaAuthority = Authority("/auth/oid/0943809346039", AuthCredentials(idaPids = Set(IdaPid(hashPid, loginTime, loginTime))), Accounts(paye = Some(PayeAccount("/paye/blah", Nino("AB112233C")))), Some(loginTime), None, CreationAndLastModifiedDetail(loginTime, loginTime))
+    val idaAuthority = Authority("/auth/oid/0943809346039", AuthCredentials(idaPids = Set(IdaPid(hashPid, loginTime, loginTime))), Accounts(paye = Some(PayeAccount("/paye/blah", Nino("AB112233C")))), Some(loginTime), None)
     val hashPid = "hash-pid"
     val originalRequestId = "govuk-tax-request-id"
     val authToken = AuthToken("auth-token")

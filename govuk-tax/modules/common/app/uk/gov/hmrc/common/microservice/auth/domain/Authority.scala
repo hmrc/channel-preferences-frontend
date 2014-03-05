@@ -13,8 +13,7 @@ case class Authority(uri: String,
                      credentials: Credentials,
                      accounts: Accounts,
                      loggedInAt: Option[DateTime],
-                     previouslyLoggedInAt: Option[DateTime],
-                     crudDetail: CreationAndLastModifiedDetail)
+                     previouslyLoggedInAt: Option[DateTime])
 
 case class IdaPid(pid: String, createdAt: DateTime, lastUsed: DateTime)
 

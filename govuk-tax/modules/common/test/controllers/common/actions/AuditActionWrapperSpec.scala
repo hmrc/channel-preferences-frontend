@@ -284,7 +284,7 @@ class TestCase(traceRequests: Boolean)
     Some(PayeAccount("/paye/AB123456C", Nino("AB123456C"))),
     Some(SaAccount("/sa/individual/exampleUtr", SaUtr("exampleUtr"))),
     Some(CtAccount("/ct/asdfa", CtUtr("asdfa"))),
-    Some(VatAccount("/vat/123", Vrn("123")))), Some(DateTimeUtils.now), Some(DateTimeUtils.now), CreationAndLastModifiedDetail())
+    Some(VatAccount("/vat/123", Vrn("123")))), Some(DateTimeUtils.now), Some(DateTimeUtils.now))
   val user = User("exUid", userAuth, RegimeRoots(), None, None)
   when(auditConnector.enabled).thenReturn(true)
 

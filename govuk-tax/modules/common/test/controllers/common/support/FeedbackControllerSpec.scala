@@ -197,7 +197,7 @@ class FeedbackControllerApplication extends WithApplication with MockitoSugar wi
 
   val payeUser = {
     val root = PayeRoot("nino", "mr", "John", None, "Densmore", "JD", "DOB", Map.empty, Map.empty, Map.empty)
-    Some(User("123", Authority("/auth/oid/123", Credentials(), Accounts(), None, None, CreationAndLastModifiedDetail()), RegimeRoots(Some(root))))
+    Some(User("123", Authority("/auth/oid/123", Credentials(), Accounts(), None, None), RegimeRoots(Some(root))))
   }
 
   val user = User(

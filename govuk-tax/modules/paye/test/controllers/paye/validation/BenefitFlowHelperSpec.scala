@@ -22,7 +22,7 @@ class BenefitFlowHelperSpec extends BaseSpec with MockitoSugar {
   val invalidVersion: Int = 21
   val versionUri = "/paye/AA000001/version"
   val payeRoot = PayeRoot("", "", "", None, "", "", "", Map("version" -> versionUri), Map(), Map())
-  val ua = Authority("dummyAuth", Credentials(), Accounts(), None, None, CreationAndLastModifiedDetail())
+  val ua = Authority("dummyAuth", Credentials(), Accounts(), None, None)
   val user = User("dummy", ua, RegimeRoots(paye = Some(payeRoot)))
   implicit val payeConnectorMock = mock[PayeConnector]
 

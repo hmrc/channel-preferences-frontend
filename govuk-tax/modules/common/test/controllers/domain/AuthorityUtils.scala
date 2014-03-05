@@ -15,19 +15,19 @@ import uk.gov.hmrc.common.microservice.auth.domain.SaAccount
 object AuthorityUtils {
 
   def payeAuthority(id: String, nino: String): Authority =
-    Authority(s"/auth/oid/$id", Credentials(), Accounts(paye = Some(PayeAccount(s"/paye/$nino", Nino(nino)))), None, None, CreationAndLastModifiedDetail())
+    Authority(s"/auth/oid/$id", Credentials(), Accounts(paye = Some(PayeAccount(s"/paye/$nino", Nino(nino)))), None, None)
 
   def saAuthority(id: String, utr: String): Authority =
-    Authority(s"/auth/oid/$id", Credentials(), Accounts(sa = Some(SaAccount(s"/sa/individual/$utr", SaUtr(utr)))), None, None, CreationAndLastModifiedDetail())
+    Authority(s"/auth/oid/$id", Credentials(), Accounts(sa = Some(SaAccount(s"/sa/individual/$utr", SaUtr(utr)))), None, None)
 
   def vatAuthority(id: String, vrn: String): Authority =
-    Authority(s"/auth/oid/$id", Credentials(), Accounts(vat = Some(VatAccount(s"/vat/$vrn", Vrn(vrn)))), None, None, CreationAndLastModifiedDetail())
+    Authority(s"/auth/oid/$id", Credentials(), Accounts(vat = Some(VatAccount(s"/vat/$vrn", Vrn(vrn)))), None, None)
 
   def ctAuthority(id: String, utr: String): Authority =
-    Authority(s"/auth/oid/$id", Credentials(), Accounts(ct = Some(CtAccount(s"/ct/$utr", CtUtr(utr)))), None, None, CreationAndLastModifiedDetail())
+    Authority(s"/auth/oid/$id", Credentials(), Accounts(ct = Some(CtAccount(s"/ct/$utr", CtUtr(utr)))), None, None)
 
   def epayeAuthority(id: String, empRef: String): Authority =
-    Authority(s"/auth/oid/$id", Credentials(), Accounts(epaye = Some(EpayeAccount(s"/epaye/$empRef", EmpRef(empRef)))), None, None, CreationAndLastModifiedDetail())
+    Authority(s"/auth/oid/$id", Credentials(), Accounts(epaye = Some(EpayeAccount(s"/epaye/$empRef", EmpRef(empRef)))), None, None)
 
   def allBizTaxAuthority(id: String, saUtr: String, ctUtr: String, vrn: String, empRef: String) =
     Authority(s"/auth/oid/$id", Credentials(), Accounts(
@@ -35,7 +35,7 @@ object AuthorityUtils {
       vat = Some(VatAccount(s"/vat/$vrn", Vrn(vrn))),
       ct = Some(CtAccount(s"/ct/$ctUtr", CtUtr(ctUtr))),
       epaye = Some(EpayeAccount(s"/epaye/$empRef", EmpRef(empRef)))),
-     None, None, CreationAndLastModifiedDetail())
+     None, None)
 
-  def emptyAuthority(id: String) = Authority(s"/auth/oid/$id", Credentials(), Accounts(), None, None, CreationAndLastModifiedDetail())
+  def emptyAuthority(id: String) = Authority(s"/auth/oid/$id", Credentials(), Accounts(), None, None)
 }

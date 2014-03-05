@@ -124,7 +124,7 @@ class ProblemReportsControllerApplication extends WithApplication(FakeApplicatio
 
   val user = {
     val root = PayeRoot("nino", "mr", "John", None, "Densmore", "JD", "DOB", Map.empty, Map.empty, Map.empty)
-    Some(User("123", Authority("/auth/oid/123", Credentials(), Accounts(), None, None, CreationAndLastModifiedDetail()), RegimeRoots(Some(root))))
+    Some(User("123", Authority("/auth/oid/123", Credentials(), Accounts(), None, None), RegimeRoots(Some(root))))
   }
 
   def generateRequest(javascriptEnabled: Boolean = true, email: String = "name@mail.com") = FakeRequest()

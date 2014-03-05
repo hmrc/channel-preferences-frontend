@@ -20,7 +20,7 @@ import controllers.common.SessionKeys
 
 trait NonBusinessTaxRequest extends NonBusinessUserFixture with MockitoSugar {
 
-  private val userAuthority = Authority(s"/auth/oid/$userId", Credentials(), Accounts(), lastLoginTimestamp, lastLoginTimestamp, CreationAndLastModifiedDetail())
+  private val userAuthority = Authority(s"/auth/oid/$userId", Credentials(), Accounts(), lastLoginTimestamp, lastLoginTimestamp)
 
   implicit val user = User(
     userId = userAuthority.uri,

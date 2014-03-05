@@ -69,7 +69,7 @@ class FieldTransformerScope extends WithApplication(FakeApplication()){
   val root = PayeRoot("nino", "mr", "John", None, "Densmore", "JD", "DOB", Map.empty, Map.empty, Map.empty)
   val bizTaxRoot = VatRoot(Vrn("134123421"), Map.empty[String, String])
   val userId: String = "456"
-  val user = User(userId, Authority(s"/auth/oid/$userId", Credentials(), Accounts(), None, None, CreationAndLastModifiedDetail()), RegimeRoots(Some(root)))
+  val user = User(userId, Authority(s"/auth/oid/$userId", Credentials(), Accounts(), None, None), RegimeRoots(Some(root)))
   val bizTaxUser = user.copy(regimes = RegimeRoots(vat = Some(bizTaxRoot)))
   val sessionId: String = "sessionIdValue"
   val hc = HeaderCarrier(userId = Some(user.userId), sessionId = Some(sessionId))

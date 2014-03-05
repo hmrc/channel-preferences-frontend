@@ -259,7 +259,7 @@ class LoginControllerSpec extends BaseSpec with MockitoSugar {
     "be redirected to his SA homepage on submitting valid Government Gateway credentials with a cookie set containing his Government Gateway name and generate an audit event" in new WithSetup {
 
       val loginTime = new DateTime(2014, 1, 22, 11, 33, 55, 555, DateTimeZone.UTC)
-      val ggAuthority = Authority(geoff.userId, Credentials(gatewayId = Some("1234554321")), Accounts(sa = Some(SaAccount("/sa/blah", SaUtr("1112223334")))), Some(loginTime), None, CreationAndLastModifiedDetail(loginTime, loginTime))
+      val ggAuthority = Authority(geoff.userId, Credentials(gatewayId = Some("1234554321")), Accounts(sa = Some(SaAccount("/sa/blah", SaUtr("1112223334")))), Some(loginTime), None)
 
       when(mockGovernmentGatewayConnector.login(Matchers.eq(GovernmentGatewayCredentials(geoff.governmentGatewayUserId, geoff.password)))(Matchers.any[HeaderCarrier])).
         thenReturn(GovernmentGatewayLoginResponse(geoff.userId, geoff.credId, geoff.nameFromGovernmentGateway, "affinityGroup", geoff.encodedGovernmentGatewayToken))

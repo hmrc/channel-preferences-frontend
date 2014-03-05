@@ -34,7 +34,7 @@ class ContactControllerSpec extends BaseSpec with MockitoSugar {
     lazy val controller = new ContactController(mock[AuditConnector], deskProConnector, ticketCache)(mock[AuthConnector])
     val user = {
       val root = PayeRoot("nino", "mr", "John", None, "Densmore", "JD", "DOB", Map.empty, Map.empty, Map.empty)
-      User("123", Authority("/auth/oid/123", Credentials(), Accounts(), None, None, CreationAndLastModifiedDetail()), RegimeRoots(Some(root)))
+      User("123", Authority("/auth/oid/123", Credentials(), Accounts(), None, None), RegimeRoots(Some(root)))
     }
   }
 
