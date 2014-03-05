@@ -50,7 +50,7 @@ object PlayFrontendBuild extends Build {
       "uk.gov.hmrc" %% "play-frontend" % envOrElse("PLAY_FRONTEND_VERSION", "999-SNAPSHOT") % "test" classifier "tests"
       )
 
-  val paye = play.Project(appName, thisApp, appDependencies ++ providedByContainer, path = file("."), 
+  val saPrefs = play.Project(appName, thisApp, appDependencies ++ providedByContainer, path = file("."),
     settings = Common.baseSettings ++ Common.routesImports
   ).settings(Keys.fork in Test := false)
     .configs(TemplateTest)

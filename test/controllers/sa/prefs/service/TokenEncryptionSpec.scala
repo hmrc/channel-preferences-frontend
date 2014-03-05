@@ -5,6 +5,7 @@ import org.joda.time.{ DateTimeZone, DateTime }
 import java.net.{ URLDecoder, URLEncoder }
 import uk.gov.hmrc.crypto.AesCrypto
 import uk.gov.hmrc.domain.SaUtr
+import controllers.common.preferences.service.{TokenExpiredException, TokenEncryption}
 
 class TokenEncryptionSpec extends WordSpec with ShouldMatchers {
 
