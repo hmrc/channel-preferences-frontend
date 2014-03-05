@@ -275,8 +275,6 @@ GOVUK.ReportAProblem = function () {
                 maxlength: 320
               },
               'email.confirm': {
-//                email: true,
-//                required: true,
                 equalTo: '#email\\.main'   //the dot needs escaping for it to work in jQuery
               }
           },
@@ -287,8 +285,6 @@ GOVUK.ReportAProblem = function () {
                     maxlength: 'The email cannot be longer than 320 characters'
               },
               'email.confirm': {
-//                    email: "Enter a valid email address.",
-//                    required: "Enter a valid email address.",
                     equalTo: "Check your email addresses - they don’t match."
               }
           },
@@ -303,12 +299,6 @@ GOVUK.ReportAProblem = function () {
           highlight: function (element, errorClass) {
               $(element).parents('fieldset').addClass('form-field--error');
           },
-          //Unhighlight valid input
-//          unhighlight: function (element, errorClass) {
-//             if( $('.error-notification').size() < 2 ) {
-//                  $(element).parents('fieldset').removeClass('form-field--error');
-//             }
-//          },
           //When invalid submission, re-enable the submit button
           invalidHandler: function(){
               $saEmailPrefsForm.find('button').prop("disabled", false);

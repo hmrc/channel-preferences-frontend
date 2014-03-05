@@ -47,9 +47,8 @@
         )
         </fieldset>
         <p class="form-field">
-            @Messages("sa_printing_preference.paragraph.6.start")
-            @Link.toExternalPage(url = controllers.common.routes.CommonController.termsAndConditions().url, value = Some(Messages("sa_printing_preference.paragraph.6.linkText"))).toHtml
-            @Messages("sa_printing_preference.paragraph.6.end")
+            @Html(Messages("sa_printing_preference.paragraph.6",
+            Link.toExternalPage(url = controllers.common.routes.CommonController.termsAndConditions().url, value = Some(Messages("sa_printing_preference.paragraph.6.linkText"))).toHtml))
         </p>
 
         <div class="form-field">
