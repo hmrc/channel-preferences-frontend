@@ -47,7 +47,7 @@ object GovUkTaxBuild extends Build {
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
     .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
     .settings(javaOptions in Test += configPath)
-
+    .settings(net.virtualvoid.sbt.graph.Plugin.graphSettings: _*)
 
   val common = play.Project(
     appName + "-common", Version.thisApp, appDependencies, file("modules/common"),
