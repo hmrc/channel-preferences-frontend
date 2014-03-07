@@ -42,7 +42,7 @@ class PaymentControllerSpec extends BaseSpec {
     "return the epaye payment page succesfully" in new WithApplication(FakeApplication()){
 
       val controllerUnderTest = new PaymentController
-      val epayeRoot = Some(EpayeRoot(EmpRef("emp/ref"), EpayeLinks(None)))
+      val epayeRoot = Some(EpayeRoot(EmpRef("emp","ref"), EpayeLinks(None)))
 
       val user = User(userId = "userId", userAuthority = epayeAuthority("userId", "emp/ref"), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(epaye = epayeRoot), decryptedToken = None)
       val request = FakeRequest().withSession(SessionKeys.affinityGroup -> "epaye")

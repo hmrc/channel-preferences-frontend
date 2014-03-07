@@ -111,7 +111,7 @@ class BusinessTaxRegimeRootsSetup extends MockitoSugar {
 
   val saUtr = SaUtr("saUtr")
   val vrn = Vrn("Vrn")
-  val empRef = EmpRef("emp/Ref")
+  val empRef = EmpRef("emp","Ref")
   val ctUtr = CtUtr("ctUtr")
   val authority = allBizTaxAuthority("id", saUtr.utr, ctUtr.utr, vrn.vrn, empRef.toString)
 

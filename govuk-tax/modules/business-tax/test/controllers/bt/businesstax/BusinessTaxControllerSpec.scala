@@ -39,7 +39,7 @@ class BusinessTaxControllerSpec extends BaseSpec with MockitoSugar {
   val saRegime = Some(SaRoot(utr, Map.empty[String, String]))
   val ctRegime = Some(CtRoot(CtUtr("ct-utr"), Map.empty[String, String]))
   val vatRegime = Some(VatRoot(Vrn("vrn"), Map.empty[String, String]))
-  val epayeRegime = Some(EpayeRoot(EmpRef("emp/ref"), EpayeLinks(Some("link"))))
+  val epayeRegime = Some(EpayeRoot(EmpRef.fromIdentifiers("emp/ref"), EpayeLinks(Some("link"))))
 
   val saAccountSummary = AccountSummary("sa.regimeName", "", List(), Seq.empty, SummaryStatus.success)
 

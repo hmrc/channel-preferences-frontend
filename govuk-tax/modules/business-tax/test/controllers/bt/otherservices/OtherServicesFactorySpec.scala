@@ -169,7 +169,7 @@ class OtherServicesFactorySpec extends BaseSpec with MockitoSugar with ScalaFutu
 
   private def ctRoot = Some(CtRoot(CtUtr("ct-utr"), Map.empty[String, String]))
 
-  private def epayeRoot = Some(EpayeRoot(EmpRef("emp/ref"), EpayeLinks(None)))
+  private def epayeRoot = Some(EpayeRoot(EmpRef.fromIdentifiers("emp/ref"), EpayeLinks(None)))
 
   private def vatRoot = Some(VatRoot(Vrn("vrn"), Map.empty[String, String]))
 }

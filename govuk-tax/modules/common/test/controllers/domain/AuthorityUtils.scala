@@ -27,14 +27,14 @@ object AuthorityUtils {
     Authority(s"/auth/oid/$id", Credentials(), Accounts(ct = Some(CtAccount(s"/ct/$utr", CtUtr(utr)))), None, None)
 
   def epayeAuthority(id: String, empRef: String): Authority =
-    Authority(s"/auth/oid/$id", Credentials(), Accounts(epaye = Some(EpayeAccount(s"/epaye/$empRef", EmpRef(empRef)))), None, None)
+    Authority(s"/auth/oid/$id", Credentials(), Accounts(epaye = Some(EpayeAccount(s"/epaye/$empRef", EmpRef.fromIdentifiers(empRef)))), None, None)
 
   def allBizTaxAuthority(id: String, saUtr: String, ctUtr: String, vrn: String, empRef: String) =
     Authority(s"/auth/oid/$id", Credentials(), Accounts(
       sa = Some(SaAccount(s"/sa/individual/$saUtr", SaUtr(saUtr))),
       vat = Some(VatAccount(s"/vat/$vrn", Vrn(vrn))),
       ct = Some(CtAccount(s"/ct/$ctUtr", CtUtr(ctUtr))),
-      epaye = Some(EpayeAccount(s"/epaye/$empRef", EmpRef(empRef)))),
+      epaye = Some(EpayeAccount(s"/epaye/$empRef", EmpRef.fromIdentifiers(empRef)))),
      None, None)
 
   def emptyAuthority(id: String) = Authority(s"/auth/oid/$id", Credentials(), Accounts(), None, None)

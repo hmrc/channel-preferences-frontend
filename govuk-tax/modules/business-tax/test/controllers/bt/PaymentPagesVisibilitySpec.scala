@@ -39,7 +39,7 @@ class PaymentPagesVisibilitySpec extends BaseSpec with MockitoSugar {
     "be true when we can retrieve the details from the EPAYE connector for an RTI user " in {
 
       implicit val epayeConnectorMock = mock[EpayeConnector]
-      val epayeRoot = Some(EpayeRoot(EmpRef("emp/6353"), EpayeLinks(Some("someUri"))))
+      val epayeRoot = Some(EpayeRoot(EmpRef.fromIdentifiers("emp/6353"), EpayeLinks(Some("someUri"))))
       val user = User(userId = "userId", userAuthority = epayeAuthority("userId", "emp/6353"), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(epaye = epayeRoot), decryptedToken = None)
 
       when(epayeConnectorMock.accountSummary(is("someUri"))(any())).thenReturn(Some(EpayeAccountSummary(Some(RTI(35.38)), None)))
@@ -53,7 +53,7 @@ class PaymentPagesVisibilitySpec extends BaseSpec with MockitoSugar {
     "be true when we can retrieve the details from the EPAYE connector for a non-RTI user " in {
 
       implicit val epayeConnectorMock = mock[EpayeConnector]
-      val epayeRoot = Some(EpayeRoot(EmpRef("emp/6353"), EpayeLinks(Some("someUri"))))
+      val epayeRoot = Some(EpayeRoot(EmpRef.fromIdentifiers("emp/6353"), EpayeLinks(Some("someUri"))))
       val user = User(userId = "userId", userAuthority = epayeAuthority("userId", "emp/6353"), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(epaye = epayeRoot), decryptedToken = None)
 
       when(epayeConnectorMock.accountSummary(is("someUri"))(any())).thenReturn(Some(EpayeAccountSummary(None, Some(NonRTI(736, 2013)))))
@@ -67,7 +67,7 @@ class PaymentPagesVisibilitySpec extends BaseSpec with MockitoSugar {
     "be false when we cannot retrieve the link from the root to retrieve the EPAYE connector " in {
 
       implicit val epayeConnectorMock = mock[EpayeConnector]
-      val epayeRoot = Some(EpayeRoot(EmpRef("emp/6353"), EpayeLinks(None)))
+      val epayeRoot = Some(EpayeRoot(EmpRef.fromIdentifiers("emp/6353"), EpayeLinks(None)))
       val user = User(userId = "userId", userAuthority = epayeAuthority("userId", "emp/6353"), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(epaye = epayeRoot), decryptedToken = None)
 
       val predicate = new EpayePaymentPredicate(epayeConnectorMock)
