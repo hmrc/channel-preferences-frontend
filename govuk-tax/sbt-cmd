@@ -1,4 +1,0 @@
-#!/bin/bash
-
-cd tools/sbt/bin
-./sbt
