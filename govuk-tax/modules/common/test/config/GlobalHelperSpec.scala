@@ -2,11 +2,16 @@ package config
 
 import uk.gov.hmrc.common.BaseSpec
 import controllers.common.actions.HeaderCarrier
-import play.api.test.{WithApplication, FakeHeaders}
+import play.api.test.WithApplication
 import play.api.mvc.{Headers, RequestHeader}
-import uk.gov.hmrc.common.microservice.audit.AuditEvent
 import play.api.test.Helpers._
-import uk.gov.hmrc.common.microservice.{ErrorTemplateDetails, ApplicationException}
+import play.api.test.FakeHeaders
+import uk.gov.hmrc.common.microservice.ApplicationException
+import play.api.mvc.ResponseHeader
+import uk.gov.hmrc.common.microservice.audit.AuditEvent
+import scala.Some
+import play.api.mvc.SimpleResult
+import play.api.libs.iteratee.Enumerator
 
 class GlobalHelperSpec extends BaseSpec {
 
@@ -62,7 +67,14 @@ class GlobalHelperSpec extends BaseSpec {
     }
 
     "return and audit event for an application error along with the InternalServerError result" in new WithApplication with Setup {
-      val appException = new ApplicationException("paye", ErrorTemplateDetails("title", "heading", "message"), "application exception")
+
+      val responseCode = SEE_OTHER
+      val location = "http://some.test.location/page"
+      val theResult = SimpleResult(
+        ResponseHeader(responseCode, Map("Location" -> location)), Enumerator(Array.empty)
+      )
+
+      val appException = new ApplicationException("paye", theResult, "application exception")
       val exception = new RuntimeException(appException)
 
       val expectedAuditEvent = AuditEvent(
@@ -79,7 +91,7 @@ class GlobalHelperSpec extends BaseSpec {
         'detail(expectedAuditEvent.detail)
       )
 
-      status(result) shouldBe INTERNAL_SERVER_ERROR
+      result shouldBe theResult
     }
   }
 

@@ -16,6 +16,8 @@ import play.api.mvc.{Action, Session, SimpleResult}
 import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.txqueue.domain.TxQueueTransaction
 import views.html.paye._
+import play.api.i18n.Messages
+import uk.gov.hmrc.common.microservice.{ApplicationException, UnprocessableEntityException}
 
 class CarBenefitHomeController(override val auditConnector: AuditConnector, override val authConnector: AuthConnector)
                               (implicit payeService: PayeConnector, txQueueMicroservice: TxQueueConnector) extends BaseController
@@ -60,6 +62,14 @@ with TaxYearSupport {
     else buildHomePageResponse(buildHomePageParams(details, carAndFuelBenefitTypes, currentTaxYear))
   }
 
+  def carRecordError = AuthorisedFor(regime = PayeRegime, redirectToOrigin = true) {
+    user => request =>
+      Ok(views.html.global_error(
+        Messages("paye.error_page.title"),
+        Messages("paye.error_page_bad_data.header"),
+        Messages("paye.error_page_bad_data.message")))
+  }
+
   private[paye] def sessionWithNpsVersion(session: Session, version: Int) =
     session + (SessionKeys.npsVersion -> version.toString)
 
@@ -76,7 +86,12 @@ with TaxYearSupport {
 
 
   private[paye] def assembleCarBenefitData(payeRoot: PayeRoot, taxYear: Int)(implicit hc: HeaderCarrier): Future[RawTaxData] = {
-    val f1 = payeRoot.fetchCars(taxYear)
+    val f1 = payeRoot.fetchCars(taxYear).recoverWith {
+      case ude: UnprocessableEntityException => {
+        val result = Redirect(routes.CarBenefitHomeController.carRecordError)
+        throw ApplicationException("paye", result, ude.getMessage)
+      }
+    }
     val f2 = payeRoot.fetchEmployments(taxYear)
     val f5 = payeRoot.fetchTaxCodes(taxYear)
 

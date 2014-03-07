@@ -14,8 +14,8 @@ import play.api.Logger
 import uk.gov.hmrc.utils.{DateConverter, DateTimeUtils}
 import DateTimeZone._
 import uk.gov.hmrc.common.microservice.{ApplicationException, ErrorTemplateDetails, UnprocessableEntityException}
-import play.api.i18n.Messages
 import ExecutionContext.Implicits.global
+
 
 object PayeRegime extends TaxRegime {
 
@@ -57,13 +57,7 @@ case class PayeRoot(nino: String,
   }
 
   private[domain] def handleBenefitCarsResult(benefitCarsResult: Future[Seq[CarAndFuel]]): Future[Seq[CarBenefit]] = {
-    benefitCarsResult.map(_.map(CarBenefit(_))).recoverWith {
-      case ude: UnprocessableEntityException =>
-        throw ApplicationException("paye", ErrorTemplateDetails(Messages("paye.error_page.title"),
-          Messages("paye.error_page_bad_data.header"),
-          Messages("paye.error_page_bad_data.message")),
-          ude.getMessage)
-    }
+    benefitCarsResult.map(_.map(CarBenefit(_)))
   }
 
   def fetchEmployments(taxYear: Int)(implicit payeConnector: PayeConnector, headerCarrier: HeaderCarrier): Future[Seq[Employment]] =

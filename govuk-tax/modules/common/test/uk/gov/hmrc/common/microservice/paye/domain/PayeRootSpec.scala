@@ -14,6 +14,8 @@ import java.net.URI
 import uk.gov.hmrc.utils.DateTimeUtils
 import uk.gov.hmrc.common.microservice.{ErrorTemplateDetails, ApplicationException, UnprocessableEntityException}
 import play.api.i18n.Messages
+import play.api.mvc.{ResponseHeader, SimpleResult}
+import play.api.libs.iteratee.Enumerator
 
 class PayeRootSpec extends BaseSpec with MockitoSugar with ScalaFutures {
   "The fetchTaxYearData service" should {
@@ -118,12 +120,7 @@ class PayeRootSpec extends BaseSpec with MockitoSugar with ScalaFutures {
     "map an UnprocessableEntityException to an ApplicationException if the future fails" in {
       val ue = UnprocessableEntityException("Bad data!", null)
       val result = payeRoot.handleBenefitCarsResult(Future.failed(ue))
-      intercept[Throwable](await(result)) shouldBe ApplicationException(
-        "paye", ErrorTemplateDetails(Messages("paye.error_page.title"),
-          Messages("paye.error_page_bad_data.header"),
-          Messages("paye.error_page_bad_data.message")),
-          message = "Bad data!"
-      )
+      intercept[Throwable](await(result)) shouldBe ue
     }
 
     "return the sequence of benefit cars when the future succeeds" in {

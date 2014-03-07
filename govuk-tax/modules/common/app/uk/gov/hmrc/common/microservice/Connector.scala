@@ -11,6 +11,7 @@ import controllers.common.actions.{LoggingDetails, HeaderCarrier}
 import play.api.libs.json.{JsNull, JsValue}
 import uk.gov.hmrc.common.MdcLoggingExecutionContext
 import controllers.common.service.RunMode
+import play.api.mvc.SimpleResult
 
 trait TaxRegimeConnector[A <: RegimeRoot[_]] extends Connector {
   def linkedResource[T](uri: String)(implicit m: Manifest[T], headerCarrier: HeaderCarrier) = {
@@ -102,7 +103,7 @@ trait HasResponse {
   val response: Response
 }
 case class ErrorTemplateDetails(templateTitle: String,  templateHeading: String, templateMeessage: String)
-case class ApplicationException(domain: String, errorTemplateDetails: ErrorTemplateDetails, message: String) extends RuntimeException(message)
+case class ApplicationException(domain: String, result: SimpleResult, message: String) extends RuntimeException(message)
 
 case class UnprocessableEntityException(message: String, response: Response) extends RuntimeException(message) with HasResponse
 

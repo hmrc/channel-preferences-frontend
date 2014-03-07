@@ -12,9 +12,8 @@ object GlobalHelper {
 
   def resolveError(request: RequestHeader, ex: Throwable)(implicit hc: HeaderCarrier): (AuditEvent, SimpleResult) = {
     val (event, result) = ex.getCause match {
-      case ApplicationException(domain, errorTemplateDetails, _) => {
-        (buildAuditEvent("ApplicationError", s"Unexpected error in domain: $domain", request, hc, Option(ex.getMessage)),
-        InternalServerError(views.html.global_error(errorTemplateDetails.templateTitle, errorTemplateDetails.templateHeading, errorTemplateDetails.templateMeessage)))
+      case ApplicationException(domain, simpleResult, _) => {
+        (buildAuditEvent("ApplicationError", s"Unexpected error in domain: $domain", request, hc, Option(ex.getMessage)), simpleResult)
       }
       case _ => {
         (buildAuditEvent("ServerInternalError", "Unexpected error", request, hc, Option(ex.getMessage)),

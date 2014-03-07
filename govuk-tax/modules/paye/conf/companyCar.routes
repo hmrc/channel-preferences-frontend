@@ -26,3 +26,5 @@ POST        /fuel-benefit/:year/:employmentSequenceNumber/remove/thank-you     @
 GET         /car-benefit/:year/:employmentSequenceNumber/replace               @controllers.paye.ReplaceBenefitController.showReplaceCarBenefitForm(year: Int, employmentSequenceNumber: Int)
 POST        /car-benefit/:year/:employmentSequenceNumber/replace/confirm       @controllers.paye.ReplaceBenefitController.requestReplaceCarBenefit(year: Int, employmentSequenceNumber: Int)
 POST        /car-benefit/:year/:employmentSequenceNumber/replace/thank-you     @controllers.paye.ReplaceCarBenefitConfirmController.confirmCarBenefitReplacement(year: Int, employmentSequenceNumber: Int)
+
+GET         /car-benefit/error/record-problem                                  @controllers.paye.CarBenefitHomeController.carRecordError
