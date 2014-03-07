@@ -1,0 +1,133 @@
+@(txId: String, journeyType: models.paye.PayeJourney, oldTaxCode: String, newTaxCode: Option[String])(implicit request: Request[_])
+@import controllers.paye.PayeQuestionnaireUtils._
+
+<div class="questionnaire">
+    <h2>@Messages("paye.questionnaire.heading")</h2>
+    <p>@Messages("paye.questionnaire.info")</p>
+
+    @helpers.form(action = controllers.paye.routes.PayeQuestionnaireController.submitQuestionnaire, 'id -> "form-end-journey-questionnaire") {
+    <input type="hidden" name="@{FormFields.transactionId}" value="@txId">
+    <input type="hidden" name="@{FormFields.journeyType}" value="@{journeyType.toString}">
+    <input type="hidden" name="@{FormFields.oldTaxCode}" value="@oldTaxCode">
+    <input type="hidden" name="@{FormFields.newTaxCode}" value="@{newTaxCode.getOrElse("")}">
+    <fieldset>
+        <legend class="h3-heading">@Messages("paye.questionnaire.question_heading.identity_profile")</legend>
+        <fieldset>
+            <legend>@Messages("paye.questionnaire.questions.easy_register")</legend>
+            <label class="label--inlineRadio--overhead" for="q1-1">@Messages("paye.questionnaire.answers.very_easy")
+                <input type="radio" id="q1-1" name="@{FormFields.wasItEasy}" value="1">
+            </label>
+            <label class="label--inlineRadio--overhead" for="q1-2"><br>@Messages("paye.questionnaire.answers.easy")
+                <input type="radio" id="q1-2" name="@{FormFields.wasItEasy}" value="2">
+            </label>
+            <label class="label--inlineRadio--overhead" for="q1-3"><br>@Messages("paye.questionnaire.answers.neutral")
+                <input type="radio" id="q1-3" name="@{FormFields.wasItEasy}" value="3">
+            </label>
+            <label class="label--inlineRadio--overhead" for="q1-4"><br>@Messages("paye.questionnaire.answers.difficult")
+                <input type="radio" id="q1-4" name="@{FormFields.wasItEasy}" value="4">
+            </label>
+            <label class="label--inlineRadio--overhead" for="q1-5">@Messages("paye.questionnaire.answers.very_difficult")
+                <input type="radio" id="q1-5" name="@{FormFields.wasItEasy}" value="5">
+            </label>
+        </fieldset>
+        <fieldset>
+            <legend>@Messages("paye.questionnaire.questions.secure")</legend>
+            <label class="label--inlineRadio--overhead" for="q2-1">@Messages("paye.questionnaire.answers.very_secure")
+                <input type="radio" id="q2-1" name="@{FormFields.secure}" value="1">
+            </label>
+            <label class="label--inlineRadio--overhead" for="q2-2"><br>@Messages("paye.questionnaire.answers.secure")
+                <input type="radio" id="q2-2" name="@{FormFields.secure}" value="2">
+            </label>
+            <label class="label--inlineRadio--overhead" for="q2-3"><br>@Messages("paye.questionnaire.answers.neutral")
+                <input type="radio" id="q2-3" name="@{FormFields.secure}" value="3">
+            </label>
+            <label class="label--inlineRadio--overhead" for="q2-4"><br>@Messages("paye.questionnaire.answers.insecure")
+                <input type="radio" id="q2-4" name="@{FormFields.secure}" value="4">
+            </label>
+            <label class="label--inlineRadio--overhead" for="q2-5">@Messages("paye.questionnaire.answers.very_insecure")
+                <input type="radio" id="q2-5" name="@{FormFields.secure}" value="5">
+            </label>
+        </fieldset>
+        <fieldset>
+            <legend>@Messages("paye.questionnaire.questions.comfortable")</legend>
+            <label class="label--inlineRadio--overhead" for="q3-1">@Messages("paye.questionnaire.answers.very_comfortable")
+                <input type="radio" id="q3-1" name="@{FormFields.comfortable}" value="1">
+            </label>
+            <label class="label--inlineRadio--overhead" for="q3-2"><br>@Messages("paye.questionnaire.answers.comfortable")
+                <input type="radio" id="q3-2" name="@{FormFields.comfortable}" value="2">
+            </label>
+            <label class="label--inlineRadio--overhead" for="q3-3"><br>@Messages("paye.questionnaire.answers.neutral")
+                <input type="radio" id="q3-3" name="@{FormFields.comfortable}" value="3">
+            </label>
+            <label class="label--inlineRadio--overhead-wide" for="q3-4"><br>@Messages("paye.questionnaire.answers.uncomfortable")
+                <input type="radio" id="q3-4" name="@{FormFields.comfortable}" value="4">
+            </label>
+            <label class="label--inlineRadio--overhead-wide" for="q3-5">@Messages("paye.questionnaire.answers.very_uncomfortable")
+                <input type="radio" id="q3-5" name="@{FormFields.comfortable}" value="5">
+            </label>
+        </fieldset>
+    </fieldset>
+    <fieldset>
+        <legend class="h3-heading">@Messages("paye.questionnaire.question_heading.company_car")</legend>
+        <fieldset>
+            <legend>@Messages("paye.questionnaire.questions.easy_update")</legend>
+            <label class="label--inlineRadio--overhead" for="q4-1">@Messages("paye.questionnaire.answers.very_easy")
+                <input type="radio" id="q4-1" name="@{FormFields.easyCarUpdateDetails}" value="1">
+            </label>
+            <label class="label--inlineRadio--overhead" for="q4-2"><br>@Messages("paye.questionnaire.answers.easy")
+                <input type="radio" id="q4-2" name="@{FormFields.easyCarUpdateDetails}" value="2">
+            </label>
+            <label class="label--inlineRadio--overhead" for="q4-3"><br>@Messages("paye.questionnaire.answers.neutral")
+                <input type="radio" id="q4-3" name="@{FormFields.easyCarUpdateDetails}" value="3">
+            </label>
+            <label class="label--inlineRadio--overhead" for="q4-4"><br>@Messages("paye.questionnaire.answers.difficult")
+                <input type="radio" id="q4-4" name="@{FormFields.easyCarUpdateDetails}" value="4">
+            </label>
+            <label class="label--inlineRadio--overhead" for="q4-5">@Messages("paye.questionnaire.answers.very_difficult")
+                <input type="radio" id="q4-5" name="@{FormFields.easyCarUpdateDetails}" value="5">
+            </label>
+        </fieldset>
+        <fieldset>
+            <legend>@Messages("paye.questionnaire.questions.likely")</legend>
+            <label class="label--inlineRadio--overhead" for="q5-1">@Messages("paye.questionnaire.answers.very_likely")
+                <input type="radio" id="q5-1" name="@{FormFields.onlineNextTime}" value="1">
+            </label>
+            <label class="label--inlineRadio--overhead" for="q5-2"><br>@Messages("paye.questionnaire.answers.likely")
+                <input type="radio" id="q5-2" name="@{FormFields.onlineNextTime}" value="2">
+            </label>
+            <label class="label--inlineRadio--overhead" for="q5-3"><br>@Messages("paye.questionnaire.answers.neutral")
+                <input type="radio" id="q5-3" name="@{FormFields.onlineNextTime}" value="3">
+            </label>
+            <label class="label--inlineRadio--overhead" for="q5-4"><br>@Messages("paye.questionnaire.answers.unlikely")
+                <input type="radio" id="q5-4" name="@{FormFields.onlineNextTime}" value="4">
+            </label>
+            <label class="label--inlineRadio--overhead" for="q5-5">@Messages("paye.questionnaire.answers.very_unlikely")
+                <input type="radio" id="q5-5" name="@{FormFields.onlineNextTime}" value="5">
+            </label>
+        </fieldset>
+        <fieldset>
+            <legend>@Messages("paye.questionnaire.questions.satisfaction")</legend>
+            <label class="label--inlineRadio--overhead" for="q6-1">@Messages("paye.questionnaire.answers.very_satisfied")
+                <input type="radio" id="q6-1" name="@{FormFields.overallSatisfaction}" value="1">
+            </label>
+            <label class="label--inlineRadio--overhead" for="q6-2"><br>@Messages("paye.questionnaire.answers.satisfied")
+                <input type="radio" id="q6-2" name="@{FormFields.overallSatisfaction}" value="2">
+            </label>
+            <label class="label--inlineRadio--overhead" for="q6-3"><br>@Messages("paye.questionnaire.answers.neutral")
+                <input type="radio" id="q6-3" name="@{FormFields.overallSatisfaction}" value="3">
+            </label>
+            <label class="label--inlineRadio--overhead" for="q6-4"><br>@Messages("paye.questionnaire.answers.dissatisfied")
+                <input type="radio" id="q6-4" name="@{FormFields.overallSatisfaction}" value="4">
+            </label>
+            <label class="label--inlineRadio--overhead" for="q6-5">@Messages("paye.questionnaire.answers.very_dissatisfied")
+                <input type="radio" id="q6-5" name="@{FormFields.overallSatisfaction}" value="5">
+            </label>
+        </fieldset>
+
+        <label for="q6">@Messages("paye.questionnaire.questions.improve")</label>
+        <textarea id="q6" maxlength="1000" name="@{FormFields.commentForImprovements}" cols="40" rows="6"></textarea>
+    </fieldset>
+    <p>@Messages("paye.questionnaire.warning")</p>
+    <input type="submit" class="button" value="Send"/>
+    }
+</div>

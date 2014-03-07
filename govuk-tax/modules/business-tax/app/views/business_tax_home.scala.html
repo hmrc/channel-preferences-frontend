@@ -1,0 +1,65 @@
+@(accountSummaries: controllers.bt.accountsummary.AccountSummaries)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+
+@import views.formatting.Dates._
+@import views.helpers.Link
+
+@main(title = "Your tax account", nav = true, sidebarLinks = Some(sidebarLinks), user= Some(user), header = Some(header)) {
+
+    @for(ac <- accountSummaries.regimes) {
+        <article id="@ac.regimeName" class="account-summary">
+            <h2 class="heading-36 push--top">@Messages(ac.regimeName)</h2>
+
+            @for(message <- ac.messages) {
+                <p class="@message.messageKey">@Html(Messages(message.messageKey, message.params.map(_.render):_*))</p>
+            }
+            @if(!ac.addenda.isEmpty) {
+                <h3>@Messages(ac.manageRegimeMessage)</h3>
+                <ul class="action-list">
+                    @for(addendum <- ac.addenda) {
+                     <li>@addendum.toHtml</li>
+                    }
+                </ul>
+            }
+        </article>
+    }
+    <article>
+        <h2 class="heading-36">@Messages("bt.home.otherTaxes")</h2>
+        <p>@Messages("bt.home.mergeAccounts.1")</p>
+
+        @if(accountSummaries.regimes.size != 4) {
+            <p>@Html(Messages("bt.home.mergeAccounts.2"))</p>
+            <p>@Link.toInternalPage(id = Some("mergeGGHref"), url = controllers.bt.routes.MergeGGAccountsController.mergeGGAccounts.url, value = Some("Merge your Government Gateway accounts")).toHtml</p>
+        }
+        <p>
+            @Messages("bt.home.everythingElse.1")
+            @Link.toInternalPage(id = Some("otherServicesHref"), url = controllers.bt.routes.OtherServicesController.otherServices.url, value = Some("bt.home.everythingElse.linkText")).toHtml
+            @Messages("bt.home.everythingElse.2")
+        </p>
+    </article>
+}
+
+@sidebarLinks = {
+    <div class="service-info__related-subsection">
+
+	<h2>@Messages("bt.home.sidebarLinks.title")</h2>
+
+	<p class="service-info__help">@Messages("bt.home.sidebarLinks.info")</p>
+
+	<nav class="service-info__navigation" role="navigation" aria-labelledby="parent-subsection">
+	    <ul>
+            <li>
+                @Link.toExternalPage(id = Some("browseTax"), url = "https://www.gov.uk/browse/tax", value = Some("bt.home.sidebarLinks.money.text")).toHtml
+            </li>
+            <li>
+                @Link.toExternalPage(id = Some("webminars"), url = "http://www.hmrc.gov.uk/webinars/", value = Some("bt.home.sidebarLinks.webinars.text")).toHtml
+            </li>
+            <li>
+                @Link.toExternalPage(id = Some("youtube"), url = "http://www.youtube.com/hmrcgovuk", value = Some("bt.home.sidebarLinks.youtube.text")).toHtml
+            </li>
+	    </ul>
+	</nav>
+    </div>
+}
+@header =  {
+    @Messages("bt.home.title")
+}

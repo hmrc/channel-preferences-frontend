@@ -1,0 +1,5 @@
+@(user: Option[uk.gov.hmrc.common.microservice.domain.User], sidebarLinks: Option[Html], nav: Boolean)
+
+@if( sidebarLinks.isDefined ) {
+    @sidebarLinks.get
+}

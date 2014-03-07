@@ -1,0 +1,14 @@
+GOV.UK/TAX APPLICATION
+======================
+
+This is the play app that shows your tax details.
+
+Running
+-------
+
+```bash
+$ . build_env
+$ play run
+```
+
+SBT build will be coming soon

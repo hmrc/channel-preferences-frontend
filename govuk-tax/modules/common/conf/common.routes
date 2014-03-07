@@ -1,0 +1,52 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+
+GET     /assets/*file                                   controllers.common.Assets.at(path="/public", file)
+
+# BT login/logout pages
+GET     /account/sign-out                               @controllers.common.LoginController.logout
+GET     /account/sign-in                                @controllers.common.LoginController.businessTaxLogin
+POST    /account/sign-in                                @controllers.common.LoginController.governmentGatewayLogin
+GET     /signed-out                                     @controllers.common.LoginController.signedOut
+GET     /done/your-company-car                          @controllers.common.LoginController.payeSignedOut
+GET     /account/sso-sign-out                           @controllers.common.LoginController.redirectToRemoteSsoLogout
+
+
+# routes for testing IDA integration
+GET     /samllogin                                      @controllers.common.IdaLoginController.samlLogin(token: Option[String])
+POST    /ida/login                                      @controllers.common.IdaLoginController.idaLogin
+
+
+# URLs used for sso, they cannot change without agreement with Aspire
+POST    /ssoin                                          @controllers.common.SsoInController.postIn
+GET     /ssoin                                          @controllers.common.SsoInController.getIn(payload: String)
+GET     /ssoin/logout                                   @controllers.common.SsoInController.out
+GET     /ssoout                                         @controllers.common.SsoOutController.encryptPayload
+GET     /loggedout                                      @controllers.common.LoginController.redirectToSignedOut
+
+GET    /business-tax/home                               @controllers.common.LoginController.redirectToAccountHome
+
+# Common resources
+GET     /help/cookies                                   @controllers.common.CommonController.cookies
+GET     /help/terms-and-conditions                      @controllers.common.CommonController.termsAndConditions
+GET     /help/privacy                                   @controllers.common.CommonController.privacyPolicy
+GET     /help                                           @controllers.common.CommonController.helpPage
+
+# Admin pages
+GET     /admin/healthcheck                              @controllers.common.HealthCheckController.check
+GET     /admin/details                                  @controllers.common.HealthCheckController.details
+GET     /admin/detail/:name                             @controllers.common.HealthCheckController.detail(name: String)
+GET     /admin/metrics                                  com.kenshoo.play.metrics.MetricsController.metrics
+
+# Support pages
+GET     /contact-hmrc                                   @controllers.common.support.ContactController.index
+POST    /contact-hmrc                                   @controllers.common.support.ContactController.submit
+GET     /contact-hmrc/thanks                            @controllers.common.support.ContactController.thanks
+POST    /contact/problem_reports                        @controllers.common.support.ProblemReportsController.report
+POST    /contact/problem_reports-unauthenticated        @controllers.common.support.ProblemReportsController.reportUnauthenticated
+GET     /beta-feedback                                  @controllers.common.support.FeedbackController.feedbackForm
+GET     /beta-feedback-unauthenticated                  @controllers.common.support.FeedbackController.unauthenticatedFeedbackForm
+POST    /beta-feedback/submit                           @controllers.common.support.FeedbackController.submit
+POST    /beta-feedback/submit-unauthenticated           @controllers.common.support.FeedbackController.submitUnauthenticated
+GET     /beta-feedback/thanks                           @controllers.common.support.FeedbackController.thanks
+GET     /beta-feedback/thanks-unauthenticated           @controllers.common.support.FeedbackController.unauthenticatedThanks

@@ -1,0 +1,124 @@
+BENEFIT TYPE|TYPE ID|DESRIPTION
+IABDTYPE|1|Gift Aid Payments
+IABDTYPE|2|Gift Aid treated as paid in previous tax year
+IABDTYPE|3|One off Gift Aid Payments
+IABDTYPE|4|Gift Aid after end of tax year
+IABDTYPE|5|Personal Pension Payments
+IABDTYPE|6|Maintenance Payments
+IABDTYPE|7|Total gift aid Payments
+IABDTYPE|8|Employer Provided Services
+IABDTYPE|9|Widows and Orphans
+IABDTYPE|10|Balancing Charge
+IABDTYPE|11|Loan Interest Amount
+IABDTYPE|12|Death, Sickness or Funeral Benefits
+IABDTYPE|13|Married Couples Allowance (MAA)
+IABDTYPE|14|Blind Persons Allowance
+IABDTYPE|15|BPA Received from Spouse/Civil Partner
+IABDTYPE|16|Community Investment Tax Credit
+IABDTYPE|17|Gifts of Shares to Charity
+IABDTYPE|18|Retirement Annuity Payments
+IABDTYPE|19|Non-Coded Income
+IABDTYPE|20|Commission
+IABDTYPE|21|Other Income (Earned)
+IABDTYPE|22|Other Income (Not Earned)
+IABDTYPE|23|Part Time Earnings
+IABDTYPE|24|Tips
+IABDTYPE|25|Other Earnings
+IABDTYPE|26|Casual Earnings
+IABDTYPE|27|New Estimated Pay
+IABDTYPE|28|Benefit in Kind
+IABDTYPE|29|Car Fuel Benefit
+IABDTYPE|30|Medical Insurance
+IABDTYPE|31|Car Benefit
+IABDTYPE|32|Telephone
+IABDTYPE|33|Service Benefit
+IABDTYPE|34|Taxable Expenses Benefit
+IABDTYPE|35|Van Benefit
+IABDTYPE|36|Van Fuel Benefit
+IABDTYPE|37|Beneficial Loan
+IABDTYPE|38|Accommodation
+IABDTYPE|39|Assets
+IABDTYPE|40|Asset Transfer
+IABDTYPE|41|Educational Services
+IABDTYPE|42|Entertaining
+IABDTYPE|43|Expenses
+IABDTYPE|44|Mileage
+IABDTYPE|45|Non-qualifying Relocation Expenses
+IABDTYPE|46|Nursery Places
+IABDTYPE|47|Other Items
+IABDTYPE|48|Payments on Employee's Behalf
+IABDTYPE|49|Personal Incidental Expenses
+IABDTYPE|50|Qualfying Relocation Expenses
+IABDTYPE|51|Employer Provided Professional Subscription
+IABDTYPE|52|Income Tax Paid but not deducted from Director's Remuneration
+IABDTYPE|53|Travel and Subsistence
+IABDTYPE|54|Vouchers and Credit Cards
+IABDTYPE|55|Job Expenses
+IABDTYPE|56|Flat Rate Job Expenses
+IABDTYPE|57|Professional Subscriptions
+IABDTYPE|58|Hotel and Meal Expenses
+IABDTYPE|59|Other Expenses
+IABDTYPE|60|Vehicle Expenses
+IABDTYPE|61|Mileage Allowance Relief
+IABDTYPE|62|Foreign Dividend Income
+IABDTYPE|63|Foreign Property Income
+IABDTYPE|64|Foreign Interest & Other Savings
+IABDTYPE|65|Foreign Pensions & Other Income
+IABDTYPE|66|State Pension
+IABDTYPE|67|Occupational Pension
+IABDTYPE|68|Public Services Pension
+IABDTYPE|69|Forces Pension
+IABDTYPE|70|Personal Pension Annuity
+IABDTYPE|71|Lump Sum Deferral
+IABDTYPE|72|Profit
+IABDTYPE|73|Loss
+IABDTYPE|74|Loss Brought Forward from earlier tax year
+IABDTYPE|75|Bank / Building Society Interest
+IABDTYPE|76|UK Dividend
+IABDTYPE|77|Unit Trust
+IABDTYPE|78|Stock Dividend
+IABDTYPE|79|National Savings
+IABDTYPE|80|Savings Bond
+IABDTYPE|81|Purchased Life Annuities
+IABDTYPE|82|Untaxed Interest
+IABDTYPE|83|Incapacity Benefit
+IABDTYPE|84|Job Seekers Allowance
+IABDTYPE|85|Other Benefit
+IABDTYPE|86|Trusts, Settlements & Estates at Trust Rate
+IABDTYPE|87|Trusts, Settlements & Estates at Basic Rate
+IABDTYPE|88|Trusts, Settlements & Estates at Lower Rate
+IABDTYPE|89|Trusts, Settlements & Estates at Non-payable Dividend Rate
+IABDTYPE|90|Venture Capital Trust
+IABDTYPE|91|BPA Transferred to Spouse/Civil Partner
+IABDTYPE|93|Trade Union Subscriptions
+IABDTYPE|94|Chargeable Event Gain
+IABDTYPE|95|Gift Aid Adjustment
+IABDTYPE|96|Widows and Orphans Adjustment
+IABDTYPE|97|Married Couples Allowance to Wife (MAW)
+IABDTYPE|98|Double Taxation Relief
+IABDTYPE|99|Concession Relief
+IABDTYPE|100|Enterprise Investment Scheme
+IABDTYPE|101|Early Years Adjustment
+IABDTYPE|102|Loss relief
+IABDTYPE|103|Estimated Income
+IABDTYPE|104|Foreign Pension Allowance
+IABDTYPE|105|Allowances Allocated Elsewhere
+IABDTYPE|106|Allowances Allocated Here
+IABDTYPE|107|Estimated NIB
+IABDTYPE|108|Estimated IB
+IABDTYPE|109|Married Couples Allowance (MAE)
+IABDTYPE|110|Married Couples Allowance (MCCP)
+IABDTYPE|111|Surplus Married Couples Allowance (MAT)
+IABDTYPE|112|Surplus Married Couples Allowance to Wife (WAA)
+IABDTYPE|113|Surplus Married Couples Allowance to Wife (WAE)
+IABDTYPE|114|Married Couples Allowance to Wife (WMA)
+IABDTYPE|115|Friendly Society Subscriptions
+IABDTYPE|116|Higher Rate Adjustment
+IABDTYPE|117|Non-Cash Benefit
+IABDTYPE|118|Personal Allowance (PA)
+IABDTYPE|119|Personal Allowance Aged (PAA)
+IABDTYPE|120|Personal Allowance Elderly (PAE)
+IABDTYPE|121|Starting Rate Adjustment (LRA)
+IABDTYPE|122|Starting Rate Band Adjustment (ELR)
+IABDTYPE|123|Employment and Support Allowance
+IABDTYPE|124|Child Benefit

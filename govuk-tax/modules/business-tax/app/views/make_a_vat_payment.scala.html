@@ -1,0 +1,99 @@
+@()(implicit user: uk.gov.hmrc.common.microservice.domain.User, request : Request[AnyRef])
+
+@import views.helpers.Link
+@import uk.gov.hmrc.common.PortalUrlBuilder
+
+@main(title = "Pay your VAT", nav = true, user= Some(user)) {
+<header class="page-header">
+    <h1>Pay your VAT</h1>
+</header>
+
+<p>Options to pay your VAT are shown below.</p>
+<p>It’s your responsibility to make sure payments reach HM Revenue and Customs (HMRC) on time. Use the
+    @Link.toExternalPage(id = Some("paymentDeadlineCalculatorHref1"), url = "http://www.hmrc.gov.uk/tools/vatpaymentsdeadline/calculator.htm", value = Some("payment deadline calculator")).toHtml
+    to make sure you pay on time - @Link.toExternalPage(id = Some("penaltyHref"), url = "https://www.gov.uk/vat-returns/surcharges-and-penalties", value = Some("you may be charged a penalty if your payment is late")).toHtml.</p>
+
+<h2>Direct Debit</h2>
+
+<p>
+    @Link.toPortalPage(
+        url = PortalUrlBuilder.buildPortalUrl("vatOnlineAccount"),
+        id = Some("vatOnlineAccountHref"),
+        value = Some("Set up a Direct Debit")
+    ).toHtml
+    at least 2 working days before your VAT Return and payment are due (or 3 working days, if these are due on a weekend or bank holiday). You can't pay by Direct Debit if you make payments on account.
+</p>
+<p>HMRC will tell you when the Direct Debit has been set up. The
+    @Link.toExternalPage(id = Some("paymentDeadlineCalculatorHref2"), url = "http://www.hmrc.gov.uk/tools/vatpaymentsdeadline/calculator.htm", value = Some("payment deadline calculator")).toHtml tells you when the payment leaves your account. Contact your bank to make changes to your Direct Debit.</p>
+<p>You must pay by another method until the Direct Debit is set up.</p>
+<h2>Annual Accounting Scheme</h2>
+
+<p>If you use the @Link.toExternalPage(id = Some("annualAccountingSchemeHref"), url = "https://www.gov.uk/vat-annual-accounting-scheme", value = Some("Annual Accounting Scheme")).toHtml,
+    you can only set up automatic Direct Debit online for balancing payments. You can set up a Direct Debit for regular payments using form @Link.toExternalPage(id = Some("vat623Href"), url = "http://search2.hmrc.gov.uk/kb5/hmrc/forms/view.page?record=lQ05egs5kVk&f%0Aormid=1029", value = Some("VAT623")).toHtml.
+</p>
+
+<h2>Online with a debit or credit card</h2>
+
+<p>You can @Link.toExternalPage(id = Some("payOnlineHref"), url = "https://www.santanderbillpayment.co.uk/hmrc/scripts/nrpaynow.asp", value = Some("pay online with a card")).toHtml - you’ll need your VAT registration number @user.userAuthority.accounts.vat.get.vrn.vrn.</p>
+
+<p>You must use a card from a UK card issuer - not American Express or Diners Club.</p>
+
+<p>Allow 3 working days for payments to reach HMRC.</p>
+
+<p>There’s a 1.4% fee if you pay by credit card.</p>
+
+<h2>Online or telephone banking, Bacs, CHAPS or standing order</h2>
+
+<p>Check your bank’s transaction limits and processing times.</p>
+
+<p>If you make a Faster Payment it will clear the same day if the amount is within your bank’s limits.</p>
+
+<p>You need HMRC’s bank details</p>
+
+<p>Use your VAT registration number as the payment reference @user.userAuthority.accounts.vat.get.vrn.vrn.</p>
+
+<p>You can also pay using the @Link.toExternalPage(id = Some("chapsFormHref"), url = "http://www.hmrc.gov.uk/payinghmrc/paying-vat.htm", value = Some("CHAPS form")).toHtml.</p>
+<p>If you use:</p>
+<ul class="bullets">
+    <li>the Payment on Account scheme you can pay via the @Link.toExternalPage(id = Some("standingOrderFormHref"), url = "http://search2.hmrc.gov.uk/kb5/hmrc/forms/view.page?record=funDoYVNg_c&formid=1028", value = Some("standing order form")).toHtml</li>
+    <li>the Annual Accounting Scheme you can ask to pay by standing order when you join the scheme</li>
+</ul>
+
+
+<table>
+    <thead><tr>
+	<th scope="col">Sort code</th>
+	<th scope="col">Account number</th>
+	<th scope="col">Account name</th>
+    </tr></thead>
+    <tbody><tr>
+	<td>08 32 00</td>
+	<td>11963155</td>
+	<td>
+	    <abbr title="HM Revenue &amp; Customs">HMRC</abbr> <abbr title="Value Added Tax">VAT</abbr>
+	</td>
+    </tr></tbody>
+</table>
+
+<h3>Overseas accounts</h3>
+<p>Use the details below to pay from an overseas account.</p>
+
+<table>
+    <thead><tr>
+	<th scope="col">Account number (<abbr title="International Bank Account Number">IBAN</abbr>)</th>
+	<th scope="col"><abbr title="SWIFT Bank Identifier Code">BIC</abbr></th>
+	<th scope="col">Account name</th>
+    </tr></thead>
+    <tbody><tr>
+	<td>GB25CITI08320011963155</td>
+	<td>CITIGB2L</td>
+	<td>
+	    <abbr title="HM Revenue &amp; Customs">HMRC</abbr> <abbr title="Value Added Tax">VAT</abbr>
+	</td>
+    </tr></tbody>
+</table>
+
+<p>If asked for the IBAN, you must also give the BIC.</p>
+<p>HMRC’s banking address is Citi, Citigroup Centre, Canada Square, Canary Wharf, London E14 5LB.</p>
+
+}

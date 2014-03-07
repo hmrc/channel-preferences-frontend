@@ -1,0 +1,65 @@
+@(formWithErrors:Form[uk.gov.hmrc.common.microservice.governmentgateway.Credentials] = Form(
+        Forms.mapping(
+            "userId" -> Forms.of[String](play.api.data.format.Formats.stringFormat),
+            "password" -> Forms.of[String](play.api.data.format.Formats.stringFormat)
+        )(uk.gov.hmrc.common.microservice.governmentgateway.Credentials.apply)(uk.gov.hmrc.common.microservice.governmentgateway.Credentials.unapply)
+    )
+)(implicit request: Request[_])
+
+@import play.api.data.format.Formats._
+@import views.helpers.Link
+
+@main(title = "Sign in with your Government Gateway account") {
+
+    <header class="page-header">
+        <h1>Your tax account</h1>
+    </header>
+    <p>Use your online tax account to send tax returns, make payments or check balances for Self Assessment, VAT, Corporation Tax, and Pay As You Earn (PAYE).</p>
+    <h2>Before you start</h2>
+
+    <p>To use this service @Link.toExternalPage(url = "https://www.gov.uk/new-business-register-for-tax", value = Some("you must be registered")).toHtml for at least one of the above taxes and enrolled for its online service.</p>
+    <h2>Sign in with your Government Gateway account</h2>
+
+    <p>You can @Link.toExternalPage(url = "https://online.hmrc.gov.uk/registration/newbusiness", value = Some("register for a Government Gateway account")).toHtml if you don't have one.</p>
+
+    @helpers.form(action = controllers.common.routes.LoginController.governmentGatewayLogin) {
+        <fieldset>
+            <div class="form-field-group @if(formWithErrors.hasErrors) {error}">
+                @formWithErrors.errors("userId").map{ error =>
+                    <span class="error-notification username">Invalid Username: @Messages(error.message)</span>
+                }
+                @formWithErrors.errors("password").map{ error =>
+                    <span class="error-notification password">Invalid Password: @Messages(error.message)</span>
+                }
+                @formWithErrors.globalErrors.map{ error =>
+                    <span class="error-notification password">@Messages(error.message)</span>
+                }
+                <div class="form-field">
+                <label class="label--inline" for="userId">User ID</label>
+                <input type="text" id="userId" name="userId" required />
+                </div>
+
+
+
+                <div class="form-field">
+                <label class="label--inline" for="password">Password</label>
+                <input type="password" id="password" name="password" required />
+                </div>
+
+
+
+                <div class="form-field">
+                <button class="button" type="submit">Sign in</button>
+                </div>
+            </div>
+        </fieldset>
+    }
+    <h2>Problems signing in</h2>
+
+    <ul class="action-list">
+        <li>@Link.toExternalPage(url = "https://online.hmrc.gov.uk/user/credentials/userid", value = Some("Lost user ID")).toHtml</li>
+        <li>@Link.toExternalPage(url = "https://online.hmrc.gov.uk/user/credentials/password", value = Some("Lost password")).toHtml</li>
+        <li>@Link.toExternalPage(url = "http://www.hmrc.gov.uk/contactus/online-services.htm", value = Some("Lost user ID and password (Self Assessment only)")).toHtml</li>
+        <li>@Link.toExternalPage(url = "https://online.hmrc.gov.uk/information/faqs?affinitygroup=&faqid=eng.faq.employers.faq.faqcom046", value = Some("Lost account activation code")).toHtml</li>
+    </ul>
+}

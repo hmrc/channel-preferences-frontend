@@ -1,0 +1,87 @@
+@(carBenefit: uk.gov.hmrc.common.microservice.paye.domain.CarBenefit, employerNameString: String, idSuffix: Option[String] = None)
+
+@import views.formatting.Dates._
+@import views.formatting.Money._
+
+    @id(idString: String) = @{ idSuffix.map(suffix => s"$idString-$suffix").getOrElse(idString) }
+
+
+@defining(carBenefit.fuelType=="electricity") {electricCar =>
+<table>
+    <caption id="@id("company-name")">@Messages("paye.display_car_and_fuel.company_car_provided_by", employerNameString)</caption>
+    <tbody>
+        @carBenefit.dateMadeAvailable.map {dateMadeAvailable =>
+            <tr>
+                <th scope="row">@Messages("paye.display_car_and_fuel.date_made_available")</th>
+                <td id="@id("car-benefit-date-available")">@formatDate(dateMadeAvailable)</td>
+            </tr>
+        }
+        @carBenefit.dateWithdrawn.map { dateWithdrawn =>
+            <tr>
+                <th scope="row">@Messages("paye.display_car_and_fuel.date_withdrawn")</th>
+                <td id="@id("car-benefit-date-withdrawn")">@formatDate(dateWithdrawn)</td>
+            </tr>
+        }
+        @if(carBenefit.dateCarRegistered.displayable) {
+            <tr>
+                <th scope="row">@Messages("paye.display_car_and_fuel.date_registered")</th>
+                <td id="@id("car-benefit-date-registered")">@formatDate(carBenefit.dateCarRegistered.value)</td>
+            </tr>
+        }
+        @carBenefit.daysUnavailable.map { daysUnavailable =>
+            @if(daysUnavailable > 0) {
+                <tr>
+                    <th scope="row">@Messages("paye.display_car_and_fuel.days_unavailable")</th>
+                    <td id="@id("car-benefit-days-unavailable")">@daysUnavailable</td>
+                </tr>
+            }
+        }
+        <tr>
+            <th scope="row">@Messages("paye.display_car_and_fuel.list_price")</th>
+            <td id="@id("car-benefit-car-value")">@pounds(carBenefit.carValue)</td>
+        </tr>
+        <tr>
+            <th scope="row">@Messages("paye.display_car_and_fuel.employee_contribution")</th>
+            <td id="@id("car-benefit-employee-capital-contribution")">@pounds(carBenefit.employeeCapitalContribution)</td>
+        </tr>
+        <tr>
+            <th scope="row">@Messages("paye.display_car_and_fuel.employee_payments")</th>
+           <td id="@id("car-benefit-employee-payments")">@pounds(carBenefit.employeePayments)</td>
+        </tr>
+        @if(!electricCar) {
+            <tr>
+                <th scope="row">@Messages("paye.display_car_and_fuel.private_fuel")</th>
+                <td id="@id("private-fuel")">
+                @carBenefit.fuelBenefit.map { fuelBenefit =>
+                    @fuelBenefit.dateWithdrawn.map { dateWithdrawn =>
+                        @{Messages("paye.home.employer_pay_fuel.date", formatDate(fuelBenefit.dateWithdrawn, ""))}
+                    }.getOrElse {
+                        @Messages("paye.home.employer_pay_fuel.true")
+                    }
+                }.getOrElse {
+                    @Messages("paye.home.employer_pay_fuel.false")
+                }
+                </td>
+            </tr>
+        }
+        <tr>
+            <th scope="row">@Messages("paye.display_car_and_fuel.fuel_type")</th>
+            <td id="@id("car-benefit-fuel-type")">@Messages(s"paye.add_car_benefit.fuel_type.${carBenefit.fuelType}")</td>
+        </tr>
+        @if(!electricCar) {
+            @carBenefit.co2Emissions.map { co2Emissions =>
+                <tr>
+                    <th scope="row">@Messages("paye.display_car_and_fuel.emissions")</th>
+                    <td id="@id("car-co2-emissions")">@Messages("paye.display_car_and_fuel.emissions_unit", co2Emissions)</td>
+                </tr>
+            }
+            @carBenefit.engineSize.map { engineSize =>
+                <tr>
+                    <th scope="row">@Messages("paye.display_car_and_fuel.engine_capacity")</th>
+                    <td id="@id("car-benefit-engine")">@Messages(s"paye.add_car_benefit.engine_capacity.$engineSize")</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+}

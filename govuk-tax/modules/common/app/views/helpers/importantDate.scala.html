@@ -1,0 +1,16 @@
+@(service: String, eventType: String, date : org.joda.time.LocalDate, grayedoutText: Option[String], text: String, args: Seq[String], linkO: Option[views.helpers.Link])(implicit lang: play.api.i18n.Lang)
+
+@import play.api.i18n._
+@import views.html.helper._
+@import views.helpers._
+@import play.api.templates.HtmlFormat
+@import views.formatting.Dates._
+
+<DIV class="activity-list__date"><P>@formatDate(date)</P></DIV>
+<DIV class="activity-list__description">
+    <P>
+        @if(grayedoutText.isDefined) {<SPAN class="faded-text">@Messages(grayedoutText.get,args: _*)</SPAN>}
+        <SPAN>@Messages(text, args: _*).</SPAN>
+        @{linkO.map { link => Html("<br>" + link.toHtml)}}
+    </P>
+</DIV>

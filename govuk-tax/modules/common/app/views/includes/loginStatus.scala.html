@@ -1,0 +1,22 @@
+@(user: Option[uk.gov.hmrc.common.microservice.domain.User], nav: Boolean)
+
+@import views.formatting.Dates._
+
+<div class="service-info">
+    <div class="logo">
+        <span class="organisation-logo organisation-logo-medium">HM Revenue &amp; Customs</span>
+    </div>
+    @if( user.isDefined ) {
+        <div id="lastlogin" class="service-info__help">
+            <p>@if(!user.get.userAuthority.previouslyLoggedInAt.isEmpty) {
+                @Messages("common.previousLoginTime", user.get.displayName.get, formatEasyReadingTimestamp(user.get.userAuthority.previouslyLoggedInAt, ""))
+                } else {
+                    @Messages("common.firstlogin", user.get.displayName.get)
+                }
+                @if(!nav) {
+                <br><a href="@common.routes.LoginController.logout">Sign out</a>
+                }
+            </p>
+        </div>
+    }
+</div>

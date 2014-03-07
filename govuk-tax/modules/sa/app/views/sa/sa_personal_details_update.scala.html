@@ -1,0 +1,65 @@
+@(changeAddressForm: Form[controllers.sa.ChangeAddressForm])(implicit user: uk.gov.hmrc.common.microservice.domain.User, request: Request[_])
+
+@import helper._
+@import views.html.helpers._
+
+@main(title = "Change My Details", nav = true, user = Some(user)) {
+
+    <h1>Change your address with HMRC</h1>
+
+    @helpers.form(action = controllers.sa.routes.SaController.submitChangeAddress) {
+
+	@helpers.input(
+        changeAddressForm("addressLine1"),
+	'_label -> "Address",
+	'_divClass -> "form-field",
+	'_inputClass -> "input--fullwidth",
+	'_error -> changeAddressForm.error("addressLine1")
+	)
+
+	@helpers.input(
+        changeAddressForm("addressLine2"),
+	'_label -> "",
+	'_divClass -> "form-field",
+	'_inputClass -> "input--fullwidth",
+	'_error -> changeAddressForm.error("addressLine2")
+	)
+
+	@helpers.input(
+        changeAddressForm("optionalAddressLines.addressLine3"),
+	'_label -> "",
+	'_divClass -> "form-field",
+	'_inputClass -> "input--fullwidth",
+	'_error -> changeAddressForm.error("optionalAddressLines")
+	)
+
+	@helpers.input(
+        changeAddressForm("optionalAddressLines.addressLine4"),
+	'_label -> "Town or city",
+	'_divClass -> "form-field",
+	'_inputClass -> "input--fullwidth",
+	'_error -> changeAddressForm.error("optionalAddressLines")
+	)
+
+	@helpers.input(
+        changeAddressForm("postcode"),
+        '_label -> "Postcode",
+	'_divClass -> "form-field",
+	'_inputClass -> "input--small",
+	'_error -> changeAddressForm.error("postcode")
+	)
+
+	@helpers.input(
+	changeAddressForm("additionalDeliveryInformation"),
+	'_label -> "Additional Delivery Info",
+	'_divClass -> "form-field",
+	'_inputClass -> "input--fullwidth",
+	'_error -> changeAddressForm.error("optionalAddressLines")
+	)
+
+	<div class="form-field">
+	    <input class="button float--right" value="Submit" />
+	</div>
+    }
+
+}

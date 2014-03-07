@@ -1,0 +1,43 @@
+@(utr: String, personalDetails: uk.gov.hmrc.common.microservice.sa.domain.SaPerson, nameFromGovernmentGateway: String)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+
+@import views.helpers.Link
+
+@main(title = "My Details", nav = true, user = Some(user)) {
+
+    <h1>Your tax account</h1>
+
+    <h2 class="heading-36">Notification information</h2>
+
+    <ul class="default-list no-bullets">
+	<li>Name: @nameFromGovernmentGateway</li>
+	<li>UTR: @utr</li>
+    </ul>
+
+    <p>Notifications will be sent by email.<br>
+	<a href="#">Change notifications</a>
+    </p>
+
+    <h3>Adresses</h3>
+
+    <ol>
+	<li>
+	    <p>
+		@if( personalDetails.address.addressLine1 ) { @personalDetails.address.addressLine1<br /> }
+		@if( personalDetails.address.addressLine2 ) { @personalDetails.address.addressLine2<br /> }
+		@if( personalDetails.address.addressLine3 ) { @personalDetails.address.addressLine3<br /> }
+		@if( personalDetails.address.addressLine4 ) { @personalDetails.address.addressLine4<br /> }
+		@if( personalDetails.address.addressLine5 ) { @personalDetails.address.addressLine5<br /> }
+		@if( personalDetails.address.postcode ) { @personalDetails.address.postcode }
+	    </p>
+	    @if( personalDetails.address.additionalDeliveryInformation ) {
+		<p>Additional delivery information: @personalDetails.address.additionalDeliveryInformation</p>
+	    }
+
+	    <p>This is your main address and communication address for Corporation Tax and PAYE.</p>
+
+	    <p>@Link.toInternalPage(url = controllers.sa.routes.SaController.changeAddress.url, value = Some("Change this address")).toHtml</p>
+	</li>
+    </ol>
+
+
+}

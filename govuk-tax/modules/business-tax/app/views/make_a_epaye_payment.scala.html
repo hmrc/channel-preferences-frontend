@@ -1,0 +1,61 @@
+@()(implicit user: uk.gov.hmrc.common.microservice.domain.User, request : Request[AnyRef])
+
+@import views.helpers.Link
+@import uk.gov.hmrc.common.PortalUrlBuilder
+
+@main(title = "Pay your Employers PAYE", nav = true, user= Some(user)) {
+
+    @defining(PortalUrlBuilder.buildPortalUrl("btDirectDebits")){ directDebitsUrl =>
+
+        <header class="page-header">
+            <h1>Pay your Employers PAYE</h1>
+        </header>
+
+
+            <p>Options to pay your Employers PAYE are shown below. </p>
+            <p>Companies with 250 or more employees must pay electronically.</p>
+            <p>It’s your responsibility to make sure payments reach HM Revenue & Customs (HMRC) on time – @Link.toExternalPage(id = Some("contactHmrcHref"), url = "http://www.hmrc.gov.uk/payerti/end-of-year/payepenalties/late-payments.htm", value = Some("you may have to pay a penalty")).toHtml and be charged interest if they don’t.</p>
+            <p>Payments will be delayed if you don’t use the correct 13 character accounts office reference. You may need to include the tax year and PAYE month if you pay early or late. Use the @Link.toExternalPage(id = Some("referenceCheckerHref"), url = "http://www.hmrc.gov.uk/payinghmrc/paye.htm#2", value = Some("reference checker")).toHtml to make sure you get it right. </p>
+            <h2>Paying Pay As You Earn (PAYE) and Class 1 National Insurance</h2>
+            <p>You need your accounts office reference number to make a payments. You can find this on:</p>
+
+            <ul class="bullets">
+              <li>the letter HMRC sent you when you first registered as an employer</li>
+                <li>the letter HMRC sends you instead of a payment booklet</li>
+              <li>the front of your payment booklet if you still get one</li>
+            </ul>
+            <p>You have to enter the number without gaps between the characters.</p>
+            <p>All end of year balancing payments must show in month 12. You can only use month 13 to pay National Insurance class 1 you owe on your P11D.</p>
+
+
+        <div>
+            <h2>Direct Debit</h2>
+
+            <p>
+                @Link.toPortalPage(id = Some("ePayeOnlineAccountHref1"), url = directDebitsUrl, value = Some("Set up a Direct Debit")).toHtml.
+            </p>
+            <p>Allow 5 working days to process a Direct Debit the first time you set one up. After that, it’s 3 working days.</p>
+            <p>They’ll show on your statements as 'HMRC NDDS'.</p>
+            <p>
+                You can also
+                @Link.toPortalPage(id = Some("ePayeOnlineAccountHref2"), url = directDebitsUrl, value = Some("change your Direct Debit")).toHtml
+                online.
+            </p>
+        <div>
+            <h2>Online with a debit or credit card</h2>
+            <p>You can @Link.toExternalPage(id = Some("payOnlineHref"), url = "https://www.santanderbillpayment.co.uk/hmrc/scripts/nrpaynow.asp", value = Some("pay online by card")).toHtml from a UK issuer - not American Express or Diners Club.</p>
+            <p>Allow 3 working days for payments to reach HMRC.</p>
+            <p>There’s a 1.4% fee if you pay by credit card.</p>
+        </div>
+
+        <div>
+            <h2>Online or telephone banking, Bacs or CHAPS</h2>
+            <p>Check your bank’s transaction limits and processing times.</p>
+            <p>If you make a Faster Payment it will clear the same day if the amount is within your bank’s limits.</p>
+            <p>You need HMRC’s bank details.  Check which @Link.toExternalPage(id = Some("hmrcBankAccountHref"), url = "http://www.hmrc.gov.uk/tools/bankaccounts/p/", value = Some("HMRC bank account to use for payments")).toHtml.</p>
+            <p>Very large employers who want to pay by CHAPS should
+                @Link.toExternalPage(id = Some("contactHmrcHref"), url = "http://www.hmrc.gov.uk/payinghmrc/cumbernauld.htm", value = Some("contact HMRC about multiple and composite payments")).toHtml.</p>
+        </div>
+
+    }
+}

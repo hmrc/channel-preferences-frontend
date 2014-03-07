@@ -1,0 +1,8 @@
+@(elements: views.html.helper.FieldElements)
+
+<div class="@if(elements.hasErrors) {error}">
+    <label class="checkbox" for="@elements.id">@elements.input @elements.label</label>
+    @elements.errors(elements.lang).map { error =>
+    <span style="display: block" class="error-notification">@Messages(error)</span>
+    }
+</div>

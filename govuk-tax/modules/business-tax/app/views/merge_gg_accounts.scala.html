@@ -1,0 +1,37 @@
+@(deEnrolLink: views.helpers.Link, enrolLink: views.helpers.Link)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+
+@import views.helpers.RenderableMessageProperty.Link._
+@import views.helpers.Link
+@import views.formatting.Dates._
+@import config.PortalConfig
+@import uk.gov.hmrc.common.PortalUrlBuilder
+
+@main(title = "Merge your Government Gateway accounts", nav = true, user= Some(user)) {
+    <header class="page-header">
+        <h1>@Messages("bt.mergeggaccount.title")</h1>
+    </header>
+    <p>@Messages("bt.mergeggaccount.text.1")</p>
+
+    <ol>
+        <li>@Messages("bt.mergeggaccount.step1")</li>
+        <li>@Messages("bt.mergeggaccount.step2")</li>
+        <li>@deEnrolLink.toHtml.</li>
+        <li>
+            @Messages("bt.mergeggaccount.step4")
+            @enrolLink.toHtml.
+        </li>
+        <li>@Messages("bt.mergeggaccount.step5")</li>
+    </ol>
+
+    <p>
+        @{Html(Messages("bt.mergeggaccount.lostGgNumbers"))}
+        @Link.toExternalPage(id = Some("getGGBackHref"), url = "https://online.hmrc.gov.uk/user/credentials/userid", value = Some(Messages("bt.mergeggaccount.lostGgNumbers.linkText"))).toHtml.
+    </p>
+
+    <p>
+        @Messages("bt.mergeggaccount.contact.1")
+        @Link.toExternalPage(id = Some("onlineHelpHref"), url = "/contact-hmrc/", value = Some(Messages("bt.mergeggaccount.contact.2.linkText"))).toHtml
+        @Messages("bt.mergeggaccount.contact.3")
+    </p>
+
+}

@@ -1,0 +1,4 @@
+#!/bin/bash
+
+cd govuk-tax 
+./sbt compile "gen-idea sbt-classifiers"

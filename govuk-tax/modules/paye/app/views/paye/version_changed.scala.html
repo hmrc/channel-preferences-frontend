@@ -1,0 +1,7 @@
+@()
+
+@main(title = Messages("paye.version_changed.title")) {
+    @Messages("paye.version_changed.message")
+    <p/>
+    <a id="homePage" href="@controllers.paye.routes.CarBenefitHomeController.carBenefitHome().url">@Messages("paye.version_changed.start_again")</a>
+}

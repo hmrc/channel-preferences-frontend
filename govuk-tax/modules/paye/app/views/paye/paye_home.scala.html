@@ -1,0 +1,36 @@
+@(token: Option[String] = None)
+
+@import views.helpers.Link
+
+@main(title = Messages("paye.home.title"), sidebarLinks = Some(sidebarLinks)) {
+    <header class="page-header">
+        <h1>@Messages("paye.home.title")</h1>
+    </header>
+    <p>@Html(Messages("paye.home.intro", Link.toExternalPage(url = Messages("paye.home.intro.calculator_link.url"), value = Some(Messages("paye.home.intro.calculator_link.text"))).toHtml))</p>
+    <p>@Messages("paye.home.intro.warning")</p>
+    <h2>@Messages("paye.home.instructions.heading")</h2>
+    <p>@Messages("paye.home.instructions.need")</p>
+    <ul class="bullets">
+        <li>@Messages("paye.home.instructions.list_item.1")</li>
+        <li>@Link.toExternalPage(url = Messages("link.vehicle_certification_agency.url"), value = Some(Messages("paye.home.instructions.list_item.2"))).toHtml</li>
+    </ul>
+        <p>@Messages("paye.home.instructions.manufacturer_information")</p>
+    @Link.toInternalPage(url = common.FrontEndRedirect.carBenefit(token), value = Some(Messages("paye.home.start_button.text")), cssClasses = Some("button")).toHtml
+}
+
+    @sidebarLinks = {
+        <div class="service-info__related-subsection">
+            <h2>@Messages("paye.home.sidebar.paye")</h2>
+            <p>@Messages("info.links_open_new_window")</p>
+            <nav class="service-info__navigation" role="navigation" aria-labelledby="parent-subsection">
+                <ul>
+                    <li>
+                    @Link.toExternalPage(url = Messages("link.tax_codes.url"), value = Some(Messages("link.tax_codes.text"))).toHtml
+                    </li>
+                    <li>
+                    @Link.toExternalPage(url = Messages("link.company_benefits_tax.url"), value = Some(Messages("link.company_benefits_tax.text"))).toHtml
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    }

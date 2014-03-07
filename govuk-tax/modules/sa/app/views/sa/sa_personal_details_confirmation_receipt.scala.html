@@ -1,0 +1,16 @@
+@(transactionId: uk.gov.hmrc.common.microservice.sa.domain.write.TransactionId)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+
+@import views.helpers.Link
+
+@main(title = "My Details - Update main address confirmation receipt", nav = true, user = Some(user)) {
+
+    <h1>Change your address with HMRC</h1>
+    <h2>Thanks.</h2>
+
+    <p>Your main address has been changed for your Self-Assessment (SA).<br>Please allow 48 hours for this change to take effect.</p>
+
+    <p>Transaction ID: <b>@transactionId.oid</b></p>
+
+    <p>@Link.toInternalPage(url = controllers.sa.routes.SaController.details.url, value = Some("Back to your tax account homepage")).toHtml</p>
+
+}

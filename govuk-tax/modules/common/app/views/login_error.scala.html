@@ -1,0 +1,10 @@
+@import views.helpers.Link
+
+@main(title = Messages("login_error.title")) {
+
+    <h1 id="error-title">@Messages("login_error.title")</h1>
+
+    <p id="error-reason">@Messages("login_error.reason")</p>
+
+    <p>@Link.toInternalPage(id = Some("login-again-on-error"), url = common.routes.IdaLoginController.samlLogin(None).url, value = Some(Messages("login_error.link.tryagain.text"))).toHtml</p>
+}

@@ -1,0 +1,5 @@
+->         /company-car                                 companyCar.Routes
+
+# The data routes allow pass-through access to the microservice enpoints for
+# diagnostic purposes. They should most likely be removed in production
+->         /data                                        data.Routes

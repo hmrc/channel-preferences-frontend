@@ -1,0 +1,10 @@
+
+GET     /home                                           @controllers.sa.SaController.details
+
+# The following is OOS for MVP and will return 404
+GET     /change-address                                  @controllers.sa.SaController.changeAddress
+POST    /change-address                                  @controllers.sa.SaController.submitChangeAddress
+POST    /confirm-change-address                           @controllers.sa.SaController.confirmChangeAddress
+POST    /redisplay-change-address                         @controllers.sa.SaController.redisplayChangeAddress
+GET     /change-address-complete                          @controllers.sa.SaController.changeAddressComplete(id)
+GET     /change-address-failed                            @controllers.sa.SaController.changeAddressFailed(id)

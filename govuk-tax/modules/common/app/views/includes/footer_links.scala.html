@@ -1,0 +1,7 @@
+@import views.helpers.Link
+<ul class="platform-help-links">
+    <li>@Link.toInternalPage(url = Messages("common.links.help_page.url"), value = Some(Messages("common.links.help_page.text"))).toHtml</li>
+    <li>@Link.toInternalPage(url = Messages("common.links.cookies.url"), value = Some(Messages("common.links.cookies.text"))).toHtml</li>
+    <li>@Link.toInternalPage(url = Messages("common.links.privacy_policy.url"), value = Some(Messages("common.links.privacy_policy.text"))).toHtml</li>
+    <li>@Link.toInternalPage(url = Messages("common.links.terms_and_conditions.url"), value = Some(Messages("common.links.terms_and_conditions.text"))).toHtml</li>
+</ul>

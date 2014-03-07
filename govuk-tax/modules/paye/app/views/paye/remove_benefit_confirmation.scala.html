@@ -1,0 +1,48 @@
+@(benefitTypes: Seq[String], removalData: models.paye.BenefitUpdatedConfirmationData, showQuestionnaire: Boolean = true)(implicit user: uk.gov.hmrc.common.microservice.domain.User, request: Request[_])
+
+    @import views.formatting.Strings._
+    @import views.formatting.Money._
+    @import config.RefData._
+    @import models.paye._
+    @import controllers.paye.PayeQuestionnaireUtils._
+    @import views.helpers.Link
+
+    @main(title = Messages("paye.remove_benefit_confirmation.title"), user = Some(user)) {
+
+        @defining(joinList(benefitTypes.map(b => Messages(s"benefitType.${b}.title")), s" ${Messages("list.separator.and")} ")) { benefitsTitle =>
+            <header class="page-header">
+                <h1>@Html(Messages("paye.remove_benefit_confirmation.header", s"""<span id="benefit-type">${benefitsTitle}</span>"""))</h1>
+            </header>
+        }
+
+        <h2>@Messages("paye.remove_benefit_confirmation.thanks")</h2>
+        <p>@Messages("paye.remove_benefit_confirmation.details_changed")</p>
+        <p>
+            @Html(Messages("paye.remove_benefit_confirmation.tax_code_changed", s"""<span id=\"old-tax-code\">${removalData.oldTaxCode}</span>"""))
+            @if(removalData.newTaxCode.isDefined) {
+                @Html(Messages("paye.remove_benefit_confirmation.new_tax_code", s"""<span id="new-tax-code">${removalData.newTaxCode.get}</span>"""))
+            }
+        </p>
+
+        <p>@Messages("paye.remove_benefit_confirmation.confirmation")</p>
+
+        @if(showQuestionnaire) {
+            @includes.end_of_journey_questionnaire(removalData.transactionId, getJourneyType(benefitTypes), removalData.oldTaxCode, removalData.newTaxCode)
+        }
+
+        <h2>@Messages("paye.remove_benefit_confirmation.more_info")</h2>
+        <p>@Link.toInternalPage(
+                url = s"${controllers.paye.routes.CarBenefitHomeController.carBenefitHome}",
+                value = Some(Messages("paye.remove_benefit_confirmation.updated_info"))).toHtml</p>
+        <p>@Html(Messages("paye.remove_benefit_confirmation.tax_codes_info",
+            Link.toExternalPage(
+                id = Some("tax-codes"),
+                url = Messages("paye.remove_benefit_confirmation.tax_codes_link_url"),
+                value = Some(Messages("paye.remove_benefit_confirmation.tax_codes_link_text"))).toHtml,
+            Link.toExternalPage(
+                id = Some("tax-on-company-benefits"),
+                url = Messages("paye.remove_benefit_confirmation.tax_on_company_benefits_link_url"),
+                value = Some(Messages("paye.remove_benefit_confirmation.tax_on_company_benefits_link_text"))).toHtml
+            ))</p>
+
+    }

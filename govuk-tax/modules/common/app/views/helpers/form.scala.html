@@ -1,0 +1,9 @@
+@(action: play.api.mvc.Call, args: (Symbol,String)*)(body: => Html)(implicit request: Request[_])
+@import helper._
+
+<form action="@action.url" method="@action.method" @toHtmlArgs(args.toMap)>
+    @{
+        play.filters.csrf.CSRF.getToken(request).map {token => CSRF.formField(token)}
+    }
+    @body
+</form>
