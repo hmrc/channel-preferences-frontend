@@ -79,7 +79,9 @@ object Repositories {
           Some(hmrcNexusSnapshots)
         else
           Some(hmrcNexusReleases)
-    }
+    },
+
+    publishLocal <<= publishLocal dependsOn dist
 
   ) ++ addArtifact(artifact in publishDist, publishDist) ++ gitStampSettings
 
