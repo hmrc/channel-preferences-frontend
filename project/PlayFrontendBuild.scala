@@ -44,7 +44,7 @@ object PlayFrontendBuild extends Build {
   )
 
   val providedByContainer = Seq(
-      "uk.gov.hmrc" %% "govuk-template" % envOrElse("GOVUK_TEMPLATE_FRONTEND_VERSION", "999-SNAPSHOT"),
+      "uk.gov.hmrc" %% "govuk-template" % envOrElse("GOVUK_TEMPLATE_VERSION", "999-SNAPSHOT"),
       "uk.gov.hmrc" %% "play-frontend" % envOrElse("PLAY_FRONTEND_VERSION", "999-SNAPSHOT"),
 
       "uk.gov.hmrc" %% "play-frontend" % envOrElse("PLAY_FRONTEND_VERSION", "999-SNAPSHOT") % "test" classifier "tests"
