@@ -3,7 +3,7 @@ import sbt.Keys._
 import scala._
 import scala.util.Properties._
 import play.Project._
-import uk.gov.hmrc.{MicroserviceDependencies, PlayMicroServiceBuild}
+import uk.gov.hmrc.PlayMicroServiceBuild
 
 object PlayFrontendBuild extends Build {
 
@@ -20,7 +20,7 @@ object PlayFrontendBuild extends Build {
 
     val test = Seq(
       "uk.gov.hmrc" %% "play-frontend" % envOrElse("PLAY_FRONTEND_VERSION", "999-SNAPSHOT") % "test" classifier "tests",
-      MicroserviceDependencies.Test.mockito,
+      "org.mockito" % "mockito-all" % "1.9.5" % "test",
       "org.jsoup" % "jsoup" % "1.7.2" % "test"
     )
 

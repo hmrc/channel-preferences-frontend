@@ -14,10 +14,6 @@ resolvers ++= Seq("hmrc-snapshots" at hmrcRepoHost + "/content/repositories/hmrc
   "hmrc-releases" at hmrcRepoHost + "/content/repositories/hmrc-releases",
   "typesafe-releases" at hmrcRepoHost + "/content/repositories/typesafe-releases")
 
-val dependencyPluginVersion = scala.util.Properties.envOrElse("TP_DEPENDENCY_PLUGIN_VERSION", "999-SNAPSHOT")
-
-addSbtPlugin("uk.gov.hmrc" % "sbt-tp-dependency-plugin" % dependencyPluginVersion)
-
 val sbtMicroservicePluginVersion = scala.util.Properties.envOrElse("SBT_MICROSERVICE_VERSION", "999-SNAPSHOT")
 
 addSbtPlugin("uk.gov.hmrc" % "sbt-microservice" % sbtMicroservicePluginVersion)
