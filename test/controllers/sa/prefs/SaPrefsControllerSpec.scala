@@ -361,7 +361,7 @@ class SaPrefsControllerSpec extends WordSpec with ShouldMatchers with MockitoSug
 
       val page = Jsoup.parse(contentAsString(result))
       val returnUrl = page.getElementById("sa-home-link").attr("href")
-      returnUrl should be (s"$urlWithQueryParams?emailAddress=${urlEncode(encrypt(emailAddress), "UTF-8")}")
+      returnUrl should be (s"$urlWithQueryParams?email=${urlEncode(encrypt(emailAddress), "UTF-8")}")
     }
   }
 
@@ -380,7 +380,7 @@ class SaPrefsControllerApp extends WithApplication(FakeApplication()) with Mocki
   lazy val incorrectToken = "this is an incorrect token khdskjfhasduiy3784y37yriuuiyr3i7rurkfdsfhjkdskh"
   val decodedReturnUrl = "http://localhost:8080/portal?exampleQuery=exampleValue"
   val encodedReturnUrl = urlEncode(decodedReturnUrl, "UTF-8")
-  lazy val decodedReturnUrlWithEmailAddress = s"$decodedReturnUrl&emailAddress=${urlEncode(encrypt(emailAddress), "UTF-8")}"
+  lazy val decodedReturnUrlWithEmailAddress = s"$decodedReturnUrl&email=${urlEncode(encrypt(emailAddress), "UTF-8")}"
   val encodedUrlNotOnWhitelist = urlEncode("http://notOnWhiteList/something", "UTF-8")
 
   val request = FakeRequest()
