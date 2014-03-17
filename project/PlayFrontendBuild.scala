@@ -56,7 +56,7 @@ object PlayFrontendBuild extends Build {
     .configs(TemplateTest)
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
     .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
-
+    .settings(net.virtualvoid.sbt.graph.Plugin.graphSettings: _*)
 }
 
 object Common {
