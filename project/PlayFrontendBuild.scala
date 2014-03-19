@@ -1,87 +1,35 @@
 import sbt._
-import Keys._
-import play.Project._
-import net.litola.SassPlugin
+import sbt.Keys._
 import scala._
-import com.gu.SbtJasminePlugin._
 import scala.util.Properties._
-import uk.gov.hmrc.{OptionalDependencies, MicroserviceDependencies}
+import play.Project._
+import uk.gov.hmrc.PlayMicroServiceBuild
 
 object PlayFrontendBuild extends Build {
 
   val appName = "sa-prefs"
-  val thisApp = envOrElse("SA_PREFS_VERSION", "999-SNAPSHOT")
+  val appVersion = envOrElse(appName.toUpperCase + "_VERSION", "999-SNAPSHOT")
 
-  val allPhases = "tt->test;test->test;test->compile;compile->compile"
-
-  def templateSpecFilter(name: String): Boolean = name endsWith "TemplateSpec"
-
-  lazy val TemplateTest = config("tt") extend Test
-
-  val uiDirectory = SettingKey[File]("ui-directory")
-
-
-  val appDependencies = Seq(
-    filters,
-    anorm,
-    MicroserviceDependencies.Compile.nscalaTime,
-    MicroserviceDependencies.Compile.json4sJackson,
-    MicroserviceDependencies.Compile.hmrc.taxCore,
-    OptionalDependencies.Compile.hmrc.secureUtils,
-    Dependencies.Compile.json4sExt,
-    Dependencies.Compile.guava,
-    Dependencies.Compile.commonsLang,
-    Dependencies.Compile.commonsIo,
-    Dependencies.Compile.playMetrics,
-    Dependencies.Compile.scalaUri,
-    Dependencies.Compile.metricsGraphite,
-
-    MicroserviceDependencies.Test.junit,
-    MicroserviceDependencies.Test.scalaTest,
-    MicroserviceDependencies.Test.mockito,
-    Dependencies.Test.jsoup,
-    Dependencies.Test.pegdown
-  )
-
-  val providedByContainer = Seq(
-      "uk.gov.hmrc" %% "govuk-template" % envOrElse("GOVUK_TEMPLATE_VERSION", "999-SNAPSHOT"),
+  object appSpecificDependencies {
+    val compile = Seq(
+      "uk.gov.hmrc" %% "govuk-template" % envOrElse("GOVUK_TEMPLATE_FRONTEND_VERSION", "999-SNAPSHOT"),
       "uk.gov.hmrc" %% "play-frontend" % envOrElse("PLAY_FRONTEND_VERSION", "999-SNAPSHOT"),
-
-      "uk.gov.hmrc" %% "play-frontend" % envOrElse("PLAY_FRONTEND_VERSION", "999-SNAPSHOT") % "test" classifier "tests"
-      )
-
-  val saPrefs = play.Project(appName, thisApp, appDependencies ++ providedByContainer, path = file("."),
-    settings = Common.baseSettings ++ Common.routesImports
-  ).settings(Keys.fork in Test := false)
-    .configs(TemplateTest)
-    .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
-    .settings(testOptions in TemplateTest := Seq(Tests.Filter(templateSpecFilter)))
-    .settings(net.virtualvoid.sbt.graph.Plugin.graphSettings: _*)
-}
-
-object Common {
-  private val scalaSettings =
-    Seq(
-      organization := "uk.gov.hmrc",
-      version := PlayFrontendBuild.thisApp,
-      scalaVersion := Version.scala,
-      scalacOptions ++= Seq(
-        "-unchecked",
-        "-deprecation",
-        "-Xlint",
-        "-Xmax-classfile-name", "100",
-        "-language:_",
-        "-target:jvm-1.7",
-        "-encoding", "UTF-8"
-      ),
-      resolvers ++= Repositories.resolvers,
-      retrieveManaged := true,
-      testOptions in Test += Tests.Argument("-u", "target/test-reports", "-h", "target/test-reports/html-report"),
-      testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD")
+      "com.netaporter" %% "scala-uri" % "0.4.0" exclude("com.typesafe.sbt", "sbt-pgp") exclude("com.github.scct", "scct_2.10"),
+      "com.github.scct" %% "scct" % "0.2.1"
     )
 
-  val baseSettings = Defaults.defaultSettings ++ scalaSettings ++ playScalaSettings ++ Repositories.publishingSettings
+    val test = Seq(
+      "uk.gov.hmrc" %% "play-frontend" % envOrElse("PLAY_FRONTEND_VERSION", "999-SNAPSHOT") % "test" classifier "tests",
+      "org.mockito" % "mockito-all" % "1.9.5" % "test",
+      "org.jsoup" % "jsoup" % "1.7.2" % "test"
+    )
 
-  val routesImports = routesImport ++= Seq("uk.gov.hmrc.common.QueryBinders._", "uk.gov.hmrc.domain._")
+    val all = compile ++ test
+  }
+
+  lazy val microservice =
+    PlayMicroServiceBuild(appName, appVersion, appSpecificDependencies.all)
+      .settings(testOptions in Test += Tests.Argument("-o"))
+      .settings(routesImport ++= Seq("uk.gov.hmrc.common.QueryBinders._", "uk.gov.hmrc.domain._"))
 }
 
