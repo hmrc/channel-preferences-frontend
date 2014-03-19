@@ -1,5 +1,5 @@
 error.email=Enter a valid email address.
-email.confirmation.emails.unequal=Check your email addresses - they don't match.
+email.confirmation.emails.unequal=Check your email addresses - they don’t match.
 
 sa_printing_preference.heading=Sign up for Self Assessment email reminders
 sa_printing_preference.paragraph.1=You can soon get Self Assessment email reminders when:
@@ -24,3 +24,6 @@ sa_printing_preference_confirm.paragraph.2=You’ve been sent an email telling y
 sa_printing_preference_confirm.paragraph.3.line.1=HM Revenue and Customs never put personal information in an email.
 sa_printing_preference_confirm.paragraph.3.line.2=Always go to GOV.UK to sign in to your account.
 sa_printing_preference_confirm.linkText=Go to your tax account
+
+bt.account.yourdetails=Your details
+bt.account.stopreminders=Stop your email reminders

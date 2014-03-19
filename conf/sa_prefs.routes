@@ -9,3 +9,20 @@ GET     /sa/print-preferences/verification/:token               @controllers.sa.
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /sa/print-preferences/assets/*file                      controllers.sa.prefs.Assets.at(path="/public", file)
+
+
+# Account Details
+GET         /account/account-details                                        @controllers.sa.prefs.AccountDetailsController.accountDetails
+GET         /account/account-details/sa/update-email-address                @controllers.sa.prefs.AccountDetailsController.changeEmailAddress(email: Option[uk.gov.hmrc.domain.EncryptedEmail])
+POST        /account/account-details/sa/update-email-address                @controllers.sa.prefs.AccountDetailsController.submitEmailAddress
+GET         /account/account-details/sa/update-email-address-thank-you      @controllers.sa.prefs.AccountDetailsController.emailAddressChangeThankYou
+GET         /account/account-details/sa/opt-out-email-reminders             @controllers.sa.prefs.AccountDetailsController.optOutOfEmailReminders
+POST        /account/account-details/sa/opt-out-email-reminders             @controllers.sa.prefs.AccountDetailsController.confirmOptOutOfEmailReminders
+GET         /account/account-details/sa/opt-out-email-reminders-thank-you   @controllers.sa.prefs.AccountDetailsController.optedBackIntoPaperThankYou
+POST        /account/account-details/sa/resend-validation-email             @controllers.sa.prefs.AccountDetailsController.resendValidationEmail
+
+GET         /account/account-details/sa/login-opt-in-email-reminders        @controllers.sa.prefs.BizTaxPrefsController.redirectToBizTaxOrEmailPrefEntryIfNotSet
+GET         /account/account-details/sa/opt-in-email-reminders              @controllers.sa.prefs.BizTaxPrefsController.displayPrefsForm(email: Option[uk.gov.hmrc.domain.EncryptedEmail])
+POST        /account/account-details/sa/opt-in-email-reminders              @controllers.sa.prefs.BizTaxPrefsController.submitPrefsForm
+POST        /account/account-details/sa/opt-in-email-reminders-keep-paper   @controllers.sa.prefs.BizTaxPrefsController.submitKeepPaperForm
+GET         /account/account-details/sa/opt-in-email-reminders-thank-you    @controllers.sa.prefs.BizTaxPrefsController.thankYou

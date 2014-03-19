@@ -1,0 +1,26 @@
+@(emailAddress: uk.gov.hmrc.domain.ObfuscatedEmail)(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+
+@import views.helpers.Link
+
+@main(title = "Account details - Your email address has been changed", nav = true, user = Some(user)) {
+
+    <header class="page-header">
+        <h1>@Messages("bt.account.yourdetails")</h1>
+    </header>
+    <h2>Thank you</h2>
+
+    <p>Your email address has been changed.</p>
+
+    <p>Your reminders will now be sent to <span id="updated-email-address">@emailAddress</span></p>
+
+    <p>You need to verify your email address - until you do, reminders will go to your old email address.</p>
+
+    <p id="verification-mail-message">You’ve been sent an email telling you how to do this.</p>
+
+        <ul class="action-list">
+            <li>@Link.toInternalPage(id = Some("return-to-dashboard-button"), url = controllers.sa.prefs.businessTaxHome, value = Some("Go to your tax account")).toHtml</li>
+        </ul>
+
+
+
+}

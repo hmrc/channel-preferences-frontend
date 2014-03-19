@@ -41,4 +41,10 @@ package object prefs {
             Future.successful(Redirect(returnUrl))
         }
     }
+
+  val getSavePrefsCall = controllers.sa.prefs.routes.BizTaxPrefsController.submitPrefsForm()
+
+  val getKeepPaperCall = controllers.sa.prefs.routes.BizTaxPrefsController.submitKeepPaperForm()
+
+  val businessTaxHome = "/account"
 }

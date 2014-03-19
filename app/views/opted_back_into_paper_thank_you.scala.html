@@ -1,0 +1,18 @@
+@(implicit user: uk.gov.hmrc.common.microservice.domain.User)
+
+@import views.helpers.Link
+
+@main(title = "My Preferences", nav = true, user = Some(user)) {
+    <header class="page-header">
+        <h1>@Messages("bt.account.yourdetails")</h1>
+
+        <h2>Thank you</h2>
+    </header>
+    <p>You’ll now get your Self Assessment reminders in the post.</p>
+    <p>You've been sent an email confirming this.</p>
+    <p>You can sign up for email reminders again at any time.</p>
+    <ul class="action-list">
+        <li>@Link.toInternalPage(id = Some("return-to-dashboard-button"), url = controllers.sa.prefs.businessTaxHome, value = Some("Go to your tax account")).toHtml</li>
+    </ul>
+
+}

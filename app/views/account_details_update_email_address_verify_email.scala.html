@@ -1,0 +1,24 @@
+@(emailAddress: String)(implicit user: uk.gov.hmrc.common.microservice.domain.User, request : Request[_])
+
+@import views.helpers.Link
+@import uk.gov.hmrc.common.crypto.Encrypted
+
+@main(title = "Your Details - Please verify email address", user = Some(user), nav=true) {
+    <header class="page-header">
+        <h1>@Messages("bt.account.yourdetails")</h1>
+
+        <h2 id="emailAddress">Check your email address</h2>
+    </header>
+    <p>Are you sure @emailAddress is correct?</p>
+
+
+    @helpers.form(action = controllers.sa.prefs.routes.AccountDetailsController.submitEmailAddress) {
+        <div class="form-field">
+            <button id="emailIsCorrectLink" class="button" type="submit">This email is correct</button>
+        </div>
+        <input type="hidden" name="email.main" value="@emailAddress" />
+        <input type="hidden" name="email.confirm" value="@emailAddress" />
+        <input type="hidden" name="emailVerified" value="true" />
+    }
+    <p>@Link.toInternalPage(id = Some("emailIsNotCorrectLink"), url = controllers.sa.prefs.routes.AccountDetailsController.changeEmailAddress(Some(Encrypted(emailAddress))).url, value = Some("Change this email address")).toHtml</p>
+}
