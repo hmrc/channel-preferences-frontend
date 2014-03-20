@@ -104,7 +104,7 @@ class AccountDetailsController(override val auditConnector: AuditConnector, val 
   private[prefs] def submitEmailAddressPage(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] =
     lookupCurrentEmail(
       email =>
-        submitPreferencesForm(
+        submitEmailForm(
           views.html.account_details_update_email_address(email, _),
           (enteredEmail) => views.html.account_details_update_email_address_verify_email(enteredEmail),
           () => routes.AccountDetailsController.emailAddressChangeThankYou(),

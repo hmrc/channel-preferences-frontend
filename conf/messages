@@ -1,4 +1,5 @@
 error.email=Enter a valid email address.
+error.email.optIn=As you would like to opt in, please enter an email address.
 email.confirmation.emails.unequal=Check your email addresses - they don’t match.
 
 sa_printing_preference.title=Sign up for Self Assessment email reminders

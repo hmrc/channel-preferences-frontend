@@ -43,7 +43,8 @@
         name="opt-in"
         value="true"
         class="email-prefs__toggle"
-        @emailForm("opt-in").value.filter( _ == true).map{_ => checked="checked"}/>
+        @if(emailForm("opt-in").value) { checked="checked" }
+    />
     @Messages("sa_printing_preference.option.yes")
 </label>
 <fieldset class="connected js-hidden">
@@ -68,8 +69,16 @@
         Link.toExternalPage(url = controllers.common.routes.CommonController.termsAndConditions().url, value = Some(Messages("sa_printing_preference.paragraph.5.linkText"))).toHtml))
     </p>
 </fieldset>
-<label class="selectable"><input type="radio" name="opt-in" value="false"  class="email-prefs__toggle">@Messages("sa_printing_preference.option.no")</label>
+<label class="selectable">
+    <input type="radio"
+           name="opt-in"
+           value="false"
+           class="email-prefs__toggle"
+           />
+    @Messages("sa_printing_preference.option.no")
+</label>
 @emailForm("opt-in").errors.map { error => <span class="error">@Messages(error.message)</span>}
+@emailForm.globalErrors.map { error => <span class="error">@Messages(error.message)</span>}
 
 <div class="form-field">
     <button id="submitEmailButton" class="button" type="submit">@Messages("sa_printing_preference.submitButton")</button>

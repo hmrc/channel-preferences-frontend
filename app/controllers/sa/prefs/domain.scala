@@ -28,7 +28,7 @@ object EmailPreference {
 case object OptIn extends EmailPreference
 case object OptOut extends EmailPreference
 
-case class EmailFormDataWithPreference(email: (String, Option[String]), emailVerified: Option[String], preference: EmailPreference) {
+case class EmailFormDataWithPreference(email: (Option[String], Option[String]), emailVerified: Option[String], preference: EmailPreference) {
   lazy val isEmailVerified = emailVerified == Some("true")
 
   def mainEmail = email._1
