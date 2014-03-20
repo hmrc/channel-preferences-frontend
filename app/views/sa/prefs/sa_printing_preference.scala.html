@@ -1,4 +1,4 @@
-@(emailForm: Form[controllers.sa.prefs.EmailPreferenceData],
+@(emailForm: Form[_],
   submitPrefsFormAction: Call,
   submitKeepPaperAction: Call)(implicit request: Request[_])
 
@@ -37,7 +37,15 @@
 @_root_.views.html.helpers.form(action = submitPrefsFormAction, 'id -> "form-submit-email-address") {
 <h2>@Messages("sa_printing_preference.heading.3")</h2>
 
-<label class="selectable"><input type="radio" name="opt-in" value="true" class="email-prefs__toggle">@Messages("sa_printing_preference.option.yes")</label>
+<label class="selectable">
+    <input
+        type="radio"
+        name="opt-in"
+        value="true"
+        class="email-prefs__toggle"
+        @emailForm("opt-in").value.filter( _ == true).map{_ => checked="checked"}/>
+    @Messages("sa_printing_preference.option.yes")
+</label>
 <fieldset class="connected js-hidden">
     @helpers.input(
     emailForm("email.main"),
@@ -61,7 +69,7 @@
     </p>
 </fieldset>
 <label class="selectable"><input type="radio" name="opt-in" value="false"  class="email-prefs__toggle">@Messages("sa_printing_preference.option.no")</label>
-@elements.errors.map { error => <span class="error-notification">@Messages(error)</span>}
+@emailForm("opt-in").errors.map { error => <span class="error">@Messages(error.message)</span>}
 
 <div class="form-field">
     <button id="submitEmailButton" class="button" type="submit">@Messages("sa_printing_preference.submitButton")</button>
