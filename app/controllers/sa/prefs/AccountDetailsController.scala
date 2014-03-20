@@ -14,7 +14,6 @@ import uk.gov.hmrc.common.microservice.sa.domain.SaRegime
 import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.domain.User
 import play.api.mvc.{SimpleResult, Request}
-import controllers.common.domain.EmailPreferenceData
 
 class AccountDetailsController(override val auditConnector: AuditConnector, val preferencesConnector: PreferencesConnector,
                                val emailConnector: EmailConnector)(implicit override val authConnector: AuthConnector) extends BaseController

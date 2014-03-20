@@ -11,7 +11,6 @@ import uk.gov.hmrc.common.microservice.sa.domain.SaRegime
 import uk.gov.hmrc.common.microservice.email.EmailConnector
 import scala.concurrent.Future
 import uk.gov.hmrc.domain.Email
-import controllers.common.domain.EmailPreferenceData
 import scala.Some
 import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.domain.User

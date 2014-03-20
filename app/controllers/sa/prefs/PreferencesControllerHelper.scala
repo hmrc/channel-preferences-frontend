@@ -10,7 +10,6 @@ import uk.gov.hmrc.common.microservice.preferences.FormattedUri
 import scala.concurrent._
 import uk.gov.hmrc.common.MdcLoggingExecutionContext.fromLoggingDetails
 import Function.const
-import controllers.common.domain.EmailPreferenceData
 import uk.gov.hmrc.domain.{Email, SaUtr}
 import play.api.templates.HtmlFormat
 
