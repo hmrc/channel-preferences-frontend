@@ -44,15 +44,14 @@ trait PreferencesControllerHelper {
       })
     )
 
-  def getSubmitPreferencesView(savePrefsCall: Call, keepPaperCall: Call)(implicit request: Request[AnyRef]): Form[_] => HtmlFormat.Appendable = {
-    errors => views.html.sa.prefs.sa_printing_preference(errors, savePrefsCall, keepPaperCall)
+  def getSubmitPreferencesView(savePrefsCall: Call)(implicit request: Request[AnyRef]): Form[_] => HtmlFormat.Appendable = {
+    errors => views.html.sa.prefs.sa_printing_preference(errors, savePrefsCall)
   }
 
-  def displayPreferencesForm(email: Option[Email], savePrefsCall: Call, keepPaperCall: Call)(implicit request: Request[AnyRef]) = {
+  def displayPreferencesForm(email: Option[Email], savePrefsCall: Call)(implicit request: Request[AnyRef]) = {
     Ok(views.html.sa.prefs.sa_printing_preference(
       emailForm = emailForm.fill(EmailFormData(email)),
-      submitPrefsFormAction = savePrefsCall,
-      submitKeepPaperAction = keepPaperCall))
+      submitPrefsFormAction = savePrefsCall))
   }
 
   protected def submitEmailForm(errorsView: (Form[_]) => play.api.templates.HtmlFormat.Appendable,
@@ -82,10 +81,9 @@ trait PreferencesControllerHelper {
 
   protected def submitPreferencesForm(errorsView: (Form[_]) => play.api.templates.HtmlFormat.Appendable,
                                       emailWarningView: (String) => play.api.templates.HtmlFormat.Appendable,
-                                      successRedirect: () => Call,
                                       emailConnector: EmailConnector,
                                       saUtr: SaUtr,
-                                      savePreferences: (SaUtr, Boolean, Option[String], HeaderCarrier) => Future[Option[FormattedUri]])
+                                      savePreferences: (SaUtr, Boolean, Option[String], HeaderCarrier) => Future[SimpleResult])
                                      (implicit request: Request[AnyRef]): Future[SimpleResult] = {
 
     implicit def hc = HeaderCarrier(request)
@@ -94,17 +92,16 @@ trait PreferencesControllerHelper {
       hasErrors = errors => Future.successful(BadRequest(errorsView(errors))),
       success = {
         case emailForm @ EmailFormDataWithPreference((Some(emailAddress), _), _, OptIn) =>
-            val emailVerificationStatus =
-              if (emailForm.isEmailVerified) Future.successful(true)
-              else emailConnector.validateEmailAddress(emailAddress)
+          val emailVerificationStatus =
+            if (emailForm.isEmailVerified) Future.successful(true)
+            else emailConnector.validateEmailAddress(emailAddress)
 
-            emailVerificationStatus.flatMap {
-              case true => savePreferences(saUtr, true, Some(emailAddress), hc).map(const(Redirect(successRedirect())))
-              case false => Future.successful(Ok(emailWarningView(emailAddress)))
-            }
+          emailVerificationStatus.flatMap {
+            case true => savePreferences(saUtr, true, Some(emailAddress), hc)
+            case false => Future.successful(Ok(emailWarningView(emailAddress)))
+          }
         case EmailFormDataWithPreference(_, _, OptOut) =>
-          //TODO
-          Future.successful(Ok)
+          savePreferences(saUtr, false, None, hc)
       }
     )
   }

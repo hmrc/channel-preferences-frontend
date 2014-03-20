@@ -1,6 +1,4 @@
-@(emailForm: Form[_],
-  submitPrefsFormAction: Call,
-  submitKeepPaperAction: Call)(implicit request: Request[_])
+@(emailForm: Form[_], submitPrefsFormAction: Call)(implicit request: Request[_])
 
 @import views.helpers.Link
 
@@ -39,6 +37,7 @@
 
 <label class="selectable">
     <input
+        id="opt-in-in"
         type="radio"
         name="opt-in"
         value="true"
@@ -70,7 +69,9 @@
     </p>
 </fieldset>
 <label class="selectable">
-    <input type="radio"
+    <input
+           id="opt-in-out"
+           type="radio"
            name="opt-in"
            value="false"
            class="email-prefs__toggle"

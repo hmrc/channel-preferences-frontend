@@ -43,7 +43,7 @@ class BizTaxPrefsControllerSpec extends BaseSpec with MockitoSugar {
 
   "The preferences action on login" should {
 
-    "redirect to the homepage when preferences already exist for a specific utr" in new BizTaxPrefsControllerSetup {
+    "redirect to the homepage when preferences already exist" in new BizTaxPrefsControllerSetup {
       val preferencesAlreadyCreated = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.verified)))
       when(preferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Some(preferencesAlreadyCreated))
 
@@ -53,7 +53,7 @@ class BizTaxPrefsControllerSpec extends BaseSpec with MockitoSugar {
       header("Location", page).get should include(FrontEndRedirect.businessTaxHome)
     }
 
-    "render an email input field with no value if no email address is supplied" in new BizTaxPrefsControllerSetup {
+    "render the form in the correct intial state when no preferences exist" in new BizTaxPrefsControllerSetup {
       when(preferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(None)
 
       val page = Future.successful(controller.redirectToBizTaxOrEmailPrefEntryIfNotSetAction(user, request))
@@ -64,16 +64,15 @@ class BizTaxPrefsControllerSpec extends BaseSpec with MockitoSugar {
 
       document.getElementById("email.main") shouldNot be(null)
       document.getElementById("email.main").attr("value") shouldBe ""
+
       document.getElementById("email.confirm") shouldNot be(null)
       document.getElementById("email.confirm").attr("value") shouldBe ""
-    }
 
-    "include a link to keep paper preference" in new BizTaxPrefsControllerSetup {
-      when(preferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(None)
-      val page = Future.successful(controller.redirectToBizTaxOrEmailPrefEntryIfNotSetAction(user, request))
-      status(page) shouldBe 200
-      val document = Jsoup.parse(contentAsString(page))
-      document.getElementById("keep-paper-link").attr("value") shouldBe "Continue to get letters"
+      document.getElementById("opt-in-in") shouldNot be(null)
+      document.getElementById("opt-in-in").attr("checked") shouldBe ""
+
+      document.getElementById("opt-in-out") shouldNot be(null)
+      document.getElementById("opt-in-out").attr("checked") shouldBe ""
     }
   }
 
@@ -115,14 +114,14 @@ class BizTaxPrefsControllerSpec extends BaseSpec with MockitoSugar {
       status(page) shouldBe 400
 
       val document = Jsoup.parse(contentAsString(page))
-      document.select("#form-submit-email-address .error-notification").text shouldBe "Enter a valid email address."
+      document.select(".error").text shouldBe "Please answer this question before continuing"
       verifyZeroInteractions(preferencesConnector, emailConnector)
     }
 
-    "show an error if the email is incorrectly formatted" in new BizTaxPrefsControllerSetup {
+    "show an error when opting-in if the email is incorrectly formatted" in new BizTaxPrefsControllerSetup {
       val emailAddress = "invalid-email"
 
-      val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress))))
+      val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", "email.main" -> emailAddress)))
 
       status(page) shouldBe 400
 
@@ -131,21 +130,21 @@ class BizTaxPrefsControllerSpec extends BaseSpec with MockitoSugar {
       verifyZeroInteractions(preferencesConnector, emailConnector)
     }
 
-    "show an error if the email is not set" in new BizTaxPrefsControllerSetup {
+    "show an error when opting-in if the email is not set" in new BizTaxPrefsControllerSetup {
 
-      val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody(("email.main", ""))))
+      val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", "email.main" -> "")))
 
       status(page) shouldBe 400
 
       val document = Jsoup.parse(contentAsString(page))
-      document.select("#form-submit-email-address .error-notification").text shouldBe "Enter a valid email address."
+      document.select(".error").text shouldBe "As you would like to opt in, please enter an email address."
       verifyZeroInteractions(preferencesConnector, emailConnector)
     }
 
-    "show error if the two email fields are not equal" in new BizTaxPrefsControllerSetup {
+    "show an error when opting-in if the two email fields are not equal" in new BizTaxPrefsControllerSetup {
       val emailAddress = "someone@email.com"
 
-      val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress),("email.confirm", "other"))))
+      val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", "email.main" -> emailAddress, "email.confirm" -> "other")))
 
       status(page) shouldBe 400
 
@@ -154,12 +153,12 @@ class BizTaxPrefsControllerSpec extends BaseSpec with MockitoSugar {
       verifyZeroInteractions(preferencesConnector, emailConnector)
     }
 
-    "show a warning page if the email has a valid structure but does not pass validation by the email micro service" in new BizTaxPrefsControllerSetup {
+    "show a warning page when opting-in if the email has a valid structure but does not pass validation by the email micro service" in new BizTaxPrefsControllerSetup {
 
       val emailAddress = "someone@dodgy.domain"
       when(emailConnector.validateEmailAddress(is(emailAddress))(any())).thenReturn(false)
 
-      val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress),("email.confirm", emailAddress))))
+      val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress),("email.confirm", emailAddress))))
 
       status(page) shouldBe 200
 
@@ -168,18 +167,30 @@ class BizTaxPrefsControllerSpec extends BaseSpec with MockitoSugar {
       document.select("#emailIsCorrectLink") shouldNot be(null)
     }
 
-    "validate the email address, save the preference and redirect to the thank you page" in new BizTaxPrefsControllerSetup {
+    "when opting-in, validate the email address, save the preference and redirect to the thank you page" in new BizTaxPrefsControllerSetup {
       val emailAddress = "someone@email.com"
       when(emailConnector.validateEmailAddress(is(emailAddress))(any())).thenReturn(true)
       when(preferencesConnector.savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())).thenReturn(Future.successful(None))
 
-      val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress),("email.confirm", emailAddress))))
+      val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress),("email.confirm", emailAddress))))
 
       status(page) shouldBe 303
       header("Location", page).get should include(routes.BizTaxPrefsController.thankYou().toString())
 
       verify(preferencesConnector).savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())
       verify(emailConnector).validateEmailAddress(is(emailAddress))(any())
+      verifyNoMoreInteractions(preferencesConnector, emailConnector)
+    }
+
+    "when opting-out, save the preference and redirect to the thank you page" in new BizTaxPrefsControllerSetup {
+      when(preferencesConnector.savePreferences(is(validUtr), is(false), is(None))(any())).thenReturn(Future.successful(None))
+
+      val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "false")))
+
+      status(page) shouldBe 303
+      header("Location", page).get should include(FrontEndRedirect.businessTaxHome)
+
+      verify(preferencesConnector).savePreferences(is(validUtr), is(false), is(None))(any())
       verifyNoMoreInteractions(preferencesConnector, emailConnector)
     }
   }
@@ -190,7 +201,7 @@ class BizTaxPrefsControllerSpec extends BaseSpec with MockitoSugar {
       val emailAddress = "someone@email.com"
       when(preferencesConnector.savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())).thenReturn(Future.successful(None))
 
-      val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "true"))))
+      val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "true"))))
 
       status(page) shouldBe 303
       header("Location", page).get should include(routes.BizTaxPrefsController.thankYou().toString())
@@ -204,7 +215,7 @@ class BizTaxPrefsControllerSpec extends BaseSpec with MockitoSugar {
       val emailAddress = "someone@dodgy.domain"
       when(emailConnector.validateEmailAddress(is(emailAddress))(any())).thenReturn(false)
 
-      val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "false"))))
+      val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "false"))))
 
       status(page) shouldBe 200
 
@@ -220,28 +231,13 @@ class BizTaxPrefsControllerSpec extends BaseSpec with MockitoSugar {
       val emailAddress = "someone@dodgy.domain"
       when(emailConnector.validateEmailAddress(is(emailAddress))(any())).thenReturn(false)
 
-      val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "hjgjhghjghjgj"))))
+      val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "hjgjhghjghjgj"))))
 
       status(page) shouldBe 200
 
       val document = Jsoup.parse(contentAsString(page))
       document.select("#emailIsNotCorrectLink") shouldNot be(null)
       document.select("#emailIsCorrectLink") shouldNot be(null)
-    }
-  }
-
-  "Opting to keep paper notifications" should {
-
-    "save the preference and redirect to the home page" in new BizTaxPrefsControllerSetup {
-
-      when(preferencesConnector.savePreferences(is(validUtr), is(false), is(None))(any())).thenReturn(Future.successful(Some(FormattedUri(URI.create("/someuri")))))
-
-      val page = Future.successful(controller.submitKeepPaperFormAction(user, request))
-      status(page) shouldBe 303
-      header("Location", page).get should include(FrontEndRedirect.businessTaxHome)
-
-      verify(preferencesConnector).savePreferences(is(validUtr), is(false), is(None))(any())
-      verifyNoMoreInteractions(preferencesConnector, emailConnector)
     }
   }
 }
