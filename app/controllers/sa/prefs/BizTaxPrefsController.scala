@@ -12,7 +12,6 @@ import uk.gov.hmrc.common.microservice.email.EmailConnector
 import scala.concurrent.Future
 import uk.gov.hmrc.domain.Email
 import controllers.common.domain.EmailPreferenceData
-import controllers.common.preferences.PreferencesControllerHelper
 import scala.Some
 import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.domain.User
@@ -56,7 +55,7 @@ class BizTaxPrefsController(override val auditConnector: AuditConnector, prefere
     user =>
       request =>
         // FIXME remove the hard-coded URL - maybe take this as a return-url when entering the pref-setting?
-        Ok(views.html.preferences.sa_printing_preference_confirm(Some(user), businessTaxHome))
+        Ok(views.html.sa.prefs.sa_printing_preference_confirm(Some(user), businessTaxHome))
   }
 
   private[prefs] def redirectToBizTaxOrEmailPrefEntryIfNotSetAction(implicit user: User, request: Request[AnyRef]) = {
@@ -67,7 +66,7 @@ class BizTaxPrefsController(override val auditConnector: AuditConnector, prefere
   }
 
   private[prefs] def displayPrefsFormAction(emailAddress: Option[Encrypted[Email]])(implicit user: User, request: Request[AnyRef]) = {
-    Future.successful(Ok(views.html.preferences.sa_printing_preference(emailForm.fill(EmailPreferenceData(emailAddress.map(_.decryptedValue))), getSavePrefsCall, getKeepPaperCall)))
+    Future.successful(Ok(views.html.sa.prefs.sa_printing_preference(emailForm.fill(EmailPreferenceData(emailAddress.map(_.decryptedValue))), getSavePrefsCall, getKeepPaperCall)))
   }
 
   private[prefs] def submitPrefsFormAction(implicit user: User, request: Request[AnyRef]) = {

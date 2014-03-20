@@ -6,7 +6,6 @@ import uk.gov.hmrc.common.microservice.email.EmailConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.{GovernmentGateway, BaseController}
 import controllers.common.actions.{HeaderCarrier, Actions}
-import controllers.common.preferences.PreferencesControllerHelper
 import controllers.common.service.Connectors
 import uk.gov.hmrc.common.crypto.Encrypted
 import uk.gov.hmrc.domain.{SaUtr, Email}

@@ -9,7 +9,6 @@ import uk.gov.hmrc.common.microservice.preferences.{SaEmailPreference, Preferenc
 import com.netaporter.uri.dsl._
 import uk.gov.hmrc.domain.Email
 import play.Logger
-import controllers.common.preferences.PreferencesControllerHelper
 import controllers.common.actions.HeaderCarrier
 import com.netaporter.uri.Uri
 import controllers.common.preferences.service.SsoPayloadCrypto
@@ -59,7 +58,7 @@ class SaPrefsController(whiteList: Set[String], preferencesConnector: Preference
               implicit request =>
                 preferencesConnector.getPreferencesUnsecured(token.utr).map {
                   case Some(SaPreference(true, Some(SaEmailPreference(emailAddress, _, _)))) =>
-                    Ok(views.html.preferences.sa_printing_preference_confirm(user = None, redirectUrl = returnUrl ? ("email" -> SsoPayloadCrypto.encrypt(emailAddress))))
+                    Ok(views.html.sa.prefs.sa_printing_preference_confirm(user = None, redirectUrl = returnUrl ? ("email" -> SsoPayloadCrypto.encrypt(emailAddress))))
                   case _ => PreconditionFailed
                 }
             }
