@@ -80,15 +80,13 @@ class AccountDetailsController(override val auditConnector: AuditConnector, val 
   }
 
   private[prefs] def accountDetailsPage(implicit user: User, request: Request[AnyRef]) = {
-    println(user.regimes.sa)
     val saPreferenceF = user.regimes.sa.map(regime => preferencesConnector.getPreferences(regime.utr)(HeaderCarrier(request))).getOrElse(Future.successful(None))
 
     for {
       preference <- saPreferenceF
     } yield {
-      println(preference)
-      Ok(views.html.account_details(preference))}
-
+      Ok(views.html.account_details(preference))
+    }
   }
 
   private[prefs] def changeEmailAddressPage(emailAddress: Option[Encrypted[Email]])(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] =

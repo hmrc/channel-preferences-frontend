@@ -44,12 +44,6 @@ class BizTaxPrefsController(override val auditConnector: AuditConnector, prefere
         submitPrefsFormAction(user, request)
   }
 
-  def submitKeepPaperForm() = AuthorisedFor(SaRegime).async {
-    user =>
-      request =>
-        submitKeepPaperFormAction(user, request)
-  }
-
   def thankYou() = AuthorisedFor(SaRegime) {
     user =>
       request =>

@@ -24,5 +24,4 @@ POST        /account/account-details/sa/resend-validation-email             @con
 GET         /account/account-details/sa/login-opt-in-email-reminders        @controllers.sa.prefs.BizTaxPrefsController.redirectToBizTaxOrEmailPrefEntryIfNotSet
 GET         /account/account-details/sa/opt-in-email-reminders              @controllers.sa.prefs.BizTaxPrefsController.displayPrefsForm(email: Option[uk.gov.hmrc.domain.EncryptedEmail])
 POST        /account/account-details/sa/opt-in-email-reminders              @controllers.sa.prefs.BizTaxPrefsController.submitPrefsForm
-POST        /account/account-details/sa/opt-in-email-reminders-keep-paper   @controllers.sa.prefs.BizTaxPrefsController.submitKeepPaperForm
 GET         /account/account-details/sa/opt-in-email-reminders-thank-you    @controllers.sa.prefs.BizTaxPrefsController.thankYou

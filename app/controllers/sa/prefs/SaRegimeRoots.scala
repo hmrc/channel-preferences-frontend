@@ -13,12 +13,8 @@ trait SaRegimeRoots extends RegimeRootBase {
 
   import MdcLoggingExecutionContext._
 
-  def regimeRoots(authority: Authority)(implicit hc: HeaderCarrier): Future[RegimeRoots] = {
-    println(authority)
-    for {
-      sa <- recover(saRoot(authority))
-    } yield RegimeRoots(sa = sa)
-  }
+  def regimeRoots(authority: Authority)(implicit hc: HeaderCarrier): Future[RegimeRoots] =
+    for {possibleSaRoot <- recover(saRoot(authority))} yield RegimeRoots(sa = possibleSaRoot)
 
   def recover[T <: RegimeRoot[_]](futureOptionRegimeRoot: Future[Option[T]])(implicit executionContext: ExecutionContext) = futureOptionRegimeRoot.recover {
     case _:ConnectException | _:MicroServiceException => None

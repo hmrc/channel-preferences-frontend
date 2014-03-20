@@ -109,6 +109,16 @@ class BizTaxPrefsControllerSpec extends BaseSpec with MockitoSugar {
 
   "A post to set preferences with no emailVerifiedFlag" should {
 
+    "show an error if no opt-in preference has been chosen" in new BizTaxPrefsControllerSetup {
+      val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody()))
+
+      status(page) shouldBe 400
+
+      val document = Jsoup.parse(contentAsString(page))
+      document.select("#form-submit-email-address .error-notification").text shouldBe "Enter a valid email address."
+      verifyZeroInteractions(preferencesConnector, emailConnector)
+    }
+
     "show an error if the email is incorrectly formatted" in new BizTaxPrefsControllerSetup {
       val emailAddress = "invalid-email"
 
