@@ -1,4 +1,4 @@
-package controllers.sa.prefs
+package controllers.sa.prefs.external
 
 import play.api.mvc.Action
 import scala.concurrent.Future

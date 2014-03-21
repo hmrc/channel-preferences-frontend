@@ -14,7 +14,7 @@
     Your Self Assessment reminders will be sent in the post.
 </p>
 
-@helpers.form(action = controllers.sa.prefs.routes.AccountDetailsController.confirmOptOutOfEmailReminders) {
+@helpers.form(action = controllers.sa.prefs.internal.routes.AccountDetailsController.confirmOptOutOfEmailReminders) {
 <div class="form-field">
     <button id="confirm-opt-out" class="button" type="submit">@Messages("bt.account.stopreminders")</button>
 </div>

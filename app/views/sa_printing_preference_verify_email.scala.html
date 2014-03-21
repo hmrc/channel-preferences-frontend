@@ -12,7 +12,7 @@
     <p>Are you sure <span id="emailAddress">@emailAddress</span> is correct?</p>
 
 
-    @helpers.form(action = controllers.sa.prefs.routes.BizTaxPrefsController.submitPrefsForm, 'id -> "form-submit-preferences-verify-email") {
+    @helpers.form(action = controllers.sa.prefs.internal.routes.BizTaxPrefsController.submitPrefsForm, 'id -> "form-submit-preferences-verify-email") {
         <div class="form-field">
             <button id="email-is-correct-link" class="button" type="submit">The email is correct</button>
         </div>
@@ -21,6 +21,6 @@
         <input type="hidden" name="emailVerified" value="true" />
     }
 
-    @Link.toInternalPage(id = Some("email-is-not-correct-link"), url = controllers.sa.prefs.routes.BizTaxPrefsController.displayPrefsForm(Some(Encrypted(emailAddress))).url, value = Some("Change this email address")).toHtml
+    @Link.toInternalPage(id = Some("email-is-not-correct-link"), url = controllers.sa.prefs.internal.routes.BizTaxPrefsController.displayPrefsForm(Some(Encrypted(emailAddress))).url, value = Some("Change this email address")).toHtml
 
 }

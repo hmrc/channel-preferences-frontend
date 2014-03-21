@@ -1,4 +1,4 @@
-package controllers.sa.prefs
+package controllers.sa.prefs.internal
 
 import uk.gov.hmrc.common.BaseSpec
 import play.api.test.{FakeRequest, FakeApplication, WithApplication}

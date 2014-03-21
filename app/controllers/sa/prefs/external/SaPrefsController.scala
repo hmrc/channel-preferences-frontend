@@ -1,4 +1,4 @@
-package controllers.sa.prefs
+package controllers.sa.prefs.external
 
 import play.api.mvc.{Request, AnyContent, Action}
 import concurrent.Future
@@ -12,11 +12,13 @@ import play.Logger
 import controllers.common.actions.HeaderCarrier
 import com.netaporter.uri.Uri
 import controllers.common.preferences.service.SsoPayloadCrypto
+import uk.gov.hmrc.domain.SaUtr
+import controllers.sa.prefs._
+import uk.gov.hmrc.common.crypto.Encrypted
 import uk.gov.hmrc.common.microservice.preferences.SaPreference
 import controllers.common.preferences.service.Token
+import scala.Some
 import play.api.mvc.SimpleResult
-import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.common.crypto.Encrypted
 
 class SaPrefsController(whiteList: Set[String], preferencesConnector: PreferencesConnector, emailConnector: EmailConnector) extends BaseController with PreferencesControllerHelper {
 
@@ -89,9 +91,9 @@ class SaPrefsController(whiteList: Set[String], preferencesConnector: Preference
         }
     }
 
-  private def getSavePrefsCall(token: Token, returnUrl: Uri) = controllers.sa.prefs.routes.SaPrefsController.submitPrefsForm(token.encryptedToken, returnUrl)
+  private def getSavePrefsCall(token: Token, returnUrl: Uri) = controllers.sa.prefs.external.routes.SaPrefsController.submitPrefsForm(token.encryptedToken, returnUrl)
 
-  private def getKeepPaperCall(token: Token, returnUrl: Uri) = controllers.sa.prefs.routes.SaPrefsController.submitKeepPaperForm(token.encryptedToken, returnUrl)
+  private def getKeepPaperCall(token: Token, returnUrl: Uri) = controllers.sa.prefs.external.routes.SaPrefsController.submitKeepPaperForm(token.encryptedToken, returnUrl)
 
   def saveEmailPreferences(token: Token, returnUrl: Uri)(implicit request: Request[AnyContent]): Future[SimpleResult] = {
     preferencesConnector.getPreferencesUnsecured(token.utr).flatMap {

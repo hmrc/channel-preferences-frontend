@@ -1,10 +1,10 @@
-package controllers.sa.prefs
+package controllers.sa.prefs.internal
 
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.preferences.{SaPreference, PreferencesConnector}
 import uk.gov.hmrc.common.microservice.email.EmailConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
-import controllers.common.{GovernmentGateway, BaseController}
+import controllers.common.BaseController
 import controllers.common.actions.{HeaderCarrier, Actions}
 import controllers.common.service.Connectors
 import uk.gov.hmrc.common.crypto.Encrypted
@@ -14,6 +14,7 @@ import uk.gov.hmrc.common.microservice.sa.domain.SaRegime
 import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.domain.User
 import play.api.mvc.{SimpleResult, Request}
+import controllers.sa.prefs.{EmailPreferenceData, PreferencesControllerHelper, SaRegimeRoots}
 
 class AccountDetailsController(override val auditConnector: AuditConnector, val preferencesConnector: PreferencesConnector,
                                val emailConnector: EmailConnector)(implicit override val authConnector: AuthConnector) extends BaseController
