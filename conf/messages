@@ -20,7 +20,7 @@ sa_printing_preference.option.yes=Yes, I want to get Self Assessment reminders b
 sa_printing_preference.option.no=No, I want to continue getting Self Assessment reminders by post
 sa_printing_preference.submitButton=Continue
 sa_printing_preference.cancelButton=Continue to get letters
-sa_printing_preference.opt_in_choice_required=Please answer this question before continuing
+sa_printing_preference.opt_in_choice_required=Confirm if you want Self Assessment email reminders
 
 sa_printing_preference_confirm.title=My Preferences
 sa_printing_preference_confirm.heading=Sign up for Self Assessment email reminders

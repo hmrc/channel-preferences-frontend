@@ -114,7 +114,7 @@ class BizTaxPrefsControllerSpec extends BaseSpec with MockitoSugar {
       status(page) shouldBe 400
 
       val document = Jsoup.parse(contentAsString(page))
-      document.select(".error").text shouldBe "Please answer this question before continuing"
+      document.select(".error").text shouldBe "Confirm if you want Self Assessment email reminders"
       verifyZeroInteractions(preferencesConnector, emailConnector)
     }
 
