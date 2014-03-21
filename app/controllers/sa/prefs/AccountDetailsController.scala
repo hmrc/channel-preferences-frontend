@@ -23,11 +23,6 @@ class AccountDetailsController(override val auditConnector: AuditConnector, val 
 
   def this() = this(Connectors.auditConnector, Connectors.preferencesConnector, Connectors.emailConnector)(Connectors.authConnector)
 
-
-  def accountDetails() = AuthenticatedBy(GovernmentGateway).async {
-    user => request => accountDetailsPage(user, request)
-  }
-
   def changeEmailAddress(emailAddress: Option[Encrypted[Email]]) = AuthorisedFor(regime = SaRegime).async {
     user => request => changeEmailAddressPage(emailAddress)(user, request)
   }
@@ -77,16 +72,6 @@ class AccountDetailsController(override val auditConnector: AuditConnector, val 
 
   private[prefs] def optOutOfEmailRemindersPage(implicit user: User, request: Request[AnyRef]) = {
     lookupCurrentEmail(email => Future.successful(Ok(views.html.confirm_opt_back_into_paper(email.obfuscated))))
-  }
-
-  private[prefs] def accountDetailsPage(implicit user: User, request: Request[AnyRef]) = {
-    val saPreferenceF = user.regimes.sa.map(regime => preferencesConnector.getPreferences(regime.utr)(HeaderCarrier(request))).getOrElse(Future.successful(None))
-
-    for {
-      preference <- saPreferenceF
-    } yield {
-      Ok(views.html.account_details(preference))
-    }
   }
 
   private[prefs] def changeEmailAddressPage(emailAddress: Option[Encrypted[Email]])(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] =
