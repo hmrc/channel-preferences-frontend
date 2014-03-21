@@ -19,9 +19,9 @@
     <button id="confirm-opt-out" class="button" type="submit">@Messages("bt.account.stopreminders")</button>
 </div>
 }
-@helper.form(action = controllers.sa.prefs.routes.AccountDetailsController.accountDetails) {
+@helper.form(action = controllers.sa.prefs.ExternalUrls.accountDetails) {
     <p class="form-field">
-        @Link.toInternalPage(id = Some("cancel-opt-out-link"), url = controllers.sa.prefs.routes.AccountDetailsController.accountDetails.url, value = Some("Don’t stop your email reminders")).toHtml
+        @Link.toInternalPage(id = Some("cancel-opt-out-link"), url = controllers.sa.prefs.ExternalUrls.accountDetails.url, value = Some("Don’t stop your email reminders")).toHtml
     </p>
 }
 }

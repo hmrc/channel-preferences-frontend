@@ -12,7 +12,6 @@ GET     /sa/print-preferences/assets/*file                      controllers.sa.p
 
 
 # Account Details
-GET         /account/account-details                                        @controllers.sa.prefs.AccountDetailsController.accountDetails
 GET         /account/account-details/sa/update-email-address                @controllers.sa.prefs.AccountDetailsController.changeEmailAddress(email: Option[uk.gov.hmrc.domain.EncryptedEmail])
 POST        /account/account-details/sa/update-email-address                @controllers.sa.prefs.AccountDetailsController.submitEmailAddress
 GET         /account/account-details/sa/update-email-address-thank-you      @controllers.sa.prefs.AccountDetailsController.emailAddressChangeThankYou
