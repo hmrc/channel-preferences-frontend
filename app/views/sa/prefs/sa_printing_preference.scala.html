@@ -23,17 +23,8 @@
 
 <p>@Messages("sa_printing_preference.paragraph.4")</p>
 
-<style>label.selectable {
-    position: relative;
-    display: inline-block;
-    cursor: pointer;
-    background: #F0F0F0;
-    padding: 12px 14px 10px 16px;
-    border: 1px solid #F0F0F0;
-    margin: 1em 1em 0 0;
-    }</style>
 @_root_.views.html.helpers.form(action = submitPrefsFormAction, 'id -> "form-submit-email-address") {
-<h2>@Messages("sa_printing_preference.heading.3")</h2>
+<h3>@Messages("sa_printing_preference.heading.3")</h3>
 
 <label class="selectable">
     <input
