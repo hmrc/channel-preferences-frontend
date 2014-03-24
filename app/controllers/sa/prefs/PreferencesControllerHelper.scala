@@ -36,10 +36,10 @@ trait PreferencesControllerHelper {
       ).verifying("email.confirmation.emails.unequal", email => email._1 == email._2),
       "emailVerified" -> optional(text),
       "opt-in" -> optional(boolean).verifying("sa_printing_preference.opt_in_choice_required", _.isDefined).transform(
-        EmailPreference.fromBoolean, (p: EmailPreference) => p.toBoolean
+        _.map(EmailPreference.fromBoolean), (p: Option[EmailPreference]) => p.map(_.toBoolean)
       )
     )(EmailFormDataWithPreference.apply)(EmailFormDataWithPreference.unapply).verifying("error.email.optIn", b => b match {
-        case EmailFormDataWithPreference((None, _), _, OptIn) => false
+        case EmailFormDataWithPreference((None, _), _, Some(OptIn)) => false
         case _ => true
       })
     )
@@ -48,11 +48,13 @@ trait PreferencesControllerHelper {
     errors => views.html.sa.prefs.sa_printing_preference(errors, savePrefsCall)
   }
 
-  def displayPreferencesForm(email: Option[Email], savePrefsCall: Call)(implicit request: Request[AnyRef]) = {
-    Ok(views.html.sa.prefs.sa_printing_preference(
-      emailForm = emailForm.fill(EmailFormData(email)),
-      submitPrefsFormAction = savePrefsCall))
-  }
+  def displayPreferencesFormAction(email: Option[Email], savePrefsCall: Call)(implicit request: Request[AnyRef]) =
+    Ok(
+      views.html.sa.prefs.sa_printing_preference(
+        emailForm = emailFormWithPreference.fill(EmailFormDataWithPreference(email, email.map(_ => OptIn))),
+        submitPrefsFormAction = savePrefsCall
+      )
+    )
 
   protected def submitEmailForm(errorsView: (Form[_]) => play.api.templates.HtmlFormat.Appendable,
                                 emailWarningView: (String) => play.api.templates.HtmlFormat.Appendable,
@@ -91,7 +93,7 @@ trait PreferencesControllerHelper {
     emailFormWithPreference.bindFromRequest.fold(
       hasErrors = errors => Future.successful(BadRequest(errorsView(errors))),
       success = {
-        case emailForm @ EmailFormDataWithPreference((Some(emailAddress), _), _, OptIn) =>
+        case emailForm @ EmailFormDataWithPreference((Some(emailAddress), _), _, Some(OptIn)) =>
           val emailVerificationStatus =
             if (emailForm.isEmailVerified) Future.successful(true)
             else emailConnector.validateEmailAddress(emailAddress)
@@ -100,8 +102,10 @@ trait PreferencesControllerHelper {
             case true => savePreferences(saUtr, true, Some(emailAddress), hc)
             case false => Future.successful(Ok(emailWarningView(emailAddress)))
           }
-        case EmailFormDataWithPreference(_, _, OptOut) =>
+        case EmailFormDataWithPreference(_, _, Some(OptOut)) =>
           savePreferences(saUtr, false, None, hc)
+        case _ =>
+          Future.successful(BadRequest(errorsView(emailFormWithPreference.bindFromRequest)))
       }
     )
   }

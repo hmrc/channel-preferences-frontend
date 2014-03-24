@@ -78,7 +78,7 @@ class BizTaxPrefsControllerSpec extends BaseSpec with MockitoSugar {
 
   "The preferences form" should {
 
-    "render an email input field with no value if no email address is supplied" in new BizTaxPrefsControllerSetup {
+    "render an email input field with no value if no email address is supplied, and no option selected" in new BizTaxPrefsControllerSetup {
       val page = Future.successful(controller.displayPrefsFormAction(None)(user, request))
 
       status(page) shouldBe 200
@@ -87,9 +87,11 @@ class BizTaxPrefsControllerSpec extends BaseSpec with MockitoSugar {
 
       document.getElementById("email.main").attr("value") shouldBe ""
       document.getElementById("email.confirm").attr("value") shouldBe ""
+      document.getElementById("opt-in-in").attr("checked") should be (empty)
+      document.getElementById("opt-in-out").attr("checked") should be (empty)
     }
 
-    "render an email input field populated with the supplied email address" in new BizTaxPrefsControllerSetup {
+    "render an email input field populated with the supplied email address, and the Opt-in option selected" in new BizTaxPrefsControllerSetup {
       val emailAddress = "bob@bob.com"
 
       val page = Future.successful(controller.displayPrefsFormAction(Some(Encrypted(emailAddress)))(user, request))
@@ -102,7 +104,8 @@ class BizTaxPrefsControllerSpec extends BaseSpec with MockitoSugar {
       document.getElementById("email.main").attr("value") shouldBe emailAddress
       document.getElementById("email.confirm") shouldNot be(null)
       document.getElementById("email.confirm").attr("value") shouldBe emailAddress
-
+      document.getElementById("opt-in-in").attr("checked") should be ("checked")
+      document.getElementById("opt-in-out").attr("checked") should be (empty)
     }
   }
 

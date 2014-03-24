@@ -50,7 +50,7 @@ class SaPrefsController(whiteList: Set[String], preferencesConnector: Preference
 
                   case None =>
                     Logger.debug(s"Requesting preferences from $utr as they have none set")
-                    displayPreferencesForm(emailAddressToPrefill.map(_.decryptedValue), getSavePrefsCall(token, returnUrl))
+                    displayPreferencesFormAction(emailAddressToPrefill.map(_.decryptedValue), getSavePrefsCall(token, returnUrl))
                 }
             }
         }

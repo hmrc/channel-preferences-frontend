@@ -52,16 +52,14 @@ class BizTaxPrefsController(override val auditConnector: AuditConnector, prefere
 
   val getSavePrefsCall = controllers.sa.prefs.internal.routes.BizTaxPrefsController.submitPrefsForm()
 
-  private[prefs] def redirectToBizTaxOrEmailPrefEntryIfNotSetAction(implicit user: User, request: Request[AnyRef]) = {
+  private[prefs] def redirectToBizTaxOrEmailPrefEntryIfNotSetAction(implicit user: User, request: Request[AnyRef]) =
     preferencesConnector.getPreferences(user.getSaUtr)(HeaderCarrier(request)).map {
       case Some(saPreference) => FrontEndRedirect.toBusinessTax
-      case _ => displayPreferencesForm(None, getSavePrefsCall)
+      case _ => displayPreferencesFormAction(None, getSavePrefsCall)
     }
-  }
 
-  private[prefs] def displayPrefsFormAction(emailAddress: Option[Encrypted[Email]])(implicit user: User, request: Request[AnyRef]) = {
-    Future.successful(Ok(views.html.sa.prefs.sa_printing_preference(emailForm.fill(EmailFormData(emailAddress.map(_.decryptedValue))), getSavePrefsCall)))
-  }
+  private[prefs] def displayPrefsFormAction(emailAddress: Option[Encrypted[Email]])(implicit user: User, request: Request[AnyRef]) =
+    Future.successful(displayPreferencesFormAction(emailAddress.map(_.decryptedValue), getSavePrefsCall))
 
   private[prefs] def submitPrefsFormAction(implicit user: User, request: Request[AnyRef]) = {
     submitPreferencesForm(

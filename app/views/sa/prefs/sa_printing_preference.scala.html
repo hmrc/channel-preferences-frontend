@@ -33,7 +33,7 @@
         name="opt-in"
         value="true"
         class="email-prefs__toggle"
-        @if(emailForm("opt-in").value) { checked="checked" }
+        @if(emailForm("opt-in").value == Some("true")) { checked="checked" }
     />
     @Messages("sa_printing_preference.option.yes")
 </label>
@@ -67,6 +67,7 @@
            name="opt-in"
            value="false"
            class="email-prefs__toggle"
+           @if(emailForm("opt-in").value == Some("false")) { checked="checked" }
            />
     @Messages("sa_printing_preference.option.no")
 </label>
