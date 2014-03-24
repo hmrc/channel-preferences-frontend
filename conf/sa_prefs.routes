@@ -5,3 +5,6 @@ POST    /print-preferences/:token                            @controllers.sa.pre
 POST    /print-preferences/keep-paper/:token                 @controllers.sa.prefs.external.SaPrefsController.submitKeepPaperForm(token: String, return_url: String)
 
 GET     /print-preferences/verification/:token               @controllers.sa.prefs.external.EmailValidationController.verify(token: String)
+
+# Serves up the test gif that is used to determine if the service is up
+GET     /print-preferences/assets/*file                      controllers.sa.prefs.Assets.at(path="/public", file)
