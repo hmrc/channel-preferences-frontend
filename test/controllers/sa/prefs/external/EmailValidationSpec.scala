@@ -1,4 +1,4 @@
-package controllers.sa.prefs
+package controllers.sa.prefs.external
 
 import org.scalatest._
 import org.scalatest.mock.MockitoSugar

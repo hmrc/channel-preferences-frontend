@@ -1,4 +1,4 @@
-package controllers.sa.prefs
+package controllers.sa.prefs.internal
 
 import play.api.mvc._
 import uk.gov.hmrc.common.microservice.preferences.PreferencesConnector
@@ -11,21 +11,11 @@ import uk.gov.hmrc.common.microservice.sa.domain.SaRegime
 import uk.gov.hmrc.common.microservice.email.EmailConnector
 import scala.concurrent.Future
 import uk.gov.hmrc.domain.Email
-import scala.Some
-import play.api.mvc.SimpleResult
-import uk.gov.hmrc.common.microservice.domain.User
-import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.common.crypto.Encrypted
-import scala.Function._
+import controllers.sa.prefs._
 import uk.gov.hmrc.common.crypto.Encrypted
 import scala.Some
-import play.api.mvc.SimpleResult
 import uk.gov.hmrc.common.microservice.domain.User
-import play.api.mvc.Results._
-import uk.gov.hmrc.common.crypto.Encrypted
-import scala.Some
-import play.api.mvc.SimpleResult
-import uk.gov.hmrc.common.microservice.domain.User
+import ExternalUrls.businessTaxHome
 
 class BizTaxPrefsController(override val auditConnector: AuditConnector, preferencesConnector: PreferencesConnector, emailConnector: EmailConnector)
                        (implicit override val authConnector: AuthConnector)
@@ -57,9 +47,10 @@ class BizTaxPrefsController(override val auditConnector: AuditConnector, prefere
   def thankYou() = AuthorisedFor(SaRegime) {
     user =>
       request =>
-        // FIXME remove the hard-coded URL - maybe take this as a return-url when entering the pref-setting?
         Ok(views.html.sa.prefs.sa_printing_preference_confirm(Some(user), businessTaxHome))
   }
+
+  val getSavePrefsCall = controllers.sa.prefs.internal.routes.BizTaxPrefsController.submitPrefsForm()
 
   private[prefs] def redirectToBizTaxOrEmailPrefEntryIfNotSetAction(implicit user: User, request: Request[AnyRef]) = {
     preferencesConnector.getPreferences(user.getSaUtr)(HeaderCarrier(request)).map {

@@ -12,7 +12,7 @@
     <p>Are you sure @emailAddress is correct?</p>
 
 
-    @helpers.form(action = controllers.sa.prefs.routes.AccountDetailsController.submitEmailAddress) {
+    @helpers.form(action = controllers.sa.prefs.internal.routes.AccountDetailsController.submitEmailAddress) {
         <div class="form-field">
             <button id="emailIsCorrectLink" class="button" type="submit">This email is correct</button>
         </div>
@@ -20,5 +20,5 @@
         <input type="hidden" name="email.confirm" value="@emailAddress" />
         <input type="hidden" name="emailVerified" value="true" />
     }
-    <p>@Link.toInternalPage(id = Some("emailIsNotCorrectLink"), url = controllers.sa.prefs.routes.AccountDetailsController.changeEmailAddress(Some(Encrypted(emailAddress))).url, value = Some("Change this email address")).toHtml</p>
+    <p>@Link.toInternalPage(id = Some("emailIsNotCorrectLink"), url = controllers.sa.prefs.internal.routes.AccountDetailsController.changeEmailAddress(Some(Encrypted(emailAddress))).url, value = Some("Change this email address")).toHtml</p>
 }

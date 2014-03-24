@@ -1,10 +1,10 @@
-package controllers.sa.prefs
+package controllers.sa.prefs.internal
 
 import play.api.test.WithApplication
 import play.api.test.FakeRequest
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
-import uk.gov.hmrc.common.microservice.preferences.{SaEmailPreference, FormattedUri, PreferencesConnector, SaPreference}
+import uk.gov.hmrc.common.microservice.preferences.{FormattedUri, SaEmailPreference, PreferencesConnector, SaPreference}
 import uk.gov.hmrc.common.BaseSpec
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
@@ -19,9 +19,9 @@ import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
-import java.net.URI
 import org.mockito.Matchers
 import uk.gov.hmrc.common.crypto.Encrypted
+import java.net.URI
 
 abstract class BizTaxPrefsControllerSetup extends WithApplication(FakeApplication()) with MockitoSugar {
   val auditConnector = mock[AuditConnector]

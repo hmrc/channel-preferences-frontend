@@ -1,25 +1,6 @@
-GET     /sa/print-preferences/:token                            @controllers.sa.prefs.SaPrefsController.index(token: String, return_url: String, emailAddress: Option[uk.gov.hmrc.domain.EncryptedEmail])
-GET     /sa/print-preferences-saved                             @controllers.sa.prefs.SaPrefsController.confirm(token: String, return_url: String)
-GET     /sa/print-preferences-no-action                         @controllers.sa.prefs.SaPrefsController.noAction(return_url: String, digital: Boolean)
-POST    /sa/print-preferences/:token                            @controllers.sa.prefs.SaPrefsController.submitPrefsForm(token: String, return_url: String)
+GET     /print-preferences/:token                            @controllers.sa.prefs.external.SaPrefsController.index(token: String, return_url: String, emailAddress: Option[uk.gov.hmrc.domain.EncryptedEmail])
+GET     /print-preferences-saved                             @controllers.sa.prefs.external.SaPrefsController.confirm(token: String, return_url: String)
+GET     /print-preferences-no-action                         @controllers.sa.prefs.external.SaPrefsController.noAction(return_url: String, digital: Boolean)
+POST    /print-preferences/:token                            @controllers.sa.prefs.external.SaPrefsController.submitPrefsForm(token: String, return_url: String)
 
-GET     /sa/print-preferences/verification/:token               @controllers.sa.prefs.EmailValidationController.verify(token: String)
-
-
-# Map static resources from the /public folder to the /assets URL path
-GET     /sa/print-preferences/assets/*file                      controllers.sa.prefs.Assets.at(path="/public", file)
-
-
-# Account Details
-GET         /account/account-details/sa/update-email-address                @controllers.sa.prefs.AccountDetailsController.changeEmailAddress(email: Option[uk.gov.hmrc.domain.EncryptedEmail])
-POST        /account/account-details/sa/update-email-address                @controllers.sa.prefs.AccountDetailsController.submitEmailAddress
-GET         /account/account-details/sa/update-email-address-thank-you      @controllers.sa.prefs.AccountDetailsController.emailAddressChangeThankYou
-GET         /account/account-details/sa/opt-out-email-reminders             @controllers.sa.prefs.AccountDetailsController.optOutOfEmailReminders
-POST        /account/account-details/sa/opt-out-email-reminders             @controllers.sa.prefs.AccountDetailsController.confirmOptOutOfEmailReminders
-GET         /account/account-details/sa/opt-out-email-reminders-thank-you   @controllers.sa.prefs.AccountDetailsController.optedBackIntoPaperThankYou
-POST        /account/account-details/sa/resend-validation-email             @controllers.sa.prefs.AccountDetailsController.resendValidationEmail
-
-GET         /account/account-details/sa/login-opt-in-email-reminders        @controllers.sa.prefs.BizTaxPrefsController.redirectToBizTaxOrEmailPrefEntryIfNotSet
-GET         /account/account-details/sa/opt-in-email-reminders              @controllers.sa.prefs.BizTaxPrefsController.displayPrefsForm(email: Option[uk.gov.hmrc.domain.EncryptedEmail])
-POST        /account/account-details/sa/opt-in-email-reminders              @controllers.sa.prefs.BizTaxPrefsController.submitPrefsForm
-GET         /account/account-details/sa/opt-in-email-reminders-thank-you    @controllers.sa.prefs.BizTaxPrefsController.thankYou
+GET     /print-preferences/verification/:token               @controllers.sa.prefs.external.EmailValidationController.verify(token: String)

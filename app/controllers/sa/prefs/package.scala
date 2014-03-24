@@ -42,9 +42,4 @@ package object prefs {
         }
     }
 
-  val getSavePrefsCall = controllers.sa.prefs.routes.BizTaxPrefsController.submitPrefsForm()
-
-  val getKeepPaperCall: Call = getSavePrefsCall // FIXME REMOVE!!!
-
-  val businessTaxHome = "/account"
 }

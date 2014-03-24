@@ -1,4 +1,4 @@
-package controllers.sa.prefs
+package controllers.sa.prefs.external
 
 import play.api.mvc._
 import concurrent.Future
@@ -12,6 +12,9 @@ import play.Logger
 import controllers.common.actions.HeaderCarrier
 import com.netaporter.uri.Uri
 import controllers.common.preferences.service.SsoPayloadCrypto
+import uk.gov.hmrc.domain.SaUtr
+import controllers.sa.prefs._
+import uk.gov.hmrc.common.crypto.Encrypted
 import uk.gov.hmrc.common.microservice.preferences.SaPreference
 import controllers.common.preferences.service.Token
 import uk.gov.hmrc.domain.SaUtr
@@ -77,9 +80,6 @@ class SaPrefsController(whiteList: Set[String], preferencesConnector: Preference
         }
     }
 
-  private def savePreferences(utr: SaUtr, digital: Boolean, email: Option[String] = None, hc: HeaderCarrier) = {
-  }
-
   def submitPrefsForm(encryptedToken: String, encodedReturnUrl: String) =
     DecodeAndWhitelist(encodedReturnUrl) {
       returnUrl =>
@@ -92,7 +92,7 @@ class SaPrefsController(whiteList: Set[String], preferencesConnector: Preference
         }
     }
 
-  private def getSavePrefsCall(token: Token, returnUrl: Uri) = controllers.sa.prefs.routes.SaPrefsController.submitPrefsForm(token.encryptedToken, returnUrl)
+  private def getSavePrefsCall(token: Token, returnUrl: Uri) = controllers.sa.prefs.external.routes.SaPrefsController.submitPrefsForm(token.encryptedToken, returnUrl)
 
   def saveEmailPreferences(token: Token, returnUrl: Uri)(implicit request: Request[AnyContent]): Future[SimpleResult] = {
     preferencesConnector.getPreferencesUnsecured(token.utr).flatMap {
