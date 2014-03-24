@@ -41,8 +41,9 @@
     @helpers.input(
     emailForm("email.main"),
     '_label -> "Email address",
+    '_labelClass -> "bold",
     '_labelHighlight -> true,
-    '_divClass -> "form-field",
+    '_divClass -> "row",
     '_inputClass -> "input--medium input--cleared",
     'parentField -> emailForm("email")
     )
@@ -50,12 +51,12 @@
     @helpers.input(
     emailForm("email.confirm"),
     '_label -> "Confirm email address",
+    '_labelClass -> "bold",
     '_labelHighlight -> true,
-    '_divClass -> "form-field",
+    '_divClass -> "row",
     '_inputClass -> "input--medium input--cleared"
     )
-    <p class="form-field">
-        @Html(Messages("sa_printing_preference.paragraph.5",
+    <p>@Html(Messages("sa_printing_preference.paragraph.5",
         Link.toExternalPage(url = controllers.common.routes.CommonController.termsAndConditions().url, value = Some(Messages("sa_printing_preference.paragraph.5.linkText"))).toHtml))
     </p>
 </fieldset>
@@ -69,9 +70,10 @@
            />
     @Messages("sa_printing_preference.option.no")
 </label>
-@emailForm("opt-in").errors.map { error => <span class="error">@Messages(error.message)</span>}
-@emailForm.globalErrors.map { error => <span class="error">@Messages(error.message)</span>}
-
+<div class="email-form-errors">
+    @emailForm("opt-in").errors.map { error => <label class="error-notification">@Messages(error.message)</label>}
+    @emailForm.globalErrors.map { error => <label class="error-notification">@Messages(error.message)</label>}
+</div>
 <div class="form-field">
     <button id="submitEmailButton" class="button" type="submit">@Messages("sa_printing_preference.submitButton")</button>
 </div>
