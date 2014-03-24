@@ -1,3 +1,4 @@
-->     /            common.Routes
-->     /            sa_prefs.Routes
-->     /template    template.Routes
+->     /                               common.Routes
+->     /sa                             sa_prefs.Routes
+->     /account/account-details/sa     sa_prefs_account_details.Routes
+->     /template                       template.Routes

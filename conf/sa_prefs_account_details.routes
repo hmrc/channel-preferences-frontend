@@ -1,0 +1,13 @@
+GET         /update-email-address                @controllers.sa.prefs.internal.AccountDetailsController.changeEmailAddress(email: Option[uk.gov.hmrc.domain.EncryptedEmail])
+POST        /update-email-address                @controllers.sa.prefs.internal.AccountDetailsController.submitEmailAddress
+GET         /update-email-address-thank-you      @controllers.sa.prefs.internal.AccountDetailsController.emailAddressChangeThankYou
+GET         /opt-out-email-reminders             @controllers.sa.prefs.internal.AccountDetailsController.optOutOfEmailReminders
+POST        /opt-out-email-reminders             @controllers.sa.prefs.internal.AccountDetailsController.confirmOptOutOfEmailReminders
+GET         /opt-out-email-reminders-thank-you   @controllers.sa.prefs.internal.AccountDetailsController.optedBackIntoPaperThankYou
+POST        /resend-validation-email             @controllers.sa.prefs.internal.AccountDetailsController.resendValidationEmail
+
+GET         /login-opt-in-email-reminders        @controllers.sa.prefs.internal.BizTaxPrefsController.redirectToBizTaxOrEmailPrefEntryIfNotSet
+GET         /opt-in-email-reminders              @controllers.sa.prefs.internal.BizTaxPrefsController.displayPrefsForm(email: Option[uk.gov.hmrc.domain.EncryptedEmail])
+POST        /opt-in-email-reminders              @controllers.sa.prefs.internal.BizTaxPrefsController.submitPrefsForm
+POST        /opt-in-email-reminders-keep-paper   @controllers.sa.prefs.internal.BizTaxPrefsController.submitKeepPaperForm
+GET         /opt-in-email-reminders-thank-you    @controllers.sa.prefs.internal.BizTaxPrefsController.thankYou
