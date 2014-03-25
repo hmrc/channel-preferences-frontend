@@ -29,7 +29,6 @@ object PlayFrontendBuild extends Build {
 
   lazy val microservice =
     PlayMicroServiceBuild(appName, appVersion, appSpecificDependencies.all)
-      .settings(testOptions in Test += Tests.Argument("-o"))
       .settings(routesImport ++= Seq("uk.gov.hmrc.common.QueryBinders._", "uk.gov.hmrc.domain._"))
 }
 
