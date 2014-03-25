@@ -35,7 +35,7 @@ class SaPrefsController(whiteList: Set[String], preferencesConnector: Preference
               implicit request =>
                 val utr = token.utr
                 preferencesConnector.getPreferencesUnsecured(utr) map {
-                  case Some(SaPreference(_, Some(SaEmailPreference(emailAddress, _, _)))) =>
+                  case Some(SaPreference(_, Some(SaEmailPreference(emailAddress, _, _, _)))) =>
                     Logger.debug(s"Redirecting $utr back to $returnUrl as they have opted-in")
                     Redirect(returnUrl ? ("email" -> SsoPayloadCrypto.encrypt(emailAddress)))
 
@@ -59,7 +59,7 @@ class SaPrefsController(whiteList: Set[String], preferencesConnector: Preference
             Action.async {
               implicit request =>
                 preferencesConnector.getPreferencesUnsecured(token.utr).map {
-                  case Some(SaPreference(true, Some(SaEmailPreference(emailAddress, _, _)))) =>
+                  case Some(SaPreference(true, Some(SaEmailPreference(emailAddress, _, _, _)))) =>
                     Ok(views.html.sa.prefs.sa_printing_preference_confirm(user = None, redirectUrl = returnUrl ? ("email" -> SsoPayloadCrypto.encrypt(emailAddress))))
                   case _ => PreconditionFailed
                 }
