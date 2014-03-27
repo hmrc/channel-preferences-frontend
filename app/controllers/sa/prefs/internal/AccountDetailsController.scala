@@ -14,7 +14,7 @@ import uk.gov.hmrc.common.microservice.sa.domain.SaRegime
 import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.domain.User
 import play.api.mvc.{SimpleResult, Request}
-import controllers.sa.prefs.{EmailPreferenceData, PreferencesControllerHelper, SaRegimeRoots}
+import controllers.sa.prefs.{EmailFormData, PreferencesControllerHelper, SaRegimeRoots}
 
 class AccountDetailsController(override val auditConnector: AuditConnector, val preferencesConnector: PreferencesConnector,
                                val emailConnector: EmailConnector)(implicit override val authConnector: AuthConnector) extends BaseController
@@ -76,7 +76,7 @@ class AccountDetailsController(override val auditConnector: AuditConnector, val 
   }
 
   private[prefs] def changeEmailAddressPage(emailAddress: Option[Encrypted[Email]])(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] =
-    lookupCurrentEmail(email => Future.successful(Ok(views.html.account_details_update_email_address(email, emailForm.fill(EmailPreferenceData(emailAddress.map(_.decryptedValue)))))))
+    lookupCurrentEmail(email => Future.successful(Ok(views.html.account_details_update_email_address(email, emailForm.fill(EmailFormData(emailAddress.map(_.decryptedValue)))))))
 
 
 
@@ -90,7 +90,7 @@ class AccountDetailsController(override val auditConnector: AuditConnector, val 
   private[prefs] def submitEmailAddressPage(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] =
     lookupCurrentEmail(
       email =>
-        submitPreferencesForm(
+        submitEmailForm(
           views.html.account_details_update_email_address(email, _),
           (enteredEmail) => views.html.account_details_update_email_address_verify_email(enteredEmail),
           () => routes.AccountDetailsController.emailAddressChangeThankYou(),

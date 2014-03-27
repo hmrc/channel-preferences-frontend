@@ -2,7 +2,6 @@ GET     /print-preferences/:token                            @controllers.sa.pre
 GET     /print-preferences-saved                             @controllers.sa.prefs.external.SaPrefsController.confirm(token: String, return_url: String)
 GET     /print-preferences-no-action                         @controllers.sa.prefs.external.SaPrefsController.noAction(return_url: String, digital: Boolean)
 POST    /print-preferences/:token                            @controllers.sa.prefs.external.SaPrefsController.submitPrefsForm(token: String, return_url: String)
-POST    /print-preferences/keep-paper/:token                 @controllers.sa.prefs.external.SaPrefsController.submitKeepPaperForm(token: String, return_url: String)
 
 GET     /print-preferences/verification/:token               @controllers.sa.prefs.external.EmailValidationController.verify(token: String)
 

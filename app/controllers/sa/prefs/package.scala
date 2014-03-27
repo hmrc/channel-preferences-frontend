@@ -4,7 +4,7 @@ import controllers.common.service.FrontEndConfig
 import java.net.URLDecoder
 import play.api.Logger
 import play.api.mvc.Results._
-import play.api.mvc.{Request, AnyContent, Action}
+import play.api.mvc.{Call, Request, AnyContent, Action}
 import scala.concurrent.Future
 import com.netaporter.uri.dsl._
 import com.netaporter.uri.Uri

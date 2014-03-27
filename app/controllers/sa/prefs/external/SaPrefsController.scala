@@ -1,6 +1,6 @@
 package controllers.sa.prefs.external
 
-import play.api.mvc.{Request, AnyContent, Action}
+import play.api.mvc._
 import concurrent.Future
 import controllers.common.service.{Connectors, FrontEndConfig}
 import controllers.common.BaseController
@@ -14,6 +14,11 @@ import com.netaporter.uri.Uri
 import controllers.common.preferences.service.SsoPayloadCrypto
 import uk.gov.hmrc.domain.SaUtr
 import controllers.sa.prefs._
+import uk.gov.hmrc.common.crypto.Encrypted
+import uk.gov.hmrc.common.microservice.preferences.SaPreference
+import controllers.common.preferences.service.Token
+import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.common.crypto.Encrypted
 import uk.gov.hmrc.common.crypto.Encrypted
 import uk.gov.hmrc.common.microservice.preferences.SaPreference
 import controllers.common.preferences.service.Token
@@ -45,7 +50,7 @@ class SaPrefsController(whiteList: Set[String], preferencesConnector: Preference
 
                   case None =>
                     Logger.debug(s"Requesting preferences from $utr as they have none set")
-                    displayPreferencesForm(emailAddressToPrefill.map(_.decryptedValue), getSavePrefsCall(token, returnUrl), getKeepPaperCall(token, returnUrl))
+                    displayPreferencesFormAction(emailAddressToPrefill.map(_.decryptedValue), getSavePrefsCall(token, returnUrl))
                 }
             }
         }
@@ -75,10 +80,6 @@ class SaPrefsController(whiteList: Set[String], preferencesConnector: Preference
         }
     }
 
-  private def savePreferences(utr: SaUtr, digital: Boolean, email: Option[String] = None, hc: HeaderCarrier) = {
-    preferencesConnector.savePreferencesUnsecured(utr, digital, email)(hc)
-  }
-
   def submitPrefsForm(encryptedToken: String, encodedReturnUrl: String) =
     DecodeAndWhitelist(encodedReturnUrl) {
       returnUrl =>
@@ -93,40 +94,24 @@ class SaPrefsController(whiteList: Set[String], preferencesConnector: Preference
 
   private def getSavePrefsCall(token: Token, returnUrl: Uri) = controllers.sa.prefs.external.routes.SaPrefsController.submitPrefsForm(token.encryptedToken, returnUrl)
 
-  private def getKeepPaperCall(token: Token, returnUrl: Uri) = controllers.sa.prefs.external.routes.SaPrefsController.submitKeepPaperForm(token.encryptedToken, returnUrl)
-
   def saveEmailPreferences(token: Token, returnUrl: Uri)(implicit request: Request[AnyContent]): Future[SimpleResult] = {
     preferencesConnector.getPreferencesUnsecured(token.utr).flatMap {
       case Some(saPreference) =>
         Future.successful(Redirect(routes.SaPrefsController.noAction(returnUrl, saPreference.digital)))
       case None =>
         submitPreferencesForm(
-          errorsView = getSubmitPreferencesView(getSavePrefsCall(token, returnUrl), getKeepPaperCall(token, returnUrl)),
+          errorsView = getSubmitPreferencesView(getSavePrefsCall(token, returnUrl)),
           emailWarningView = views.html.sa.prefs.sa_printing_preference_warning_email(_, token, returnUrl),
-          successRedirect = () => routes.SaPrefsController.confirm(token.encryptedToken, returnUrl),
           emailConnector = emailConnector,
           saUtr = token.utr,
-          savePreferences = savePreferences
+          savePreferences = (utr, digital, email, hc) =>
+            preferencesConnector.savePreferencesUnsecured(utr, digital, email)(hc).map(_ =>
+              digital match {
+                case true => Redirect(routes.SaPrefsController.confirm(token.encryptedToken, returnUrl))
+                case false => Redirect(returnUrl)
+              }
+            )(mdcExecutionContext(hc))
         )
     }
   }
-
-  def submitKeepPaperForm(encryptedToken: String, encodedReturnUrl: String) =
-    DecodeAndWhitelist(encodedReturnUrl) {
-      returnUrl =>
-        DecryptAndValidate(encryptedToken, returnUrl) {
-          token =>
-            Action.async {
-              implicit request =>
-                preferencesConnector.getPreferencesUnsecured(token.utr) flatMap {
-                  case Some(saPreference) =>
-                    Future.successful(Redirect(routes.SaPrefsController.noAction(returnUrl, saPreference.digital)))
-                  case None =>
-                    preferencesConnector.savePreferencesUnsecured(token.utr, digital = false, None).map(_ =>
-                      Redirect(returnUrl)
-                    )
-                }
-            }
-        }
-    }
 }

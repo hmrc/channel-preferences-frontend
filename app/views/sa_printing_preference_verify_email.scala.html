@@ -5,7 +5,7 @@
 
 @main(title = "Sign up for email reminders", user = Some(user)) {
    <header class="page-header">
-       <h1>@Messages("sa.heading.signup.emailreminders")</h1>
+       <h1>@Messages("sa_printing_preference.title")</h1>
 
         <h2>Check your email address</h2>
    </header>
@@ -16,6 +16,7 @@
         <div class="form-field">
             <button id="email-is-correct-link" class="button" type="submit">The email is correct</button>
         </div>
+        <input type="hidden" name="opt-in" value="true" />
         <input type="hidden" name="email.main" value="@emailAddress" />
         <input type="hidden" name="email.confirm" value="@emailAddress" />
         <input type="hidden" name="emailVerified" value="true" />

@@ -1,67 +1,84 @@
-@(emailForm: Form[controllers.sa.prefs.EmailPreferenceData],
-  submitPrefsFormAction: Call,
-  submitKeepPaperAction: Call)(implicit request: Request[_])
+@(emailForm: Form[_], submitPrefsFormAction: Call)(implicit request: Request[_])
 
 @import views.helpers.Link
 
 @main(title = Messages("sa_printing_preference.title")) {
 
-   <header class="page-header">
-       <h1>@Messages("sa_printing_preference.heading")</h1>
-   </header>
+<header class="page-header">
+    <h1>@Messages("sa_printing_preference.heading")</h1>
+</header>
 
 
-    <p>@Messages("sa_printing_preference.paragraph.1")</p>
-    <ul class="bullets">
-        <li>@Messages("sa_printing_preference.list.1.item.1")</li>
-        <li>@Messages("sa_printing_preference.list.1.item.2")</li>
-        <li>@Messages("sa_printing_preference.list.1.item.3")</li>
-    </ul>
-    <p>@Messages("sa_printing_preference.paragraph.2")</p>
+<p>@Messages("sa_printing_preference.paragraph.1")</p>
+<ul class="bullets">
+    <li>@Messages("sa_printing_preference.list.1.item.1")</li>
+    <li>@Messages("sa_printing_preference.list.1.item.2")</li>
+    <li>@Messages("sa_printing_preference.list.1.item.3")</li>
+    <li>@Messages("sa_printing_preference.list.1.item.4")</li>
+</ul>
+<h2>@Messages("sa_printing_preference.heading.2")</h2>
+<p>@Messages("sa_printing_preference.paragraph.2")</p>
 
-    <h2>@Messages("sa_printing_preference.heading.2")</h2>
-    <p>@Messages("sa_printing_preference.paragraph.3")</p>
+<p>@Messages("sa_printing_preference.paragraph.3")</p>
 
-    <p>@Messages("sa_printing_preference.paragraph.4")</p>
+<p>@Messages("sa_printing_preference.paragraph.4")</p>
 
-    <p>@Messages("sa_printing_preference.paragraph.5")</p>
+@_root_.views.html.helpers.form(action = submitPrefsFormAction, 'id -> "form-submit-email-address") {
+<h3>@Messages("sa_printing_preference.heading.3")</h3>
 
-    @_root_.views.html.helpers.form(action = submitPrefsFormAction, 'id -> "form-submit-email-address") {
+<label class="selectable">
+    <input
+        id="opt-in-in"
+        type="radio"
+        name="opt-in"
+        value="true"
+        class="email-prefs__toggle"
+        @if(emailForm("opt-in").value == Some("true")) { checked="checked" }
+    />
+    @Messages("sa_printing_preference.option.yes")
+</label>
+<fieldset class="connected js-hidden">
+    @helpers.input(
+    emailForm("email.main"),
+    '_label -> "Email address",
+    '_labelClass -> "bold",
+    '_labelHighlight -> true,
+    '_divClass -> "row",
+    '_inputClass -> "input--medium input--cleared",
+    'parentField -> emailForm("email")
+    )
 
-        <fieldset>
-        @helpers.input(
-            emailForm("email.main"),
-            '_label -> "Email address",
-            '_labelHighlight -> true,
-            '_divClass -> "form-field",
-            '_inputClass -> "input--medium input--cleared",
-            'parentField -> emailForm("email")
-        )
+    @helpers.input(
+    emailForm("email.confirm"),
+    '_label -> "Confirm email address",
+    '_labelClass -> "bold",
+    '_labelHighlight -> true,
+    '_divClass -> "row",
+    '_inputClass -> "input--medium input--cleared"
+    )
+    <p>@Html(Messages("sa_printing_preference.paragraph.5",
+        Link.toExternalPage(url = controllers.common.routes.CommonController.termsAndConditions().url, value = Some(Messages("sa_printing_preference.paragraph.5.linkText"))).toHtml))
+    </p>
+</fieldset>
+<label class="selectable">
+    <input
+           id="opt-in-out"
+           type="radio"
+           name="opt-in"
+           value="false"
+           class="email-prefs__toggle"
+           @if(emailForm("opt-in").value == Some("false")) { checked="checked" }
+           />
+    @Messages("sa_printing_preference.option.no")
+</label>
+<div class="email-form-errors">
+    @emailForm("opt-in").errors.map { error => <label class="error-notification">@Messages(error.message)</label>}
+    @emailForm.globalErrors.map { error => <label class="error-notification">@Messages(error.message)</label>}
+</div>
+<div class="form-field">
+    <button id="submitEmailButton" class="button" type="submit">@Messages("sa_printing_preference.submitButton")</button>
+</div>
 
-        @helpers.input(
-            emailForm("email.confirm"),
-            '_label -> "Confirm email address",
-            '_labelHighlight -> true,
-            '_divClass -> "form-field",
-            '_inputClass -> "input--medium input--cleared"
-        )
-        </fieldset>
-        <p class="form-field">
-            @Html(Messages("sa_printing_preference.paragraph.6",
-            Link.toExternalPage(url = controllers.common.routes.CommonController.termsAndConditions().url, value = Some(Messages("sa_printing_preference.paragraph.6.linkText"))).toHtml))
-        </p>
-
-        <div class="form-field">
-            <button id="submitEmailButton" class="button" type="submit">@Messages("sa_printing_preference.submitButton")</button>
-        </div>
-
-    }
-
-    @_root_.views.html.helpers.form(action = submitKeepPaperAction) {
-    <div class="form-field">
-        <input id="keep-paper-link" class="input--link" type="submit" value="@Messages("sa_printing_preference.cancelButton")" />
-    </div>
-
-    }
+}
 
 }

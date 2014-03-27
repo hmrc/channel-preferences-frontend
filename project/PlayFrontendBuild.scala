@@ -14,6 +14,7 @@ object PlayFrontendBuild extends Build {
     val compile = Seq(
       "uk.gov.hmrc" %% "govuk-template" % envOrElse("GOVUK_TEMPLATE_VERSION", "999-SNAPSHOT"),
       "uk.gov.hmrc" %% "play-frontend" % envOrElse("PLAY_FRONTEND_VERSION", "999-SNAPSHOT"),
+      "uk.gov.hmrc" %% "tax-core" % envOrElse("TAX_CORE_VERSION", "999-SNAPSHOT"),
       "com.netaporter" %% "scala-uri" % "0.4.0" exclude("com.typesafe.sbt", "sbt-pgp") exclude("com.github.scct", "scct_2.10"),
       "com.github.scct" %% "scct" % "0.2.1"
     )
