@@ -18,7 +18,7 @@ import scala.Some
 import ExternalUrls._
 
 class BizTaxPrefsController(override val auditConnector: AuditConnector, preferencesConnector: PreferencesConnector, emailConnector: EmailConnector)
-                       (implicit override val authConnector: AuthConnector)
+                           (implicit override val authConnector: AuthConnector)
   extends BaseController
   with Actions
   with NoRegimeRoots
@@ -33,15 +33,19 @@ class BizTaxPrefsController(override val auditConnector: AuditConnector, prefere
   }
 
   def displayPrefsForm(emailAddress: Option[Encrypted[Email]])(): Action[AnyContent] = AuthorisedFor(SaRegime).async {
-    user =>
-      request =>
-        displayPrefsFormAction(emailAddress)(user, request)
+    implicit user =>
+      implicit request =>
+        displayPrefsFormAction(emailAddress)
   }
 
-  def submitPrefsForm() = AuthorisedFor(SaRegime).async {
+  def submitPrefsFormForInterstitial() = AuthorisedFor(SaRegime).async {
+    implicit user => implicit request => submitPrefsFormAction
+  }
+
+  def submitPrefsFormForNonInterstitial() = AuthorisedFor(SaRegime).async {
     user =>
       request =>
-        submitPrefsFormAction(user, request)
+        submitPrefsFormAction(user, request, withBanner = true)
   }
 
   def submitKeepPaperForm() = AuthorisedFor(SaRegime).async {
@@ -53,38 +57,53 @@ class BizTaxPrefsController(override val auditConnector: AuditConnector, prefere
   def thankYou() = AuthorisedFor(SaRegime) {
     user =>
       request =>
-        // FIXME remove the hard-coded URL - maybe take this as a return-url when entering the pref-setting?
+      // FIXME remove the hard-coded URL - maybe take this as a return-url when entering the pref-setting?
         Ok(views.html.sa.prefs.sa_printing_preference_confirm(Some(user), businessTaxHome))
   }
 
-  val getSavePrefsCall = controllers.sa.prefs.internal.routes.BizTaxPrefsController.submitPrefsForm()
+  val getSavePrefsFromInterstitialCall = controllers.sa.prefs.internal.routes.BizTaxPrefsController.submitPrefsFormForInterstitial()
+  val getSavePrefsFromNonInterstitialPageCall = controllers.sa.prefs.internal.routes.BizTaxPrefsController.submitPrefsFormForNonInterstitial()
   val getKeepPaperCall = controllers.sa.prefs.internal.routes.BizTaxPrefsController.submitKeepPaperForm()
+
 
   private[prefs] def redirectToBizTaxOrEmailPrefEntryIfNotSetAction(implicit user: User, request: Request[AnyRef]) = {
     preferencesConnector.getPreferences(user.getSaUtr)(HeaderCarrier(request)).map {
       case Some(saPreference) => FrontEndRedirect.toBusinessTax
-      case _ => displayPreferencesForm(None, getSavePrefsCall, getKeepPaperCall)
+      case _ => displayPreferencesForm(None, getSavePrefsFromInterstitialCall, getKeepPaperCall)
     }
   }
 
   private[prefs] def displayPrefsFormAction(emailAddress: Option[Encrypted[Email]])(implicit user: User, request: Request[AnyRef]) = {
-    Future.successful(Ok(views.html.sa.prefs.sa_printing_preference(emailForm.fill(EmailPreferenceData(emailAddress.map(_.decryptedValue))), getSavePrefsCall, getKeepPaperCall)))
+    Future.successful(
+      Ok(
+        views.html.sa.prefs.sa_printing_preference(
+          showBanner = true, emailForm.fill(EmailPreferenceData(emailAddress.map(_.decryptedValue))),
+          getSavePrefsFromNonInterstitialPageCall, getKeepPaperCall)
+      ))
   }
 
-  private[prefs] def submitPrefsFormAction(implicit user: User, request: Request[AnyRef]) = {
+  private[prefs] def submitPrefsFormAction(implicit user: User, request: Request[AnyRef], withBanner: Boolean = false) = {
 
     def savePreferences(utr: SaUtr, digital: Boolean, email: Option[String] = None, hc: HeaderCarrier) = {
       preferencesConnector.savePreferences(utr, digital, email)(hc)
     }
 
     submitPreferencesForm(
-      errorsView = getSubmitPreferencesView(getSavePrefsCall, getKeepPaperCall),
+      errorsView = getSubmitPreferencesView(getSavePrefFormAction, getKeepPaperCall),
       emailWarningView = views.html.sa_printing_preference_verify_email(_),
       successRedirect = routes.BizTaxPrefsController.thankYou,
       emailConnector = emailConnector,
       saUtr = user.getSaUtr,
       savePreferences = savePreferences
     )
+  }
+
+
+  def getSavePrefFormAction(implicit withBanner: Boolean) = {
+    if (withBanner)
+      getSavePrefsFromNonInterstitialPageCall
+    else
+      getSavePrefsFromInterstitialCall
   }
 
   private[prefs] def submitKeepPaperFormAction(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {

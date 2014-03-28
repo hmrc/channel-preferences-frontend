@@ -21,17 +21,17 @@ trait PreferencesControllerHelper {
         "main" -> email.verifying("error.email_too_long", email => email.size < 320),
         "confirm" -> optional(text)
       ).verifying(
-          "email.confirmation.emails.unequal", email => email._1 == email._2.getOrElse("")
-        ),
+        "email.confirmation.emails.unequal", email => email._1 == email._2.getOrElse("")
+      ),
     "emailVerified" -> optional(text)
   )(EmailPreferenceData.apply)(EmailPreferenceData.unapply))
 
-  def getSubmitPreferencesView(savePrefsCall: Call, keepPaperCall: Call)(implicit request: Request[AnyRef]): Form[EmailPreferenceData] => HtmlFormat.Appendable = {
-    errors => views.html.sa.prefs.sa_printing_preference(errors, savePrefsCall, keepPaperCall)
+  def getSubmitPreferencesView(savePrefsCall: Call, keepPaperCall: Call)(implicit request: Request[AnyRef], withBanner: Boolean = false): Form[EmailPreferenceData] => HtmlFormat.Appendable = {
+    errors => views.html.sa.prefs.sa_printing_preference(withBanner, errors, savePrefsCall, keepPaperCall)
   }
 
   def displayPreferencesForm(email: Option[Email], savePrefsCall: Call, keepPaperCall: Call)(implicit request: Request[AnyRef]) = {
-    Ok(views.html.sa.prefs.sa_printing_preference(
+    Ok(views.html.sa.prefs.sa_printing_preference(false,
       emailForm = emailForm.fill(EmailPreferenceData(email)),
       submitPrefsFormAction = savePrefsCall,
       submitKeepPaperAction = keepPaperCall))
