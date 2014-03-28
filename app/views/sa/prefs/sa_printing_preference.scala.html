@@ -1,8 +1,8 @@
-@(emailForm: Form[_], submitPrefsFormAction: Call)(implicit request: Request[_])
+@(showBanner:Boolean,emailForm: Form[_], submitPrefsFormAction: Call)(implicit request: Request[_])
 
 @import views.helpers.Link
 
-@main(title = Messages("sa_printing_preference.title")) {
+@main(title = Messages("sa_printing_preference.title"), nav = showBanner) {
 
 <header class="page-header">
     <h1>@Messages("sa_printing_preference.heading")</h1>

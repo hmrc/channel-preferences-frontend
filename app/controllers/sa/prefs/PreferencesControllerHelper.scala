@@ -44,8 +44,8 @@ trait PreferencesControllerHelper {
       })
     )
 
-  def getSubmitPreferencesView(savePrefsCall: Call)(implicit request: Request[AnyRef]): Form[_] => HtmlFormat.Appendable = {
-    errors => views.html.sa.prefs.sa_printing_preference(errors, savePrefsCall)
+  def getSubmitPreferencesView(savePrefsCall: Call)(implicit request: Request[AnyRef], withBanner: Boolean = false): Form[_] => HtmlFormat.Appendable = {
+    errors => views.html.sa.prefs.sa_printing_preference(withBanner,errors, savePrefsCall)
   }
 
   def displayPreferencesFormAction(email: Option[Email], savePrefsCall: Call)(implicit request: Request[AnyRef]) =

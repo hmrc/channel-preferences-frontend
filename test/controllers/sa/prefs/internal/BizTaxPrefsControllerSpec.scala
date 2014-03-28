@@ -76,6 +76,24 @@ class BizTaxPrefsControllerSpec extends BaseSpec with MockitoSugar {
     }
   }
 
+  "The preferences action on non interstitial page" should {
+    "show main banner" in new BizTaxPrefsControllerSetup {
+
+      val page = Future.successful(controller.displayPrefsFormAction(None)(user, request))
+      status(page) shouldBe 200
+      val document = Jsoup.parse(contentAsString(page))
+      document.getElementsByTag("nav").attr("id") shouldBe "proposition-menu"
+    }
+
+    "have correct form action to save prefrences" in new BizTaxPrefsControllerSetup {
+      val page = Future.successful(controller.displayPrefsFormAction(None)(user, request))
+      status(page) shouldBe 200
+      val document = Jsoup.parse(contentAsString(page))
+      document.select("#form-submit-email-address").attr("action") should endWith("opt-in-email-reminders")
+    }
+
+  }
+
   "The preferences form" should {
 
     "render an email input field with no value if no email address is supplied, and no option selected" in new BizTaxPrefsControllerSetup {
