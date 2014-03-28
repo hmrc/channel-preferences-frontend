@@ -13,7 +13,9 @@
 
     @_root_.views.html.helpers.form(action = controllers.sa.prefs.external.routes.SaPrefsController.submitPrefsForm(token.encryptedToken, redirectUrl.toString)) {
         <div class="form-field">
-            <button id="email-is-correct-link" class="button" type="submit">My email is correct</button>
+            <p>
+                <button id="email-is-correct-link" class="button" type="submit">My email is correct</button>
+            </p>
         </div>
         <input type="hidden" name="opt-in" value="true" />
         <input type="hidden" name="email.main" value="@emailAddress" />
