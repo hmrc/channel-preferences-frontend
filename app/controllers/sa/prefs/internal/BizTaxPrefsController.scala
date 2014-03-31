@@ -63,8 +63,8 @@ class BizTaxPrefsController(override val auditConnector: AuditConnector, prefere
       case _ => displayPreferencesFormAction(None, getSavePrefsFromInterstitialCall)
     }
 
-  private[prefs] def displayPrefsFormAction(emailAddress: Option[Encrypted[Email]])(implicit user: User, request: Request[AnyRef], withBanner: Boolean = false) =
-    Future.successful(displayPreferencesFormAction(emailAddress.map(_.decryptedValue), getSavePrefsFromNonInterstitialPageCall))
+  private[prefs] def displayPrefsFormAction(emailAddress: Option[Encrypted[Email]])(implicit user: User, request: Request[AnyRef]) =
+    Future.successful(displayPreferencesFormAction(emailAddress.map(_.decryptedValue), getSavePrefsFromNonInterstitialPageCall , withBanner =true))
 
   private[prefs] def submitPrefsFormAction(implicit user: User, request: Request[AnyRef], withBanner: Boolean = false) = {
     submitPreferencesForm(
