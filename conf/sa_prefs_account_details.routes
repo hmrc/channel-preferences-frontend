@@ -7,6 +7,7 @@ GET         /opt-out-email-reminders-thank-you   @controllers.sa.prefs.internal.
 POST        /resend-validation-email             @controllers.sa.prefs.internal.AccountDetailsController.resendValidationEmail
 
 GET         /login-opt-in-email-reminders        @controllers.sa.prefs.internal.BizTaxPrefsController.redirectToBizTaxOrEmailPrefEntryIfNotSet
+POST        /login-opt-in-email-reminders        @controllers.sa.prefs.internal.BizTaxPrefsController.submitPrefsFormForInterstitial
 GET         /opt-in-email-reminders              @controllers.sa.prefs.internal.BizTaxPrefsController.displayPrefsForm(email: Option[uk.gov.hmrc.domain.EncryptedEmail])
-POST        /opt-in-email-reminders              @controllers.sa.prefs.internal.BizTaxPrefsController.submitPrefsForm
+POST        /opt-in-email-reminders              @controllers.sa.prefs.internal.BizTaxPrefsController.submitPrefsFormForNonInterstitial
 GET         /opt-in-email-reminders-thank-you    @controllers.sa.prefs.internal.BizTaxPrefsController.thankYou

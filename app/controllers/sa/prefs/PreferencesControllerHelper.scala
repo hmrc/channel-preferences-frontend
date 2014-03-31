@@ -39,18 +39,19 @@ trait PreferencesControllerHelper {
         _.map(EmailPreference.fromBoolean), (p: Option[EmailPreference]) => p.map(_.toBoolean)
       )
     )(EmailFormDataWithPreference.apply)(EmailFormDataWithPreference.unapply).verifying("error.email.optIn", b => b match {
-        case EmailFormDataWithPreference((None, _), _, Some(OptIn)) => false
-        case _ => true
-      })
+      case EmailFormDataWithPreference((None, _), _, Some(OptIn)) => false
+      case _ => true
+    })
     )
 
-  def getSubmitPreferencesView(savePrefsCall: Call)(implicit request: Request[AnyRef]): Form[_] => HtmlFormat.Appendable = {
-    errors => views.html.sa.prefs.sa_printing_preference(errors, savePrefsCall)
+  def getSubmitPreferencesView(savePrefsCall: Call)(implicit request: Request[AnyRef], withBanner: Boolean = false): Form[_] => HtmlFormat.Appendable = {
+    errors => views.html.sa.prefs.sa_printing_preference(withBanner, errors, savePrefsCall)
   }
 
-  def displayPreferencesFormAction(email: Option[Email], savePrefsCall: Call)(implicit request: Request[AnyRef]) =
+  def displayPreferencesFormAction(email: Option[Email], savePrefsCall: Call, withBanner: Boolean = false)(implicit request: Request[AnyRef]) =
     Ok(
       views.html.sa.prefs.sa_printing_preference(
+        withBanner,
         emailForm = emailFormWithPreference.fill(EmailFormDataWithPreference(email, email.map(_ => OptIn))),
         submitPrefsFormAction = savePrefsCall
       )
@@ -93,7 +94,7 @@ trait PreferencesControllerHelper {
     emailFormWithPreference.bindFromRequest.fold(
       hasErrors = errors => Future.successful(BadRequest(errorsView(errors))),
       success = {
-        case emailForm @ EmailFormDataWithPreference((Some(emailAddress), _), _, Some(OptIn)) =>
+        case emailForm@EmailFormDataWithPreference((Some(emailAddress), _), _, Some(OptIn)) =>
           val emailVerificationStatus =
             if (emailForm.isEmailVerified) Future.successful(true)
             else emailConnector.validateEmailAddress(emailAddress)

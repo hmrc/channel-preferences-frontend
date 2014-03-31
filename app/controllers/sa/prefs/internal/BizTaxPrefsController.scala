@@ -18,7 +18,7 @@ import uk.gov.hmrc.common.microservice.domain.User
 import ExternalUrls.businessTaxHome
 
 class BizTaxPrefsController(override val auditConnector: AuditConnector, preferencesConnector: PreferencesConnector, emailConnector: EmailConnector)
-                       (implicit override val authConnector: AuthConnector)
+                           (implicit override val authConnector: AuthConnector)
   extends BaseController
   with Actions
   with NoRegimeRoots
@@ -33,15 +33,19 @@ class BizTaxPrefsController(override val auditConnector: AuditConnector, prefere
   }
 
   def displayPrefsForm(emailAddress: Option[Encrypted[Email]])(): Action[AnyContent] = AuthorisedFor(SaRegime).async {
-    user =>
-      request =>
-        displayPrefsFormAction(emailAddress)(user, request)
+    implicit user =>
+      implicit request =>
+        displayPrefsFormAction(emailAddress)
   }
 
-  def submitPrefsForm() = AuthorisedFor(SaRegime).async {
+  def submitPrefsFormForInterstitial() = AuthorisedFor(SaRegime).async {
+    implicit user => implicit request => submitPrefsFormAction
+  }
+
+  def submitPrefsFormForNonInterstitial() = AuthorisedFor(SaRegime).async {
     user =>
       request =>
-        submitPrefsFormAction(user, request)
+        submitPrefsFormAction(user, request, withBanner = true)
   }
 
   def thankYou() = AuthorisedFor(SaRegime) {
@@ -50,20 +54,21 @@ class BizTaxPrefsController(override val auditConnector: AuditConnector, prefere
         Ok(views.html.sa.prefs.sa_printing_preference_confirm(Some(user), businessTaxHome))
   }
 
-  val getSavePrefsCall = controllers.sa.prefs.internal.routes.BizTaxPrefsController.submitPrefsForm()
+  val getSavePrefsFromInterstitialCall = controllers.sa.prefs.internal.routes.BizTaxPrefsController.submitPrefsFormForInterstitial()
+  val getSavePrefsFromNonInterstitialPageCall = controllers.sa.prefs.internal.routes.BizTaxPrefsController.submitPrefsFormForNonInterstitial()
 
   private[prefs] def redirectToBizTaxOrEmailPrefEntryIfNotSetAction(implicit user: User, request: Request[AnyRef]) =
     preferencesConnector.getPreferences(user.getSaUtr)(HeaderCarrier(request)).map {
       case Some(saPreference) => FrontEndRedirect.toBusinessTax
-      case _ => displayPreferencesFormAction(None, getSavePrefsCall)
+      case _ => displayPreferencesFormAction(None, getSavePrefsFromInterstitialCall)
     }
 
   private[prefs] def displayPrefsFormAction(emailAddress: Option[Encrypted[Email]])(implicit user: User, request: Request[AnyRef]) =
-    Future.successful(displayPreferencesFormAction(emailAddress.map(_.decryptedValue), getSavePrefsCall))
+    Future.successful(displayPreferencesFormAction(emailAddress.map(_.decryptedValue), getSavePrefsFromNonInterstitialPageCall , withBanner =true))
 
-  private[prefs] def submitPrefsFormAction(implicit user: User, request: Request[AnyRef]) = {
+  private[prefs] def submitPrefsFormAction(implicit user: User, request: Request[AnyRef], withBanner: Boolean = false) = {
     submitPreferencesForm(
-      errorsView = getSubmitPreferencesView(getSavePrefsCall),
+      errorsView = getSubmitPreferencesView(getSavePrefFormAction),
       emailWarningView = views.html.sa_printing_preference_verify_email(_),
       emailConnector = emailConnector,
       saUtr = user.getSaUtr,
@@ -75,5 +80,12 @@ class BizTaxPrefsController(override val auditConnector: AuditConnector, prefere
           }
         )(mdcExecutionContext(hc))
     )
+  }
+
+  def getSavePrefFormAction(implicit withBanner: Boolean) = {
+    if (withBanner)
+      getSavePrefsFromNonInterstitialPageCall
+    else
+      getSavePrefsFromInterstitialCall
   }
 }
