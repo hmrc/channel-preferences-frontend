@@ -51,6 +51,7 @@ trait PreferencesControllerHelper {
   def displayPreferencesFormAction(email: Option[Email], savePrefsCall: Call)(implicit request: Request[AnyRef]) =
     Ok(
       views.html.sa.prefs.sa_printing_preference(
+      false,
         emailForm = emailFormWithPreference.fill(EmailFormDataWithPreference(email, email.map(_ => OptIn))),
         submitPrefsFormAction = savePrefsCall
       )

@@ -66,7 +66,7 @@ class BizTaxPrefsController(override val auditConnector: AuditConnector, prefere
   private[prefs] def displayPrefsFormAction(emailAddress: Option[Encrypted[Email]])(implicit user: User, request: Request[AnyRef], withBanner: Boolean = false) =
     Future.successful(displayPreferencesFormAction(emailAddress.map(_.decryptedValue), getSavePrefsFromNonInterstitialPageCall))
 
-  private[prefs] def submitPrefsFormAction(implicit user: User, request: Request[AnyRef]) = {
+  private[prefs] def submitPrefsFormAction(implicit user: User, request: Request[AnyRef], withBanner: Boolean = false) = {
     submitPreferencesForm(
       errorsView = getSubmitPreferencesView(getSavePrefFormAction),
       emailWarningView = views.html.sa_printing_preference_verify_email(_),
