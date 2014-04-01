@@ -5,7 +5,7 @@ import scala.util.Properties._
 import play.Project._
 import uk.gov.hmrc.PlayMicroServiceBuild
 
-object PlayFrontendBuild extends Build {
+object FrontendBuild extends Build {
 
   val appName = "sa-prefs"
   val appVersion = envOrElse("SA_PREFS_VERSION", "999-SNAPSHOT")

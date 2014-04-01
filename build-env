@@ -4,7 +4,7 @@
 
 PLAY_VERSION=2.2.2
 MAVEN_VERSION=3.0.5
-SBT_VERSION=0.13.0
+SBT_VERSION=0.13.1
 
 PLAY_ARTIFACT=play-${PLAY_VERSION}
 PLAY_HOME=~/.play/${PLAY_ARTIFACT}
@@ -30,29 +30,6 @@ function flush_play_cache
 {
 	echo "Wiping play cache"
 	rm -rf ${PLAY_HOME}/repository/cache
-}
-
-function echo_frontend_uris 
-{
-	echo
-	echo "*********************************************************"
-	echo "* Thank you for choosing to run the HMRC tax frontend!! *"
-	echo "* We hope this code will bring you great success        *"
-	echo "*********************************************************"
-	echo
-	echo "The frontend URI is:"
-	echo
-	echo "  http://localhost:9000"
-	echo
-	echo "And you can log in as:"
-	echo
-	echo "  jdensmore / password"
-	echo "  jfisher   / password"
-	echo 
-	echo "If you want to edit the frontend templates you can find them in:"
-	echo "  frontend/app/views/"
-	echo
-	echo
 }
 
 if [ ! -d ${PLAY_HOME} ] 
