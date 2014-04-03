@@ -57,7 +57,7 @@
     '_inputClass -> "input--medium input--cleared"
     )
     <p>@Html(Messages("sa_printing_preference.paragraph.5",
-        Link.toExternalPage(url = controllers.common.routes.CommonController.termsAndConditions().url, value = Some(Messages("sa_printing_preference.paragraph.5.linkText"))).toHtml))
+        Link.toExternalPage(url = Messages("sa_printing_preference.paragraph.5.linkUrl"), value = Some(Messages("sa_printing_preference.paragraph.5.linkText"))).toHtml))
     </p>
 </fieldset>
 <label class="selectable">

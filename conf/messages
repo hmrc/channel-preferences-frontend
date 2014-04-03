@@ -16,6 +16,7 @@ sa_printing_preference.paragraph.4=They’re secure and will never include any i
 sa_printing_preference.heading.3=When the service starts, do you want to get Self Assessment reminders by email?
 sa_printing_preference.paragraph.5=By signing up for Self Assessment email reminders you accept the {0}.
 sa_printing_preference.paragraph.5.linkText=terms and conditions
+sa_printing_preference.paragraph.5.linkUrl=https://online.hmrc.gov.uk/information/terms#8
 sa_printing_preference.option.yes=Yes, I want to get Self Assessment reminders by email
 sa_printing_preference.option.no=No, I want to continue getting Self Assessment reminders by post
 sa_printing_preference.submitButton=Continue
