@@ -14,7 +14,9 @@
 
     @helpers.form(action = controllers.sa.prefs.internal.routes.BizTaxPrefsController.submitPrefsFormForInterstitial, 'id -> "form-submit-preferences-verify-email") {
         <div class="form-field">
-            <button id="email-is-correct-link" class="button" type="submit">The email is correct</button>
+            <p>
+                <button id="email-is-correct-link" class="button" type="submit">The email is correct</button>
+            </p>
         </div>
         <input type="hidden" name="opt-in" value="true" />
         <input type="hidden" name="email.main" value="@emailAddress" />

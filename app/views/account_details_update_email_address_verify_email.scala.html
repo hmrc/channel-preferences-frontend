@@ -14,7 +14,9 @@
 
     @helpers.form(action = controllers.sa.prefs.internal.routes.AccountDetailsController.submitEmailAddress) {
         <div class="form-field">
+            <p>
             <button id="emailIsCorrectLink" class="button" type="submit">This email is correct</button>
+            </p>
         </div>
         <input type="hidden" name="opt-in" value="true" />
         <input type="hidden" name="email.main" value="@emailAddress" />
