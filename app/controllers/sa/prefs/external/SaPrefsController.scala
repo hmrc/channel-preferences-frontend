@@ -9,16 +9,9 @@ import uk.gov.hmrc.common.microservice.preferences.{SaEmailPreference, Preferenc
 import com.netaporter.uri.dsl._
 import uk.gov.hmrc.domain.Email
 import play.Logger
-import controllers.common.actions.HeaderCarrier
 import com.netaporter.uri.Uri
 import controllers.common.preferences.service.SsoPayloadCrypto
-import uk.gov.hmrc.domain.SaUtr
 import controllers.sa.prefs._
-import uk.gov.hmrc.common.crypto.Encrypted
-import uk.gov.hmrc.common.microservice.preferences.SaPreference
-import controllers.common.preferences.service.Token
-import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.common.crypto.Encrypted
 import uk.gov.hmrc.common.crypto.Encrypted
 import uk.gov.hmrc.common.microservice.preferences.SaPreference
 import controllers.common.preferences.service.Token

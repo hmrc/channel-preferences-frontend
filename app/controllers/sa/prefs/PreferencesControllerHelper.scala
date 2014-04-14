@@ -1,17 +1,17 @@
 package controllers.sa.prefs
 
 import play.api.mvc.{SimpleResult, Call, Request}
-import controllers.common.actions.HeaderCarrier
 import play.api.data._
 import play.api.mvc.Results._
 import play.api.data.Forms._
 import uk.gov.hmrc.common.microservice.email.EmailConnector
 import uk.gov.hmrc.common.microservice.preferences.FormattedUri
 import scala.concurrent._
-import uk.gov.hmrc.common.MdcLoggingExecutionContext.fromLoggingDetails
 import Function.const
 import uk.gov.hmrc.domain.{Email, SaUtr}
 import play.api.templates.HtmlFormat
+import uk.gov.hmrc.play.connectors.HeaderCarrier
+import uk.gov.hmrc.play.logging.MdcLoggingExecutionContext._
 
 trait PreferencesControllerHelper {
 
@@ -65,7 +65,7 @@ trait PreferencesControllerHelper {
                                 savePreferences: (SaUtr, Boolean, Option[String], HeaderCarrier) => Future[Option[FormattedUri]])
                                (implicit request: Request[AnyRef]): Future[SimpleResult] = {
 
-    implicit def hc = HeaderCarrier(request)
+    implicit def hc = HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)
 
     emailForm.bindFromRequest()(request).fold(
       errors => Future.successful(BadRequest(errorsView(errors))),
@@ -89,7 +89,7 @@ trait PreferencesControllerHelper {
                                       savePreferences: (SaUtr, Boolean, Option[String], HeaderCarrier) => Future[SimpleResult])
                                      (implicit request: Request[AnyRef]): Future[SimpleResult] = {
 
-    implicit def hc = HeaderCarrier(request)
+    implicit def hc = HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)
 
     emailFormWithPreference.bindFromRequest.fold(
       hasErrors = errors => Future.successful(BadRequest(errorsView(errors))),

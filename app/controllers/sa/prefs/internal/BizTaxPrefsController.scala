@@ -3,7 +3,7 @@ package controllers.sa.prefs.internal
 import play.api.mvc._
 import uk.gov.hmrc.common.microservice.preferences.PreferencesConnector
 import controllers.common.{NoRegimeRoots, FrontEndRedirect, BaseController}
-import controllers.common.actions.{HeaderCarrier, Actions}
+import controllers.common.actions.Actions
 import controllers.common.service.Connectors
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
@@ -16,6 +16,7 @@ import uk.gov.hmrc.common.crypto.Encrypted
 import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
 import ExternalUrls.businessTaxHome
+import uk.gov.hmrc.play.connectors.HeaderCarrier
 
 class BizTaxPrefsController(override val auditConnector: AuditConnector, preferencesConnector: PreferencesConnector, emailConnector: EmailConnector)
                            (implicit override val authConnector: AuthConnector)
@@ -58,7 +59,7 @@ class BizTaxPrefsController(override val auditConnector: AuditConnector, prefere
   val getSavePrefsFromNonInterstitialPageCall = controllers.sa.prefs.internal.routes.BizTaxPrefsController.submitPrefsFormForNonInterstitial()
 
   private[prefs] def redirectToBizTaxOrEmailPrefEntryIfNotSetAction(implicit user: User, request: Request[AnyRef]) =
-    preferencesConnector.getPreferences(user.getSaUtr)(HeaderCarrier(request)).map {
+    preferencesConnector.getPreferences(user.getSaUtr)(HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)).map {
       case Some(saPreference) => FrontEndRedirect.toBusinessTax
       case _ => displayPreferencesFormAction(None, getSavePrefsFromInterstitialCall)
     }

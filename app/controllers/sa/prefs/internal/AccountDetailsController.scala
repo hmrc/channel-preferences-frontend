@@ -5,7 +5,7 @@ import uk.gov.hmrc.common.microservice.preferences.{SaPreference, PreferencesCon
 import uk.gov.hmrc.common.microservice.email.EmailConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.BaseController
-import controllers.common.actions.{HeaderCarrier, Actions}
+import controllers.common.actions.Actions
 import controllers.common.service.Connectors
 import uk.gov.hmrc.common.crypto.Encrypted
 import uk.gov.hmrc.domain.{SaUtr, Email}
@@ -15,6 +15,7 @@ import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.domain.User
 import play.api.mvc.{SimpleResult, Request}
 import controllers.sa.prefs.{EmailFormData, PreferencesControllerHelper, SaRegimeRoots}
+import uk.gov.hmrc.play.connectors.HeaderCarrier
 
 class AccountDetailsController(override val auditConnector: AuditConnector, val preferencesConnector: PreferencesConnector,
                                val emailConnector: EmailConnector)(implicit override val authConnector: AuthConnector) extends BaseController
@@ -81,7 +82,7 @@ class AccountDetailsController(override val auditConnector: AuditConnector, val 
 
 
   private def lookupCurrentEmail(func: (String) => Future[SimpleResult])(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
-    preferencesConnector.getPreferences(user.getSaUtr)(HeaderCarrier(request)).flatMap {
+    preferencesConnector.getPreferences(user.getSaUtr)(HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)).flatMap {
         case Some(SaPreference(true, Some(email))) => func(email.email)
         case _ => Future.successful(BadRequest("Could not find existing preferences."))
     }
