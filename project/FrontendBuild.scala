@@ -9,18 +9,19 @@ object FrontendBuild extends Build {
 
   val appName = "sa-prefs"
   val appVersion = envOrElse("SA_PREFS_VERSION", "999-SNAPSHOT")
+  val playFrontendVersion = "2.5.0"
 
   object appSpecificDependencies {
     val compile = Seq(
       "uk.gov.hmrc" %% "govuk-template" % "1.4.1",
-      "uk.gov.hmrc" %% "play-frontend" % "2.5.0",
+      "uk.gov.hmrc" %% "play-frontend" % playFrontendVersion,
       "uk.gov.hmrc" %% "tax-core" % "3.6.1",
       "com.netaporter" %% "scala-uri" % "0.4.0" exclude("com.typesafe.sbt", "sbt-pgp") exclude("com.github.scct", "scct_2.10"),
       "com.github.scct" %% "scct" % "0.2.1"
     )
 
     val test = Seq(
-      "uk.gov.hmrc" %% "play-frontend" % "2.0.1" % "test" classifier "tests",
+      "uk.gov.hmrc" %% "play-frontend" % playFrontendVersion % "test" classifier "tests",
       "org.mockito" % "mockito-all" % "1.9.5" % "test",
       "org.jsoup" % "jsoup" % "1.7.2" % "test"
     )
