@@ -21,7 +21,7 @@ import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
 import org.mockito.Matchers
 import uk.gov.hmrc.common.crypto.Encrypted
-import java.net.URI
+import controllers.sa.prefs.ExternalUrls
 
 abstract class BizTaxPrefsControllerSetup extends WithApplication(FakeApplication()) with MockitoSugar {
   val auditConnector = mock[AuditConnector]
