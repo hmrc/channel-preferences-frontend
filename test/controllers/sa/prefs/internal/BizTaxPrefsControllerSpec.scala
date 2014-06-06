@@ -50,7 +50,7 @@ class BizTaxPrefsControllerSpec extends BaseSpec with MockitoSugar {
       val page = Future.successful(controller.redirectToBizTaxOrEmailPrefEntryIfNotSetAction(user, request))
 
       status(page) shouldBe 303
-      header("Location", page).get should include(FrontEndRedirect.businessTaxHome)
+      header("Location", page).get should include(ExternalUrls.businessTaxHome)
     }
 
     "render the form in the correct intial state when no preferences exist" in new BizTaxPrefsControllerSetup {
