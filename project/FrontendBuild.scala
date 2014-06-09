@@ -13,7 +13,7 @@ object FrontendBuild extends Build {
 
   object appSpecificDependencies {
     val compile = Seq(
-      "uk.gov.hmrc" %% "govuk-template" % "1.4.1",
+      "uk.gov.hmrc" %% "govuk-template" % "1.5.0",
       "uk.gov.hmrc" %% "play-frontend" % playFrontendVersion,
       "uk.gov.hmrc" %% "tax-core" % "3.6.1",
       "com.netaporter" %% "scala-uri" % "0.4.0" exclude("com.typesafe.sbt", "sbt-pgp") exclude("com.github.scct", "scct_2.10"),
