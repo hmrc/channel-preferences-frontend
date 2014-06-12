@@ -4,7 +4,7 @@ import play.api.test.WithApplication
 import play.api.test.FakeRequest
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
-import uk.gov.hmrc.common.microservice.preferences.{FormattedUri, SaEmailPreference, PreferencesConnector, SaPreference}
+import uk.gov.hmrc.common.microservice.preferences.{SaEmailPreference, PreferencesConnector, SaPreference}
 import uk.gov.hmrc.common.BaseSpec
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
@@ -17,11 +17,9 @@ import controllers.domain.AuthorityUtils._
 import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
 import org.mockito.Matchers
 import uk.gov.hmrc.common.crypto.Encrypted
-import java.net.URI
 
 abstract class BizTaxPrefsControllerSetup extends WithApplication(FakeApplication()) with MockitoSugar {
   val auditConnector = mock[AuditConnector]
@@ -39,7 +37,7 @@ class BizTaxPrefsControllerSpec extends BaseSpec with MockitoSugar {
 
   val validUtr = SaUtr("1234567890")
   val saRoot = Some(SaRoot(validUtr, Map.empty[String, String]))
-  val user = User(userId = "userId", userAuthority = saAuthority("userId", "1234567890"), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)
+  val user = User(userId = "userId", userAuthority = saAuthority("userId", "1234567890"), nameFromGovernmentGateway = Some("Ciccio"), decryptedToken = None)
 
   "The preferences action on login" should {
 
