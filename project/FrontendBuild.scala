@@ -7,8 +7,8 @@ import uk.gov.hmrc.PlayMicroServiceBuild
 
 object FrontendBuild extends Build {
 
-  val appName = "sa-prefs"
-  val appVersion = envOrElse("SA_PREFS_VERSION", "999-SNAPSHOT")
+  val appName = "preferences-frontend"
+  val appVersion = envOrElse("PREFERENCES_FRONTEND_VERSION", "999-SNAPSHOT")
   val playFrontendVersion = "2.41.0"
 
   object appSpecificDependencies {
