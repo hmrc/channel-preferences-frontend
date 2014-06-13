@@ -4,14 +4,14 @@
 
 PLAY_VERSION=2.2.2
 MAVEN_VERSION=3.0.5
-SBT_VERSION=0.13.1
+SBT_VERSION=0.13.5
 
 PLAY_ARTIFACT=play-${PLAY_VERSION}
 PLAY_HOME=~/.play/${PLAY_ARTIFACT}
 PLAY_DOWNLOAD="http://downloads.typesafe.com/play/${PLAY_VERSION}/play-${PLAY_VERSION}.zip"
 PLAY_TMP=/tmp/${PLAY_ARTIFACT}.zip
 
-SBT_DOWNLOAD="http://scalasbt.artifactoryonline.com/scalasbt/sbt-native-packages/org/scala-sbt/sbt/${SBT_VERSION}/sbt.tgz"
+SBT_DOWNLOAD="http://dl.bintray.com/sbt/native-packages/sbt/${SBT_VERSION}/sbt-${SBT_VERSION}.tgz"
 
 function error_exit 
 {
@@ -68,7 +68,7 @@ if [ ! -f ${SBT_FILE} ]
 then
 	mkdir -p ${SBT_DIR}
 	echo "Downloading ${SBT_DOWNLOAD}"
-	curl -o ${SBT_TMP} "${SBT_DOWNLOAD}"
+	curl -o ${SBT_TMP} -L "${SBT_DOWNLOAD}"
 	rm -rf /tmp/sbt
 	tar zxvf ${SBT_TMP} -C /tmp
 	cp /tmp/sbt/bin/sbt-launch.jar ${SBT_FILE}
