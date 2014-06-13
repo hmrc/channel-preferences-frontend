@@ -21,7 +21,7 @@ import uk.gov.hmrc.common.microservice.domain.RegimeRoots
 import play.api.test.FakeApplication
 import org.mockito.Matchers
 import uk.gov.hmrc.common.crypto.Encrypted
-import java.net.URI
+import controllers.sa.prefs.ExternalUrls
 
 abstract class BizTaxPrefsControllerSetup extends WithApplication(FakeApplication()) with MockitoSugar {
   val auditConnector = mock[AuditConnector]
@@ -50,7 +50,7 @@ class BizTaxPrefsControllerSpec extends BaseSpec with MockitoSugar {
       val page = Future.successful(controller.redirectToBizTaxOrEmailPrefEntryIfNotSetAction(user, request))
 
       status(page) shouldBe 303
-      header("Location", page).get should include(FrontEndRedirect.businessTaxHome)
+      header("Location", page).get should include(ExternalUrls.businessTaxHome)
     }
 
     "render the form in the correct intial state when no preferences exist" in new BizTaxPrefsControllerSetup {

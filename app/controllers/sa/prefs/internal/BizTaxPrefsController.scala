@@ -77,7 +77,7 @@ class BizTaxPrefsController(override val auditConnector: AuditConnector, prefere
         preferencesConnector.savePreferences(utr, digital, email)(hc).map(_ =>
           digital match {
             case true => Redirect(routes.BizTaxPrefsController.thankYou())
-            case false => Redirect(FrontEndRedirect.businessTaxHome)
+            case false => Redirect(ExternalUrls.businessTaxHome)
           }
         )(mdcExecutionContext(hc))
     )
