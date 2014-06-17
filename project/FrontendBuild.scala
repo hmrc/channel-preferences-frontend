@@ -9,7 +9,7 @@ object FrontendBuild extends Build {
 
   val appName = "preferences-frontend"
   val appVersion = envOrElse("PREFERENCES_FRONTEND_VERSION", "999-SNAPSHOT")
-  val playFrontendVersion = "3.2.0"
+  val playFrontendVersion = "3.5.1"
 
   object appSpecificDependencies {
     val compile = Seq(
