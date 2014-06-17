@@ -14,13 +14,12 @@ import uk.gov.hmrc.common.microservice.sa.domain.SaRegime
 import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.domain.User
 import play.api.mvc.{SimpleResult, Request}
-import controllers.sa.prefs.{EmailFormData, PreferencesControllerHelper, SaRegimeRoots}
+import controllers.sa.prefs.{EmailFormData, PreferencesControllerHelper}
 import uk.gov.hmrc.play.connectors.HeaderCarrier
 
 class AccountDetailsController(override val auditConnector: AuditConnector, val preferencesConnector: PreferencesConnector,
                                val emailConnector: EmailConnector)(implicit override val authConnector: AuthConnector) extends BaseController
   with Actions
-  with SaRegimeRoots
   with PreferencesControllerHelper {
 
   def this() = this(Connectors.auditConnector, Connectors.preferencesConnector, Connectors.emailConnector)(Connectors.authConnector)
@@ -57,7 +56,7 @@ class AccountDetailsController(override val auditConnector: AuditConnector, val 
   private[prefs] def confirmOptOutOfEmailRemindersPage(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
     lookupCurrentEmail {
       email =>
-        preferencesConnector.savePreferences(user.getSaUtr, false, None).map(_ =>
+        preferencesConnector.savePreferences(user.userAuthority.accounts.sa.get.utr, false, None).map(_ =>
           Redirect(routes.AccountDetailsController.optedBackIntoPaperThankYou())
         )
     }
@@ -66,7 +65,7 @@ class AccountDetailsController(override val auditConnector: AuditConnector, val 
   private[prefs] def resendValidationEmailAction(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
     lookupCurrentEmail {
       email =>
-        preferencesConnector.savePreferences(user.getSaUtr, true, Some(email)).map(_ =>
+        preferencesConnector.savePreferences(user.userAuthority.accounts.sa.get.utr, true, Some(email)).map(_ =>
           Ok(views.html.account_details_verification_email_resent_confirmation(user))
         )
     }
@@ -82,7 +81,7 @@ class AccountDetailsController(override val auditConnector: AuditConnector, val 
 
 
   private def lookupCurrentEmail(func: (String) => Future[SimpleResult])(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
-    preferencesConnector.getPreferences(user.getSaUtr)(HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)).flatMap {
+    preferencesConnector.getPreferences(user.userAuthority.accounts.sa.get.utr)(HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)).flatMap {
         case Some(SaPreference(true, Some(email))) => func(email.email)
         case _ => Future.successful(BadRequest("Could not find existing preferences."))
     }
@@ -96,7 +95,7 @@ class AccountDetailsController(override val auditConnector: AuditConnector, val 
           (enteredEmail) => views.html.account_details_update_email_address_verify_email(enteredEmail),
           () => routes.AccountDetailsController.emailAddressChangeThankYou(),
           emailConnector,
-          user.getSaUtr,
+          user.userAuthority.accounts.sa.get.utr,
           savePreferences
         )
     )

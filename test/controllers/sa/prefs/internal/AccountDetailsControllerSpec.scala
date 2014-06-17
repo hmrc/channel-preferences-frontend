@@ -7,7 +7,7 @@ import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
-import uk.gov.hmrc.common.microservice.domain.{RegimeRoots, User}
+import uk.gov.hmrc.common.microservice.domain.User
 import scala.concurrent.Future
 import org.jsoup.Jsoup
 import uk.gov.hmrc.common.microservice.preferences.{FormattedUri, SaEmailPreference, SaPreference, PreferencesConnector}
@@ -34,7 +34,7 @@ class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
 
   val validUtr = SaUtr("1234567890")
   val saRoot = Some(SaRoot(validUtr, Map.empty[String, String]))
-  val user = User(userId = "userId", userAuthority = saAuthority("userId", "1234567890"), nameFromGovernmentGateway = Some("Ciccio"), regimes = RegimeRoots(sa = saRoot), decryptedToken = None)
+  val user = User(userId = "userId", userAuthority = saAuthority("userId", "1234567890"), nameFromGovernmentGateway = Some("Ciccio"), decryptedToken = None)
 
   "clicking on Change email address link in the account details page" should {
     "display update email address form when accessed from Account Details" in new Setup {

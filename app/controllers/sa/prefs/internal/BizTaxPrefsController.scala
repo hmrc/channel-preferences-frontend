@@ -2,7 +2,7 @@ package controllers.sa.prefs.internal
 
 import play.api.mvc._
 import uk.gov.hmrc.common.microservice.preferences.PreferencesConnector
-import controllers.common.{NoRegimeRoots, FrontEndRedirect, BaseController}
+import controllers.common.{FrontEndRedirect, BaseController}
 import controllers.common.actions.Actions
 import controllers.common.service.Connectors
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
@@ -22,7 +22,6 @@ class BizTaxPrefsController(override val auditConnector: AuditConnector, prefere
                            (implicit override val authConnector: AuthConnector)
   extends BaseController
   with Actions
-  with NoRegimeRoots
   with PreferencesControllerHelper {
 
   def this() = this(Connectors.auditConnector, Connectors.preferencesConnector, Connectors.emailConnector)(Connectors.authConnector)
@@ -59,7 +58,7 @@ class BizTaxPrefsController(override val auditConnector: AuditConnector, prefere
   val getSavePrefsFromNonInterstitialPageCall = controllers.sa.prefs.internal.routes.BizTaxPrefsController.submitPrefsFormForNonInterstitial()
 
   private[prefs] def redirectToBizTaxOrEmailPrefEntryIfNotSetAction(implicit user: User, request: Request[AnyRef]) =
-    preferencesConnector.getPreferences(user.getSaUtr)(HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)).map {
+    preferencesConnector.getPreferences(user.userAuthority.accounts.sa.get.utr)(HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)).map {
       case Some(saPreference) => FrontEndRedirect.toBusinessTax
       case _ => displayPreferencesFormAction(None, getSavePrefsFromInterstitialCall)
     }
@@ -72,7 +71,7 @@ class BizTaxPrefsController(override val auditConnector: AuditConnector, prefere
       errorsView = getSubmitPreferencesView(getSavePrefFormAction),
       emailWarningView = views.html.sa_printing_preference_verify_email(_),
       emailConnector = emailConnector,
-      saUtr = user.getSaUtr,
+      saUtr = user.userAuthority.accounts.sa.get.utr,
       savePreferences = (utr, digital, email, hc) =>
         preferencesConnector.savePreferences(utr, digital, email)(hc).map(_ =>
           digital match {
