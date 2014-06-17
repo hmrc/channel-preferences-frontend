@@ -63,8 +63,9 @@ private object Dependencies {
     test(jsoup),
     test(scalaTest),
     test(pegdown),
-    test(playMicroservice),
+    test(playMicroservice, Seq("tests")),
     test(playFrontend),
+    test(mockito),
 
     integrationTest(scalaTest),
     integrationTest(pegdown),

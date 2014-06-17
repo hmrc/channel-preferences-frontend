@@ -5,7 +5,7 @@ import play.api.test.FakeRequest
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import uk.gov.hmrc.common.microservice.preferences.{SaEmailPreference, PreferencesConnector, SaPreference}
-import uk.gov.hmrc.common.BaseSpec
+import uk.gov.hmrc.test.UnitSpec
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.FrontEndRedirect
@@ -32,7 +32,7 @@ abstract class BizTaxPrefsControllerSetup extends WithApplication(FakeApplicatio
   val request = FakeRequest()
 }
 
-class BizTaxPrefsControllerSpec extends BaseSpec with MockitoSugar {
+class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
   import Matchers.{any, eq => is}
   import play.api.test.Helpers._
 

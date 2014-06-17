@@ -1,6 +1,6 @@
 package controllers.sa.prefs.internal
 
-import uk.gov.hmrc.common.BaseSpec
+import uk.gov.hmrc.test.UnitSpec
 import play.api.test.{FakeRequest, FakeApplication, WithApplication}
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
@@ -28,7 +28,7 @@ abstract class Setup extends WithApplication(FakeApplication()) with MockitoSuga
   val request = FakeRequest()
 }
 
-class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
+class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
   import controllers.domain.AuthorityUtils._
   import Matchers.{any, eq => is}
 
