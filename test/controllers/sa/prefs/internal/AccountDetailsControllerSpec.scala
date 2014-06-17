@@ -1,6 +1,6 @@
 package controllers.sa.prefs.internal
 
-import uk.gov.hmrc.common.BaseSpec
+import uk.gov.hmrc.test.UnitSpec
 import play.api.test.{FakeRequest, FakeApplication, WithApplication}
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
@@ -8,6 +8,7 @@ import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.common.microservice.auth.domain.SaAccount
 import scala.concurrent.Future
 import org.jsoup.Jsoup
 import uk.gov.hmrc.common.microservice.preferences.{FormattedUri, SaEmailPreference, SaPreference, PreferencesConnector}
@@ -17,6 +18,7 @@ import play.api.test.Helpers._
 import org.mockito.Matchers
 import java.net.URI
 import uk.gov.hmrc.common.crypto.Encrypted
+import controllers.sa.prefs.AuthorityUtils._
 
 abstract class Setup extends WithApplication(FakeApplication()) with MockitoSugar {
   val auditConnector = mock[AuditConnector]
@@ -28,8 +30,7 @@ abstract class Setup extends WithApplication(FakeApplication()) with MockitoSuga
   val request = FakeRequest()
 }
 
-class AccountDetailsControllerSpec extends BaseSpec with MockitoSugar  {
-  import controllers.domain.AuthorityUtils._
+class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
   import Matchers.{any, eq => is}
 
   val validUtr = SaUtr("1234567890")
