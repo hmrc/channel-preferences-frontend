@@ -18,7 +18,7 @@ import uk.gov.hmrc.common.microservice.domain.User
 import ExternalUrls.businessTaxHome
 import uk.gov.hmrc.play.connectors.HeaderCarrier
 
-class BizTaxPrefsController(override val auditConnector: AuditConnector, preferencesConnector: PreferencesConnector, emailConnector: EmailConnector)
+class BizTaxPrefsController(val auditConnector: AuditConnector, preferencesConnector: PreferencesConnector, emailConnector: EmailConnector)
                            (implicit override val authConnector: AuthConnector)
   extends BaseController
   with Actions

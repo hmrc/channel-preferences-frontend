@@ -23,9 +23,9 @@ private object Dependencies {
   import play.Project._
   import uk.gov.hmrc.Dependency._
 
-  private val govukTemplateVersion = "1.5.0"
-  private val playFrontendVersion = "3.5.1"
-  private val playMicroServiceVersion = "1.14.0"
+  private val govukTemplateVersion = "1.6.0"
+  private val playFrontendVersion = "3.11.0"
+  private val playMicroServiceVersion = "1.16.0"
 
   private val metricsGraphiteVersion = "3.0.1"
   private val pegdownVersion = "1.4.2"
