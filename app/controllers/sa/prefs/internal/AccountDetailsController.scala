@@ -17,7 +17,7 @@ import play.api.mvc.{SimpleResult, Request}
 import controllers.sa.prefs.{EmailFormData, PreferencesControllerHelper}
 import uk.gov.hmrc.play.connectors.HeaderCarrier
 
-class AccountDetailsController(override val auditConnector: AuditConnector, val preferencesConnector: PreferencesConnector,
+class AccountDetailsController(val auditConnector: AuditConnector, val preferencesConnector: PreferencesConnector,
                                val emailConnector: EmailConnector)(implicit override val authConnector: AuthConnector) extends BaseController
   with Actions
   with PreferencesControllerHelper {
