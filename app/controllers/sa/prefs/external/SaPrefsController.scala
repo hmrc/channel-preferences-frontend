@@ -1,21 +1,18 @@
 package controllers.sa.prefs.external
 
 import play.api.mvc._
+import uk.gov.hmrc.emailaddress.EmailAddress
 import concurrent.Future
 import controllers.common.service.{Connectors, FrontEndConfig}
 import controllers.common.BaseController
 import uk.gov.hmrc.common.microservice.email.EmailConnector
 import uk.gov.hmrc.common.microservice.preferences.{SaEmailPreference, PreferencesConnector}
 import com.netaporter.uri.dsl._
-import uk.gov.hmrc.domain.Email
 import play.Logger
 import com.netaporter.uri.Uri
-import controllers.common.preferences.service.SsoPayloadCrypto
 import controllers.sa.prefs._
 import uk.gov.hmrc.common.crypto.Encrypted
 import uk.gov.hmrc.common.microservice.preferences.SaPreference
-import controllers.common.preferences.service.Token
-import scala.Some
 import play.api.mvc.SimpleResult
 
 class SaPrefsController(whiteList: Set[String], preferencesConnector: PreferencesConnector, emailConnector: EmailConnector) extends BaseController with PreferencesControllerHelper {
@@ -24,7 +21,7 @@ class SaPrefsController(whiteList: Set[String], preferencesConnector: Preference
 
   def this() = this(FrontEndConfig.redirectDomainWhiteList, Connectors.preferencesConnector, Connectors.emailConnector)
 
-  def index(encryptedToken: String, encodedReturnUrl: String, emailAddressToPrefill: Option[Encrypted[Email]]) =
+  def index(encryptedToken: String, encodedReturnUrl: String, emailAddressToPrefill: Option[Encrypted[EmailAddress]]) =
     DecodeAndWhitelist(encodedReturnUrl) {
       returnUrl =>
         DecryptAndValidate(encryptedToken, returnUrl) {
@@ -94,7 +91,7 @@ class SaPrefsController(whiteList: Set[String], preferencesConnector: Preference
       case None =>
         submitPreferencesForm(
           errorsView = getSubmitPreferencesView(getSavePrefsCall(token, returnUrl)),
-          emailWarningView = views.html.sa.prefs.sa_printing_preference_warning_email(_, token, returnUrl),
+          emailWarningView = emailAddr => views.html.sa.prefs.sa_printing_preference_warning_email(EmailAddress(emailAddr), token, returnUrl),
           emailConnector = emailConnector,
           saUtr = token.utr,
           savePreferences = (utr, digital, email, hc) =>

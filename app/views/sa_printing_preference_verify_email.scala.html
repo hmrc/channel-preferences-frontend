@@ -2,6 +2,7 @@
 
 @import views.helpers.Link
 @import uk.gov.hmrc.common.crypto.Encrypted
+@import uk.gov.hmrc.emailaddress.EmailAddress
 
 @main(title = "Sign up for email reminders", user = Some(user), logout=Call("GET", controllers.sa.prefs.ExternalUrls.signOut)) {
    <header class="page-header">
@@ -24,6 +25,6 @@
         <input type="hidden" name="emailVerified" value="true" />
     }
 
-    @Link.toInternalPage(id = Some("email-is-not-correct-link"), url = controllers.sa.prefs.internal.routes.BizTaxPrefsController.displayPrefsForm(Some(Encrypted(emailAddress))).url, value = Some("Change this email address")).toHtml
+    @Link.toInternalPage(id = Some("email-is-not-correct-link"), url = controllers.sa.prefs.internal.routes.BizTaxPrefsController.displayPrefsForm(Some(Encrypted(EmailAddress(emailAddress)))).url, value = Some("Change this email address")).toHtml
 
 }

@@ -10,12 +10,12 @@ object FrontendBuild extends Build {
   val appName = "preferences-frontend"
   val appVersion = envOrElse("PREFERENCES_FRONTEND_VERSION", "999-SNAPSHOT")
 
-  val appSpecificDependencies = Seq("com.netaporter" %% "scala-uri" % "0.4.0" exclude("com.typesafe.sbt", "sbt-pgp") exclude("com.github.scct", "scct_2.10"))
+  val appSpecificDependencies = Seq("uk.gov.hmrc" %% "emailaddress" % "0.1.0", "com.netaporter" %% "scala-uri" % "0.4.0" exclude("com.typesafe.sbt", "sbt-pgp") exclude("com.github.scct", "scct_2.10"))
   val dependencies = requiredDependencies ++ appSpecificDependencies
   lazy val microservice = PlayMicroServiceBuild(appName,
     appVersion,
     dependencies,
-    Seq("uk.gov.hmrc.common.QueryBinders._", "uk.gov.hmrc.domain._"))
+    Seq("controllers.sa.prefs._", "uk.gov.hmrc.domain._"))
 }
 
 private object Dependencies {

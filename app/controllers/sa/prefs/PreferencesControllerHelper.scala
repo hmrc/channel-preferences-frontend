@@ -6,9 +6,10 @@ import play.api.mvc.Results._
 import play.api.data.Forms._
 import uk.gov.hmrc.common.microservice.email.EmailConnector
 import uk.gov.hmrc.common.microservice.preferences.FormattedUri
+import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.emailaddress.EmailAddress
 import scala.concurrent._
 import Function.const
-import uk.gov.hmrc.domain.{Email, SaUtr}
 import play.api.templates.HtmlFormat
 import uk.gov.hmrc.play.connectors.HeaderCarrier
 import uk.gov.hmrc.play.logging.MdcLoggingExecutionContext._
@@ -48,7 +49,7 @@ trait PreferencesControllerHelper {
     errors => views.html.sa.prefs.sa_printing_preference(withBanner, errors, savePrefsCall)
   }
 
-  def displayPreferencesFormAction(email: Option[Email], savePrefsCall: Call, withBanner: Boolean = false)(implicit request: Request[AnyRef]) =
+  def displayPreferencesFormAction(email: Option[EmailAddress], savePrefsCall: Call, withBanner: Boolean = false)(implicit request: Request[AnyRef]) =
     Ok(
       views.html.sa.prefs.sa_printing_preference(
         withBanner,

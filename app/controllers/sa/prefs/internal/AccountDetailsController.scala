@@ -8,9 +8,9 @@ import controllers.common.BaseController
 import controllers.common.actions.Actions
 import controllers.common.service.Connectors
 import uk.gov.hmrc.common.crypto.Encrypted
-import uk.gov.hmrc.domain.{SaUtr, Email}
-import Email._
 import uk.gov.hmrc.common.microservice.sa.domain.SaRegime
+import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.emailaddress.EmailAddress
 import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.domain.User
 import play.api.mvc.{SimpleResult, Request}
@@ -24,7 +24,7 @@ class AccountDetailsController(val auditConnector: AuditConnector, val preferenc
 
   def this() = this(Connectors.auditConnector, Connectors.preferencesConnector, Connectors.emailConnector)(Connectors.authConnector)
 
-  def changeEmailAddress(emailAddress: Option[Encrypted[Email]]) = AuthorisedFor(regime = SaRegime).async {
+  def changeEmailAddress(emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(regime = SaRegime).async {
     user => request => changeEmailAddressPage(emailAddress)(user, request)
   }
 
@@ -75,14 +75,14 @@ class AccountDetailsController(val auditConnector: AuditConnector, val preferenc
     lookupCurrentEmail(email => Future.successful(Ok(views.html.confirm_opt_back_into_paper(email.obfuscated))))
   }
 
-  private[prefs] def changeEmailAddressPage(emailAddress: Option[Encrypted[Email]])(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] =
+  private[prefs] def changeEmailAddressPage(emailAddress: Option[Encrypted[EmailAddress]])(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] =
     lookupCurrentEmail(email => Future.successful(Ok(views.html.account_details_update_email_address(email, emailForm.fill(EmailFormData(emailAddress.map(_.decryptedValue)))))))
 
 
 
-  private def lookupCurrentEmail(func: (String) => Future[SimpleResult])(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
+  private def lookupCurrentEmail(func: (EmailAddress) => Future[SimpleResult])(implicit user: User, request: Request[AnyRef]): Future[SimpleResult] = {
     preferencesConnector.getPreferences(user.userAuthority.accounts.sa.get.utr)(HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)).flatMap {
-        case Some(SaPreference(true, Some(email))) => func(email.email)
+        case Some(SaPreference(true, Some(email))) => func(EmailAddress(email.email))
         case _ => Future.successful(BadRequest("Could not find existing preferences."))
     }
   }

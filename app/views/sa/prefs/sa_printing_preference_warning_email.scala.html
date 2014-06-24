@@ -1,4 +1,4 @@
-@(emailAddress: uk.gov.hmrc.domain.Email, token: controllers.common.preferences.service.Token, redirectUrl: com.netaporter.uri.Uri)(implicit request: Request[_])
+@(emailAddress: uk.gov.hmrc.emailaddress.EmailAddress, token: controllers.sa.prefs.Token, redirectUrl: com.netaporter.uri.Uri)(implicit request: Request[_])
 
 @import uk.gov.hmrc.common.crypto.Encrypted
 @main(title = "My Preferences", footerLinks=None) {

@@ -1,4 +1,4 @@
-GET     /print-preferences/:token                            @controllers.sa.prefs.external.SaPrefsController.index(token: String, return_url: String, emailAddress: Option[uk.gov.hmrc.domain.EncryptedEmail])
+GET     /print-preferences/:token                            @controllers.sa.prefs.external.SaPrefsController.index(token: String, return_url: String, emailAddress: Option[controllers.sa.prefs.EncryptedEmail])
 GET     /print-preferences-saved                             @controllers.sa.prefs.external.SaPrefsController.confirm(token: String, return_url: String)
 GET     /print-preferences-no-action                         @controllers.sa.prefs.external.SaPrefsController.noAction(return_url: String, digital: Boolean)
 POST    /print-preferences/:token                            @controllers.sa.prefs.external.SaPrefsController.submitPrefsForm(token: String, return_url: String)
