@@ -1,14 +1,14 @@
 package controllers.sa.prefs.internal
 
+import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.test.UnitSpec
 import play.api.test.{FakeRequest, FakeApplication, WithApplication}
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
-import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.common.microservice.domain.User
-import uk.gov.hmrc.common.microservice.auth.domain.SaAccount
 import scala.concurrent.Future
 import org.jsoup.Jsoup
 import org.mockito.Mockito._
@@ -60,7 +60,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
       when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Future.successful(Some(saPreferences)))
 
       val existingEmailAddress = "existing@email.com"
-      val result = Future.successful(controller.changeEmailAddressPage(Some(Encrypted(existingEmailAddress)))(user, request))
+      val result = Future.successful(controller.changeEmailAddressPage(Some(Encrypted(EmailAddress(existingEmailAddress))))(user, request))
 
       status(result) shouldBe 200
       val page = Jsoup.parse(contentAsString(result))

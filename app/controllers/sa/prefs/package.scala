@@ -4,11 +4,13 @@ import controllers.common.service.FrontEndConfig
 import java.net.URLDecoder
 import play.api.Logger
 import play.api.mvc.Results._
-import play.api.mvc.{Call, Request, AnyContent, Action}
+import play.api.mvc._
+import uk.gov.hmrc.common.crypto.{Encrypted, ApplicationCrypto}
+import uk.gov.hmrc.emailaddress.EmailAddress
+import uk.gov.hmrc.play.crypto.{Decrypter, Encrypter}
 import scala.concurrent.Future
 import com.netaporter.uri.dsl._
 import com.netaporter.uri.Uri
-import controllers.common.preferences.service.{SsoPayloadCrypto, Token, TokenExpiredException}
 
 package object prefs {
 
@@ -42,4 +44,33 @@ package object prefs {
         }
     }
 
+
+
+  // Workaround for play route compilation bug https://github.com/playframework/playframework/issues/2402
+  type EncryptedEmail = Encrypted[EmailAddress]
+
+  implicit def encryptedStringToDecryptedEmail(implicit stringBinder: QueryStringBindable[String]) =
+    new EncryptedEmailBinder(ApplicationCrypto.QueryParameterCrypto, stringBinder)
+
+}
+class EncryptedEmailBinder(crypto: Encrypter with Decrypter, stringBinder: QueryStringBindable[String]) extends QueryStringBindable[Encrypted[EmailAddress]] {
+  override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, Encrypted[EmailAddress]]] =
+    stringBinder.bind(key, params).map {
+      case Right(encryptedString) =>
+        try {
+          val decrypted = crypto.decrypt(encryptedString)
+          try {
+            Right(Encrypted(EmailAddress(decrypted)))
+          } catch {
+            case e: IllegalArgumentException =>
+              Left("Not a valid email address")
+          }
+        } catch {
+          case e: Exception =>
+            Left("Could not decrypt value")
+        }
+      case Left(f) => Left(f)
+    }
+
+  override def unbind(key: String, email: Encrypted[EmailAddress]): String = stringBinder.unbind(key, crypto.encrypt(email.decryptedValue.value))
 }

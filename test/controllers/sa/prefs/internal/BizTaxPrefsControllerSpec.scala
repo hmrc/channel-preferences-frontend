@@ -4,6 +4,8 @@ import play.api.test.WithApplication
 import play.api.test.FakeRequest
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
+import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.test.UnitSpec
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
@@ -14,13 +16,12 @@ import org.jsoup.Jsoup
 import uk.gov.hmrc.common.microservice.email.EmailConnector
 import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
-import uk.gov.hmrc.domain.SaUtr
 import play.api.test.FakeApplication
 import org.mockito.Matchers
 import uk.gov.hmrc.common.crypto.Encrypted
 import controllers.sa.prefs.ExternalUrls
 import controllers.sa.prefs.AuthorityUtils._
-import connectors.{SaEmailPreference, SaPreference, PreferencesConnector}
+import connectors.{PreferencesConnector, SaEmailPreference, SaPreference}
 
 abstract class BizTaxPrefsControllerSetup extends WithApplication(FakeApplication()) with MockitoSugar {
   val auditConnector = mock[AuditConnector]
@@ -111,7 +112,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
     "render an email input field populated with the supplied email address, and the Opt-in option selected" in new BizTaxPrefsControllerSetup {
       val emailAddress = "bob@bob.com"
 
-      val page = Future.successful(controller.displayPrefsFormAction(Some(Encrypted(emailAddress)))(user, request))
+      val page = Future.successful(controller.displayPrefsFormAction(Some(Encrypted(EmailAddress(emailAddress))))(user, request))
 
       status(page) shouldBe 200
 

@@ -9,6 +9,8 @@ import org.mockito.Mockito._
 import org.joda.time.{DateTimeZone, DateTime}
 import java.net.URLEncoder.{encode => urlEncode}
 import org.jsoup.Jsoup
+import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.emailaddress.EmailAddress
 import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.email.EmailConnector
 import org.scalatest.concurrent.ScalaFutures
@@ -18,10 +20,10 @@ import play.api.test.FakeApplication
 import java.net.URI
 import play.api.mvc.{AnyContent, Request}
 import uk.gov.hmrc.common.crypto.Encrypted
-import controllers.common.preferences.service.SsoPayloadCrypto._
 import uk.gov.hmrc.play.connectors.HeaderCarrier
 import connectors.{FormattedUri, PreferencesConnector, SaEmailPreference, SaPreference}
 import connectors.SaEmailPreference.Status
+import uk.gov.hmrc.common.crypto.ApplicationCrypto.SsoPayloadCrypto.encrypt
 
 class SaPrefsControllerSpec extends WordSpec with ShouldMatchers with MockitoSugar with BeforeAndAfter with ScalaFutures with OptionValues {
 
@@ -54,7 +56,7 @@ class SaPrefsControllerSpec extends WordSpec with ShouldMatchers with MockitoSug
       val preferencesAlreadyCreated = SaPreference(true, Some(SaEmailPreference(emailAddress, status = Status.verified)))
       when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(Some(preferencesAlreadyCreated)))
 
-      val page = controller.index(validToken, encodedReturnUrl, Some(Encrypted("other@me.com")))(FakeRequest())
+      val page = controller.index(validToken, encodedReturnUrl, Some(Encrypted(EmailAddress("other@me.com"))))(FakeRequest())
       status(page) shouldBe 303
       header("Location", page).value should be (decodedReturnUrlWithEmailAddress)
     }
@@ -97,7 +99,7 @@ class SaPrefsControllerSpec extends WordSpec with ShouldMatchers with MockitoSug
       val previouslyEnteredAddress = "some@mail.com"
 
       when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(None))
-      val page = controller.index(validToken, encodedReturnUrl, Some(Encrypted(previouslyEnteredAddress)))(request)
+      val page = controller.index(validToken, encodedReturnUrl, Some(Encrypted(EmailAddress(previouslyEnteredAddress))))(request)
 
       status(page) shouldBe 200
       val html = Jsoup.parse(contentAsString(page))

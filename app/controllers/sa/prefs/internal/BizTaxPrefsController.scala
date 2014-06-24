@@ -8,11 +8,10 @@ import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.sa.domain.SaRegime
 import uk.gov.hmrc.common.microservice.email.EmailConnector
+import uk.gov.hmrc.emailaddress.EmailAddress
 import scala.concurrent.Future
-import uk.gov.hmrc.domain.Email
 import controllers.sa.prefs._
 import uk.gov.hmrc.common.crypto.Encrypted
-import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
 import ExternalUrls.businessTaxHome
 import uk.gov.hmrc.play.connectors.HeaderCarrier
@@ -32,7 +31,7 @@ class BizTaxPrefsController(val auditConnector: AuditConnector, preferencesConne
         redirectToBizTaxOrEmailPrefEntryIfNotSetAction(user, request)
   }
 
-  def displayPrefsForm(emailAddress: Option[Encrypted[Email]])(): Action[AnyContent] = AuthorisedFor(SaRegime).async {
+  def displayPrefsForm(emailAddress: Option[Encrypted[EmailAddress]])(): Action[AnyContent] = AuthorisedFor(SaRegime).async {
     implicit user =>
       implicit request =>
         displayPrefsFormAction(emailAddress)
@@ -63,7 +62,7 @@ class BizTaxPrefsController(val auditConnector: AuditConnector, preferencesConne
       case _ => displayPreferencesFormAction(None, getSavePrefsFromInterstitialCall)
     }
 
-  private[prefs] def displayPrefsFormAction(emailAddress: Option[Encrypted[Email]])(implicit user: User, request: Request[AnyRef]) =
+  private[prefs] def displayPrefsFormAction(emailAddress: Option[Encrypted[EmailAddress]])(implicit user: User, request: Request[AnyRef]) =
     Future.successful(displayPreferencesFormAction(emailAddress.map(_.decryptedValue), getSavePrefsFromNonInterstitialPageCall , withBanner =true))
 
   private[prefs] def submitPrefsFormAction(implicit user: User, request: Request[AnyRef], withBanner: Boolean = false) = {
