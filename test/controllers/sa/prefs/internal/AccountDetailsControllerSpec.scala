@@ -11,7 +11,6 @@ import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.common.microservice.auth.domain.SaAccount
 import scala.concurrent.Future
 import org.jsoup.Jsoup
-import uk.gov.hmrc.common.microservice.preferences.{FormattedUri, SaEmailPreference, SaPreference, PreferencesConnector}
 import org.mockito.Mockito._
 import uk.gov.hmrc.common.microservice.email.EmailConnector
 import play.api.test.Helpers._
@@ -19,6 +18,7 @@ import org.mockito.Matchers
 import java.net.URI
 import uk.gov.hmrc.common.crypto.Encrypted
 import controllers.sa.prefs.AuthorityUtils._
+import connectors.{FormattedUri, SaEmailPreference, SaPreference, PreferencesConnector}
 
 abstract class Setup extends WithApplication(FakeApplication()) with MockitoSugar {
   val auditConnector = mock[AuditConnector]

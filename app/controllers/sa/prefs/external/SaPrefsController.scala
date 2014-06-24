@@ -5,7 +5,6 @@ import concurrent.Future
 import controllers.common.service.{Connectors, FrontEndConfig}
 import controllers.common.BaseController
 import uk.gov.hmrc.common.microservice.email.EmailConnector
-import uk.gov.hmrc.common.microservice.preferences.{SaEmailPreference, PreferencesConnector}
 import com.netaporter.uri.dsl._
 import uk.gov.hmrc.domain.Email
 import play.Logger
@@ -13,16 +12,16 @@ import com.netaporter.uri.Uri
 import controllers.common.preferences.service.SsoPayloadCrypto
 import controllers.sa.prefs._
 import uk.gov.hmrc.common.crypto.Encrypted
-import uk.gov.hmrc.common.microservice.preferences.SaPreference
 import controllers.common.preferences.service.Token
 import scala.Some
 import play.api.mvc.SimpleResult
+import connectors.{SaPreference, SaEmailPreference, PreferencesConnector}
 
 class SaPrefsController(whiteList: Set[String], preferencesConnector: PreferencesConnector, emailConnector: EmailConnector) extends BaseController with PreferencesControllerHelper {
 
   implicit val wl = whiteList
 
-  def this() = this(FrontEndConfig.redirectDomainWhiteList, Connectors.preferencesConnector, Connectors.emailConnector)
+  def this() = this(FrontEndConfig.redirectDomainWhiteList, PreferencesConnector, Connectors.emailConnector)
 
   def index(encryptedToken: String, encodedReturnUrl: String, emailAddressToPrefill: Option[Encrypted[Email]]) =
     DecodeAndWhitelist(encodedReturnUrl) {

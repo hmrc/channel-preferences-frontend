@@ -1,0 +1,9 @@
+# Admin pages
+GET        /ping/ping                 uk.gov.hmrc.play.controllers.HealthCheck.ping()
+GET        /admin/healthcheck         uk.gov.hmrc.play.controllers.HealthCheck.check
+GET        /admin/details             uk.gov.hmrc.play.controllers.HealthCheck.details
+GET        /admin/detail/:name        uk.gov.hmrc.play.controllers.HealthCheck.detail(name: String)
+GET        /admin/metrics             com.kenshoo.play.metrics.MetricsController.metrics
+
+# Add all the application routes to the app.routes file
+->         /                          app.Routes

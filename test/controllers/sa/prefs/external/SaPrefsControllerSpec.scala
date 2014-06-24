@@ -11,10 +11,7 @@ import java.net.URLEncoder.{encode => urlEncode}
 import org.jsoup.Jsoup
 import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.email.EmailConnector
-import uk.gov.hmrc.common.microservice.preferences._
-import SaEmailPreference.Status
 import org.scalatest.concurrent.ScalaFutures
-import uk.gov.hmrc.common.microservice.preferences.SaPreference
 import scala.Some
 import uk.gov.hmrc.domain.SaUtr
 import play.api.test.FakeApplication
@@ -23,6 +20,8 @@ import play.api.mvc.{AnyContent, Request}
 import uk.gov.hmrc.common.crypto.Encrypted
 import controllers.common.preferences.service.SsoPayloadCrypto._
 import uk.gov.hmrc.play.connectors.HeaderCarrier
+import connectors.{FormattedUri, PreferencesConnector, SaEmailPreference, SaPreference}
+import connectors.SaEmailPreference.Status
 
 class SaPrefsControllerSpec extends WordSpec with ShouldMatchers with MockitoSugar with BeforeAndAfter with ScalaFutures with OptionValues {
 

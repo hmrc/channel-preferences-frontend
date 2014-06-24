@@ -4,7 +4,6 @@ import play.api.test.WithApplication
 import play.api.test.FakeRequest
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
-import uk.gov.hmrc.common.microservice.preferences.{SaEmailPreference, PreferencesConnector, SaPreference}
 import uk.gov.hmrc.test.UnitSpec
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
@@ -21,6 +20,7 @@ import org.mockito.Matchers
 import uk.gov.hmrc.common.crypto.Encrypted
 import controllers.sa.prefs.ExternalUrls
 import controllers.sa.prefs.AuthorityUtils._
+import connectors.{SaEmailPreference, SaPreference, PreferencesConnector}
 
 abstract class BizTaxPrefsControllerSetup extends WithApplication(FakeApplication()) with MockitoSugar {
   val auditConnector = mock[AuditConnector]

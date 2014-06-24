@@ -3,11 +3,11 @@ package controllers.sa.prefs.external
 import play.api.mvc.Action
 import scala.concurrent.Future
 import controllers.common.BaseController
-import uk.gov.hmrc.common.microservice.preferences.{EmailVerificationLinkResponse, PreferencesConnector}
+import connectors.{EmailVerificationLinkResponse, PreferencesConnector }
 
 class EmailValidationController extends BaseController {
 
-  implicit lazy val preferencesMicroService = new PreferencesConnector()
+  implicit lazy val preferencesMicroService :PreferencesConnector = PreferencesConnector
 
   val regex = "([0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12})".r
 

@@ -1,7 +1,6 @@
 package controllers.sa.prefs.internal
 
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
-import uk.gov.hmrc.common.microservice.preferences.{SaPreference, PreferencesConnector}
 import uk.gov.hmrc.common.microservice.email.EmailConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.BaseController
@@ -16,13 +15,14 @@ import uk.gov.hmrc.common.microservice.domain.User
 import play.api.mvc.{SimpleResult, Request}
 import controllers.sa.prefs.{EmailFormData, PreferencesControllerHelper}
 import uk.gov.hmrc.play.connectors.HeaderCarrier
+import connectors.{FormattedUri, PreferencesConnector, SaPreference}
 
 class AccountDetailsController(val auditConnector: AuditConnector, val preferencesConnector: PreferencesConnector,
                                val emailConnector: EmailConnector)(implicit override val authConnector: AuthConnector) extends BaseController
   with Actions
   with PreferencesControllerHelper {
 
-  def this() = this(Connectors.auditConnector, Connectors.preferencesConnector, Connectors.emailConnector)(Connectors.authConnector)
+  def this() = this(Connectors.auditConnector, PreferencesConnector, Connectors.emailConnector)(Connectors.authConnector)
 
   def changeEmailAddress(emailAddress: Option[Encrypted[Email]]) = AuthorisedFor(regime = SaRegime).async {
     user => request => changeEmailAddressPage(emailAddress)(user, request)
@@ -100,7 +100,7 @@ class AccountDetailsController(val auditConnector: AuditConnector, val preferenc
         )
     )
 
-  private def savePreferences(utr: SaUtr, digital: Boolean, email: Option[String] = None, hc: HeaderCarrier) = {
+  private def savePreferences(utr: SaUtr, digital: Boolean, email: Option[String] = None, hc: HeaderCarrier): Future[Option[FormattedUri]] = {
     preferencesConnector.savePreferences(utr, digital, email)(hc)
   }
 

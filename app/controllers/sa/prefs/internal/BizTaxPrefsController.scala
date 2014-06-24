@@ -1,7 +1,6 @@
 package controllers.sa.prefs.internal
 
 import play.api.mvc._
-import uk.gov.hmrc.common.microservice.preferences.PreferencesConnector
 import controllers.common.{FrontEndRedirect, BaseController}
 import controllers.common.actions.Actions
 import controllers.common.service.Connectors
@@ -17,6 +16,7 @@ import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
 import ExternalUrls.businessTaxHome
 import uk.gov.hmrc.play.connectors.HeaderCarrier
+import connectors.PreferencesConnector
 
 class BizTaxPrefsController(val auditConnector: AuditConnector, preferencesConnector: PreferencesConnector, emailConnector: EmailConnector)
                            (implicit override val authConnector: AuthConnector)
@@ -24,7 +24,7 @@ class BizTaxPrefsController(val auditConnector: AuditConnector, preferencesConne
   with Actions
   with PreferencesControllerHelper {
 
-  def this() = this(Connectors.auditConnector, Connectors.preferencesConnector, Connectors.emailConnector)(Connectors.authConnector)
+  def this() = this(Connectors.auditConnector, PreferencesConnector, Connectors.emailConnector)(Connectors.authConnector)
 
   def redirectToBizTaxOrEmailPrefEntryIfNotSet = AuthorisedFor(SaRegime).async {
     user =>
