@@ -9,7 +9,8 @@ import uk.gov.hmrc.play.logging.MdcLoggingExecutionContext._
 import play.api.libs.json.Json
 import play.api.http.Status
 import uk.gov.hmrc.play.http.ws.WSHttp
-import uk.gov.hmrc.play.http.{Upstream4xxResponse, HttpGet, HttpPost, NotFoundException}
+import uk.gov.hmrc.play.http._
+import uk.gov.hmrc.play.http.Upstream4xxResponse
 
 object PreferencesConnector extends PreferencesConnector {
   override val serviceUrl = MicroServiceConfig.preferencesServiceUrl
@@ -56,7 +57,12 @@ trait PreferencesConnector extends Status {
   }
 
   def updateEmailValidationStatusUnsecured(token: String)(implicit hc: HeaderCarrier): Future[EmailVerificationLinkResponse.Value] = {
-    http.POST[ValidateEmail](url("/preferences/sa/verify-email"), ValidateEmail(token)).map(_ => EmailVerificationLinkResponse.OK).recover {
+    responseToEmailVerificationLinkStatus(http.POST[ValidateEmail](url("/preferences/sa/verify-email"), ValidateEmail(token)))
+  }
+
+  private[connectors] def responseToEmailVerificationLinkStatus(response: Future[HttpResponse])(implicit hc: HeaderCarrier) = {
+    response.map(_ => EmailVerificationLinkResponse.OK)
+      .recover {
       case Upstream4xxResponse(_, GONE, _) => EmailVerificationLinkResponse.EXPIRED
       case _ => EmailVerificationLinkResponse.ERROR
     }
