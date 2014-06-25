@@ -6,7 +6,7 @@ import controllers.common.actions.Actions
 import controllers.common.service.Connectors
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
-import uk.gov.hmrc.common.microservice.sa.domain.SaRegime
+import controllers.sa.prefs.SaRegime
 import uk.gov.hmrc.common.microservice.email.EmailConnector
 import uk.gov.hmrc.emailaddress.EmailAddress
 import scala.concurrent.Future
