@@ -1,4 +1,4 @@
-@main(title = "Your email address is NOT verified", footerLinks=None) {
+@main(title = "Your email address is NOT verified", footerLinks=None, logout=Call("GET", controllers.sa.prefs.ExternalUrls.survey)) {
     <header class="page-header">
         <h1>Self Assessment email reminders</h1>
     </header>
