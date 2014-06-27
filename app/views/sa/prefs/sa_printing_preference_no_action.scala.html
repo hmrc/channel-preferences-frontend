@@ -1,6 +1,6 @@
 @(redirectUrl: com.netaporter.uri.Uri, digitalOnly: Boolean)
 
-@main(title = "My Preferences", footerLinks=None) {
+@main(title = "My Preferences", footerLinks=None, logout=Call("GET", controllers.sa.prefs.ExternalUrls.survey)) {
 
 <h2>Turn off paper</h2>
 <div id="print-prefs">
