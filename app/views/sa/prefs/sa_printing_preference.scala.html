@@ -75,6 +75,7 @@
     @emailForm("opt-in").errors.map { error => <label class="error-notification">@Messages(error.message)</label>}
     @emailForm.globalErrors.map { error => <label class="error-notification">@Messages(error.message)</label>}
 </div>
+<br>
 <div class="form-field">
     <button id="submitEmailButton" class="button" name="submitButton" type="submit">@Messages("sa_printing_preference.submitButton")</button>
 </div>
