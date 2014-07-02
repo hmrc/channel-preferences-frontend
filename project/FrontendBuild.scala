@@ -2,6 +2,8 @@ import sbt._
 import scala._
 import scala.util.Properties._
 import uk.gov.hmrc.PlayMicroServiceBuild
+import uk.gov.hmrc.HmrcResolvers
+import uk.gov.hmrc.HmrcResolvers._
 
 object FrontendBuild extends Build {
 
@@ -15,17 +17,19 @@ object FrontendBuild extends Build {
   lazy val microservice = PlayMicroServiceBuild(appName,
     appVersion,
     dependencies,
-    Seq("controllers.sa.prefs._", "uk.gov.hmrc.domain._"))
+    Seq("controllers.sa.prefs._", "uk.gov.hmrc.domain._"),
+    applicationResolvers = HmrcResolvers(),
+    snapshots = hmrcNexusSnapshots,
+    releases = hmrcNexusReleases)
 }
 
 private object Dependencies {
 
   import play.Project._
-  import uk.gov.hmrc.Dependency._
 
   private val govukTemplateVersion = "1.6.0"
-  private val playFrontendVersion = "3.14.0"
-  private val playMicroServiceVersion = "1.16.0"
+  private val playFrontendVersion = "3.16.0"
+  private val playMicroServiceVersion = "1.17.0"
 
   private val metricsGraphiteVersion = "3.0.1"
   private val pegdownVersion = "1.4.2"
@@ -34,33 +38,18 @@ private object Dependencies {
   private val jsoupVersion = "1.7.2"
   private val mockitoVersion = "1.9.5"
 
-  val govukTemplate = "uk.gov.hmrc" %% "govuk-template" % govukTemplateVersion
-  val playFrontend = "uk.gov.hmrc" %% "play-frontend" % playFrontendVersion
-  val playMicroservice = "uk.gov.hmrc" %% "play-microservice" % playMicroServiceVersion
-
-  val metricsGraphite = "com.codahale.metrics" % "metrics-graphite" % metricsGraphiteVersion
-  val pegdown = "org.pegdown" % "pegdown" % pegdownVersion
-  val playMetrics = "com.kenshoo" %% "metrics-play" % playMetricsVersion
-  val scalaTest = "org.scalatest" %% "scalatest" % scalaTestVersion
-  val jsoup = "org.jsoup" % "jsoup" % jsoupVersion
-  val mockito = "org.mockito" % "mockito-all" % mockitoVersion
-
   val requiredDependencies = Seq(
     filters,
-    compile(playMetrics),
-    compile(metricsGraphite),
-    compile(playMicroservice),
-    compile(govukTemplate),
-    compile(playFrontend),
+    "com.kenshoo" %% "metrics-play" % playMetricsVersion,
+    "com.codahale.metrics" % "metrics-graphite" % metricsGraphiteVersion,
+    "uk.gov.hmrc" %% "play-microservice" % playMicroServiceVersion,
+    "uk.gov.hmrc" %% "govuk-template" % govukTemplateVersion,
+    "uk.gov.hmrc" %% "play-frontend" % playFrontendVersion,
 
-    test(jsoup),
-    test(scalaTest),
-    test(pegdown),
-    test(playMicroservice, Seq("tests")),
-    test(mockito),
-
-    integrationTest(scalaTest),
-    integrationTest(pegdown),
-    integrationTest(playMicroservice, Seq("tests", "tests-sources", "tests-javadoc"))
+    "org.jsoup" % "jsoup" % jsoupVersion % "test",
+    "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
+    "org.pegdown" % "pegdown" % pegdownVersion % "test",
+    "uk.gov.hmrc" %% "play-microservice" % playMicroServiceVersion % "test" classifier "tests",
+    "org.mockito" % "mockito-all" % mockitoVersion % "test"
   )
 }

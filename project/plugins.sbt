@@ -8,4 +8,7 @@ resolvers ++= Seq("hmrc-snapshots" at hmrcRepoHost + "/content/repositories/hmrc
   "hmrc-releases" at hmrcRepoHost + "/content/repositories/hmrc-releases",
   "typesafe-releases" at hmrcRepoHost + "/content/repositories/typesafe-releases")
 
-addSbtPlugin("uk.gov.hmrc" % "sbt-microservice" % "3.0.1")
+addSbtPlugin("uk.gov.hmrc" % "sbt-microservice" % "3.1.0")
+
+addSbtPlugin("uk.gov.hmrc" % "hmrc-resolvers" % "0.1.0")
+
