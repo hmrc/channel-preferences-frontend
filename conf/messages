@@ -23,6 +23,9 @@ sa_printing_preference.option.no=No, I don’t want them by email, continue send
 sa_printing_preference.submitButton=Continue
 sa_printing_preference.cancelButton=Continue to get letters
 sa_printing_preference.opt_in_choice_required=Confirm if you want Self Assessment email reminders
+sa_printing_preferences.confirm_correct_email.title=Check your email address
+sa_printing_preferences.confirm_correct_email.paragraph.1=Are you sure {0} is correct?
+sa_printing_preferences.confirm_correct_email.confirm=This email address is correct
 
 sa_printing_preference_confirm.title=My Preferences
 sa_printing_preference_confirm.heading=Sign up for Self Assessment email reminders
