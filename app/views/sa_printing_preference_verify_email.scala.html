@@ -4,19 +4,19 @@
 @import uk.gov.hmrc.common.crypto.Encrypted
 @import uk.gov.hmrc.emailaddress.EmailAddress
 
-@main(title = "Sign up for email reminders", user = Some(user), logout=Call("GET", controllers.sa.prefs.ExternalUrls.survey)) {
+@main(title = "Check your email is correct", user = Some(user), logout=Call("GET", controllers.sa.prefs.ExternalUrls.survey)) {
    <header class="page-header">
        <h1>@Messages("sa_printing_preference.title")</h1>
 
-        <h2>Check your email address</h2>
+        <h2>@Messages("sa_printing_preferences.confirm_correct_email.title")</h2>
    </header>
-    <p>Are you sure <span id="emailAddress">@emailAddress</span> is correct?</p>
+    <p>@Html(Messages("sa_printing_preferences.confirm_correct_email.paragraph.1", s"<span id='emailAddress'>$emailAddress</span>"))</p>
 
 
     @helpers.form(action = controllers.sa.prefs.internal.routes.BizTaxPrefsController.submitPrefsFormForInterstitial, 'id -> "form-submit-preferences-verify-email") {
         <div class="form-field">
             <p>
-                <button id="email-is-correct-link" class="button" type="submit">The email is correct</button>
+                <button id="email-is-correct-link" class="button" type="submit">@Messages("sa_printing_preferences.confirm_correct_email.confirm")</button>
             </p>
         </div>
         <input type="hidden" name="opt-in" value="true" />

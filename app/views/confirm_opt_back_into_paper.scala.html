@@ -2,17 +2,14 @@
 
 @import views.helpers.Link
 
-@main(title = "Your details - opt to receive paper notifications", user = Some(user), nav = true, logout=Call("GET", controllers.sa.prefs.ExternalUrls.survey)) {
+@main(title = "Your details - Stop your email reminders", user = Some(user), nav = true, logout=Call("GET", controllers.sa.prefs.ExternalUrls.survey)) {
 
     <header class="page-header">
         <h1>@Messages("bt.account.yourdetails")</h1>
-
-        <h2>Stop your email reminders </h2>
+        <h2>Stop your email reminders</h2>
     </header>
 
-<p>
-    Your Self Assessment reminders will be sent in the post.
-</p>
+<p>Your Self Assessment reminders will be sent in the post.</p>
 
 @helpers.form(action = controllers.sa.prefs.internal.routes.AccountDetailsController.confirmOptOutOfEmailReminders) {
 <div class="form-field">

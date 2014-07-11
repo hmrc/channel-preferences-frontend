@@ -2,14 +2,13 @@
 
 @import views.helpers.Link
 
-@main(title = "Your details - Thanks", user = Some(user), nav = true, logout=Call("GET", controllers.sa.prefs.ExternalUrls.survey)) {
+@main(title = "Your details - Verification email sent", user = Some(user), nav = true, logout=Call("GET", controllers.sa.prefs.ExternalUrls.survey)) {
     <header class="page-header">
         <h1>@Messages("bt.account.yourdetails")</h1>
 
-        <h2>Thank you</h2>
+        <h2>Verification email sent</h2>
     </header>
-    <p id="verification-mail-message">You’ve been sent a verification email.</p>
-    <p>Check your inbox and verify your email address to complete the sign up process.</p>
+    <p id="verification-mail-message">Check your inbox and verify your email address to complete the sign-up process.</p>
 
     <ul class="action-list">
         <li>@Link.toInternalPage(id = Some("return-to-dashboard-button"), url = controllers.sa.prefs.ExternalUrls.businessTaxHome, value = Some("Go to your tax account")).toHtml</li>
