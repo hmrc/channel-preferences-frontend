@@ -24,7 +24,7 @@ sa_printing_preferences.confirm_correct_email.title=Check your email address
 sa_printing_preferences.confirm_correct_email.paragraph.1=Are you sure {0} is correct?
 sa_printing_preferences.confirm_correct_email.confirm=This email address is correct
 
-sa_printing_preference_confirm.title=Verify your email address
+sa_printing_preference_confirm.title=Your details - Verify your email address
 sa_printing_preference_confirm.heading=Sign up for Self Assessment email reminders
 sa_printing_preference_confirm.heading.2=Verify your email address
 sa_printing_preference_confirm.paragraph.1=Verify your email address to complete the sign-up process.
