@@ -31,6 +31,8 @@ sa_printing_preference_confirm.paragraph.1=Verify your email address to complete
 sa_printing_preference_confirm.paragraph.2=You’ve been sent an email telling you how to do this.
 sa_printing_preference_confirm.linkText=Go to your tax account
 
+sa_printing_preference.verification.heading=Your email address has been verified.
+sa_printing_preference.verification.heading.already=This email address has already been verified.
 sa_printing_preference.verification.paragraph.1=The service starts later this year.
 sa_printing_preference.verification.paragraph.2=HM Revenue and Customs (HMRC) will let you know when.
 sa_printing_preference.verification.paragraph.3=To access your HMRC online account:
