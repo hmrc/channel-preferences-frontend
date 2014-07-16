@@ -1,10 +1,14 @@
-@main(title = "Sorry", footerLinks=None, logout=Call("GET", controllers.sa.prefs.ExternalUrls.survey)) {
-    <header class="page-header">
-        <h1>Self Assessment email reminders</h1>
-    </header>
+@main(title = "Your details - This email address has already been verified", footerLinks=None, logout=Call("GET", controllers.sa.prefs.ExternalUrls.survey)) {
+<header class="page-header">
+    <h1 id="failure-heading">@Messages("sa_printing_preference.verification.heading.already")</h1>
+</header>
 
-    <h2 id="failureHeading">This email address has already been verified.</h2>
-
-    <p id="failureMessage">HM Revenue and Customs will let you know when email reminders will start.</p>
+<p>@Messages("sa_printing_preference.verification.paragraph.1")</p>
+<p id="hmrc-update">@Messages("sa_printing_preference.verification.paragraph.2")</p>
+<p>@Messages("sa_printing_preference.verification.paragraph.3")</p>
+<ol>
+    <li>@Messages("sa_printing_preference.verification.action_list.1")</li>
+    <li>@Messages("sa_printing_preference.verification.action_list.2")</li>
+</ol>
 
 }
