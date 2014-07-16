@@ -4,7 +4,7 @@
 @import uk.gov.hmrc.common.crypto.Encrypted
 @import uk.gov.hmrc.emailaddress.EmailAddress
 
-@main(title = "Your Details - Please verify email address", user = Some(user), nav=true, logout=Call("GET", controllers.sa.prefs.ExternalUrls.survey)) {
+@main(title = "Your Details - Check your email address is correct", user = Some(user), nav=true, logout=Call("GET", controllers.sa.prefs.ExternalUrls.survey)) {
     <header class="page-header">
         <h1>@Messages("bt.account.yourdetails")</h1>
 
