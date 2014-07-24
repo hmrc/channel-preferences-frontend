@@ -12,7 +12,7 @@ import org.jsoup.Jsoup
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
 import scala.concurrent.Future
-import uk.gov.hmrc.common.microservice.email.EmailConnector
+import connectors.EmailConnector
 import org.scalatest.concurrent.ScalaFutures
 import scala.Some
 import uk.gov.hmrc.domain.SaUtr

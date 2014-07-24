@@ -5,7 +5,7 @@ import uk.gov.hmrc.emailaddress.EmailAddress
 import concurrent.Future
 import controllers.common.service.{Connectors, FrontEndConfig}
 import controllers.common.BaseController
-import uk.gov.hmrc.common.microservice.email.EmailConnector
+import connectors.EmailConnector
 import com.netaporter.uri.dsl._
 import play.Logger
 import com.netaporter.uri.Uri
@@ -18,7 +18,7 @@ class SaPrefsController(whiteList: Set[String], preferencesConnector: Preference
 
   implicit val wl = whiteList
 
-  def this() = this(FrontEndConfig.redirectDomainWhiteList, PreferencesConnector, Connectors.emailConnector)
+  def this() = this(FrontEndConfig.redirectDomainWhiteList, PreferencesConnector, EmailConnector)
 
   def index(encryptedToken: String, encodedReturnUrl: String, emailAddressToPrefill: Option[Encrypted[EmailAddress]]) =
     DecodeAndWhitelist(encodedReturnUrl) {

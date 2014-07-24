@@ -1,7 +1,7 @@
 package controllers.sa.prefs.internal
 
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
-import uk.gov.hmrc.common.microservice.email.EmailConnector
+import connectors.EmailConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.BaseController
 import controllers.common.actions.Actions
@@ -22,7 +22,7 @@ class AccountDetailsController(val auditConnector: AuditConnector, val preferenc
   with Actions
   with PreferencesControllerHelper {
 
-  def this() = this(Connectors.auditConnector, PreferencesConnector, Connectors.emailConnector)(Connectors.authConnector)
+  def this() = this(Connectors.auditConnector, PreferencesConnector, EmailConnector)(Connectors.authConnector)
 
   def changeEmailAddress(emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(regime = SaRegime).async {
     user => request => changeEmailAddressPage(emailAddress)(user, request)

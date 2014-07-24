@@ -28,8 +28,7 @@ private object Dependencies {
   import play.Project._
 
   private val govukTemplateVersion = "1.6.0"
-  private val playFrontendVersion = "3.16.0"
-  private val playMicroServiceVersion = "1.17.0"
+  private val playFrontendVersion = "5.1.1"
 
   private val metricsGraphiteVersion = "3.0.1"
   private val pegdownVersion = "1.4.2"
@@ -42,14 +41,12 @@ private object Dependencies {
     filters,
     "com.kenshoo" %% "metrics-play" % playMetricsVersion,
     "com.codahale.metrics" % "metrics-graphite" % metricsGraphiteVersion,
-    "uk.gov.hmrc" %% "play-microservice" % playMicroServiceVersion,
     "uk.gov.hmrc" %% "govuk-template" % govukTemplateVersion,
     "uk.gov.hmrc" %% "play-frontend" % playFrontendVersion,
 
     "org.jsoup" % "jsoup" % jsoupVersion % "test",
     "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
     "org.pegdown" % "pegdown" % pegdownVersion % "test",
-    "uk.gov.hmrc" %% "play-microservice" % playMicroServiceVersion % "test" classifier "tests",
     "org.mockito" % "mockito-all" % mockitoVersion % "test"
   )
 }

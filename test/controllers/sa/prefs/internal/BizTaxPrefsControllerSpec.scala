@@ -11,9 +11,8 @@ import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.FrontEndRedirect
 import concurrent.Future
-import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import org.jsoup.Jsoup
-import uk.gov.hmrc.common.microservice.email.EmailConnector
+import connectors.EmailConnector
 import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
 import play.api.test.FakeApplication
@@ -38,7 +37,6 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
   import play.api.test.Helpers._
 
   val validUtr = SaUtr("1234567890")
-  val saRoot = Some(SaRoot(validUtr, Map.empty[String, String]))
   val user = User(userId = "userId", userAuthority = saAuthority("userId", "1234567890"), nameFromGovernmentGateway = Some("Ciccio"), decryptedToken = None)
 
   "The preferences action on login" should {

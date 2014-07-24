@@ -7,7 +7,7 @@ import controllers.common.service.Connectors
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.sa.prefs.SaRegime
-import uk.gov.hmrc.common.microservice.email.EmailConnector
+import connectors.EmailConnector
 import uk.gov.hmrc.emailaddress.EmailAddress
 import scala.concurrent.Future
 import controllers.sa.prefs._
@@ -23,7 +23,7 @@ class BizTaxPrefsController(val auditConnector: AuditConnector, preferencesConne
   with Actions
   with PreferencesControllerHelper {
 
-  def this() = this(Connectors.auditConnector, PreferencesConnector, Connectors.emailConnector)(Connectors.authConnector)
+  def this() = this(Connectors.auditConnector, PreferencesConnector, EmailConnector)(Connectors.authConnector)
 
   def redirectToBizTaxOrEmailPrefEntryIfNotSet = AuthorisedFor(SaRegime).async {
     user =>
