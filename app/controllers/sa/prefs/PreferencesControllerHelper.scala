@@ -4,7 +4,7 @@ import play.api.mvc.{SimpleResult, Call, Request}
 import play.api.data._
 import play.api.mvc.Results._
 import play.api.data.Forms._
-import uk.gov.hmrc.common.microservice.email.EmailConnector
+import connectors.EmailConnector
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
 import scala.concurrent._

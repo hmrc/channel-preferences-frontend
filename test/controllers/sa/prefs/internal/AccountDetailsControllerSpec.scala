@@ -7,12 +7,11 @@ import play.api.test.{FakeRequest, FakeApplication, WithApplication}
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
-import uk.gov.hmrc.common.microservice.sa.domain.SaRoot
 import uk.gov.hmrc.common.microservice.domain.User
 import scala.concurrent.Future
 import org.jsoup.Jsoup
 import org.mockito.Mockito._
-import uk.gov.hmrc.common.microservice.email.EmailConnector
+import connectors.EmailConnector
 import play.api.test.Helpers._
 import org.mockito.Matchers
 import java.net.URI
@@ -34,7 +33,6 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
   import Matchers.{any, eq => is}
 
   val validUtr = SaUtr("1234567890")
-  val saRoot = Some(SaRoot(validUtr, Map.empty[String, String]))
   val user = User(userId = "userId", userAuthority = saAuthority("userId", "1234567890"), nameFromGovernmentGateway = Some("Ciccio"), decryptedToken = None)
 
   "clicking on Change email address link in the account details page" should {
