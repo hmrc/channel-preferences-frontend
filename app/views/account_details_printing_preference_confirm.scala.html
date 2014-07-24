@@ -1,0 +1,27 @@
+@(user: Option[uk.gov.hmrc.common.microservice.domain.User], redirectUrl: String)
+
+@import views.helpers.Link
+
+@main(title = Messages("sa_printing_preference_confirm.title"), nav = true, user = user, logout=Call("GET", controllers.sa.prefs.ExternalUrls.survey)) {
+
+<header class="page-header">
+    <h1>@Messages("sa_printing_preference_confirm.heading")</h1>
+
+    <h2>@Messages("sa_printing_preference_confirm.heading.2")</h2>
+</header>
+
+<p>@Messages("sa_printing_preference_confirm.paragraph.1")</p>
+
+<p>@Messages("sa_printing_preference_confirm.paragraph.2")</p>
+
+<p>
+    @Link.toInternalPage(
+        id = Some("sa-home-link"),
+        url = redirectUrl,
+        value = Some(Messages("sa_printing_preference_confirm.linkText")),
+        cssClasses = Some("button")
+    ).toHtml
+</p>
+
+
+}

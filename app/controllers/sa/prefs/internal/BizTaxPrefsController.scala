@@ -50,7 +50,7 @@ class BizTaxPrefsController(val auditConnector: AuditConnector, preferencesConne
   def thankYou() = AuthorisedFor(SaRegime) {
     user =>
       request =>
-        Ok(views.html.sa.prefs.sa_printing_preference_confirm(Some(user), businessTaxHome))
+        Ok(views.html.account_details_printing_preference_confirm(Some(user), businessTaxHome))
   }
 
   val getSavePrefsFromInterstitialCall = controllers.sa.prefs.internal.routes.BizTaxPrefsController.submitPrefsFormForInterstitial()
