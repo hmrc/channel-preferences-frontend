@@ -73,7 +73,7 @@ trait PreferencesControllerHelper {
       emailForm => {
         val emailVerificationStatus =
           if (emailForm.isEmailVerified) Future.successful(true)
-          else emailConnector.validateEmailAddress(emailForm.mainEmail)
+          else emailConnector.isValid(emailForm.mainEmail)
 
         emailVerificationStatus.flatMap {
           case true => savePreferences(saUtr, true, Some(emailForm.mainEmail), hc).map(const(Redirect(successRedirect())))
@@ -98,7 +98,7 @@ trait PreferencesControllerHelper {
         case emailForm@EmailFormDataWithPreference((Some(emailAddress), _), _, Some(OptIn)) =>
           val emailVerificationStatus =
             if (emailForm.isEmailVerified) Future.successful(true)
-            else emailConnector.validateEmailAddress(emailAddress)
+            else emailConnector.isValid(emailAddress)
 
           emailVerificationStatus.flatMap {
             case true => savePreferences(saUtr, true, Some(emailAddress), hc)

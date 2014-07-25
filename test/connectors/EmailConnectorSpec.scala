@@ -1,48 +1,39 @@
 package connectors
 
-import org.scalatest.mock.MockitoSugar
-import org.mockito.Mockito._
-import java.net.URLEncoder
-import uk.gov.hmrc.play.connectors.HeaderCarrier
-import uk.gov.hmrc.test.UnitSpec
-import scala.concurrent.Future
 import org.scalatest.concurrent.ScalaFutures
+import play.api.libs.json.Json
+import uk.gov.hmrc.play.connectors.HeaderCarrier
+import uk.gov.hmrc.play.http.HttpResponse
 import uk.gov.hmrc.play.test._
+import uk.gov.hmrc.test.UnitSpec
+
+import scala.concurrent.Future
 
 class EmailConnectorSpec extends UnitSpec with ScalaFutures with WithFakeApplication {
 
-  "Calling validateEmailAddress" should {
+  implicit val hc = HeaderCarrier()
 
-    implicit val hc = HeaderCarrier()
+  "Validating an email address" should {
 
-    "correctly invoke the email microservice and return true if the service returns true" in  {
-      val connector = new HttpMockedEmailConnector
-      val address = "bob@somewhere.com"
-      val encodedAddress = URLEncoder.encode(address, "UTF-8")
-      when(connector.httpWrapper.getF[ValidateEmailResponse](s"/validate-email-address?email=$encodedAddress")).thenReturn(Future.successful(Some(ValidateEmailResponse(true))))
-      connector.validateEmailAddress(address).futureValue shouldBe true
+    "return true if the service returns true" in new TestCase {
+      val responseFromEmailService = HttpResponse(responseStatus = 200, responseJson = Some(Json.obj("valid" -> true)))
+      connector.isValid(exampleEmailAddress).futureValue shouldBe true
     }
 
-    "correctly invoke the email microservice and return false if the service returns false" in  {
-      val connector = new HttpMockedEmailConnector
-      val address = "bob@somewhere.com"
-      val encodedAddress = URLEncoder.encode(address, "UTF-8")
-      when(connector.httpWrapper.getF[ValidateEmailResponse](s"/validate-email-address?email=$encodedAddress")).thenReturn(Future.successful(Some(ValidateEmailResponse(false))))
-      connector.validateEmailAddress(address).futureValue shouldBe false
+    "return false if the service returns false" in new TestCase {
+      val responseFromEmailService = HttpResponse(responseStatus = 200, responseJson = Some(Json.obj("valid" -> false)))
+      connector.isValid(exampleEmailAddress).futureValue shouldBe false
+    }
+
+    trait TestCase {
+      def responseFromEmailService: HttpResponse
+      val connector = new EmailConnector {
+        val serviceUrl = "http://email.service:80"
+        protected def doGet(url: String)(implicit hc: HeaderCarrier) = {
+          Future.successful(responseFromEmailService)
+        }
+      }
+      val exampleEmailAddress = "bob@somewhere.com"
     }
   }
-}
-
-
-class HttpMockedEmailConnector extends EmailConnector with MockitoSugar {
-
-  val httpWrapper = mock[HttpWrapper]
-
-  override def httpGetF[A](uri: String)(implicit m: Manifest[A], hc: HeaderCarrier):  Future[Option[A]] = httpWrapper.getF[A](uri)
-
-
-  class HttpWrapper {
-    def getF[T](uri: String): Future[Option[T]] = Future.successful(None)
-  }
-
 }

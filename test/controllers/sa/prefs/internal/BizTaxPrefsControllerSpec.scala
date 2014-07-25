@@ -175,7 +175,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
     "show a warning page when opting-in if the email has a valid structure but does not pass validation by the email micro service" in new BizTaxPrefsControllerSetup {
 
       val emailAddress = "someone@dodgy.domain"
-      when(emailConnector.validateEmailAddress(is(emailAddress))(any())).thenReturn(false)
+      when(emailConnector.isValid(is(emailAddress))(any())).thenReturn(false)
 
       val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress),("email.confirm", emailAddress))))
 
@@ -188,7 +188,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
 
     "when opting-in, validate the email address, save the preference and redirect to the thank you page" in new BizTaxPrefsControllerSetup {
       val emailAddress = "someone@email.com"
-      when(emailConnector.validateEmailAddress(is(emailAddress))(any())).thenReturn(true)
+      when(emailConnector.isValid(is(emailAddress))(any())).thenReturn(true)
       when(preferencesConnector.savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())).thenReturn(Future.successful(None))
 
       val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress),("email.confirm", emailAddress))))
@@ -197,7 +197,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       header("Location", page).get should include(routes.BizTaxPrefsController.thankYou().toString())
 
       verify(preferencesConnector).savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())
-      verify(emailConnector).validateEmailAddress(is(emailAddress))(any())
+      verify(emailConnector).isValid(is(emailAddress))(any())
       verifyNoMoreInteractions(preferencesConnector, emailConnector)
     }
 
@@ -232,7 +232,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
     "if the verified flag is false and the email does not pass validation by the email micro service, display the verify page" in new BizTaxPrefsControllerSetup {
 
       val emailAddress = "someone@dodgy.domain"
-      when(emailConnector.validateEmailAddress(is(emailAddress))(any())).thenReturn(false)
+      when(emailConnector.isValid(is(emailAddress))(any())).thenReturn(false)
 
       val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "false"))))
 
@@ -248,7 +248,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
     "if the verified flag is any value other than true, treat it as false" in new BizTaxPrefsControllerSetup {
 
       val emailAddress = "someone@dodgy.domain"
-      when(emailConnector.validateEmailAddress(is(emailAddress))(any())).thenReturn(false)
+      when(emailConnector.isValid(is(emailAddress))(any())).thenReturn(false)
 
       val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "hjgjhghjghjgj"))))
 

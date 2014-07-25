@@ -128,13 +128,13 @@ class SaPrefsControllerSpec extends WordSpec with ShouldMatchers with MockitoSug
     "return a warning page if the email address could not be verified" in new SaPrefsControllerApp {
 
       when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(None))
-      when(emailConnector.validateEmailAddress(meq(emailAddress))).thenReturn(Future.successful(false))
+      when(emailConnector.isValid(meq(emailAddress))).thenReturn(Future.successful(false))
 
       val page = controller.submitPrefsForm(validToken, encodedReturnUrl)(request(optIn = Some(true), mainEmail = Some(emailAddress), mainEmailConfirmation = Some(emailAddress)))
 
       status(page) shouldBe 200
 
-      verify(emailConnector).validateEmailAddress(meq(emailAddress))
+      verify(emailConnector).isValid(meq(emailAddress))
 
     }
 
@@ -176,7 +176,7 @@ class SaPrefsControllerSpec extends WordSpec with ShouldMatchers with MockitoSug
 
     "save the user preferences" in new SaPrefsControllerApp {
       
-      when(emailConnector.validateEmailAddress(meq(emailAddress))).thenReturn(Future.successful(true))
+      when(emailConnector.isValid(meq(emailAddress))).thenReturn(Future.successful(true))
       when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(None))
       when(preferencesConnector.savePreferencesUnsecured(meq(validUtr), meq(true), meq(Some(emailAddress)))).thenReturn(Future.successful(None))
 
@@ -186,7 +186,7 @@ class SaPrefsControllerSpec extends WordSpec with ShouldMatchers with MockitoSug
 
       status(page) shouldBe 303
 
-      verify(emailConnector).validateEmailAddress(meq(emailAddress))
+      verify(emailConnector).isValid(meq(emailAddress))
       verify(preferencesConnector).getPreferencesUnsecured(meq(validUtr))
       verify(preferencesConnector).savePreferencesUnsecured(meq(validUtr), meq(true), meq(Some(emailAddress)))
     }
@@ -194,7 +194,7 @@ class SaPrefsControllerSpec extends WordSpec with ShouldMatchers with MockitoSug
     "generate an error if the preferences could not be saved" in new SaPrefsControllerApp {
 
       
-      when(emailConnector.validateEmailAddress(meq(emailAddress))).thenReturn(Future.successful(true))
+      when(emailConnector.isValid(meq(emailAddress))).thenReturn(Future.successful(true))
       when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(None))
       when(preferencesConnector.savePreferencesUnsecured(meq(validUtr), meq(true), meq(Some(emailAddress)))).thenReturn(Future.failed(new RuntimeException()))
 
