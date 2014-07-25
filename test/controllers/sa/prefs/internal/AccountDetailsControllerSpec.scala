@@ -125,7 +125,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
       val emailAddress = "someone@email.com"
       val saPreferences = SaPreference(true, Some(SaEmailPreference("oldEmailAddress@test.com", SaEmailPreference.Status.verified)))
 
-      when(mockEmailConnector.validateEmailAddress(is(emailAddress))(any())).thenReturn(true)
+      when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(true)
       when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Future.successful(Some(saPreferences)))
       when(mockPreferencesConnector.savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())).thenReturn(Future.successful(None))
 
@@ -135,7 +135,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
       header("Location", page).get should include(routes.AccountDetailsController.emailAddressChangeThankYou().toString())
 
       verify(mockPreferencesConnector).savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())
-      verify(mockEmailConnector).validateEmailAddress(is(emailAddress))(any())
+      verify(mockEmailConnector).isValid(is(emailAddress))(any())
       verify(mockPreferencesConnector).getPreferences(is(validUtr))(any())
       verifyNoMoreInteractions(mockPreferencesConnector, mockEmailConnector)
     }
@@ -198,7 +198,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
       val emailAddress = "someone@dodgy.domain"
       val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.verified)))
 
-      when(mockEmailConnector.validateEmailAddress(is(emailAddress))(any())).thenReturn(false)
+      when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(false)
       when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Future.successful(Some(saPreferences)))
 
       val page = Future.successful(controller.submitEmailAddressPage(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress),("email.confirm", emailAddress))))
@@ -209,7 +209,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
       document.select("#emailIsNotCorrectLink") shouldNot be(null)
       document.select("#emailIsCorrectLink") shouldNot be(null)
 
-      verify(mockEmailConnector).validateEmailAddress(is(emailAddress))(any())
+      verify(mockEmailConnector).isValid(is(emailAddress))(any())
     }
 
   }
@@ -239,7 +239,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
       val emailAddress = "someone@dodgy.domain"
       val saPreferences = SaPreference(true, Some(SaEmailPreference("oldEmailAddress@test.com", SaEmailPreference.Status.verified)))
 
-      when(mockEmailConnector.validateEmailAddress(is(emailAddress))(any())).thenReturn(false)
+      when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(false)
       when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Future.successful(Some(saPreferences)))
 
 
@@ -254,7 +254,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
 
       verify(mockPreferencesConnector).getPreferences(is(validUtr))(any())
       verifyNoMoreInteractions(mockPreferencesConnector)
-      verify(mockEmailConnector).validateEmailAddress(is(emailAddress))(any())
+      verify(mockEmailConnector).isValid(is(emailAddress))(any())
     }
 
     "if the verified flag is any value other than true, treat it as false" in new Setup {
@@ -262,7 +262,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
       val emailAddress = "someone@dodgy.domain"
       val saPreferences = SaPreference(true, Some(SaEmailPreference("oldEmailAddress@test.com", SaEmailPreference.Status.verified)))
 
-      when(mockEmailConnector.validateEmailAddress(is(emailAddress))(any())).thenReturn(false)
+      when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(false)
       when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Future.successful(Some(saPreferences)))
 
 
@@ -277,7 +277,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
 
       verify(mockPreferencesConnector).getPreferences(is(validUtr))(any())
       verifyNoMoreInteractions(mockPreferencesConnector)
-      verify(mockEmailConnector).validateEmailAddress(is(emailAddress))(any())
+      verify(mockEmailConnector).isValid(is(emailAddress))(any())
     }
   }
 

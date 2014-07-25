@@ -2,21 +2,22 @@ package connectors
 
 import java.net.URLEncoder
 
-import uk.gov.hmrc.common.microservice.{Connector, MicroServiceConfig}
+import play.api.libs.json._
+import uk.gov.hmrc.common.microservice.MicroServiceConfig
 import uk.gov.hmrc.play.connectors.HeaderCarrier
+import uk.gov.hmrc.play.http.HttpGet
+import uk.gov.hmrc.play.http.ws.WSGet
 
 import scala.concurrent.Future
 
-class EmailConnector extends Connector {
+trait EmailConnector extends HttpGet {
+  protected def serviceUrl: String
 
-  override protected val serviceUrl = MicroServiceConfig.emailServiceUrl
-
-  def validateEmailAddress(address: String)(implicit hc: HeaderCarrier): Future[Boolean] =
-    httpGetF[ValidateEmailResponse](s"/validate-email-address?email=${URLEncoder.encode(address, "UTF-8")}").map {
-      case Some(ValidateEmailResponse(valid)) => valid
-      case _ => throw new RuntimeException(s"Access to resource: '/validate-email-address' gave an invalid response")
-    }
-
+  def isValid(emailAddress: String)(implicit hc: HeaderCarrier): Future[Boolean] = {
+    implicit val readValidBoolean = (__ \ "valid").read[Boolean]
+    GET[Boolean](s"$serviceUrl/validate-email-address?email=${URLEncoder.encode(emailAddress, "UTF-8")}")
+  }
 }
-object EmailConnector extends EmailConnector
-case class ValidateEmailResponse(valid: Boolean)
+object EmailConnector extends EmailConnector with WSGet {
+  val serviceUrl = MicroServiceConfig.emailServiceUrl
+}
