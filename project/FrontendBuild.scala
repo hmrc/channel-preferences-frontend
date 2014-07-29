@@ -33,6 +33,7 @@ private object Dependencies {
   private val metricsGraphiteVersion = "3.0.1"
   private val pegdownVersion = "1.4.2"
   private val playMetricsVersion = "0.1.3"
+  private val playHealthVersion = "0.2.0"
   private val scalaTestVersion = "2.1.7"
   private val jsoupVersion = "1.7.2"
   private val mockitoVersion = "1.9.5"
@@ -43,6 +44,7 @@ private object Dependencies {
     "com.codahale.metrics" % "metrics-graphite" % metricsGraphiteVersion,
     "uk.gov.hmrc" %% "govuk-template" % govukTemplateVersion,
     "uk.gov.hmrc" %% "play-frontend" % playFrontendVersion,
+    "uk.gov.hmrc" %% "play-health" % playHealthVersion,
 
     "org.jsoup" % "jsoup" % jsoupVersion % "test",
     "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
