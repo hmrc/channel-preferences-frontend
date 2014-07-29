@@ -28,7 +28,7 @@ private object Dependencies {
   import play.Project._
 
   private val govukTemplateVersion = "1.6.0"
-  private val playFrontendVersion = "5.1.1"
+  private val playFrontendVersion = "5.4.0"
 
   private val metricsGraphiteVersion = "3.0.1"
   private val pegdownVersion = "1.4.2"
