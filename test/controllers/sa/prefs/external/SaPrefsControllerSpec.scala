@@ -174,6 +174,15 @@ class SaPrefsControllerSpec extends WordSpec with ShouldMatchers with MockitoSug
       verify(preferencesConnector, times(0)).savePreferencesUnsecured(any[SaUtr], any[Boolean], any[Option[String]])
     }
 
+    "not show an error if the confirmed email is not the same as the main but opt-in is false" in new SaPrefsControllerApp {
+      when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(None))
+      when(preferencesConnector.savePreferencesUnsecured(meq(validUtr), meq(false), meq(None))(any())).thenReturn(Future.successful(Some(FormattedUri(new URI("http://1234/")))))
+
+      val page = controller.submitPrefsForm(validToken, encodedReturnUrl)(request(optIn = Some(false), mainEmail = Some(emailAddress), mainEmailConfirmation = Some("other@email.com")))
+
+      status(page) shouldBe 303
+    }
+
     "save the user preferences" in new SaPrefsControllerApp {
       
       when(emailConnector.isValid(meq(emailAddress))).thenReturn(Future.successful(true))
