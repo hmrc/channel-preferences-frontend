@@ -175,10 +175,15 @@ class SaPrefsControllerSpec extends WordSpec with ShouldMatchers with MockitoSug
     }
 
     "not show an error if the confirmed email is not the same as the main but opt-in is false" in new SaPrefsControllerApp {
-      when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(None))
-      when(preferencesConnector.savePreferencesUnsecured(meq(validUtr), meq(false), meq(None))(any())).thenReturn(Future.successful(Some(FormattedUri(new URI("http://1234/")))))
+      private val successfulOptOutUpdateResponse = Future.successful(Some(FormattedUri(new URI("http://1234/"))))
+      private val noCurrentPreferences = Future.successful(None)
+      val notOptingIn = false
+      private val noEmail = None
 
-      val page = controller.submitPrefsForm(validToken, encodedReturnUrl)(request(optIn = Some(false), mainEmail = Some(emailAddress), mainEmailConfirmation = Some("other@email.com")))
+      when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(noCurrentPreferences)
+      when(preferencesConnector.savePreferencesUnsecured(meq(validUtr), meq(notOptingIn), meq(noEmail))(any())).thenReturn(successfulOptOutUpdateResponse)
+
+      val page = controller.submitPrefsForm(validToken, encodedReturnUrl)(request(optIn = Some(notOptingIn), mainEmail = Some(emailAddress), mainEmailConfirmation = Some("other@email.com")))
 
       status(page) shouldBe 303
     }

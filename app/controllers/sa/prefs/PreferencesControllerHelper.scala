@@ -43,7 +43,7 @@ trait PreferencesControllerHelper {
       case EmailFormDataWithPreference((None, _), _, Some(OptIn)) => false
       case _ => true
     }).verifying(
-        "email.confirmation.emails.unequal", email => email.email._1 == email.email._2 || !email.preference.get.toBoolean)
+        "email.confirmation.emails.unequal", email => email.email._1 == email.email._2 || !email.preference.getOrElse[EmailPreference](OptOut).toBoolean)
     )
 
   def getSubmitPreferencesView(savePrefsCall: Call)(implicit request: Request[AnyRef], withBanner: Boolean = false): Form[_] => HtmlFormat.Appendable = {
