@@ -34,7 +34,7 @@ trait PreferencesControllerHelper {
       "email" -> tuple(
         "main" -> optional(emailWithLimitedLength),
         "confirm" -> optional(text)
-      ).verifying("email.confirmation.emails.unequal", email => email._1 == email._2),
+      ),
       "emailVerified" -> optional(text),
       "opt-in" -> optional(boolean).verifying("sa_printing_preference.opt_in_choice_required", _.isDefined).transform(
         _.map(EmailPreference.fromBoolean), (p: Option[EmailPreference]) => p.map(_.toBoolean)
@@ -42,7 +42,8 @@ trait PreferencesControllerHelper {
     )(EmailFormDataWithPreference.apply)(EmailFormDataWithPreference.unapply).verifying("error.email.optIn", b => b match {
       case EmailFormDataWithPreference((None, _), _, Some(OptIn)) => false
       case _ => true
-    })
+    }).verifying(
+        "email.confirmation.emails.unequal", formData => formData.email._1 == formData.email._2 || formData.preference.exists(_ == OptOut))
     )
 
   def getSubmitPreferencesView(savePrefsCall: Call)(implicit request: Request[AnyRef], withBanner: Boolean = false): Form[_] => HtmlFormat.Appendable = {
