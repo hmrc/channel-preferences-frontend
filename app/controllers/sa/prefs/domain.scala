@@ -16,7 +16,7 @@ object EmailFormData {
   }
 }
 
-case class PreferenceData(preference: Option[Boolean])
+case class PreferenceData(optedIn: Option[Boolean])
 
 sealed trait EmailPreference {
   def toBoolean = this match {

@@ -104,7 +104,7 @@ trait PreferencesControllerHelper {
     preferenceForm.bindFromRequest.fold(
       errors => Future.successful(BadRequest(errorsView(errors))),
       success => {
-        if (success.preference.exists(_ == false)) savePreferences(saUtr, false, None, hc)
+        if (success.optedIn.exists(_ == false)) savePreferences(saUtr, false, None, hc)
         else {
           emailFormWithPreference.bindFromRequest.fold(
             errors => Future.successful(BadRequest(errorsView(errors))),
