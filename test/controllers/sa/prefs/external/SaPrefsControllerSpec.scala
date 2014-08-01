@@ -149,6 +149,20 @@ class SaPrefsControllerSpec extends WordSpec with ShouldMatchers with MockitoSug
       verifyZeroInteractions(emailConnector)
     }
 
+    "not show an error if the email is invalid but opt-in is false" in new SaPrefsControllerApp {
+      private val successfulOptOutUpdateResponse = Future.successful(Some(FormattedUri(new URI("http://1234/"))))
+      private val noCurrentPreferences = Future.successful(None)
+      val notOptingIn = false
+      private val noEmail = None
+
+      when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(noCurrentPreferences)
+      when(preferencesConnector.savePreferencesUnsecured(meq(validUtr), meq(notOptingIn), meq(noEmail))(any())).thenReturn(successfulOptOutUpdateResponse)
+
+      val page = controller.submitPrefsForm(validToken, encodedReturnUrl)(request(optIn = Some(notOptingIn), mainEmail = Some("invalid-email"), mainEmailConfirmation = Some("")))
+
+      status(page) shouldBe 303
+    }
+
     "show an error if the email is not set" in new SaPrefsControllerApp {
       
 

@@ -16,12 +16,15 @@ object EmailFormData {
   }
 }
 
+case class PreferenceData(optedIn: Option[Boolean])
+
 sealed trait EmailPreference {
   def toBoolean = this match {
     case OptIn => true
     case OptOut => false
   }
 }
+
 object EmailPreference {
   def fromBoolean(b: Boolean): EmailPreference = if (b) OptIn else OptOut
 }
