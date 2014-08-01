@@ -118,8 +118,6 @@ trait PreferencesControllerHelper {
                   case true => savePreferences(saUtr, true, Some(emailAddress), hc)
                   case false => Future.successful(Ok(emailWarningView(emailAddress)))
                 }
-              case EmailFormDataWithPreference(_, _, Some(OptOut)) =>
-                savePreferences(saUtr, false, None, hc)
               case _ =>
                 Future.successful(BadRequest(errorsView(emailFormWithPreference.bindFromRequest)))
             }
