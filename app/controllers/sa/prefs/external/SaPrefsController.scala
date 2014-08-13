@@ -38,69 +38,10 @@ class SaPrefsController(whiteList: Set[String], preferencesConnector: Preference
                     Redirect(returnUrl)
 
                   case None =>
-                    Logger.debug(s"Requesting preferences from $utr as they have none set")
-                    displayPreferencesFormAction(emailAddressToPrefill.map(_.decryptedValue), getSavePrefsCall(token, returnUrl))
+                    Logger.debug(s"Redirecting $utr back to $returnUrl as we have no preference for them")
+                    Redirect(returnUrl)
                 }
             }
         }
     }
-
-  def confirm(encryptedToken: String, encodedReturnUrl: String) =
-    DecodeAndWhitelist(encodedReturnUrl) {
-      returnUrl =>
-        DecryptAndValidate(encryptedToken, returnUrl) {
-          token =>
-            Action.async {
-              implicit request =>
-                preferencesConnector.getPreferencesUnsecured(token.utr).map {
-                  case Some(SaPreference(true, Some(SaEmailPreference(emailAddress, _, _, _)))) =>
-                    Ok(views.html.sa.prefs.sa_printing_preference_confirm(user = None, redirectUrl = returnUrl ? ("email" -> SsoPayloadCrypto.encrypt(emailAddress))))
-                  case _ => PreconditionFailed
-                }
-            }
-        }
-    }
-
-  def noAction(encodedReturnUrl: String, digital: Boolean) =
-    DecodeAndWhitelist(encodedReturnUrl) {
-      returnUrl =>
-        Action {
-          Ok(views.html.sa.prefs.sa_printing_preference_no_action(returnUrl, digital))
-        }
-    }
-
-  def submitPrefsForm(encryptedToken: String, encodedReturnUrl: String) =
-    DecodeAndWhitelist(encodedReturnUrl) {
-      returnUrl =>
-        DecryptAndValidate(encryptedToken, returnUrl) {
-          token =>
-            Action.async {
-              implicit request =>
-                saveEmailPreferences(token, returnUrl)
-            }
-        }
-    }
-
-  private def getSavePrefsCall(token: Token, returnUrl: Uri) = controllers.sa.prefs.external.routes.SaPrefsController.submitPrefsForm(token.encryptedToken, returnUrl)
-
-  def saveEmailPreferences(token: Token, returnUrl: Uri)(implicit request: Request[AnyContent]): Future[SimpleResult] = {
-    preferencesConnector.getPreferencesUnsecured(token.utr).flatMap {
-      case Some(saPreference) =>
-        Future.successful(Redirect(routes.SaPrefsController.noAction(returnUrl, saPreference.digital)))
-      case None =>
-        submitPreferencesForm(
-          errorsView = getSubmitPreferencesView(getSavePrefsCall(token, returnUrl)),
-          emailWarningView = emailAddr => views.html.sa.prefs.sa_printing_preference_warning_email(EmailAddress(emailAddr), token, returnUrl),
-          emailConnector = emailConnector,
-          saUtr = token.utr,
-          savePreferences = (utr, digital, email, hc) =>
-            preferencesConnector.savePreferencesUnsecured(utr, digital, email)(hc).map(_ =>
-              digital match {
-                case true => Redirect(routes.SaPrefsController.confirm(token.encryptedToken, returnUrl))
-                case false => Redirect(returnUrl)
-              }
-            )(mdcExecutionContext(hc))
-        )
-    }
-  }
 }

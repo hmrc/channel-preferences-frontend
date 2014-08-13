@@ -30,6 +30,15 @@ class SaPrefsControllerSpec extends WordSpec with ShouldMatchers with MockitoSug
   import play.api.test.Helpers._
 
   "Preferences pages" should {
+    "redirect to the portal when no preference exists for a specific utr" in new SaPrefsControllerApp {
+      when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(None))
+
+      val page = controller.index(validToken, encodedReturnUrl, None)(FakeRequest())
+      status(page) shouldBe 303
+      header("Location", page).value should be (decodedReturnUrl)
+      verify(preferencesConnector, times(1)).getPreferencesUnsecured(meq(validUtr))
+    }
+
     "redirect to the portal when a preference for email already exists for a specific utr" in new SaPrefsControllerApp {
       val preferencesAlreadyCreated = SaPreference(true, Some(SaEmailPreference(emailAddress, status = Status.verified)))
       when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(Some(preferencesAlreadyCreated)))
@@ -61,18 +70,7 @@ class SaPrefsControllerSpec extends WordSpec with ShouldMatchers with MockitoSug
       header("Location", page).value should be (decodedReturnUrlWithEmailAddress)
     }
 
-    "render an email input field" in new SaPrefsControllerApp {
-      
-      when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))(any())).thenReturn(Future.successful(None))
-
-      val page = controller.index(validToken, encodedReturnUrl, None)(FakeRequest())
-      contentAsString(page) should include("email.main")
-      verify(preferencesConnector, times(1)).getPreferencesUnsecured(meq(validUtr))
-    }
-
     "redirect to portal if the token is expired on the landing page" in new SaPrefsControllerApp {
-      
-
       val page = controller.index(expiredToken, encodedReturnUrl, None)(FakeRequest())
 
       status(page) shouldBe 303
@@ -80,8 +78,6 @@ class SaPrefsControllerSpec extends WordSpec with ShouldMatchers with MockitoSug
     }
 
     "redirect to portal if the token is not valid on the landing page" in new SaPrefsControllerApp {
-      
-
       val page = controller.index(incorrectToken, encodedReturnUrl, None)(FakeRequest())
 
       status(page) shouldBe 303
@@ -92,293 +88,6 @@ class SaPrefsControllerSpec extends WordSpec with ShouldMatchers with MockitoSug
       
       val page = controller.index(validToken, encodedUrlNotOnWhitelist, None)(FakeRequest())
       status(page) shouldBe 400
-    }
-
-    "fill the email form if user is coming from the warning page" in new SaPrefsControllerApp {
-      
-      val previouslyEnteredAddress = "some@mail.com"
-
-      when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(None))
-      val page = controller.index(validToken, encodedReturnUrl, Some(Encrypted(EmailAddress(previouslyEnteredAddress))))(request)
-
-      status(page) shouldBe 200
-      val html = Jsoup.parse(contentAsString(page))
-      html.getElementById("email.main") shouldNot be(null)
-      html.getElementById("email.main").`val` shouldBe previouslyEnteredAddress
-      html.getElementById("email.confirm") shouldNot be(null)
-      html.getElementById("email.confirm").`val` shouldBe previouslyEnteredAddress
-    }
-  }
-
-
-
-  "A post to set preferences" should {
-
-    "redirect to return url if the token is expired when submitting the form" in new SaPrefsControllerApp {
-
-      val page = controller.submitPrefsForm(expiredToken, encodedReturnUrl)(FakeRequest())
-
-      status(page) shouldBe 303
-
-      verify(preferencesConnector, times(0)).savePreferencesUnsecured(any[SaUtr], any[Boolean], any[Option[String]])
-
-      header("Location", page).get should equal(decodedReturnUrl)
-    }
-
-    "return a warning page if the email address could not be verified" in new SaPrefsControllerApp {
-
-      when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(None))
-      when(emailConnector.isValid(meq(emailAddress))).thenReturn(Future.successful(false))
-
-      val page = controller.submitPrefsForm(validToken, encodedReturnUrl)(request(optIn = Some(true), mainEmail = Some(emailAddress), mainEmailConfirmation = Some(emailAddress)))
-
-      status(page) shouldBe 200
-
-      verify(emailConnector).isValid(meq(emailAddress))
-
-    }
-
-    "show an error if the email is invalid" in new SaPrefsControllerApp {
-
-      when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(None))
-
-      val page = controller.submitPrefsForm(validToken, encodedReturnUrl)(request(optIn = Some(true), mainEmail = Some("invalid-email"), mainEmailConfirmation = Some("")))
-
-      status(page) shouldBe 400
-      contentAsString(page) should include("Enter a valid email address.")
-      verifyZeroInteractions(emailConnector)
-    }
-
-    "not show an error if the email is invalid but opt-in is false" in new SaPrefsControllerApp {
-      private val successfulOptOutUpdateResponse = Future.successful(Some(FormattedUri(new URI("http://1234/"))))
-      private val noCurrentPreferences = Future.successful(None)
-      val notOptingIn = false
-      private val noEmail = None
-
-      when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(noCurrentPreferences)
-      when(preferencesConnector.savePreferencesUnsecured(meq(validUtr), meq(notOptingIn), meq(noEmail))(any())).thenReturn(successfulOptOutUpdateResponse)
-
-      val page = controller.submitPrefsForm(validToken, encodedReturnUrl)(request(optIn = Some(notOptingIn), mainEmail = Some("invalid-email"), mainEmailConfirmation = Some("")))
-
-      status(page) shouldBe 303
-    }
-
-    "show an error if the email is not set" in new SaPrefsControllerApp {
-      
-
-      when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(None))
-
-      val page = controller.submitPrefsForm(validToken, encodedReturnUrl)(request(optIn = Some(true), mainEmail = Some(""), mainEmailConfirmation = Some("")))
-
-      status(page) shouldBe 400
-      contentAsString(page) should include("As you would like to opt in, please enter an email address.")
-      verify(preferencesConnector, times(0)).savePreferencesUnsecured(any[SaUtr], any[Boolean], any[Option[String]])
-    }
-
-    "show an error if the confirmed email is not the same as the main" in new SaPrefsControllerApp {
-
-      when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(None))
-
-      val page = controller.submitPrefsForm(validToken, encodedReturnUrl)(request(optIn = Some(true), mainEmail = Some("valid@mail.com"), mainEmailConfirmation = Some("notMatching@mail.com")))
-
-      status(page) shouldBe 400
-      val html = Jsoup.parse(contentAsString(page))
-      val error = html.getElementsByClass("error-notification")
-      error.size() should be (1)
-      verify(preferencesConnector, times(0)).savePreferencesUnsecured(any[SaUtr], any[Boolean], any[Option[String]])
-    }
-
-    "not show an error if the confirmed email is not the same as the main but opt-in is false" in new SaPrefsControllerApp {
-      private val successfulOptOutUpdateResponse = Future.successful(Some(FormattedUri(new URI("http://1234/"))))
-      private val noCurrentPreferences = Future.successful(None)
-      val notOptingIn = false
-      private val noEmail = None
-
-      when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(noCurrentPreferences)
-      when(preferencesConnector.savePreferencesUnsecured(meq(validUtr), meq(notOptingIn), meq(noEmail))(any())).thenReturn(successfulOptOutUpdateResponse)
-
-      val page = controller.submitPrefsForm(validToken, encodedReturnUrl)(request(optIn = Some(notOptingIn), mainEmail = Some(emailAddress), mainEmailConfirmation = Some("other@email.com")))
-
-      status(page) shouldBe 303
-    }
-
-    "save the user preferences" in new SaPrefsControllerApp {
-      
-      when(emailConnector.isValid(meq(emailAddress))).thenReturn(Future.successful(true))
-      when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(None))
-      when(preferencesConnector.savePreferencesUnsecured(meq(validUtr), meq(true), meq(Some(emailAddress)))).thenReturn(Future.successful(None))
-
-      //implicit val request = FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress), ("email.confirm", emailAddress), ("email.confirm", emailAddress))
-      //TODO 
-      val page = controller.submitPrefsForm(validToken, encodedReturnUrl)(request(optIn = Some(true), mainEmail = Some(emailAddress), mainEmailConfirmation = Some(emailAddress)))
-
-      status(page) shouldBe 303
-
-      verify(emailConnector).isValid(meq(emailAddress))
-      verify(preferencesConnector).getPreferencesUnsecured(meq(validUtr))
-      verify(preferencesConnector).savePreferencesUnsecured(meq(validUtr), meq(true), meq(Some(emailAddress)))
-    }
-
-    "generate an error if the preferences could not be saved" in new SaPrefsControllerApp {
-
-      
-      when(emailConnector.isValid(meq(emailAddress))).thenReturn(Future.successful(true))
-      when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(None))
-      when(preferencesConnector.savePreferencesUnsecured(meq(validUtr), meq(true), meq(Some(emailAddress)))).thenReturn(Future.failed(new RuntimeException()))
-
-      //TODO
-//      implicit val request = FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress), ("email.confirm", emailAddress), ("email.confirm", emailAddress))
-      a [RuntimeException] should be thrownBy {
-        controller.submitPrefsForm(validToken, encodedReturnUrl)(request(optIn = Some(true), mainEmail = Some(emailAddress), mainEmailConfirmation = Some(emailAddress))).futureValue
-      }
-    }
-
-    "redirect to no-action page if the preference is already set to digital when submitting the form" in new SaPrefsControllerApp {
-
-      
-      when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(Some(SaPreference(true, Some(SaEmailPreference(emailAddress, Status.verified))))))
-
-      val action = controller.submitPrefsForm(validToken, encodedReturnUrl)(request(optIn = Some(true), mainEmail = Some(emailAddress), mainEmailConfirmation = Some(emailAddress)))
-
-      status(action) shouldBe 303
-
-      verify(preferencesConnector, times(1)).getPreferencesUnsecured(meq(validUtr))
-      verify(preferencesConnector, times(0)).savePreferencesUnsecured(any[SaUtr], any[Boolean], any[Option[String]])
-
-      header("Location", action).get should include("/sa/print-preferences-no-action")
-      header("Location", action).get should include("digital=true")
-    }
-
-    "redirect to no-action page if the preference is already set to paper when submitting the form" in new SaPrefsControllerApp {
-
-      
-      when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(Some(SaPreference(false, None))))
-
-      val action = controller.submitPrefsForm(validToken, encodedReturnUrl)(request(optIn = Some(true), mainEmail = Some(emailAddress), mainEmailConfirmation = Some(emailAddress)))
-
-      status(action) shouldBe 303
-      status(action) shouldBe 303
-
-      verify(preferencesConnector, times(1)).getPreferencesUnsecured(meq(validUtr))
-      verify(preferencesConnector, times(0)).savePreferencesUnsecured(any[SaUtr], any[Boolean], any[Option[String]])
-
-      header("Location", action).get should include("/sa/print-preferences-no-action")
-      header("Location", action).get should include("digital=false")
-    }
-
-    "return bad request if redirect_url is not in the whitelist" in new SaPrefsControllerApp {
-      
-      val page = controller.submitPrefsForm(validToken, encodedUrlNotOnWhitelist)(FakeRequest())
-      status(page) shouldBe 400
-    }
-
-    "keep paper notification and redirect to the portal" in new SaPrefsControllerApp {
-      
-      when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(None))
-      when(preferencesConnector.savePreferencesUnsecured(meq(validUtr), meq(false), meq(None))(any())).thenReturn(Future.successful(Some(FormattedUri(new URI("http://1234/")))))
-
-      val page = controller.submitPrefsForm(validToken, encodedReturnUrl)(request(optIn = Some(false)))
-
-      status(page) shouldBe 303
-      header("Location", page).get should equal(decodedReturnUrl)
-    }
-
-    "save the user preference to keep the paper notification" in new SaPrefsControllerApp {
-      
-      when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(None))
-      when(preferencesConnector.savePreferencesUnsecured(meq(validUtr), meq(false), meq(None))(any())).thenReturn(Future.successful(Some(FormattedUri(new URI("http://1234/")))))
-
-      val result = controller.submitPrefsForm(validToken, encodedReturnUrl)(request(optIn = Some(false)))
-
-      status(result) shouldBe 303
-
-      verify(preferencesConnector, times(1)).savePreferencesUnsecured(meq(validUtr), meq(false), meq(None))
-    }
-
-    "redirect to return url if the token is expired when the keep paper notification form is used" in new SaPrefsControllerApp {
-      
-
-      val page = controller.submitPrefsForm(expiredToken, encodedReturnUrl)(request(optIn = Some(false)))
-
-      status(page) shouldBe 303
-
-      verify(preferencesConnector, times(0)).savePreferencesUnsecured(any[SaUtr], any[Boolean], any[Option[String]])
-      header("Location", page).get should equal(decodedReturnUrl)
-    }
-
-    "redirect to no-action page if the preference is already set to digital when the keep paper notification form is used" in new SaPrefsControllerApp {
-      
-
-      when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(Some(SaPreference(true, Some(SaEmailPreference(emailAddress, Status.verified))))))
-
-      val action = controller.submitPrefsForm(validToken, encodedReturnUrl)(request(optIn = Some(false)))
-
-      status(action) shouldBe 303
-
-      verify(preferencesConnector, times(1)).getPreferencesUnsecured(meq(validUtr))
-      verify(preferencesConnector, times(0)).savePreferencesUnsecured(any[SaUtr], any[Boolean], any[Option[String]])
-
-      header("Location", action).get should include("/sa/print-preferences-no-action")
-      header("Location", action).get should include("digital=true")
-    }
-
-    "redirect to no-action page if the preference is already set to paper when the keep paper notification form is used" in new SaPrefsControllerApp {
-      
-
-      when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(Some(SaPreference(false, None))))
-
-      val action = controller.submitPrefsForm(validToken, encodedReturnUrl)(request(optIn = Some(false)))
-
-      status(action) shouldBe 303
-
-      verify(preferencesConnector, times(1)).getPreferencesUnsecured(meq(validUtr))
-      verify(preferencesConnector, times(0)).savePreferencesUnsecured(any[SaUtr], any[Boolean], any[Option[String]])
-
-      header("Location", action).get should include("/sa/print-preferences-no-action")
-      header("Location", action).get should include("digital=false")
-    }
-  }
-
-  "The confirm preferences set page" should {
-    "reject an invalid return url" in new SaPrefsControllerApp {
-      
-      val result = controller.confirm(validToken, encodedUrlNotOnWhitelist)(FakeRequest())
-      status(result) should be(400)
-    }
-    "contain a link with the return url" in new SaPrefsControllerApp {
-      
-      when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(
-        Future.successful(Some(SaPreference(true, Some(SaEmailPreference(emailAddress, Status.pending)))))
-      )
-      val result = controller.confirm(validToken, encodedReturnUrl)(FakeRequest())
-      status(result) should be(200)
-
-      val page = Jsoup.parse(contentAsString(result))
-      val returnUrl = page.getElementById("sa-home-link").attr("href")
-      returnUrl should be (decodedReturnUrlWithEmailAddress)
-    }
-    "generate an error if the user does not have an email address set" in new SaPrefsControllerApp {
-      
-      when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(
-        Future.successful(Some(SaPreference(true, None)))
-      )
-      val result = controller.confirm(validToken, encodedReturnUrl)(FakeRequest())
-      status(result) should be(412)
-    }
-    "handle return urls which do not already have query parameters" in new SaPrefsControllerApp {
-      val urlWithQueryParams = "http://localhost:8080/portal"
-      val encodedUrlWithQueryParams = urlEncode(urlWithQueryParams, "UTF-8")
-
-      
-      when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(
-        Future.successful(Some(SaPreference(true, Some(SaEmailPreference(emailAddress, Status.pending)))))
-      )
-      val result = controller.confirm(validToken, encodedUrlWithQueryParams)(FakeRequest())
-      status(result) should be(200)
-
-      val page = Jsoup.parse(contentAsString(result))
-      val returnUrl = page.getElementById("sa-home-link").attr("href")
-      returnUrl should be (s"$urlWithQueryParams?email=${urlEncode(encrypt(emailAddress), "UTF-8")}")
     }
   }
 
