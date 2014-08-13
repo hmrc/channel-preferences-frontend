@@ -5,9 +5,8 @@ import java.net.URLDecoder
 import play.api.Logger
 import play.api.mvc.Results._
 import play.api.mvc._
-import uk.gov.hmrc.common.crypto.{Encrypted, ApplicationCrypto}
+import uk.gov.hmrc.crypto.{Decrypter, Encrypter, ApplicationCrypto, Encrypted}
 import uk.gov.hmrc.emailaddress.EmailAddress
-import uk.gov.hmrc.play.crypto.{Decrypter, Encrypter}
 import scala.concurrent.Future
 import com.netaporter.uri.dsl._
 import com.netaporter.uri.Uri

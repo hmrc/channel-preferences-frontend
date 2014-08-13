@@ -1,7 +1,5 @@
 package controllers.sa.prefs
 
-import play.api.libs.json._
-import uk.gov.hmrc.common.crypto.Encrypted
 import uk.gov.hmrc.emailaddress.EmailAddress
 
 

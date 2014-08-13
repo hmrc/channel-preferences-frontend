@@ -1,10 +1,11 @@
 @(emailAddress: String)(implicit user: uk.gov.hmrc.common.microservice.domain.User, request : Request[_])
 
 @import views.helpers.Link
-@import uk.gov.hmrc.common.crypto.Encrypted
+@import uk.gov.hmrc.crypto.Encrypted
 @import uk.gov.hmrc.emailaddress.EmailAddress
 
-@main(title = "Your Details - Check your email address is correct", user = Some(user), nav=true, logout=Call("GET", controllers.sa.prefs.ExternalUrls.survey)) {
+@main(title = "Your Details - Check your email address is correct", headerNav = Some(views.helpers.HeaderNav.yta), userLoggedIn = user.isDefined) {
+
     <header class="page-header">
         <h1>@Messages("bt.account.yourdetails")</h1>
 

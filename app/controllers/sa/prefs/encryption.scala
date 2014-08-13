@@ -2,8 +2,8 @@ package controllers.sa.prefs
 
 import org.joda.time.{ DateTimeZone, DateTime }
 import java.net.URLDecoder
+import uk.gov.hmrc.crypto.{KeysFromConfig, CompositeSymmetricCrypto, Decrypter}
 import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.play.crypto.{KeysFromConfig, CompositeSymmetricCrypto, Decrypter}
 
 case class TokenExpiredException(token: String, time: Long) extends Exception(s"Token expired: $token. Timestamp: $time, Now: ${DateTime.now(DateTimeZone.UTC).getMillis}")
 

@@ -1,6 +1,6 @@
 @(emailAddress: uk.gov.hmrc.emailaddress.EmailAddress, token: controllers.sa.prefs.Token, redirectUrl: com.netaporter.uri.Uri)(implicit request: Request[_])
 
-@import uk.gov.hmrc.common.crypto.Encrypted
+@import uk.gov.hmrc.crypto.Encrypted
 @main(title = "My Preferences", footerLinks=None, logout=Call("GET", controllers.sa.prefs.ExternalUrls.survey)) {
 
     <h1>Sign up for email reminders</h1>

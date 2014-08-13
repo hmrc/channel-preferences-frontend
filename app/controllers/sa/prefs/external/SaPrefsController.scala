@@ -1,16 +1,16 @@
 package controllers.sa.prefs.external
 
 import play.api.mvc._
+import uk.gov.hmrc.crypto.Encrypted
 import uk.gov.hmrc.emailaddress.EmailAddress
 import concurrent.Future
-import controllers.common.service.{Connectors, FrontEndConfig}
+import controllers.common.service.FrontEndConfig
 import controllers.common.BaseController
 import connectors.EmailConnector
 import com.netaporter.uri.dsl._
 import play.Logger
 import com.netaporter.uri.Uri
 import controllers.sa.prefs._
-import uk.gov.hmrc.common.crypto.Encrypted
 import play.api.mvc.SimpleResult
 import connectors.{SaPreference, SaEmailPreference, PreferencesConnector}
 

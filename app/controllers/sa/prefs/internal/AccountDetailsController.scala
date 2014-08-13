@@ -6,7 +6,7 @@ import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.common.BaseController
 import controllers.common.actions.Actions
 import controllers.common.service.Connectors
-import uk.gov.hmrc.common.crypto.Encrypted
+import uk.gov.hmrc.crypto.Encrypted
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
 import scala.concurrent.Future

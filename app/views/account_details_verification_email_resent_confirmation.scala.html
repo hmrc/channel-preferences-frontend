@@ -2,7 +2,8 @@
 
 @import views.helpers.Link
 
-@main(title = "Your details - Verification email sent", user = Some(user), nav = true, logout=Call("GET", controllers.sa.prefs.ExternalUrls.survey)) {
+@main(title = "Your details - Verification email sent", headerNav = Some(views.helpers.HeaderNav.yta), userLoggedIn = user.isDefined) {
+
     <header class="page-header">
         <h1>@Messages("bt.account.yourdetails")</h1>
 
