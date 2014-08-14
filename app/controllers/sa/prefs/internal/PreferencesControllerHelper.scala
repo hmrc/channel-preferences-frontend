@@ -5,7 +5,7 @@ import controllers.sa.prefs._
 import play.api.data.Forms._
 import play.api.data._
 import play.api.mvc.Results._
-import play.api.mvc.{Call, Request, SimpleResult}
+import play.api.mvc.{Call, Request, Result}
 import play.api.templates.HtmlFormat
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
@@ -76,7 +76,7 @@ trait PreferencesControllerHelper {
                                 emailConnector: EmailConnector,
                                 saUtr: SaUtr,
                                 savePreferences: (SaUtr, Boolean, Option[String], HeaderCarrier) => Future[_])
-                               (implicit request: Request[AnyRef]): Future[SimpleResult] = {
+                               (implicit request: Request[AnyRef]): Future[Result] = {
 
     implicit def hc = HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)
 
@@ -99,8 +99,8 @@ trait PreferencesControllerHelper {
                                       emailWarningView: (String) => play.api.templates.HtmlFormat.Appendable,
                                       emailConnector: EmailConnector,
                                       saUtr: SaUtr,
-                                      savePreferences: (SaUtr, Boolean, Option[String], HeaderCarrier) => Future[SimpleResult])
-                                     (implicit request: Request[AnyRef]): Future[SimpleResult] = {
+                                      savePreferences: (SaUtr, Boolean, Option[String], HeaderCarrier) => Future[Result])
+                                     (implicit request: Request[AnyRef]): Future[Result] = {
 
     implicit def hc = HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)
 
