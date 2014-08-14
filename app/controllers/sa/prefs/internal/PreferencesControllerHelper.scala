@@ -1,19 +1,19 @@
-package controllers.sa.prefs
+package controllers.sa.prefs.internal
 
-import play.api.mvc.{SimpleResult, Call, Request}
+import connectors.{EmailConnector, FormattedUri}
+import controllers.sa.prefs._
+import play.api.data.Forms._
 import play.api.data._
 import play.api.mvc.Results._
-import play.api.data.Forms._
-
-import connectors.EmailConnector
+import play.api.mvc.{Call, Request, SimpleResult}
+import play.api.templates.HtmlFormat
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
-import scala.concurrent._
-import Function.const
-import play.api.templates.HtmlFormat
 import uk.gov.hmrc.play.connectors.HeaderCarrier
 import uk.gov.hmrc.play.logging.MdcLoggingExecutionContext._
-import connectors.FormattedUri
+
+import scala.Function.const
+import scala.concurrent._
 
 trait PreferencesControllerHelper {
 

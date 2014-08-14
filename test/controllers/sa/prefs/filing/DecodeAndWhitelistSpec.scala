@@ -1,15 +1,16 @@
-package controllers.sa.prefs
+package controllers.sa.prefs.filing
 
-import org.scalatest._
 import java.net.URLEncoder
-import org.scalatest.mock.MockitoSugar
-import play.api.mvc.{Results, Action, AnyContent}
+
 import com.netaporter.uri.Uri
-import org.mockito.Mockito._
 import org.mockito.Matchers._
+import org.mockito.Mockito._
+import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
-import play.api.test.{WithApplication, FakeRequest, FakeApplication}
+import org.scalatest.mock.MockitoSugar
+import play.api.mvc.{Action, AnyContent, Results}
 import play.api.test.Helpers._
+import play.api.test.{FakeApplication, FakeRequest, WithApplication}
 
 class DecodeAndWhitelistSpec extends WordSpec with ShouldMatchers with MockitoSugar with ScalaFutures {
   val allowedHost = "localhost"

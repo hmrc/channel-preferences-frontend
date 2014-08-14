@@ -12,7 +12,7 @@ import uk.gov.hmrc.emailaddress.EmailAddress
 import scala.concurrent.Future
 import uk.gov.hmrc.common.microservice.domain.User
 import play.api.mvc.{SimpleResult, Request}
-import controllers.sa.prefs.{EmailFormData, PreferencesControllerHelper}
+import controllers.sa.prefs.EmailFormData
 import uk.gov.hmrc.play.connectors.HeaderCarrier
 import connectors.{FormattedUri, PreferencesConnector, SaPreference}
 import controllers.sa.prefs.SaRegime
