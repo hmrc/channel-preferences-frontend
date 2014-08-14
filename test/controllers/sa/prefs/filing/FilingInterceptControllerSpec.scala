@@ -27,39 +27,34 @@ class FilingInterceptControllerSpec extends WordSpec with ShouldMatchers with Mo
 
   "Preferences pages" should {
     "redirect to the portal when no preference exists for a specific utr" in new TestCase {
-      when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(None))
+      when(preferencesConnector.getEmailAddress(meq(validUtr))).thenReturn(Future.successful(None))
 
       val page = controller.redirectWithEmailAddress(validToken, encodedReturnUrl, None)(FakeRequest())
       status(page) shouldBe 303
       header("Location", page).value should be(decodedReturnUrl)
-      verify(preferencesConnector, times(1)).getPreferencesUnsecured(meq(validUtr))
+      verify(preferencesConnector, times(1)).getEmailAddress(meq(validUtr))
     }
 
     "redirect to the portal when a preference for email already exists for a specific utr" in new TestCase {
-      val preferencesAlreadyCreated = SaPreference(true, Some(SaEmailPreference(emailAddress, status = Status.verified)))
-      when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(Some(preferencesAlreadyCreated)))
+      when(preferencesConnector.getEmailAddress(meq(validUtr))).thenReturn(Future.successful(Some(emailAddress)))
 
       val page = controller.redirectWithEmailAddress(validToken, encodedReturnUrl, None)(FakeRequest())
       status(page) shouldBe 303
       header("Location", page).value should be(decodedReturnUrlWithEmailAddress)
-      verify(preferencesConnector, times(1)).getPreferencesUnsecured(meq(validUtr))
+      verify(preferencesConnector, times(1)).getEmailAddress(meq(validUtr))
     }
 
     "redirect to the portal when a preference for paper already exists for a specific utr" in new TestCase {
-
-      val preferencesAlreadyCreated = SaPreference(false, None)
-      when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(Some(preferencesAlreadyCreated)))
+      when(preferencesConnector.getEmailAddress(meq(validUtr))).thenReturn(Future.successful(None))
 
       val page = controller.redirectWithEmailAddress(validToken, encodedReturnUrl, None)(FakeRequest())
       status(page) shouldBe 303
       header("Location", page).value should be(decodedReturnUrl)
-      verify(preferencesConnector, times(1)).getPreferencesUnsecured(meq(validUtr))
+      verify(preferencesConnector, times(1)).getEmailAddress(meq(validUtr))
     }
 
     "redirect to the portal when preferences already exist for a specific utr and an email address was passed to the platform" in new TestCase {
-
-      val preferencesAlreadyCreated = SaPreference(true, Some(SaEmailPreference(emailAddress, status = Status.verified)))
-      when(preferencesConnector.getPreferencesUnsecured(meq(validUtr))).thenReturn(Future.successful(Some(preferencesAlreadyCreated)))
+      when(preferencesConnector.getEmailAddress(meq(validUtr))).thenReturn(Future.successful(Some(emailAddress)))
 
       val page = controller.redirectWithEmailAddress(validToken, encodedReturnUrl, Some(Encrypted(EmailAddress("other@me.com"))))(FakeRequest())
       status(page) shouldBe 303

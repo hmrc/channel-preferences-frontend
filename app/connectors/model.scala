@@ -53,10 +53,3 @@ object ValidateEmail {
 }
 
 case class ValidateEmail(token: String)
-
-
-object FormattedUri {
-  implicit val formats = Json.format[FormattedUri]
-}
-
-case class FormattedUri(uri: URI)

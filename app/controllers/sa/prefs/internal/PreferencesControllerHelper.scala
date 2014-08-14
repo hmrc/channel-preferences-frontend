@@ -1,6 +1,6 @@
 package controllers.sa.prefs.internal
 
-import connectors.{EmailConnector, FormattedUri}
+import connectors.EmailConnector
 import controllers.sa.prefs._
 import play.api.data.Forms._
 import play.api.data._
@@ -72,7 +72,7 @@ trait PreferencesControllerHelper {
                                 successRedirect: () => Call,
                                 emailConnector: EmailConnector,
                                 saUtr: SaUtr,
-                                savePreferences: (SaUtr, Boolean, Option[String], HeaderCarrier) => Future[Option[FormattedUri]])
+                                savePreferences: (SaUtr, Boolean, Option[String], HeaderCarrier) => Future[_])
                                (implicit request: Request[AnyRef]): Future[SimpleResult] = {
 
     implicit def hc = HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)
