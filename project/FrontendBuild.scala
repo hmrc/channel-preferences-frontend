@@ -13,7 +13,10 @@ object FrontendBuild extends Build with MicroService {
 
   override lazy val appDependencies = requiredDependencies
 
-  override lazy val playSettings = Seq(routesImport ++= Seq("controllers.sa.prefs._", "uk.gov.hmrc.domain._"))
+  override lazy val playSettings = Seq(routesImport ++= Seq(
+    "controllers.sa.prefs._",
+    "uk.gov.hmrc.domain._"
+  ))
 }
 
 private object Dependencies {

@@ -15,7 +15,7 @@ import connectors.EmailConnector
 import play.api.test.Helpers._
 import org.mockito.Matchers
 import java.net.URI
-import uk.gov.hmrc.common.crypto.Encrypted
+import uk.gov.hmrc.crypto.Encrypted
 import controllers.sa.prefs.AuthorityUtils._
 import connectors.{SaEmailPreference, SaPreference, PreferencesConnector}
 

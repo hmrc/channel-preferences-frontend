@@ -1,6 +1,8 @@
 package controllers.sa.prefs.filing
 
+import com.netaporter.uri.config.UriConfig
 import com.netaporter.uri.dsl._
+import com.netaporter.uri.encoding._
 import connectors.{EmailConnector, PreferencesConnector}
 import controllers.common.BaseController
 import controllers.common.service.FrontEndConfig
@@ -11,6 +13,7 @@ import uk.gov.hmrc.emailaddress.EmailAddress
 class FilingInterceptController(whiteList: Set[String], preferencesConnector: PreferencesConnector, emailConnector: EmailConnector) extends BaseController {
 
   implicit val wl = whiteList
+  implicit val config = UriConfig(encoder = percentEncode)
 
   def this() = this(FrontEndConfig.redirectDomainWhiteList, PreferencesConnector, EmailConnector)
 

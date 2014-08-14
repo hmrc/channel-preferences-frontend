@@ -17,7 +17,10 @@ import scala.concurrent._
 
 trait PreferencesControllerHelper {
 
-  val emailWithLimitedLength: Mapping[String] = email.verifying("error.email_too_long", email => email.size < 320)
+  val emailWithLimitedLength: Mapping[String] =
+    text
+      .verifying("error.email", EmailAddress.isValid _)
+      .verifying("error.email_too_long", email => email.size < 320)
 
   // TODO the duplication of these forms is all wrong - need to alter the field names in the HTML to
   // be able to restructure and sort this out.
