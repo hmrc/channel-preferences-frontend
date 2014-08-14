@@ -3,6 +3,7 @@ package connectors
 import uk.gov.hmrc.common.microservice.MicroServiceConfig
 
 import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.emailaddress.EmailAddress
 import scala.concurrent.Future
 import uk.gov.hmrc.play.connectors.HeaderCarrier
 import uk.gov.hmrc.play.logging.MdcLoggingExecutionContext._
@@ -11,6 +12,7 @@ import play.api.http.Status
 import uk.gov.hmrc.play.http.ws.WSHttp
 import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.http.Upstream4xxResponse
+import play.api.libs.json._
 
 object PreferencesConnector extends PreferencesConnector {
   override val serviceUrl = MicroServiceConfig.preferencesServiceUrl
@@ -26,15 +28,8 @@ trait PreferencesConnector extends Status {
 
   def url(path: String) = s"$serviceUrl$path"
 
-  def savePreferences(utr: SaUtr, digital: Boolean, email: Option[String] = None)(implicit hc: HeaderCarrier): Future[Option[FormattedUri]] = {
-
-    http.POST[UpdateEmail](url(s"/preferences/sa/individual/$utr/print-suppression"), UpdateEmail(digital, email)).map {
-      response => Json.fromJson[FormattedUri](response.json).asOpt
-    }.recover {
-
-      case e: NotFoundException => None
-    }
-  }
+  def savePreferences(utr: SaUtr, digital: Boolean, email: Option[String] = None)(implicit hc: HeaderCarrier): Future[Any] =
+    http.POST(url(s"/preferences/sa/individual/$utr/print-suppression"), UpdateEmail(digital, email))
 
   def getPreferences(utr: SaUtr)(implicit headerCarrier: HeaderCarrier): Future[Option[SaPreference]] = {
     http.GET[Option[SaPreference]](url(s"/preferences/sa/individual/$utr/print-suppression")).recover {
@@ -42,16 +37,10 @@ trait PreferencesConnector extends Status {
     }
   }
 
-  def savePreferencesUnsecured(utr: SaUtr, digital: Boolean, email: Option[String] = None)(implicit hc: HeaderCarrier): Future[Option[FormattedUri]] = {
-    http.POST[SaPreferenceSimplified](url(s"/portal/preferences/sa/individual/$utr/print-suppression"), SaPreferenceSimplified(digital, email)).map {
-      response => Json.fromJson[FormattedUri](response.json).asOpt
-    }.recover {
-      case e: NotFoundException => None
-    }
-  }
-
-  def getPreferencesUnsecured(utr: SaUtr)(implicit hc: HeaderCarrier): Future[Option[SaPreference]] = {
-    http.GET[Option[SaPreference]](url(s"/portal/preferences/sa/individual/$utr/print-suppression")).recover {
+  // TODO Could/should this use /portal/preferences/sa/individual/:utr/print-suppression/verified-email-address ?
+  def getEmailAddress(utr: SaUtr)(implicit hc: HeaderCarrier) = {
+    implicit val emailAddressFromPreferenceRds: Reads[Option[String]] = (__ \ "email").readNullable((__ \ "email").read[String])
+    http.GET[Option[String]](url(s"/portal/preferences/sa/individual/$utr/print-suppression")).recover {
       case e: NotFoundException => None
     }
   }

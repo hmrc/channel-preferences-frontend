@@ -1,19 +1,19 @@
-package controllers.sa.prefs
-
-import play.api.mvc.{SimpleResult, Call, Request}
-import play.api.data._
-import play.api.mvc.Results._
-import play.api.data.Forms._
+package controllers.sa.prefs.internal
 
 import connectors.EmailConnector
+import controllers.sa.prefs._
+import play.api.data.Forms._
+import play.api.data._
+import play.api.mvc.Results._
+import play.api.mvc.{Call, Request, SimpleResult}
+import play.api.templates.HtmlFormat
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
-import scala.concurrent._
-import Function.const
-import play.api.templates.HtmlFormat
 import uk.gov.hmrc.play.connectors.HeaderCarrier
 import uk.gov.hmrc.play.logging.MdcLoggingExecutionContext._
-import connectors.FormattedUri
+
+import scala.Function.const
+import scala.concurrent._
 
 trait PreferencesControllerHelper {
 
@@ -72,7 +72,7 @@ trait PreferencesControllerHelper {
                                 successRedirect: () => Call,
                                 emailConnector: EmailConnector,
                                 saUtr: SaUtr,
-                                savePreferences: (SaUtr, Boolean, Option[String], HeaderCarrier) => Future[Option[FormattedUri]])
+                                savePreferences: (SaUtr, Boolean, Option[String], HeaderCarrier) => Future[_])
                                (implicit request: Request[AnyRef]): Future[SimpleResult] = {
 
     implicit def hc = HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)
