@@ -1,6 +1,6 @@
 @(currentEmail : String, emailForm: Form[_])(implicit user: uk.gov.hmrc.common.microservice.domain.User, request: Request[_])
 
-@main(title = "Your details - Change your email address", nav = true, user= Some(user), logout=Call("GET", controllers.sa.prefs.ExternalUrls.survey)) {
+@main(title = "Your details - Change your email address", headerNav = Some(views.helpers.HeaderNav.yta), userLoggedIn = true) {
 
     <header class="page-header">
         <h1>@Messages("bt.account.yourdetails")</h1>

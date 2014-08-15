@@ -9,7 +9,7 @@ import org.joda.time.{DateTime, DateTimeZone}
 import play.api.Logger
 import play.api.mvc.{Action, AnyContent, Request, Results}
 import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.play.crypto.{CompositeSymmetricCrypto, Decrypter, KeysFromConfig}
+import uk.gov.hmrc.crypto.{CompositeSymmetricCrypto, Decrypter, KeysFromConfig}
 
 import scala.concurrent.Future
 

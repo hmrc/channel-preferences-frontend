@@ -1,4 +1,3 @@
-->     /                               common.Routes
 ->     /                               health.Routes
 ->     /sa                             sa_prefs.Routes
 ->     /account/account-details/sa     sa_prefs_account_details.Routes

@@ -12,8 +12,8 @@ import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, OptionValues, ShouldMatchers, WordSpec}
 import play.api.mvc.{AnyContent, Request}
 import play.api.test.{FakeApplication, FakeRequest, WithApplication}
-import uk.gov.hmrc.common.crypto.ApplicationCrypto.SsoPayloadCrypto.encrypt
-import uk.gov.hmrc.common.crypto.Encrypted
+import uk.gov.hmrc.crypto.ApplicationCrypto.SsoPayloadCrypto.encrypt
+import uk.gov.hmrc.crypto.Encrypted
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.connectors.HeaderCarrier
@@ -40,7 +40,8 @@ class FilingInterceptControllerSpec extends WordSpec with ShouldMatchers with Mo
 
       val page = controller.redirectWithEmailAddress(validToken, encodedReturnUrl, None)(FakeRequest())
       status(page) shouldBe 303
-      header("Location", page).value should be(decodedReturnUrlWithEmailAddress)
+      private val value = header("Location", page).value
+      value should be(decodedReturnUrlWithEmailAddress)
       verify(preferencesConnector, times(1)).getEmailAddress(meq(validUtr))
     }
 

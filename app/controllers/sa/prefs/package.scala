@@ -1,9 +1,9 @@
 package controllers.sa
 
 import play.api.mvc._
-import uk.gov.hmrc.common.crypto.{ApplicationCrypto, Encrypted}
+import uk.gov.hmrc.crypto.{ApplicationCrypto, Encrypted}
 import uk.gov.hmrc.emailaddress.EmailAddress
-import uk.gov.hmrc.play.crypto.{Decrypter, Encrypter}
+import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
 
 package object prefs {
   // Workaround for play route compilation bug https://github.com/playframework/playframework/issues/2402

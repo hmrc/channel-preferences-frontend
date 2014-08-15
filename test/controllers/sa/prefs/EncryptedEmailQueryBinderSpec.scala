@@ -5,9 +5,9 @@ import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import play.api.mvc.QueryStringBindable
-import uk.gov.hmrc.common.crypto.Encrypted
+import uk.gov.hmrc.crypto.Encrypted
 import uk.gov.hmrc.emailaddress.EmailAddress
-import uk.gov.hmrc.play.crypto.{Decrypter, Encrypter}
+import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
 import uk.gov.hmrc.test.UnitSpec
 
 

@@ -8,10 +8,10 @@ import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import controllers.sa.prefs.SaRegime
 import connectors.EmailConnector
+import uk.gov.hmrc.crypto.Encrypted
 import uk.gov.hmrc.emailaddress.EmailAddress
 import scala.concurrent.Future
 import controllers.sa.prefs._
-import uk.gov.hmrc.common.crypto.Encrypted
 import uk.gov.hmrc.common.microservice.domain.User
 import ExternalUrls.businessTaxHome
 import uk.gov.hmrc.play.connectors.HeaderCarrier

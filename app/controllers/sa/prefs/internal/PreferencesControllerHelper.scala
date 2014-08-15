@@ -5,7 +5,7 @@ import controllers.sa.prefs._
 import play.api.data.Forms._
 import play.api.data._
 import play.api.mvc.Results._
-import play.api.mvc.{Call, Request, SimpleResult}
+import play.api.mvc.{Call, Request, Result}
 import play.api.templates.HtmlFormat
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
@@ -17,7 +17,10 @@ import scala.concurrent._
 
 trait PreferencesControllerHelper {
 
-  val emailWithLimitedLength: Mapping[String] = email.verifying("error.email_too_long", email => email.size < 320)
+  val emailWithLimitedLength: Mapping[String] =
+    text
+      .verifying("error.email", EmailAddress.isValid _)
+      .verifying("error.email_too_long", email => email.size < 320)
 
   // TODO the duplication of these forms is all wrong - need to alter the field names in the HTML to
   // be able to restructure and sort this out.
@@ -73,7 +76,7 @@ trait PreferencesControllerHelper {
                                 emailConnector: EmailConnector,
                                 saUtr: SaUtr,
                                 savePreferences: (SaUtr, Boolean, Option[String], HeaderCarrier) => Future[_])
-                               (implicit request: Request[AnyRef]): Future[SimpleResult] = {
+                               (implicit request: Request[AnyRef]): Future[Result] = {
 
     implicit def hc = HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)
 
@@ -96,8 +99,8 @@ trait PreferencesControllerHelper {
                                       emailWarningView: (String) => play.api.templates.HtmlFormat.Appendable,
                                       emailConnector: EmailConnector,
                                       saUtr: SaUtr,
-                                      savePreferences: (SaUtr, Boolean, Option[String], HeaderCarrier) => Future[SimpleResult])
-                                     (implicit request: Request[AnyRef]): Future[SimpleResult] = {
+                                      savePreferences: (SaUtr, Boolean, Option[String], HeaderCarrier) => Future[Result])
+                                     (implicit request: Request[AnyRef]): Future[Result] = {
 
     implicit def hc = HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)
 

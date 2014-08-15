@@ -17,7 +17,7 @@ import scala.Some
 import uk.gov.hmrc.common.microservice.domain.User
 import play.api.test.FakeApplication
 import org.mockito.Matchers
-import uk.gov.hmrc.common.crypto.Encrypted
+import uk.gov.hmrc.crypto.Encrypted
 import controllers.sa.prefs.ExternalUrls
 import controllers.sa.prefs.AuthorityUtils._
 import connectors.{PreferencesConnector, SaEmailPreference, SaPreference}
