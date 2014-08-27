@@ -41,18 +41,38 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
 
   "The preferences action on login" should {
 
-    "redirect to the homepage when preferences already exist" in new BizTaxPrefsControllerSetup {
+    "redirect to BTA when preferences already exist" in new BizTaxPrefsControllerSetup {
       val preferencesAlreadyCreated = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.verified)))
       when(preferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Some(preferencesAlreadyCreated))
 
-      val page = Future.successful(controller.redirectToBizTaxOrEmailPrefEntryIfNotSetAction(user, request))
+      val page = Future.successful(controller.redirectToBTAOrInterstitialPageAction(user, request))
 
       status(page) shouldBe 303
       header("Location", page).get should include(ExternalUrls.businessTaxHome)
     }
+
+    "redirect to interstiatial page for the matching cohort if they have no preference set" in new BizTaxPrefsControllerSetup {
+      when(preferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(None)
+
+      val page = controller.redirectToBTAOrInterstitialPageAction(user, request)
+
+      status(page) shouldBe 303
+      header("Location", page).get should include(routes.BizTaxPrefsController.displayInterstitialPrefsForm(1).url)
+    }
   }
 
   "The preferences interstiatial page" should {
+
+    "redirect to BTA when preferences already exist" in new BizTaxPrefsControllerSetup {
+      val preferencesAlreadyCreated = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.verified)))
+      when(preferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Some(preferencesAlreadyCreated))
+
+      val page = controller.displayInterstitialPrefsFormAction(user, request)
+
+      status(page) shouldBe 303
+      header("Location", page).get should include(ExternalUrls.businessTaxHome)
+    }
+
     "render the form in the correct intial state when no preferences exist" in new BizTaxPrefsControllerSetup {
       when(preferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(None)
 

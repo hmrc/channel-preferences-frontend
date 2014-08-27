@@ -25,10 +25,10 @@ class BizTaxPrefsController(val auditConnector: AuditConnector, preferencesConne
 
   def this() = this(Connectors.auditConnector, PreferencesConnector, EmailConnector)(Connectors.authConnector)
 
-  def redirectToBizTaxOrEmailPrefEntryIfNotSet = AuthorisedFor(SaRegime).async {
+  def redirectToBTAOrInterstitialPage = AuthorisedFor(SaRegime).async {
     user =>
       request =>
-        redirectToBizTaxOrEmailPrefEntryIfNotSetAction(user, request)
+        redirectToBTAOrInterstitialPageAction(user, request)
   }
 
   def displayPrefsForm(emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(SaRegime).async {
@@ -37,10 +37,10 @@ class BizTaxPrefsController(val auditConnector: AuditConnector, preferencesConne
         displayPrefsFormAction(emailAddress)
   }
 
-  def displayInterstitialPrefsForm(cohort: Int) = AuthorisedFor(SaRegime) {
+  def displayInterstitialPrefsForm(cohort: InterstitialPageContentCohorts.Value) = AuthorisedFor(SaRegime).async {
     implicit user =>
       implicit request =>
-        displayInterstitialPrefsFormAction
+        displayInterstitialPrefsFormAction(user, request)
   }
 
   def submitPrefsFormForInterstitial() = AuthorisedFor(SaRegime).async {
@@ -62,13 +62,19 @@ class BizTaxPrefsController(val auditConnector: AuditConnector, preferencesConne
   val getSavePrefsFromInterstitialCall = controllers.sa.prefs.internal.routes.BizTaxPrefsController.submitPrefsFormForInterstitial()
   val getSavePrefsFromNonInterstitialPageCall = controllers.sa.prefs.internal.routes.BizTaxPrefsController.submitPrefsFormForNonInterstitial()
 
-  private[prefs] def redirectToBizTaxOrEmailPrefEntryIfNotSetAction(implicit user: User, request: Request[AnyRef]) =
+
+  private[prefs] def redirectToBTAOrInterstitialPageAction(implicit user: User, request: Request[AnyRef]) =
     preferencesConnector.getPreferences(user.userAuthority.accounts.sa.get.utr)(HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)).map {
       case Some(saPreference) => FrontEndRedirect.toBusinessTax
-      case None => displayInterstitialPrefsFormAction
+      case None => Redirect(routes.BizTaxPrefsController.displayInterstitialPrefsForm(InterstitialPageContentCohorts.calculateFor(user)))
     }
 
-  def displayInterstitialPrefsFormAction(implicit user: User, request: Request[AnyRef]) = displayPreferencesFormAction(None, getSavePrefsFromInterstitialCall)
+  private[prefs] def displayInterstitialPrefsFormAction(implicit user: User, request: Request[AnyRef]) = {
+    preferencesConnector.getPreferences(user.userAuthority.accounts.sa.get.utr)(HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)).map {
+      case Some(saPreference) =>  FrontEndRedirect.toBusinessTax
+      case None => displayPreferencesFormAction(None, getSavePrefsFromInterstitialCall)
+    }
+  }
 
   private[prefs] def displayPrefsFormAction(emailAddress: Option[Encrypted[EmailAddress]])(implicit user: User, request: Request[AnyRef]) =
     Future.successful(displayPreferencesFormAction(emailAddress.map(_.decryptedValue), getSavePrefsFromNonInterstitialPageCall , withBanner =true))
@@ -96,3 +102,4 @@ class BizTaxPrefsController(val auditConnector: AuditConnector, preferencesConne
       getSavePrefsFromInterstitialCall
   }
 }
+
