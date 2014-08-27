@@ -50,11 +50,13 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       status(page) shouldBe 303
       header("Location", page).get should include(ExternalUrls.businessTaxHome)
     }
+  }
 
+  "The preferences interstiatial page" should {
     "render the form in the correct intial state when no preferences exist" in new BizTaxPrefsControllerSetup {
       when(preferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(None)
 
-      val page = Future.successful(controller.redirectToBizTaxOrEmailPrefEntryIfNotSetAction(user, request))
+      val page = controller.displayInterstitialPrefsFormAction(user, request)
 
       status(page) shouldBe 200
 
