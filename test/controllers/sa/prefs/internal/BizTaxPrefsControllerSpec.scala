@@ -57,7 +57,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       val page = controller.redirectToBTAOrInterstitialPageAction(user, request)
 
       status(page) shouldBe 303
-      header("Location", page).get should include(routes.BizTaxPrefsController.displayInterstitialPrefsForm(1).url)
+      header("Location", page).get should include(routes.BizTaxPrefsController.displayInterstitialPrefsForm(InterstitialPageContentCohorts.GetSelfAssesment).url)
     }
   }
 
