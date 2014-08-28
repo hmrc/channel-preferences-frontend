@@ -3,7 +3,9 @@ error.email.optIn=As you would like to opt in, please enter an email address.
 email.confirmation.emails.unequal=Check your email addresses - they don’t match.
 
 sa_printing_preference.title=Sign up for Self Assessment email reminders
-sa_printing_preference.heading=Sign up for Self Assessment email reminders
+sa_printing_preference.SignUpForSelfAssesment.heading=Sign up for Self Assessment email reminders
+sa_printing_preference.GetSelfAssesment.heading=Get Self Assessment email reminders
+
 sa_printing_preference.paragraph.1=Get emails reminding you when:
 sa_printing_preference.list.1.item.1=Self Assessment tax returns are due
 sa_printing_preference.list.1.item.2=Self Assessment payments are due

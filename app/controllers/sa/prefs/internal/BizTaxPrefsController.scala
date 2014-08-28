@@ -35,13 +35,13 @@ class BizTaxPrefsController(val auditConnector: AuditConnector, preferencesConne
   def displayPrefsForm(emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(SaRegime).async {
     implicit user =>
       implicit request =>
-        displayPrefsFormAction(emailAddress)
+        displayPrefsFormAction(emailAddress, calculateCohortFor(user))
   }
 
-  def displayInterstitialPrefsForm(cohort: InterstitialPageContentCohorts.Value) = AuthorisedFor(SaRegime).async {
+  def displayInterstitialPrefsForm(cohort: Cohort) = AuthorisedFor(SaRegime).async {
     implicit user =>
       implicit request =>
-        displayInterstitialPrefsFormAction(user, request)
+        displayInterstitialPrefsFormAction(user, request, cohort)
   }
 
   def submitPrefsFormForInterstitial() = AuthorisedFor(SaRegime).async {
@@ -70,19 +70,19 @@ class BizTaxPrefsController(val auditConnector: AuditConnector, preferencesConne
       case None => Redirect(routes.BizTaxPrefsController.displayInterstitialPrefsForm(calculateCohortFor(user)))
     }
 
-  private[prefs] def displayInterstitialPrefsFormAction(implicit user: User, request: Request[AnyRef]) = {
+  private[prefs] def displayInterstitialPrefsFormAction(implicit user: User, request: Request[AnyRef], cohort: Cohort) = {
     preferencesConnector.getPreferences(user.userAuthority.accounts.sa.get.utr)(HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)).map {
       case Some(saPreference) =>  FrontEndRedirect.toBusinessTax
-      case None => displayPreferencesFormAction(None, getSavePrefsFromInterstitialCall)
+      case None => displayPreferencesFormAction(None, getSavePrefsFromInterstitialCall, cohort = cohort)
     }
   }
 
-  private[prefs] def displayPrefsFormAction(emailAddress: Option[Encrypted[EmailAddress]])(implicit user: User, request: Request[AnyRef]) =
-    Future.successful(displayPreferencesFormAction(emailAddress.map(_.decryptedValue), getSavePrefsFromNonInterstitialPageCall , withBanner =true))
+  private[prefs] def displayPrefsFormAction(emailAddress: Option[Encrypted[EmailAddress]], cohort: Cohort)(implicit user: User, request: Request[AnyRef]) =
+    Future.successful(displayPreferencesFormAction(emailAddress.map(_.decryptedValue), getSavePrefsFromNonInterstitialPageCall , withBanner = true, cohort))
 
   private[prefs] def submitPrefsFormAction(implicit user: User, request: Request[AnyRef], withBanner: Boolean = false) = {
     submitPreferencesForm(
-      errorsView = getSubmitPreferencesView(getSavePrefFormAction),
+      errorsView = getSubmitPreferencesView(getSavePrefFormAction, cohort = calculateCohortFor(user)),
       emailWarningView = views.html.sa_printing_preference_verify_email(_),
       emailConnector = emailConnector,
       saUtr = user.userAuthority.accounts.sa.get.utr,

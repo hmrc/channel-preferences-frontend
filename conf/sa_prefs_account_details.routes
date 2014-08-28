@@ -7,7 +7,7 @@ GET         /opt-out-email-reminders-thank-you         @controllers.sa.prefs.int
 POST        /resend-validation-email                   @controllers.sa.prefs.internal.AccountDetailsController.resendValidationEmail
 
 GET         /login-opt-in-email-reminders              @controllers.sa.prefs.internal.BizTaxPrefsController.redirectToBTAOrInterstitialPage
-GET         /login-opt-in-email-reminders/:cohort      @controllers.sa.prefs.internal.BizTaxPrefsController.displayInterstitialPrefsForm(cohort: controllers.sa.prefs.internal.InterstitialPageContentCohorts.Value)
+GET         /login-opt-in-email-reminders/:cohort      @controllers.sa.prefs.internal.BizTaxPrefsController.displayInterstitialPrefsForm(cohort: controllers.sa.prefs.internal.InterstitialPageContentCohorts.Cohort)
 POST        /login-opt-in-email-reminders              @controllers.sa.prefs.internal.BizTaxPrefsController.submitPrefsFormForInterstitial
 GET         /opt-in-email-reminders                    @controllers.sa.prefs.internal.BizTaxPrefsController.displayPrefsForm(email: Option[controllers.sa.prefs.EncryptedEmail])
 POST        /opt-in-email-reminders                    @controllers.sa.prefs.internal.BizTaxPrefsController.submitPrefsFormForNonInterstitial

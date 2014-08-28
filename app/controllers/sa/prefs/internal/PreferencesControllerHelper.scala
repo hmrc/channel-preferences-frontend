@@ -2,6 +2,7 @@ package controllers.sa.prefs.internal
 
 import connectors.EmailConnector
 import controllers.sa.prefs._
+import controllers.sa.prefs.internal.InterstitialPageContentCohorts.Cohort
 import play.api.data.Forms._
 import play.api.data._
 import play.api.mvc.Results._
@@ -55,17 +56,18 @@ trait PreferencesControllerHelper {
       .verifying("email.confirmation.emails.unequal", formData => formData.email._1 == formData.email._2)
     )
 
-  def getSubmitPreferencesView(savePrefsCall: Call)(implicit request: Request[AnyRef], withBanner: Boolean = false): Form[_] => HtmlFormat.Appendable = {
-    errors => views.html.sa.prefs.sa_printing_preference(withBanner, errors, savePrefsCall)
+  def getSubmitPreferencesView(savePrefsCall: Call, cohort: Cohort)(implicit request: Request[AnyRef], withBanner: Boolean = false): Form[_] => HtmlFormat.Appendable = {
+    errors => views.html.sa.prefs.sa_printing_preference(withBanner, errors, savePrefsCall, cohort=cohort)
   }
 
-  def displayPreferencesFormAction(email: Option[EmailAddress], savePrefsCall: Call, withBanner: Boolean = false)(implicit request: Request[AnyRef]) = {
+  def displayPreferencesFormAction(email: Option[EmailAddress], savePrefsCall: Call, withBanner: Boolean = false, cohort: Cohort)(implicit request: Request[AnyRef]) = {
 
     Ok(
       views.html.sa.prefs.sa_printing_preference(
         withBanner,
         emailForm = emailFormWithPreference.fill(EmailFormDataWithPreference(email, email.map(_ => OptIn))),
-        submitPrefsFormAction = savePrefsCall
+        submitPrefsFormAction = savePrefsCall,
+        cohort = cohort
       )
     )
   }
