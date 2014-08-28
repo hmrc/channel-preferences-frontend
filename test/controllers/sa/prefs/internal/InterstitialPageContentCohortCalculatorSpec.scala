@@ -18,13 +18,13 @@ class InterstitialPageContentCohortCalculatorSpec extends UnitSpec with Inspecto
     "always be the same for a given user" in {
       val user = userWithSaUtr("1234567890")
       val cohorts = (1 to 10) map { _ => calculateCohortFor(user)}
-      cohorts.toSet.loneElement.get should be (a [Cohort])
+      cohorts.toSet.loneElement should be (a [Cohort])
     }
 
-    "cope with a user with no SA-UTR" in {
+    "return a default a cohort value for a user with no SA-UTR" in {
       val user = userWithNoUtr
       val cohorts = (1 to 10) map { _ => calculateCohortFor(user) }
-      cohorts.toSet.loneElement should be (None)
+      cohorts.toSet.loneElement should be (InterstitialPageContentCohorts.GetSelfAssesment)
     }
 
     "be evenly spread for given set of users" in {
@@ -32,12 +32,12 @@ class InterstitialPageContentCohortCalculatorSpec extends UnitSpec with Inspecto
       val sampleSize = 10000
       val utrs = ((1 to sampleSize) map (_ => generateRandomUtr())).distinct
 
-      val cohorts = utrs.map(userWithSaUtr).map(calculateCohortFor(_).get)
+      val cohorts = utrs.map(userWithSaUtr).map(calculateCohortFor(_))
 
       val cohortCounts = cohorts.groupBy(c => c).mapValues(_.size)
 
       forEvery(InterstitialPageContentCohorts.values.toSet) { possibleCohort =>
-        cohortCounts(possibleCohort) should be (sampleSize / InterstitialPageContentCohorts.values.size +- (sampleSize/10))
+        cohortCounts(possibleCohort) should be(sampleSize / InterstitialPageContentCohorts.values.size +- (sampleSize / 10))
       }
     }
   }

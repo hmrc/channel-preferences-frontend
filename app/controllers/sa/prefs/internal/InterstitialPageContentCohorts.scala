@@ -8,7 +8,7 @@ trait InterstitialPageContentCohortCalculator {
 
   def calculateCohortFor(user: User) = user.userAuthority.accounts.sa.map { sa =>
     InterstitialPageContentCohorts(Math.abs(sa.utr.value.hashCode) % 2)
-  }
+  }.getOrElse(InterstitialPageContentCohorts.values.firstKey)
 }
 
 object InterstitialPageContentCohorts extends Enumeration {
