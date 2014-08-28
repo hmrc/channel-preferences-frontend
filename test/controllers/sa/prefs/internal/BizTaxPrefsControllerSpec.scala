@@ -30,7 +30,7 @@ abstract class BizTaxPrefsControllerSetup extends WithApplication(FakeApplicatio
   val authConnector = mock[AuthConnector]
   val emailConnector = mock[EmailConnector]
   val controller = new BizTaxPrefsController(auditConnector, preferencesConnector, emailConnector)(authConnector) {
-    override def calculateCohortFor(user: User) = expectedCohort
+    override def calculateCohort(user: User) = expectedCohort
   }
 
   val request = FakeRequest()

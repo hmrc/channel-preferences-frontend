@@ -11,19 +11,19 @@ import scala.util.Random
 
 class InterstitialPageContentCohortCalculatorSpec extends UnitSpec with Inspectors with Tolerance with LoneElement {
 
-  def calculateCohortFor = new InterstitialPageContentCohortCalculator{}.calculateCohortFor _
+  def calculateCohort = new InterstitialPageContentCohortCalculator{}.calculateCohort _
 
   "Cohort value" should {
 
     "always be the same for a given user" in {
       val user = userWithSaUtr("1234567890")
-      val cohorts = (1 to 10) map { _ => calculateCohortFor(user)}
+      val cohorts = (1 to 10) map { _ => calculateCohort(user)}
       cohorts.toSet.loneElement should be (a [Cohort])
     }
 
     "return a default a cohort value for a user with no SA-UTR" in {
       val user = userWithNoUtr
-      val cohorts = (1 to 10) map { _ => calculateCohortFor(user) }
+      val cohorts = (1 to 10) map { _ => calculateCohort(user) }
       cohorts.toSet.loneElement should be (InterstitialPageContentCohorts.GetSelfAssesment)
     }
 
@@ -32,7 +32,7 @@ class InterstitialPageContentCohortCalculatorSpec extends UnitSpec with Inspecto
       val sampleSize = 10000
       val utrs = ((1 to sampleSize) map (_ => generateRandomUtr())).distinct
 
-      val cohorts = utrs.map(userWithSaUtr).map(calculateCohortFor(_))
+      val cohorts = utrs.map(userWithSaUtr).map(calculateCohort)
 
       val cohortCounts = cohorts.groupBy(c => c).mapValues(_.size)
 

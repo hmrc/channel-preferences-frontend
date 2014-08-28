@@ -67,7 +67,7 @@ class BizTaxPrefsController(val auditConnector: AuditConnector, preferencesConne
   private[prefs] def redirectToBTAOrInterstitialPageAction(implicit user: User, request: Request[AnyRef]) =
     preferencesConnector.getPreferences(user.userAuthority.accounts.sa.get.utr)(HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)).map {
       case Some(saPreference) => FrontEndRedirect.toBusinessTax
-      case None => Redirect(routes.BizTaxPrefsController.displayInterstitialPrefsForm(calculateCohortFor(user)))
+      case None => Redirect(routes.BizTaxPrefsController.displayInterstitialPrefsForm(calculateCohort(user)))
     }
 
   private[prefs] def displayInterstitialPrefsFormAction(implicit user: User, request: Request[AnyRef]) = {
