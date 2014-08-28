@@ -23,11 +23,15 @@ import controllers.sa.prefs.AuthorityUtils._
 import connectors.{PreferencesConnector, SaEmailPreference, SaPreference}
 
 abstract class BizTaxPrefsControllerSetup extends WithApplication(FakeApplication()) with MockitoSugar {
+  val expectedCohort = InterstitialPageContentCohorts.SignUpForSelfAssesment
+
   val auditConnector = mock[AuditConnector]
   val preferencesConnector = mock[PreferencesConnector]
   val authConnector = mock[AuthConnector]
   val emailConnector = mock[EmailConnector]
-  val controller = new BizTaxPrefsController(auditConnector, preferencesConnector, emailConnector)(authConnector)
+  val controller = new BizTaxPrefsController(auditConnector, preferencesConnector, emailConnector)(authConnector) {
+    override def calculateCohortFor(user: User) = Some(expectedCohort)
+  }
 
   val request = FakeRequest()
 }
@@ -57,7 +61,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       val page = controller.redirectToBTAOrInterstitialPageAction(user, request)
 
       status(page) shouldBe 303
-      header("Location", page).get should include(routes.BizTaxPrefsController.displayInterstitialPrefsForm(InterstitialPageContentCohorts.GetSelfAssesment).url)
+      header("Location", page).get should include(routes.BizTaxPrefsController.displayInterstitialPrefsForm(expectedCohort).url)
     }
   }
 

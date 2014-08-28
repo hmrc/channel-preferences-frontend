@@ -3,11 +3,18 @@ package controllers.sa.prefs.internal
 import play.api.mvc.PathBindable
 import uk.gov.hmrc.common.microservice.domain.User
 
+trait InterstitialPageContentCohortCalculator {
+  type Cohort = InterstitialPageContentCohorts.Cohort
+
+  def calculateCohortFor(user: User) = user.userAuthority.accounts.sa.map { sa =>
+    InterstitialPageContentCohorts(Math.abs(sa.utr.value.hashCode) % 2)
+  }
+}
+
 object InterstitialPageContentCohorts extends Enumeration {
-  val GetSelfAssesment = Value(1)
-  val SignUpForSelfAssesment = Value(2)
+  type Cohort = Value
+  val GetSelfAssesment = Value(0)
+  val SignUpForSelfAssesment = Value(1)
 
-  def calculateFor(user: User): Value = GetSelfAssesment
-
-  implicit val pathBinder: PathBindable[Value] = PathBindable.bindableInt.transform(apply, _.id)
+  implicit val pathBinder: PathBindable[Cohort] = PathBindable.bindableInt.transform(apply, _.id)
 }

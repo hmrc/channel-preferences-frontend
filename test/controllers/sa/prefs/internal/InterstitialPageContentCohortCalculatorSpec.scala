@@ -1,0 +1,58 @@
+package controllers.sa.prefs.internal
+
+import controllers.sa.prefs.AuthorityUtils._
+import controllers.sa.prefs.internal.InterstitialPageContentCohorts.Cohort
+import org.scalactic.Tolerance
+import org.scalatest.{Inspectors, LoneElement}
+import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.test.UnitSpec
+
+import scala.util.Random
+
+class InterstitialPageContentCohortCalculatorSpec extends UnitSpec with Inspectors with Tolerance with LoneElement {
+
+  def calculateCohortFor = new InterstitialPageContentCohortCalculator{}.calculateCohortFor _
+
+  "Cohort value" should {
+
+    "always be the same for a given user" in {
+      val user = userWithSaUtr("1234567890")
+      val cohorts = (1 to 10) map { _ => calculateCohortFor(user)}
+      cohorts.toSet.loneElement.get should be (a [Cohort])
+    }
+
+    "cope with a user with no SA-UTR" in {
+      val user = userWithNoUtr
+      val cohorts = (1 to 10) map { _ => calculateCohortFor(user) }
+      cohorts.toSet.loneElement should be (None)
+    }
+
+    "be evenly spread for given set of users" in {
+      def generateRandomUtr(): String = (for {_ <- 1 to 10} yield Random.nextInt(8) + 1).mkString("")
+      val sampleSize = 10000
+      val utrs = ((1 to sampleSize) map (_ => generateRandomUtr())).distinct
+
+      val cohorts = utrs.map(userWithSaUtr).map(calculateCohortFor(_).get)
+
+      val cohortCounts = cohorts.groupBy(c => c).mapValues(_.size)
+
+      forEvery(InterstitialPageContentCohorts.values.toSet) { possibleCohort =>
+        cohortCounts(possibleCohort) should be (sampleSize / InterstitialPageContentCohorts.values.size +- (sampleSize/10))
+      }
+    }
+  }
+
+  val userWithNoUtr = User(
+    userId = "userId",
+    userAuthority = emptyAuthority(id = "userId"),
+    nameFromGovernmentGateway = Some("Ciccio"),
+    decryptedToken = None
+  )
+
+  def userWithSaUtr(utr: String) = User(
+    userId = "userId",
+    userAuthority = saAuthority(id = "userId", utr = utr.toString),
+    nameFromGovernmentGateway = Some("Ciccio"),
+    decryptedToken = None
+  )
+}

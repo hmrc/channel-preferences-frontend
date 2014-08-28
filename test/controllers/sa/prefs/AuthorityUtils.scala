@@ -8,4 +8,7 @@ object AuthorityUtils {
   def saAuthority(id: String, utr: String): Authority =
     Authority(s"/auth/oid/$id", Credentials(), Accounts(sa = Some(SaAccount(s"/sa/individual/$utr", SaUtr(utr)))), None, None)
 
+  def emptyAuthority(id: String): Authority =
+    Authority(s"/auth/oid/$id", Credentials(), Accounts(), None, None)
+
 }
