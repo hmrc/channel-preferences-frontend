@@ -1,7 +1,6 @@
 @(showBanner:Boolean,emailForm: Form[_], submitPrefsFormAction: Call, cohort: controllers.sa.prefs.internal.InterstitialPageContentCohorts.Cohort)(implicit request: Request[_])
 
 @import views.helpers._
-@import controllers.sa.prefs.internal.InterstitialPageContentCohorts._
 
 @main(title = Messages(s"sa_printing_preference.$cohort.title"), headerNav = if (showBanner) Some(HeaderNav.yta) else None) {
 
@@ -9,31 +8,7 @@
     <h1>@Messages(s"sa_printing_preference.$cohort.heading")</h1>
 </header>
 
-@cohort match {
-    case SignUpForSelfAssesment => {
-        <p>@Messages(s"sa_printing_preference.$cohort.paragraph.1")</p>
-        <ul class="bullets">
-            <li>@Messages(s"sa_printing_preference.$cohort.list.1.item.1")</li>
-            <li>@Messages(s"sa_printing_preference.$cohort.list.1.item.2")</li>
-            <li>@Messages(s"sa_printing_preference.$cohort.list.1.item.3")</li>
-            <li>@Messages(s"sa_printing_preference.$cohort.list.1.item.4")</li>
-        </ul>
-        <h2>@Messages(s"sa_printing_preference.$cohort.heading.2")</h2>
-        <p>@Messages(s"sa_printing_preference.$cohort.paragraph.2")</p>
-        <p>@Messages(s"sa_printing_preference.$cohort.paragraph.3")</p>
-        <p>@Messages(s"sa_printing_preference.$cohort.paragraph.4")</p>
-
-    }
-    case GetSelfAssesment => {
-        <ul>
-            <li>@Messages(s"sa_printing_preference.$cohort.list.1.item.1")</li>
-            <li>@Messages(s"sa_printing_preference.$cohort.list.1.item.2")</li>
-            <li>@Messages(s"sa_printing_preference.$cohort.list.1.item.3")</li>
-            <li>@Messages(s"sa_printing_preference.$cohort.list.1.item.4")</li>
-        </ul>
-    }
-  }
-
+@helpers.interstitialFragmentFor(cohort)
 
 @_root_.views.html.helpers.form(action = submitPrefsFormAction, 'id -> "form-submit-email-address") {
 <h3>@Messages("sa_printing_preference.heading.3")</h3>
