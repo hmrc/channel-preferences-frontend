@@ -61,7 +61,7 @@ trait PreferencesControllerHelper {
   }
 
   def displayPreferencesFormAction(email: Option[EmailAddress], savePrefsCall: Call, withBanner: Boolean = false, cohort: Cohort)(implicit request: Request[AnyRef]) = {
-
+    
     Ok(
       views.html.sa.prefs.sa_printing_preference(
         withBanner,

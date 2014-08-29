@@ -1,27 +1,24 @@
 package controllers.sa.prefs.internal
 
-import play.api.i18n.Messages
-import play.api.test.WithApplication
-import play.api.test.FakeRequest
-import org.scalatest.mock.MockitoSugar
+import connectors.{EmailConnector, PreferencesConnector, SaEmailPreference, SaPreference}
+import controllers.common.FrontEndRedirect
+import controllers.sa.prefs.AuthorityUtils._
+import controllers.sa.prefs.ExternalUrls
+import org.jsoup.Jsoup
 import org.mockito.Mockito._
+import org.mockito.{ArgumentCaptor, Matchers}
+import org.scalatest.mock.MockitoSugar
+import play.api.test.{FakeApplication, FakeRequest, WithApplication}
+import uk.gov.hmrc.common.microservice.audit.{AuditConnector, AuditEvent}
+import uk.gov.hmrc.common.microservice.auth.AuthConnector
+import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.crypto.Encrypted
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
+import uk.gov.hmrc.play.monitoring.EventTypes
 import uk.gov.hmrc.test.UnitSpec
-import uk.gov.hmrc.common.microservice.audit.AuditConnector
-import uk.gov.hmrc.common.microservice.auth.AuthConnector
-import controllers.common.FrontEndRedirect
-import concurrent.Future
-import org.jsoup.Jsoup
-import connectors.EmailConnector
-import scala.Some
-import uk.gov.hmrc.common.microservice.domain.User
-import play.api.test.FakeApplication
-import org.mockito.Matchers
-import uk.gov.hmrc.crypto.Encrypted
-import controllers.sa.prefs.ExternalUrls
-import controllers.sa.prefs.AuthorityUtils._
-import connectors.{PreferencesConnector, SaEmailPreference, SaPreference}
+
+import scala.concurrent.Future
 
 abstract class BizTaxPrefsControllerSetup extends WithApplication(FakeApplication()) with MockitoSugar {
   def assignedCohort = InterstitialPageContentCohorts.SignUpForSelfAssesment
@@ -38,7 +35,7 @@ abstract class BizTaxPrefsControllerSetup extends WithApplication(FakeApplicatio
 }
 
 class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
-  import Matchers.{any, eq => is}
+  import org.mockito.Matchers.{any, eq => is}
   import play.api.test.Helpers._
 
   val validUtr = SaUtr("1234567890")
@@ -64,6 +61,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       status(page) shouldBe 303
       header("Location", page).get should include(routes.BizTaxPrefsController.displayInterstitialPrefsForm(assignedCohort).url)
     }
+
   }
 
   "The preferences interstitial page" should {
@@ -99,6 +97,43 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       document.getElementById("opt-in-out") shouldNot be(null)
       document.getElementById("opt-in-out").attr("checked") shouldBe ""
     }
+
+    "audit the cohort information for GetSelfAssesment" in new BizTaxPrefsControllerSetup {
+      override def assignedCohort = InterstitialPageContentCohorts.GetSelfAssesment
+      when(preferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(None)
+
+      val page = controller.displayInterstitialPrefsFormAction(user, request, assignedCohort)
+      status(page) shouldBe 200
+
+      val eventArg : ArgumentCaptor[AuditEvent] = ArgumentCaptor.forClass(classOf[AuditEvent])
+      verify(auditConnector).audit(eventArg.capture())(any())
+
+      private val value: AuditEvent = eventArg.getValue
+      value.auditSource  shouldBe "preferences-frontend"
+      value.auditType shouldBe EventTypes.Succeeded
+      value.tags should contain ("transactionName" -> "Show Print Preference Option")
+      value.detail should contain ("cohort" -> "GetSelfAssesment")
+      value.detail should contain ("utr" -> validUtr.value)
+    }
+
+    "audit the cohort information for SignUpForSelfAssesment" in new BizTaxPrefsControllerSetup {
+      override def assignedCohort = InterstitialPageContentCohorts.SignUpForSelfAssesment
+      when(preferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(None)
+
+      val page = controller.displayInterstitialPrefsFormAction(user, request, assignedCohort)
+      status(page) shouldBe 200
+
+      val eventArg : ArgumentCaptor[AuditEvent] = ArgumentCaptor.forClass(classOf[AuditEvent])
+      verify(auditConnector).audit(eventArg.capture())(any())
+
+      private val value: AuditEvent = eventArg.getValue
+      value.auditSource  shouldBe "preferences-frontend"
+      value.auditType shouldBe EventTypes.Succeeded
+      value.tags should contain ("transactionName" -> "Show Print Preference Option")
+      value.detail should contain ("cohort" -> "SignUpForSelfAssesment")
+      value.detail should contain ("utr" -> validUtr.value)
+    }
+
   }
 
   "The preferences action on non interstitial page" should {
@@ -283,6 +318,104 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       val document = Jsoup.parse(contentAsString(page))
       document.select("#emailIsNotCorrectLink") shouldNot be(null)
       document.select("#emailIsCorrectLink") shouldNot be(null)
+    }
+  }
+
+  "An audit event" should {
+    "be created when submitting a print preference from GetSelfAssesment" in new BizTaxPrefsControllerSetup {
+
+      override def assignedCohort = InterstitialPageContentCohorts.GetSelfAssesment
+
+      val emailAddress = "someone@email.com"
+      when(emailConnector.isValid(is(emailAddress))(any())).thenReturn(true)
+      when(preferencesConnector.savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())).thenReturn(Future.successful(None))
+
+      val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress),("email.confirm", emailAddress))))
+
+      status(page) shouldBe 303
+
+      val eventArg : ArgumentCaptor[AuditEvent] = ArgumentCaptor.forClass(classOf[AuditEvent])
+      verify(auditConnector).audit(eventArg.capture())(any())
+
+      private val value: AuditEvent = eventArg.getValue
+      value.auditSource  shouldBe "preferences-frontend"
+      value.auditType shouldBe EventTypes.Succeeded
+      value.tags should contain ("transactionName" -> "Set Print Preference")
+      value.detail should contain ("cohort" -> "GetSelfAssesment")
+      value.detail should contain ("utr" -> validUtr.value)
+      value.detail should contain ("email" -> "someone@email.com")
+      value.detail should contain ("digital" -> "true")
+
+    }
+    "be created when submitting a print preference from SignUpForSelfAssesment" in new BizTaxPrefsControllerSetup {
+
+      override def assignedCohort = InterstitialPageContentCohorts.SignUpForSelfAssesment
+      val emailAddress = "someone@email.com"
+      when(emailConnector.isValid(is(emailAddress))(any())).thenReturn(true)
+      when(preferencesConnector.savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())).thenReturn(Future.successful(None))
+
+      val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress),("email.confirm", emailAddress))))
+
+      status(page) shouldBe 303
+
+      val eventArg : ArgumentCaptor[AuditEvent] = ArgumentCaptor.forClass(classOf[AuditEvent])
+      verify(auditConnector).audit(eventArg.capture())(any())
+
+      private val value: AuditEvent = eventArg.getValue
+      value.auditSource  shouldBe "preferences-frontend"
+      value.auditType shouldBe EventTypes.Succeeded
+      value.tags should contain ("transactionName" -> "Set Print Preference")
+      value.detail should contain ("cohort" -> "SignUpForSelfAssesment")
+      value.detail should contain ("utr" -> validUtr.value)
+      value.detail should contain ("email" -> "someone@email.com")
+      value.detail should contain ("digital" -> "true")
+
+    }
+
+    "be created when choosing to not accept email reminders from GetSelfAssesment" in new BizTaxPrefsControllerSetup {
+
+      override def assignedCohort = InterstitialPageContentCohorts.GetSelfAssesment
+      when(preferencesConnector.savePreferences(is(validUtr), is(false), is(None))(any())).thenReturn(Future.successful(None))
+
+      val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "false")))
+
+      status(page) shouldBe 303
+
+      val eventArg : ArgumentCaptor[AuditEvent] = ArgumentCaptor.forClass(classOf[AuditEvent])
+      verify(auditConnector).audit(eventArg.capture())(any())
+
+      private val value: AuditEvent = eventArg.getValue
+      value.auditSource  shouldBe "preferences-frontend"
+      value.auditType shouldBe EventTypes.Succeeded
+      value.tags should contain ("transactionName" -> "Set Print Preference")
+      value.detail should contain ("cohort" -> "GetSelfAssesment")
+      value.detail should contain ("utr" -> validUtr.value)
+      value.detail should not contain ("email" -> "someone@email.com")
+      value.detail should contain ("digital" -> "false")
+
+    }
+
+    "be created when choosing to not accept email reminders from SignUpForSelfAssesment" in new BizTaxPrefsControllerSetup {
+
+      override def assignedCohort = InterstitialPageContentCohorts.SignUpForSelfAssesment
+      when(preferencesConnector.savePreferences(is(validUtr), is(false), is(None))(any())).thenReturn(Future.successful(None))
+
+      val page = Future.successful(controller.submitPrefsFormAction(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "false")))
+
+      status(page) shouldBe 303
+
+      val eventArg : ArgumentCaptor[AuditEvent] = ArgumentCaptor.forClass(classOf[AuditEvent])
+      verify(auditConnector).audit(eventArg.capture())(any())
+
+      private val value: AuditEvent = eventArg.getValue
+      value.auditSource  shouldBe "preferences-frontend"
+      value.auditType shouldBe EventTypes.Succeeded
+      value.tags should contain ("transactionName" -> "Set Print Preference")
+      value.detail should contain ("cohort" -> "SignUpForSelfAssesment")
+      value.detail should contain ("utr" -> validUtr.value)
+      value.detail should not contain ("email" -> "someone@email.com")
+      value.detail should contain ("digital" -> "false")
+
     }
   }
 }
