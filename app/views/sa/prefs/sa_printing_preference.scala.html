@@ -3,7 +3,7 @@
 @import views.helpers._
 @import controllers.sa.prefs.internal.InterstitialPageContentCohorts._
 
-@main(title = Messages("sa_printing_preference.title"), headerNav = if (showBanner) Some(HeaderNav.yta) else None) {
+@main(title = Messages(s"sa_printing_preference.$cohort.title"), headerNav = if (showBanner) Some(HeaderNav.yta) else None) {
 
 <header class="page-header">
     <h1>@Messages(s"sa_printing_preference.$cohort.heading")</h1>
@@ -11,32 +11,26 @@
 
 @cohort match {
     case SignUpForSelfAssesment => {
-        <p>@Messages("sa_printing_preference.paragraph.1")</p>
+        <p>@Messages(s"sa_printing_preference.$cohort.paragraph.1")</p>
         <ul class="bullets">
-            <li>@Messages("sa_printing_preference.list.1.item.1")</li>
-            <li>@Messages("sa_printing_preference.list.1.item.2")</li>
-            <li>@Messages("sa_printing_preference.list.1.item.3")</li>
-            <li>@Messages("sa_printing_preference.list.1.item.4")</li>
+            <li>@Messages(s"sa_printing_preference.$cohort.list.1.item.1")</li>
+            <li>@Messages(s"sa_printing_preference.$cohort.list.1.item.2")</li>
+            <li>@Messages(s"sa_printing_preference.$cohort.list.1.item.3")</li>
+            <li>@Messages(s"sa_printing_preference.$cohort.list.1.item.4")</li>
         </ul>
-        <h2>@Messages("sa_printing_preference.heading.2")</h2>
-        <p>@Messages("sa_printing_preference.paragraph.2")</p>
-        <p>@Messages("sa_printing_preference.paragraph.3")</p>
-        <p>@Messages("sa_printing_preference.paragraph.4")</p>
+        <h2>@Messages(s"sa_printing_preference.$cohort.heading.2")</h2>
+        <p>@Messages(s"sa_printing_preference.$cohort.paragraph.2")</p>
+        <p>@Messages(s"sa_printing_preference.$cohort.paragraph.3")</p>
+        <p>@Messages(s"sa_printing_preference.$cohort.paragraph.4")</p>
 
     }
     case GetSelfAssesment => {
-
-        <p>@Messages("sa_printing_preference.paragraph.1")</p>
-        <ul class="bullets">
-            <li>@Messages("sa_printing_preference.list.1.item.1")</li>
-            <li>@Messages("sa_printing_preference.list.1.item.2")</li>
-            <li>@Messages("sa_printing_preference.list.1.item.3")</li>
-            <li>@Messages("sa_printing_preference.list.1.item.4")</li>
+        <ul>
+            <li>@Messages(s"sa_printing_preference.$cohort.list.1.item.1")</li>
+            <li>@Messages(s"sa_printing_preference.$cohort.list.1.item.2")</li>
+            <li>@Messages(s"sa_printing_preference.$cohort.list.1.item.3")</li>
+            <li>@Messages(s"sa_printing_preference.$cohort.list.1.item.4")</li>
         </ul>
-        <h2>@Messages("sa_printing_preference.heading.2")</h2>
-        <p>@Messages("sa_printing_preference.paragraph.2")</p>
-        <p>@Messages("sa_printing_preference.paragraph.3")</p>
-        <p>@Messages("sa_printing_preference.paragraph.4")</p>
     }
   }
 
@@ -53,7 +47,7 @@
         class="email-prefs__toggle"
         @if(emailForm("opt-in").value == Some("true")) { checked="checked" }
     />
-    @Messages("sa_printing_preference.option.yes")
+    @Messages(s"sa_printing_preference.$cohort.option.yes")
 </label>
 <fieldset class="connected js-hidden">
     @helpers.input(
@@ -74,7 +68,7 @@
     '_divClass -> "row",
     '_inputClass -> "input--medium input--cleared"
     )
-    <p>@Html(Messages("sa_printing_preference.tc",
+    <p>@Html(Messages(s"sa_printing_preference.$cohort.tc",
         Link.toExternalPage(url = "https://online.hmrc.gov.uk/information/terms#8", value = Some(Messages("sa_printing_preference.tc.linkText"))).toHtml))
 </fieldset>
 <label class="selectable">
@@ -86,7 +80,7 @@
            class="email-prefs__toggle"
            @if(emailForm("opt-in").value == Some("false")) { checked="checked" }
            />
-    @Messages("sa_printing_preference.option.no")
+    @Messages(s"sa_printing_preference.$cohort.option.no")
 </label>
 <div class="email-form-errors">
     @emailForm("opt-in").errors.map { error => <label class="error-notification">@Messages(error.message)</label>}

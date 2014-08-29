@@ -1,5 +1,6 @@
 package controllers.sa.prefs.internal
 
+import controllers.sa.prefs.internal.InterstitialPageContentCohorts.Cohort
 import play.api.mvc._
 import controllers.common.{FrontEndRedirect, BaseController}
 import controllers.common.actions.Actions
@@ -35,7 +36,7 @@ class BizTaxPrefsController(val auditConnector: AuditConnector, preferencesConne
   def displayPrefsForm(emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(SaRegime).async {
     implicit user =>
       implicit request =>
-        displayPrefsFormAction(emailAddress, calculateCohortFor(user))
+        displayPrefsFormAction(emailAddress, calculateCohort(user))
   }
 
   def displayInterstitialPrefsForm(cohort: Cohort) = AuthorisedFor(SaRegime).async {
@@ -82,7 +83,7 @@ class BizTaxPrefsController(val auditConnector: AuditConnector, preferencesConne
 
   private[prefs] def submitPrefsFormAction(implicit user: User, request: Request[AnyRef], withBanner: Boolean = false) = {
     submitPreferencesForm(
-      errorsView = getSubmitPreferencesView(getSavePrefFormAction, cohort = calculateCohortFor(user)),
+      errorsView = getSubmitPreferencesView(getSavePrefFormAction, cohort = calculateCohort(user)),
       emailWarningView = views.html.sa_printing_preference_verify_email(_),
       emailConnector = emailConnector,
       saUtr = user.userAuthority.accounts.sa.get.utr,
