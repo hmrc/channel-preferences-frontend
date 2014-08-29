@@ -121,7 +121,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
   "The preferences form" should {
 
     "render an email input field with no value if no email address is supplied, and no option selected" in new BizTaxPrefsControllerSetup {
-      val page = Future.successful(controller.displayPrefsFormAction(None)(user, request))
+      val page = controller.displayPrefsFormAction(None, assignedCohort)(user, request)
 
       status(page) shouldBe 200
 
@@ -136,7 +136,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
     "render an email input field populated with the supplied email address, and the Opt-in option selected" in new BizTaxPrefsControllerSetup {
       val emailAddress = "bob@bob.com"
 
-      val page = Future.successful(controller.displayPrefsFormAction(Some(Encrypted(EmailAddress(emailAddress))))(user, request))
+      val page = controller.displayPrefsFormAction(Some(Encrypted(EmailAddress(emailAddress))), assignedCohort)(user, request)
 
       status(page) shouldBe 200
 
