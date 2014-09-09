@@ -4,41 +4,41 @@ email.confirmation.emails.unequal=Check your email addresses - they don’t matc
 
 sa_printing_preference.title=Sign up for Self Assessment email reminders
 
-sa_printing_preference.SignUpForSelfAssesment.title=Sign up for Self Assessment email reminders
+sa_printing_preference.SignUpForSelfAssessment.title=Sign up for Self Assessment email reminders
 
-sa_printing_preference.SignUpForSelfAssesment.heading=Sign up for Self Assessment email reminders
+sa_printing_preference.SignUpForSelfAssessment.heading=Sign up for Self Assessment email reminders
 
-sa_printing_preference.SignUpForSelfAssesment.paragraph.1=Get emails reminding you when:
+sa_printing_preference.SignUpForSelfAssessment.paragraph.1=Get emails reminding you when:
 
-sa_printing_preference.SignUpForSelfAssesment.list.1.item.1=Self Assessment tax returns are due
-sa_printing_preference.SignUpForSelfAssesment.list.1.item.2=Self Assessment payments are due
-sa_printing_preference.SignUpForSelfAssesment.list.1.item.3=Self Assessment penalties are due
-sa_printing_preference.SignUpForSelfAssesment.list.1.item.4=new Self Assessment tax statements are online
+sa_printing_preference.SignUpForSelfAssessment.list.1.item.1=Self Assessment tax returns are due
+sa_printing_preference.SignUpForSelfAssessment.list.1.item.2=Self Assessment payments are due
+sa_printing_preference.SignUpForSelfAssessment.list.1.item.3=Self Assessment penalties are due
+sa_printing_preference.SignUpForSelfAssessment.list.1.item.4=new Self Assessment tax statements are online
 
-sa_printing_preference.SignUpForSelfAssesment.heading.2=What you need to know
+sa_printing_preference.SignUpForSelfAssessment.heading.2=What you need to know
 
-sa_printing_preference.SignUpForSelfAssesment.paragraph.2=Your Self Assessment letters will stop and get replaced by emails.
-sa_printing_preference.SignUpForSelfAssesment.paragraph.3=The emails will ask you to sign in to your HMRC online account and check for updates.
-sa_printing_preference.SignUpForSelfAssesment.paragraph.4=They’re secure and will never include any information about your personal tax affairs.
+sa_printing_preference.SignUpForSelfAssessment.paragraph.2=Your Self Assessment letters will stop and get replaced by emails.
+sa_printing_preference.SignUpForSelfAssessment.paragraph.3=The emails will ask you to sign in to your HMRC online account and check for updates.
+sa_printing_preference.SignUpForSelfAssessment.paragraph.4=They’re secure and will never include any information about your personal tax affairs.
 
-sa_printing_preference.SignUpForSelfAssesment.tc=By signing up for Self Assessment email reminders you accept the {0}.
-sa_printing_preference.SignUpForSelfAssesment.option.yes=Yes, I want them by email, don’t send them by post
-sa_printing_preference.SignUpForSelfAssesment.option.no=No, I don’t want them by email, continue sending them by post
+sa_printing_preference.SignUpForSelfAssessment.tc=By signing up for Self Assessment email reminders you accept the {0}.
+sa_printing_preference.SignUpForSelfAssessment.option.yes=Yes, I want them by email, don’t send them by post
+sa_printing_preference.SignUpForSelfAssessment.option.no=No, I don’t want them by email, continue sending them by post
 
 sa_printing_preference.heading.3=Do you want to get Self Assessment reminders by email?
 
-sa_printing_preference.GetSelfAssesment.title=Get Self Assessment email reminders
+sa_printing_preference.GetSelfAssessment.title=Get Self Assessment email reminders
 
-sa_printing_preference.GetSelfAssesment.heading=Get Self Assessment email reminders
+sa_printing_preference.GetSelfAssessment.heading=Get Self Assessment email reminders
 
-sa_printing_preference.GetSelfAssesment.list.1.item.1=Replace the Self Assessment reminders you get in the post with email reminders.
-sa_printing_preference.GetSelfAssesment.list.1.item.2=Email reminders tell you to check the messages in your online account. For example, when a tax return or payment is due.
-sa_printing_preference.GetSelfAssesment.list.1.item.3=The service is secure and only used for Self Assessment.
-sa_printing_preference.GetSelfAssesment.list.1.item.4=Personal and tax details are never shown in the email.
+sa_printing_preference.GetSelfAssessment.list.1.item.1=Replace the Self Assessment reminders you get in the post with email reminders.
+sa_printing_preference.GetSelfAssessment.list.1.item.2=Email reminders tell you to check the messages in your online account. For example, when a tax return or payment is due.
+sa_printing_preference.GetSelfAssessment.list.1.item.3=The service is secure and only used for Self Assessment.
+sa_printing_preference.GetSelfAssessment.list.1.item.4=Personal and tax details are never shown in the email.
 
-sa_printing_preference.GetSelfAssesment.tc=By signing up you accept the {0}.
-sa_printing_preference.GetSelfAssesment.option.yes=Yes, send my reminders by email
-sa_printing_preference.GetSelfAssesment.option.no=No, send my reminders by post
+sa_printing_preference.GetSelfAssessment.tc=By signing up you accept the {0}.
+sa_printing_preference.GetSelfAssessment.option.yes=Yes, send my reminders by email
+sa_printing_preference.GetSelfAssessment.option.no=No, send my reminders by post
 
 sa_printing_preference.tc.linkText=terms and conditions
 
