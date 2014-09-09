@@ -24,7 +24,7 @@ class InterstitialPageContentCohortCalculatorSpec extends UnitSpec with Inspecto
     "return a default a cohort value for a user with no SA-UTR" in {
       val user = userWithNoUtr
       val cohorts = (1 to 10) map { _ => calculateCohort(user) }
-      cohorts.toSet.loneElement should be (InterstitialPageContentCohorts.GetSelfAssesment)
+      cohorts.toSet.loneElement should be (InterstitialPageContentCohorts.GetSelfAssessment)
     }
 
     "be evenly spread for given set of users" in {

@@ -17,8 +17,8 @@ trait InterstitialPageContentCohortCalculator extends CohortCalculator[Interstit
 
 object InterstitialPageContentCohorts extends Enumeration {
   type Cohort = Value
-  val GetSelfAssesment = Value(0)
-  val SignUpForSelfAssesment = Value(1)
+  val GetSelfAssessment = Value(0)
+  val SignUpForSelfAssessment = Value(1)
 
   implicit val pathBinder: PathBindable[Cohort] = PathBindable.bindableInt.transform(apply, _.id)
 }
