@@ -31,21 +31,15 @@ class BizTaxPrefsController(val auditConnector: AuditConnector, preferencesConne
   def this() = this(Connectors.auditConnector, PreferencesConnector, EmailConnector)(Connectors.authConnector)
 
   def redirectToBTAOrInterstitialPage = AuthorisedFor(SaRegime).async {
-    user =>
-      request =>
-        redirectToBTAOrInterstitialPageAction(user, request)
+    implicit user => implicit request => redirectToBTAOrInterstitialPageAction(user, request)
   }
 
   def displayPrefsForm(emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(SaRegime).async {
-    implicit user =>
-      implicit request =>
-        displayPrefsFormAction(emailAddress, calculateCohort(user))
+    implicit user => implicit request => displayPrefsFormAction(emailAddress, calculateCohort(user))
   }
 
   def displayInterstitialPrefsForm(cohort: Cohort) = AuthorisedFor(SaRegime).async {
-    implicit user =>
-      implicit request =>
-        displayInterstitialPrefsFormAction(user, request, cohort)
+    implicit user => implicit request => displayInterstitialPrefsFormAction(user, request, cohort)
   }
 
   def submitPrefsFormForInterstitial() = AuthorisedFor(SaRegime).async {
@@ -53,15 +47,12 @@ class BizTaxPrefsController(val auditConnector: AuditConnector, preferencesConne
   }
 
   def submitPrefsFormForNonInterstitial() = AuthorisedFor(SaRegime).async {
-    user =>
-      request =>
-        submitPrefsFormAction(user, request, withBanner = true)
+    implicit user => implicit request => submitPrefsFormAction(user, request, withBanner = true)
   }
 
   def thankYou() = AuthorisedFor(SaRegime) {
-    user =>
-      request =>
-        Ok(views.html.account_details_printing_preference_confirm(Some(user), businessTaxHome, calculateCohort(user)))
+    implicit user => implicit request =>
+      Ok(views.html.account_details_printing_preference_confirm(Some(user), businessTaxHome, calculateCohort(user)))
   }
 
   val getSavePrefsFromInterstitialCall = controllers.sa.prefs.internal.routes.BizTaxPrefsController.submitPrefsFormForInterstitial()
