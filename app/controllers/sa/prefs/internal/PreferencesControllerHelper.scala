@@ -60,17 +60,15 @@ trait PreferencesControllerHelper {
     errors => views.html.sa.prefs.sa_printing_preference(withBanner, errors, savePrefsCall, cohort=cohort)
   }
 
-  def displayPreferencesFormAction(email: Option[EmailAddress], savePrefsCall: Call, withBanner: Boolean = false, cohort: Cohort)(implicit request: Request[AnyRef]) = {
-    
+  def displayPreferencesFormAction(email: Option[EmailAddress], savePrefsCall: Call, withBanner: Boolean = false, cohort: Cohort)(implicit request: Request[AnyRef]) =
     Ok(
-      views.html.sa.prefs.sa_printing_preference(
-        withBanner,
-        emailForm = emailFormWithPreference.fill(EmailFormDataWithPreference(email, email.map(_ => OptIn))),
-        submitPrefsFormAction = savePrefsCall,
-        cohort = cohort
-      )
+    views.html.sa.prefs.sa_printing_preference(
+      withBanner,
+      emailForm = emailFormWithPreference.fill(EmailFormDataWithPreference(email, email.map(_ => OptIn))),
+      submitPrefsFormAction = savePrefsCall,
+      cohort = cohort
     )
-  }
+  )
 
   protected def submitEmailForm(errorsView: (Form[_]) => play.api.templates.HtmlFormat.Appendable,
                                 emailWarningView: (String) => play.api.templates.HtmlFormat.Appendable,
