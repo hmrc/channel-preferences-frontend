@@ -11,7 +11,7 @@ import scala.util.Random
 
 class InterstitialPageContentCohortCalculatorSpec extends UnitSpec with Inspectors with Tolerance with LoneElement {
 
-  def calculateCohort = new InterstitialPageContentCohortCalculator{}.calculateCohort _
+  def calculateCohort(user: User) = InterstitialPageContentCohortCalculator.calculateCohort(user)
 
   "Cohort value" should {
 

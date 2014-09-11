@@ -1,5 +1,6 @@
 package controllers.sa.prefs.internal
 
+import controllers.sa.prefs.internal.InterstitialPageContentCohorts.Cohort
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import connectors.EmailConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
@@ -17,12 +18,15 @@ import uk.gov.hmrc.play.connectors.HeaderCarrier
 import connectors.{PreferencesConnector, SaPreference}
 import controllers.sa.prefs.SaRegime
 
-class AccountDetailsController(val auditConnector: AuditConnector, val preferencesConnector: PreferencesConnector,
-                               val emailConnector: EmailConnector)(implicit override val authConnector: AuthConnector) extends BaseController
+class AccountDetailsController(val auditConnector: AuditConnector,
+                               val preferencesConnector: PreferencesConnector,
+                               val emailConnector: EmailConnector,
+                               val cohortCalculator: InterstitialPageContentCohortCalculator)(implicit override val authConnector: AuthConnector)
+  extends BaseController
   with Actions
   with PreferencesControllerHelper {
 
-  def this() = this(Connectors.auditConnector, PreferencesConnector, EmailConnector)(Connectors.authConnector)
+  def this() = this(Connectors.auditConnector, PreferencesConnector, EmailConnector, InterstitialPageContentCohortCalculator)(Connectors.authConnector)
 
   def changeEmailAddress(emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(regime = SaRegime).async {
     user => request => changeEmailAddressPage(emailAddress)(user, request)
@@ -56,7 +60,7 @@ class AccountDetailsController(val auditConnector: AuditConnector, val preferenc
   private[prefs] def confirmOptOutOfEmailRemindersPage(implicit user: User, request: Request[AnyRef]): Future[Result] = {
     lookupCurrentEmail {
       email =>
-        preferencesConnector.savePreferences(user.userAuthority.accounts.sa.get.utr, false, None).map(_ =>
+        preferencesConnector.savePreferences(user.userAuthority.accounts.sa.get.utr, digital = false, None, cohortCalculator.calculateCohort(user)).map(_ =>
           Redirect(routes.AccountDetailsController.optedBackIntoPaperThankYou())
         )
     }
@@ -65,7 +69,7 @@ class AccountDetailsController(val auditConnector: AuditConnector, val preferenc
   private[prefs] def resendValidationEmailAction(implicit user: User, request: Request[AnyRef]): Future[Result] = {
     lookupCurrentEmail {
       email =>
-        preferencesConnector.savePreferences(user.userAuthority.accounts.sa.get.utr, true, Some(email)).map(_ =>
+        preferencesConnector.savePreferences(user.userAuthority.accounts.sa.get.utr, digital = true, Some(email), cohortCalculator.calculateCohort(user)).map(_ =>
           Ok(views.html.account_details_verification_email_resent_confirmation(user))
         )
     }
@@ -96,12 +100,13 @@ class AccountDetailsController(val auditConnector: AuditConnector, val preferenc
           () => routes.AccountDetailsController.emailAddressChangeThankYou(),
           emailConnector,
           user.userAuthority.accounts.sa.get.utr,
+          cohortCalculator.calculateCohort(user),
           savePreferences
         )
     )
 
-  private def savePreferences(utr: SaUtr, digital: Boolean, email: Option[String] = None, hc: HeaderCarrier) =
-    preferencesConnector.savePreferences(utr, digital, email)(hc)
+  private def savePreferences(utr: SaUtr, digital: Boolean, email: Option[String], cohort: Cohort, hc: HeaderCarrier) =
+    preferencesConnector.savePreferences(utr, digital, email, cohort)(hc)
 
   private[prefs] def emailAddressChangeThankYouPage(implicit user: User, request: Request[AnyRef]): Future[Result] = {
     lookupCurrentEmail(email => Future.successful(Ok(views.html.account_details_update_email_address_thank_you(email.obfuscated)(user))))

@@ -15,6 +15,8 @@ trait InterstitialPageContentCohortCalculator extends CohortCalculator[Interstit
   val CohortEnum = InterstitialPageContentCohorts
 }
 
+object InterstitialPageContentCohortCalculator extends InterstitialPageContentCohortCalculator
+
 object InterstitialPageContentCohorts extends Enumeration {
   type Cohort = Value
   val GetSelfAssessment = Value(0)
