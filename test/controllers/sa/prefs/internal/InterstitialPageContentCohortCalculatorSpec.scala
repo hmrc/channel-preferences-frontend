@@ -1,7 +1,7 @@
 package controllers.sa.prefs.internal
 
 import controllers.sa.prefs.AuthorityUtils._
-import controllers.sa.prefs.internal.InterstitialPageContentCohorts.Cohort
+import controllers.sa.prefs.internal.EmailOptInCohorts.Cohort
 import org.scalactic.Tolerance
 import org.scalatest.{Inspectors, LoneElement}
 import uk.gov.hmrc.common.microservice.domain.User
@@ -11,7 +11,7 @@ import scala.util.Random
 
 class InterstitialPageContentCohortCalculatorSpec extends UnitSpec with Inspectors with Tolerance with LoneElement {
 
-  def calculateCohort(user: User) = InterstitialPageContentCohortCalculator.calculateCohort(user)
+  def calculateCohort(user: User) = EmailOptInCohortCalculator.calculateCohort(user)
 
   "Cohort value" should {
 
@@ -24,7 +24,7 @@ class InterstitialPageContentCohortCalculatorSpec extends UnitSpec with Inspecto
     "return a default a cohort value for a user with no SA-UTR" in {
       val user = userWithNoUtr
       val cohorts = (1 to 10) map { _ => calculateCohort(user) }
-      cohorts.toSet.loneElement should be (InterstitialPageContentCohorts.SignUpForSelfAssessment)
+      cohorts.toSet.loneElement should be (EmailOptInCohorts.SignUpForSelfAssessment)
     }
 
     "be evenly spread for given set of users" in {
@@ -36,8 +36,8 @@ class InterstitialPageContentCohortCalculatorSpec extends UnitSpec with Inspecto
 
       val cohortCounts = cohorts.groupBy(c => c).mapValues(_.size)
 
-      forEvery(InterstitialPageContentCohorts.values.toSet) { possibleCohort =>
-        cohortCounts(possibleCohort) should be(sampleSize / InterstitialPageContentCohorts.values.size +- (sampleSize / 10))
+      forEvery(EmailOptInCohorts.values.toSet) { possibleCohort =>
+        cohortCounts(possibleCohort) should be(sampleSize / EmailOptInCohorts.values.size +- (sampleSize / 10))
       }
     }
   }

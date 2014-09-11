@@ -25,7 +25,7 @@ abstract class Setup extends WithApplication(FakeApplication()) with MockitoSuga
   val mockPreferencesConnector = mock[PreferencesConnector]
   val mockEmailConnector = mock[EmailConnector]
 
-  val controller = new AccountDetailsController(auditConnector, mockPreferencesConnector,mockEmailConnector, InterstitialPageContentCohortCalculator)(authConnector)
+  val controller = new AccountDetailsController(auditConnector, mockPreferencesConnector,mockEmailConnector, EmailOptInCohortCalculator)(authConnector)
 
   val request = FakeRequest()
 }

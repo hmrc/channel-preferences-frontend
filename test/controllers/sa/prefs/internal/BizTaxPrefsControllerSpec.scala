@@ -22,7 +22,7 @@ import uk.gov.hmrc.test.UnitSpec
 import scala.concurrent.Future
 
 abstract class BizTaxPrefsControllerSetup extends WithApplication(FakeApplication()) with MockitoSugar {
-  def assignedCohort = InterstitialPageContentCohorts.SignUpForSelfAssessment
+  def assignedCohort = EmailOptInCohorts.SignUpForSelfAssessment
 
   val auditConnector = mock[AuditConnector]
   val preferencesConnector = mock[PreferencesConnector]
@@ -100,7 +100,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
     }
 
     "audit the cohort information for GetSelfAssessment" in new BizTaxPrefsControllerSetup {
-      override def assignedCohort = InterstitialPageContentCohorts.GetSelfAssessment
+      override def assignedCohort = EmailOptInCohorts.GetSelfAssessment
       when(preferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(None)
 
       val page = controller.displayInterstitialPrefsFormAction(user, request, assignedCohort)
@@ -119,7 +119,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
     }
 
     "audit the cohort information for SignUpForSelfAssessment" in new BizTaxPrefsControllerSetup {
-      override def assignedCohort = InterstitialPageContentCohorts.SignUpForSelfAssessment
+      override def assignedCohort = EmailOptInCohorts.SignUpForSelfAssessment
       when(preferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(None)
 
       val page = controller.displayInterstitialPrefsFormAction(user, request, assignedCohort)
@@ -343,7 +343,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
   "An audit event" should {
     "be created when submitting a print preference from GetSelfAssessment" in new BizTaxPrefsControllerSetup {
 
-      override def assignedCohort = InterstitialPageContentCohorts.GetSelfAssessment
+      override def assignedCohort = EmailOptInCohorts.GetSelfAssessment
 
       val emailAddress = "someone@email.com"
       when(emailConnector.isValid(is(emailAddress))(any())).thenReturn(true)
@@ -375,7 +375,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
 
     "be created when submitting a print preference from SignUpForSelfAssessment" in new BizTaxPrefsControllerSetup {
 
-      override def assignedCohort = InterstitialPageContentCohorts.SignUpForSelfAssessment
+      override def assignedCohort = EmailOptInCohorts.SignUpForSelfAssessment
       val emailAddress = "someone@email.com"
       when(emailConnector.isValid(is(emailAddress))(any())).thenReturn(true)
       when(preferencesConnector.savePreferences(
@@ -406,7 +406,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
 
     "be created when choosing to not accept email reminders from GetSelfAssessment" in new BizTaxPrefsControllerSetup {
 
-      override def assignedCohort = InterstitialPageContentCohorts.GetSelfAssessment
+      override def assignedCohort = EmailOptInCohorts.GetSelfAssessment
       when(preferencesConnector.savePreferences(
         is(validUtr),
         is(false),
@@ -434,7 +434,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
 
     "be created when choosing to not accept email reminders from SignUpForSelfAssessment" in new BizTaxPrefsControllerSetup {
 
-      override def assignedCohort = InterstitialPageContentCohorts.SignUpForSelfAssessment
+      override def assignedCohort = EmailOptInCohorts.SignUpForSelfAssessment
       when(preferencesConnector.savePreferences(
         is(validUtr),
         is(false),

@@ -1,8 +1,7 @@
 package connectors
 
+import controllers.sa.prefs.internal.EmailOptInCohorts.Cohort
 import play.api.libs.json.{Format, Json}
-import java.net.URI
-import com.netaporter.uri.Uri
 
 
 object EmailVerificationLinkResponse extends Enumeration {
@@ -19,7 +18,7 @@ object SaPreferenceSimplified {
 case class SaPreferenceSimplified(digital: Boolean, email: Option[String] = None)
 
 
-case class UpdateEmail(digital: Boolean, email: Option[String])
+case class UpdateEmail(digital: Boolean, email: Option[String], cohort: String)
 
 object UpdateEmail {
   implicit def formats = Json.format[UpdateEmail]

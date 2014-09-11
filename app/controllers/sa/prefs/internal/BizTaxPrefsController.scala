@@ -7,7 +7,7 @@ import controllers.common.{BaseController, FrontEndRedirect}
 import controllers.sa.prefs.ExternalUrls.businessTaxHome
 import controllers.sa.prefs.internal.EmailOptInJourney._
 import controllers.sa.prefs.{SaRegime, _}
-import controllers.sa.prefs.internal.InterstitialPageContentCohorts.Cohort
+import controllers.sa.prefs.internal.EmailOptInCohorts.Cohort
 import play.api.mvc._
 import uk.gov.hmrc.common.microservice.audit.{AuditConnector, AuditEvent}
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
@@ -24,7 +24,7 @@ class BizTaxPrefsController(val auditConnector: AuditConnector, preferencesConne
   extends BaseController
   with Actions
   with PreferencesControllerHelper
-  with InterstitialPageContentCohortCalculator
+  with EmailOptInCohortCalculator
   with AppName {
 
   def this() = this(Connectors.auditConnector, PreferencesConnector, EmailConnector)(Connectors.authConnector)
@@ -124,7 +124,7 @@ class BizTaxPrefsController(val auditConnector: AuditConnector, preferencesConne
         "cohort" -> cohort.toString)))(hc)
   }
 
-  private def auditChoice(utr: SaUtr, journey: Journey, cohort: InterstitialPageContentCohorts.Value, digital: Boolean, emailOption: Option[String])(implicit request: Request[_], hc: HeaderCarrier) = {
+  private def auditChoice(utr: SaUtr, journey: Journey, cohort: EmailOptInCohorts.Value, digital: Boolean, emailOption: Option[String])(implicit request: Request[_], hc: HeaderCarrier) = {
     auditConnector.audit(AuditEvent(
       auditSource = appName,
       auditType = EventTypes.Succeeded,

@@ -1,6 +1,6 @@
 package connectors
 
-import controllers.sa.prefs.internal.InterstitialPageContentCohorts.Cohort
+import controllers.sa.prefs.internal.EmailOptInCohorts.Cohort
 import play.api.http.Status
 import play.api.libs.json._
 import uk.gov.hmrc.common.microservice.MicroServiceConfig
@@ -27,7 +27,7 @@ trait PreferencesConnector extends Status {
   def url(path: String) = s"$serviceUrl$path"
 
   def savePreferences(utr: SaUtr, digital: Boolean, email: Option[String], cohort: Cohort)(implicit hc: HeaderCarrier): Future[Any] =
-    http.POST(url(s"/preferences/sa/individual/$utr/print-suppression"), UpdateEmail(digital, email))
+    http.POST(url(s"/preferences/sa/individual/$utr/print-suppression"), UpdateEmail(digital, email, cohort.toString))
 
   def getPreferences(utr: SaUtr)(implicit headerCarrier: HeaderCarrier): Future[Option[SaPreference]] = {
     http.GET[Option[SaPreference]](url(s"/preferences/sa/individual/$utr/print-suppression")).recover {

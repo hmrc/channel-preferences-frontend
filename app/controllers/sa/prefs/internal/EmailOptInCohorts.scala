@@ -11,13 +11,13 @@ trait CohortCalculator[CohortEnum <: Enumeration] {
   }.getOrElse(CohortEnum.values.firstKey)
 }
 
-trait InterstitialPageContentCohortCalculator extends CohortCalculator[InterstitialPageContentCohorts.type] {
-  val CohortEnum = InterstitialPageContentCohorts
+trait EmailOptInCohortCalculator extends CohortCalculator[EmailOptInCohorts.type] {
+  val CohortEnum = EmailOptInCohorts
 }
 
-object InterstitialPageContentCohortCalculator extends InterstitialPageContentCohortCalculator
+object EmailOptInCohortCalculator extends EmailOptInCohortCalculator
 
-object InterstitialPageContentCohorts extends Enumeration {
+object EmailOptInCohorts extends Enumeration {
   type Cohort = Value
   val SignUpForSelfAssessment = Value(0)
   val GetSelfAssessment = Value(1)

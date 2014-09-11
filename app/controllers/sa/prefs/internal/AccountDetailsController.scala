@@ -1,6 +1,6 @@
 package controllers.sa.prefs.internal
 
-import controllers.sa.prefs.internal.InterstitialPageContentCohorts.Cohort
+import controllers.sa.prefs.internal.EmailOptInCohorts.Cohort
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import connectors.EmailConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
@@ -21,12 +21,12 @@ import controllers.sa.prefs.SaRegime
 class AccountDetailsController(val auditConnector: AuditConnector,
                                val preferencesConnector: PreferencesConnector,
                                val emailConnector: EmailConnector,
-                               val cohortCalculator: InterstitialPageContentCohortCalculator)(implicit override val authConnector: AuthConnector)
+                               val cohortCalculator: EmailOptInCohortCalculator)(implicit override val authConnector: AuthConnector)
   extends BaseController
   with Actions
   with PreferencesControllerHelper {
 
-  def this() = this(Connectors.auditConnector, PreferencesConnector, EmailConnector, InterstitialPageContentCohortCalculator)(Connectors.authConnector)
+  def this() = this(Connectors.auditConnector, PreferencesConnector, EmailConnector, EmailOptInCohortCalculator)(Connectors.authConnector)
 
   def changeEmailAddress(emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(regime = SaRegime).async {
     user => request => changeEmailAddressPage(emailAddress)(user, request)

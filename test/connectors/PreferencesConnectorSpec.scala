@@ -1,5 +1,6 @@
 package connectors
 
+import controllers.sa.prefs.internal.EmailOptInCohorts
 import play.api.libs.json.{Json, Writes}
 import uk.gov.hmrc.domain.SaUtr
 import org.scalatest.concurrent.ScalaFutures
@@ -92,5 +93,17 @@ class PreferencesConnectorSpec extends UnitSpec with ScalaFutures {
       val result = preferenceConnector.responseToEmailVerificationLinkStatus(Future.failed(new Upstream4xxResponse("", 410, 500)))
       result.futureValue shouldBe EXPIRED
     }
+  }
+
+  "Save of preferences should include cohort" in {
+    val updateEmail = UpdateEmail(
+      digital = true,
+      email = Some("me@mail.com"),
+      cohort = EmailOptInCohorts.SignUpForSelfAssessment.toString)
+
+    Json.toJson(updateEmail) shouldBe Json.obj(
+      "digital" -> true,
+      "email" -> "me@mail.com",
+      "cohort" -> "SignUpForSelfAssessment")
   }
 }

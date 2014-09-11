@@ -9,7 +9,7 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.play.test.WithFakeApplication
 import uk.gov.hmrc.test.UnitSpec
 import views.html.sa.prefs.sa_printing_preference
-import controllers.sa.prefs.internal.InterstitialPageContentCohorts._
+import controllers.sa.prefs.internal.EmailOptInCohorts._
 
 class SaPrintingPreferenceViewSpec extends UnitSpec with PreferencesControllerHelper with WithFakeApplication {
 
