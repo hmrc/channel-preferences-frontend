@@ -15,14 +15,14 @@ class SaPrintingPreferenceViewSpec extends UnitSpec with PreferencesControllerHe
 
   "preference print template" should {
 
-    "render the correct content for the SignUpForSelfAssessment cohort " in  {
-      val document = Jsoup.parse(sa_printing_preference(true, emailForm, Call("GET", "/"), SignUpForSelfAssessment)(FakeRequest("GET", "/")).toString())
-      document.getElementsByTag("h1").text should include (Messages("sa_printing_preference.SignUpForSelfAssessment.heading"))
+    "render the correct content for the OptInNotSelected cohort " in  {
+      val document = Jsoup.parse(sa_printing_preference(true, emailForm, Call("GET", "/"), OptInNotSelected)(FakeRequest("GET", "/")).toString())
+      document.getElementById("opt-in-in").hasAttr("checked") shouldBe false
     }
 
-    "render the correct content for the GetSelfAssessment cohort " in  {
-      val document = Jsoup.parse(sa_printing_preference(true, emailForm, Call("GET", "/"), GetSelfAssessment)(FakeRequest("GET", "/")).toString())
-      document.getElementsByTag("h1").text should include (Messages("sa_printing_preference.GetSelfAssessment.heading"))
+    "render the correct content for the OptInSelected cohort " in  {
+      val document = Jsoup.parse(sa_printing_preference(true, emailForm, Call("GET", "/"), OptInSelected)(FakeRequest("GET", "/")).toString())
+      document.getElementById("opt-in-in").hasAttr("checked") shouldBe true
     }
   }
 

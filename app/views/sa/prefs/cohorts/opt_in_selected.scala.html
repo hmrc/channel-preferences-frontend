@@ -1,0 +1,81 @@
+@(showBanner:Boolean,emailForm: Form[_], submitPrefsFormAction: Call)(implicit request: Request[_])
+
+@import views.helpers._
+
+@main(title = Messages(s"sa_printing_preference.title"), headerNav = if (showBanner) Some(HeaderNav.yta) else None) {
+
+<header class="page-header">
+    <h1>@Messages(s"sa_printing_preference.heading")</h1>
+</header>
+
+<p>@Messages(s"sa_printing_preference.paragraph.1")</p>
+<ul class="bullets">
+    <li>@Messages(s"sa_printing_preference.list.1.item.1")</li>
+    <li>@Messages(s"sa_printing_preference.list.1.item.2")</li>
+    <li>@Messages(s"sa_printing_preference.list.1.item.3")</li>
+    <li>@Messages(s"sa_printing_preference.list.1.item.4")</li>
+</ul>
+<h2>@Messages(s"sa_printing_preference.heading.2")</h2>
+<p>@Messages(s"sa_printing_preference.paragraph.2")</p>
+<p>@Messages(s"sa_printing_preference.paragraph.3")</p>
+<p>@Messages(s"sa_printing_preference.paragraph.4")</p>
+
+@_root_.views.html.helpers.form(action = submitPrefsFormAction, 'id -> "form-submit-email-address") {
+<h3>@Messages("sa_printing_preference.heading.3")</h3>
+
+<label class="selectable">
+    <input
+        id="opt-in-in"
+        type="radio"
+        name="opt-in"
+        value="true"
+        class="email-prefs__toggle"
+        checked="checked"
+    />
+    @Messages(s"sa_printing_preference.option.yes")
+</label>
+<fieldset class="connected js-hidden">
+    @helpers.input(
+    emailForm("email.main"),
+    '_label -> "Email address",
+    '_labelClass -> "bold",
+    '_labelHighlight -> true,
+    '_divClass -> "row",
+    '_inputClass -> "input--medium input--cleared",
+    'parentField -> emailForm("email")
+    )
+
+    @helpers.input(
+    emailForm("email.confirm"),
+    '_label -> "Confirm email address",
+    '_labelClass -> "bold",
+    '_labelHighlight -> true,
+    '_divClass -> "row",
+    '_inputClass -> "input--medium input--cleared"
+    )
+    <p>@Html(Messages(s"sa_printing_preference.tc",
+        Link.toExternalPage(url = "https://online.hmrc.gov.uk/information/terms#8", value = Some(Messages("sa_printing_preference.tc.linkText"))).toHtml))
+</fieldset>
+<label class="selectable">
+    <input
+           id="opt-in-out"
+           type="radio"
+           name="opt-in"
+           value="false"
+           class="email-prefs__toggle"
+           @if(emailForm("opt-in").value == Some("false")) { checked="checked" }
+           />
+    @Messages(s"sa_printing_preference.option.no")
+</label>
+<div class="email-form-errors">
+    @emailForm("opt-in").errors.map { error => <label class="error-notification">@Messages(error.message)</label>}
+    @emailForm.globalErrors.map { error => <label class="error-notification">@Messages(error.message)</label>}
+</div>
+<br>
+<div class="form-field">
+    <button id="submitEmailButton" class="button" name="submitButton" type="submit">@Messages("sa_printing_preference.submitButton")</button>
+</div>
+
+}
+
+}

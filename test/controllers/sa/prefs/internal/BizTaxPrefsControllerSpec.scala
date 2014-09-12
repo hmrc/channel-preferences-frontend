@@ -22,7 +22,7 @@ import uk.gov.hmrc.test.UnitSpec
 import scala.concurrent.Future
 
 abstract class BizTaxPrefsControllerSetup extends WithApplication(FakeApplication()) with MockitoSugar {
-  def assignedCohort = EmailOptInCohorts.SignUpForSelfAssessment
+  def assignedCohort = EmailOptInCohorts.OptInNotSelected
 
   val auditConnector = mock[AuditConnector]
   val preferencesConnector = mock[PreferencesConnector]
@@ -54,7 +54,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       header("Location", page).get should include(ExternalUrls.businessTaxHome)
     }
 
-    "redirect to interstiatial page for the matching cohort if they have no preference set" in new BizTaxPrefsControllerSetup {
+    "redirect to interstitial page for the matching cohort if they have no preference set" in new BizTaxPrefsControllerSetup {
       when(preferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(None)
 
       val page = controller.redirectToBTAOrInterstitialPageAction(user, request)
@@ -99,8 +99,8 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       document.getElementById("opt-in-out").attr("checked") shouldBe ""
     }
 
-    "audit the cohort information for GetSelfAssessment" in new BizTaxPrefsControllerSetup {
-      override def assignedCohort = EmailOptInCohorts.GetSelfAssessment
+    "audit the cohort information for OptInSelected" in new BizTaxPrefsControllerSetup {
+      override def assignedCohort = EmailOptInCohorts.OptInSelected
       when(preferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(None)
 
       val page = controller.displayInterstitialPrefsFormAction(user, request, assignedCohort)
@@ -113,13 +113,13 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       value.auditSource  shouldBe "preferences-frontend"
       value.auditType shouldBe EventTypes.Succeeded
       value.tags should contain ("transactionName" -> "Show Print Preference Option")
-      value.detail should contain ("cohort" -> "GetSelfAssessment")
+      value.detail should contain ("cohort" -> "OptInSelected")
       value.detail should contain ("journey" -> "Interstitial")
       value.detail should contain ("utr" -> validUtr.value)
     }
 
-    "audit the cohort information for SignUpForSelfAssessment" in new BizTaxPrefsControllerSetup {
-      override def assignedCohort = EmailOptInCohorts.SignUpForSelfAssessment
+    "audit the cohort information for OptInNotSelected" in new BizTaxPrefsControllerSetup {
+      override def assignedCohort = EmailOptInCohorts.OptInNotSelected
       when(preferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(None)
 
       val page = controller.displayInterstitialPrefsFormAction(user, request, assignedCohort)
@@ -132,7 +132,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       value.auditSource  shouldBe "preferences-frontend"
       value.auditType shouldBe EventTypes.Succeeded
       value.tags should contain ("transactionName" -> "Show Print Preference Option")
-      value.detail should contain ("cohort" -> "SignUpForSelfAssessment")
+      value.detail should contain ("cohort" -> "OptInNotSelected")
       value.detail should contain ("utr" -> validUtr.value)
       value.detail should contain ("journey" -> "Interstitial")
     }
@@ -148,7 +148,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       document.getElementsByTag("nav").attr("id") shouldBe "proposition-menu"
     }
 
-    "have correct form action to save prefrences" in new BizTaxPrefsControllerSetup {
+    "have correct form action to save preferences" in new BizTaxPrefsControllerSetup {
       val page = controller.displayPrefsFormAction(None, assignedCohort)(user, request)
       status(page) shouldBe 200
       val document = Jsoup.parse(contentAsString(page))
@@ -166,7 +166,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       value.auditSource  shouldBe "preferences-frontend"
       value.auditType shouldBe EventTypes.Succeeded
       value.tags should contain ("transactionName" -> "Show Print Preference Option")
-      value.detail should contain ("cohort" -> "SignUpForSelfAssessment")
+      value.detail should contain ("cohort" -> assignedCohort.toString)
       value.detail should contain ("utr" -> validUtr.value)
       value.detail should contain ("journey" -> "AccountDetails")
     }
@@ -341,9 +341,9 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
   }
 
   "An audit event" should {
-    "be created when submitting a print preference from GetSelfAssessment" in new BizTaxPrefsControllerSetup {
+    "be created when submitting a print preference from OptInSelected" in new BizTaxPrefsControllerSetup {
 
-      override def assignedCohort = EmailOptInCohorts.GetSelfAssessment
+      override def assignedCohort = EmailOptInCohorts.OptInSelected
 
       val emailAddress = "someone@email.com"
       when(emailConnector.isValid(is(emailAddress))(any())).thenReturn(true)
@@ -353,8 +353,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
         is(Some(emailAddress)),
         is(assignedCohort))(any())).thenReturn(Future.successful(None))
 
-      val page = Future.successful(controller.submitPrefsFormAction(Interstitial)(user, FakeRequest()
-        .withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress),("email.confirm", emailAddress))))
+      val page = Future.successful(controller.submitPrefsFormAction(Interstitial)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress),("email.confirm", emailAddress))))
 
       status(page) shouldBe 303
 
@@ -365,17 +364,16 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       value.auditSource  shouldBe "preferences-frontend"
       value.auditType shouldBe EventTypes.Succeeded
       value.tags should contain ("transactionName" -> "Set Print Preference")
-      value.detail should contain ("cohort" -> "GetSelfAssessment")
+      value.detail should contain ("cohort" -> "OptInSelected")
       value.detail should contain ("journey" -> "Interstitial")
       value.detail should contain ("utr" -> validUtr.value)
       value.detail should contain ("email" -> "someone@email.com")
       value.detail should contain ("digital" -> "true")
 
     }
+    "be created when submitting a print preference from OptInNotSelected" in new BizTaxPrefsControllerSetup {
 
-    "be created when submitting a print preference from SignUpForSelfAssessment" in new BizTaxPrefsControllerSetup {
-
-      override def assignedCohort = EmailOptInCohorts.SignUpForSelfAssessment
+      override def assignedCohort = EmailOptInCohorts.OptInNotSelected
       val emailAddress = "someone@email.com"
       when(emailConnector.isValid(is(emailAddress))(any())).thenReturn(true)
       when(preferencesConnector.savePreferences(
@@ -384,8 +382,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
         is(Some(emailAddress)),
         is(assignedCohort))(any())).thenReturn(Future.successful(None))
 
-      val page = Future.successful(controller.submitPrefsFormAction(Interstitial)(user, FakeRequest()
-        .withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress),("email.confirm", emailAddress))))
+      val page = Future.successful(controller.submitPrefsFormAction(Interstitial)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress),("email.confirm", emailAddress))))
 
       status(page) shouldBe 303
 
@@ -396,7 +393,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       value.auditSource  shouldBe "preferences-frontend"
       value.auditType shouldBe EventTypes.Succeeded
       value.tags should contain ("transactionName" -> "Set Print Preference")
-      value.detail should contain ("cohort" -> "SignUpForSelfAssessment")
+      value.detail should contain ("cohort" -> "OptInNotSelected")
       value.detail should contain ("journey" -> "Interstitial")
       value.detail should contain ("utr" -> validUtr.value)
       value.detail should contain ("email" -> "someone@email.com")
@@ -404,9 +401,9 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
 
     }
 
-    "be created when choosing to not accept email reminders from GetSelfAssessment" in new BizTaxPrefsControllerSetup {
+    "be created when choosing to not accept email reminders from OptInSelected" in new BizTaxPrefsControllerSetup {
 
-      override def assignedCohort = EmailOptInCohorts.GetSelfAssessment
+      override def assignedCohort = EmailOptInCohorts.OptInSelected
       when(preferencesConnector.savePreferences(
         is(validUtr),
         is(false),
@@ -424,7 +421,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       value.auditSource  shouldBe "preferences-frontend"
       value.auditType shouldBe EventTypes.Succeeded
       value.tags should contain ("transactionName" -> "Set Print Preference")
-      value.detail should contain ("cohort" -> "GetSelfAssessment")
+      value.detail should contain ("cohort" -> "OptInSelected")
       value.detail should contain ("journey" -> "AccountDetails")
       value.detail should contain ("utr" -> validUtr.value)
       value.detail should not contain ("email" -> "someone@email.com")
@@ -432,9 +429,9 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
 
     }
 
-    "be created when choosing to not accept email reminders from SignUpForSelfAssessment" in new BizTaxPrefsControllerSetup {
+    "be created when choosing to not accept email reminders from OptInNotSelected" in new BizTaxPrefsControllerSetup {
 
-      override def assignedCohort = EmailOptInCohorts.SignUpForSelfAssessment
+      override def assignedCohort = EmailOptInCohorts.OptInNotSelected
       when(preferencesConnector.savePreferences(
         is(validUtr),
         is(false),
@@ -452,7 +449,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       value.auditSource  shouldBe "preferences-frontend"
       value.auditType shouldBe EventTypes.Succeeded
       value.tags should contain ("transactionName" -> "Set Print Preference")
-      value.detail should contain ("cohort" -> "SignUpForSelfAssessment")
+      value.detail should contain ("cohort" -> "OptInNotSelected")
       value.detail should contain ("journey" -> "AccountDetails")
       value.detail should contain ("utr" -> validUtr.value)
       value.detail should not contain ("email" -> "someone@email.com")

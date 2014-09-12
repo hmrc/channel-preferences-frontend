@@ -99,11 +99,11 @@ class PreferencesConnectorSpec extends UnitSpec with ScalaFutures {
     val updateEmail = UpdateEmail(
       digital = true,
       email = Some("me@mail.com"),
-      cohort = EmailOptInCohorts.SignUpForSelfAssessment.toString)
+      cohort = EmailOptInCohorts.OptInNotSelected.toString)
 
     Json.toJson(updateEmail) shouldBe Json.obj(
       "digital" -> true,
       "email" -> "me@mail.com",
-      "cohort" -> "SignUpForSelfAssessment")
+      "cohort" -> "OptInNotSelected")
   }
 }

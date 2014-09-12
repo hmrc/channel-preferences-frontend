@@ -19,8 +19,8 @@ object EmailOptInCohortCalculator extends EmailOptInCohortCalculator
 
 object EmailOptInCohorts extends Enumeration {
   type Cohort = Value
-  val SignUpForSelfAssessment = Value(0)
-  val GetSelfAssessment = Value(1)
+  val OptInNotSelected = Value(0)
+  val OptInSelected = Value(1)
 
   implicit val pathBinder: PathBindable[Cohort] = PathBindable.bindableInt.transform(apply, _.id)
 }

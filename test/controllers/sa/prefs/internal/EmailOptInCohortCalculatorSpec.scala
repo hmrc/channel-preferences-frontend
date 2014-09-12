@@ -9,7 +9,7 @@ import uk.gov.hmrc.test.UnitSpec
 
 import scala.util.Random
 
-class InterstitialPageContentCohortCalculatorSpec extends UnitSpec with Inspectors with Tolerance with LoneElement {
+class EmailOptInCohortCalculatorSpec extends UnitSpec with Inspectors with Tolerance with LoneElement {
 
   def calculateCohort(user: User) = EmailOptInCohortCalculator.calculateCohort(user)
 
@@ -24,7 +24,7 @@ class InterstitialPageContentCohortCalculatorSpec extends UnitSpec with Inspecto
     "return a default a cohort value for a user with no SA-UTR" in {
       val user = userWithNoUtr
       val cohorts = (1 to 10) map { _ => calculateCohort(user) }
-      cohorts.toSet.loneElement should be (EmailOptInCohorts.SignUpForSelfAssessment)
+      cohorts.toSet.loneElement should be (EmailOptInCohorts.OptInNotSelected)
     }
 
     "be evenly spread for given set of users" in {
