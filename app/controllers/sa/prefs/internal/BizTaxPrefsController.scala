@@ -94,7 +94,7 @@ class BizTaxPrefsController(val auditConnector: AuditConnector, preferencesConne
       saUtr = user.userAuthority.accounts.sa.get.utr,
       savePreferences = (utr, digital, email, hc) => {
 
-        preferencesConnector.savePreferences(utr, digital, email, cohort)(hc).map(_ => {
+        preferencesConnector.savePreferences(utr, digital, email)(hc).map(_ => {
           auditChoice(utr, journey, cohort, digital, email)(request, hc)
           digital match {
             case true => Redirect(routes.BizTaxPrefsController.thankYou())

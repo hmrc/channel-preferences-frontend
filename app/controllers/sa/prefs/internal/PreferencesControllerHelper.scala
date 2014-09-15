@@ -75,8 +75,7 @@ trait PreferencesControllerHelper {
                                 successRedirect: () => Call,
                                 emailConnector: EmailConnector,
                                 saUtr: SaUtr,
-                                cohort: Cohort,
-                                savePreferences: (SaUtr, Boolean, Option[String], Cohort, HeaderCarrier) => Future[_])
+                                savePreferences: (SaUtr, Boolean, Option[String], HeaderCarrier) => Future[_])
                                (implicit request: Request[AnyRef]): Future[Result] = {
 
     implicit def hc = HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)
@@ -89,12 +88,7 @@ trait PreferencesControllerHelper {
           else emailConnector.isValid(emailForm.mainEmail)
 
         emailVerificationStatus.flatMap {
-          case true => savePreferences(
-            saUtr,
-            true,
-            Some(emailForm.mainEmail),
-            cohort,
-            hc).map(const(Redirect(successRedirect())))
+          case true => savePreferences(saUtr, true, Some(emailForm.mainEmail), hc).map(const(Redirect(successRedirect())))
           case false => Future.successful(Ok(emailWarningView(emailForm.mainEmail)))
         }
       }

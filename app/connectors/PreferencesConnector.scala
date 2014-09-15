@@ -1,16 +1,18 @@
 package connectors
 
-import controllers.sa.prefs.internal.EmailOptInCohorts.Cohort
-import play.api.http.Status
-import play.api.libs.json._
 import uk.gov.hmrc.common.microservice.MicroServiceConfig
-import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.play.connectors.HeaderCarrier
-import uk.gov.hmrc.play.http.{Upstream4xxResponse, _}
-import uk.gov.hmrc.play.http.ws.WSHttp
-import uk.gov.hmrc.play.logging.MdcLoggingExecutionContext._
 
+import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.emailaddress.EmailAddress
 import scala.concurrent.Future
+import uk.gov.hmrc.play.connectors.HeaderCarrier
+import uk.gov.hmrc.play.logging.MdcLoggingExecutionContext._
+import play.api.libs.json.Json
+import play.api.http.Status
+import uk.gov.hmrc.play.http.ws.WSHttp
+import uk.gov.hmrc.play.http._
+import uk.gov.hmrc.play.http.Upstream4xxResponse
+import play.api.libs.json._
 
 object PreferencesConnector extends PreferencesConnector {
   override val serviceUrl = MicroServiceConfig.preferencesServiceUrl
@@ -26,8 +28,8 @@ trait PreferencesConnector extends Status {
 
   def url(path: String) = s"$serviceUrl$path"
 
-  def savePreferences(utr: SaUtr, digital: Boolean, email: Option[String], cohort: Cohort)(implicit hc: HeaderCarrier): Future[Any] =
-    http.POST(url(s"/preferences/sa/individual/$utr/print-suppression"), UpdateEmail(digital, email, cohort.toString))
+  def savePreferences(utr: SaUtr, digital: Boolean, email: Option[String] = None)(implicit hc: HeaderCarrier): Future[Any] =
+    http.POST(url(s"/preferences/sa/individual/$utr/print-suppression"), UpdateEmail(digital, email))
 
   def getPreferences(utr: SaUtr)(implicit headerCarrier: HeaderCarrier): Future[Option[SaPreference]] = {
     http.GET[Option[SaPreference]](url(s"/preferences/sa/individual/$utr/print-suppression")).recover {

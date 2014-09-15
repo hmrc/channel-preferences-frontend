@@ -18,7 +18,7 @@ object SaPreferenceSimplified {
 case class SaPreferenceSimplified(digital: Boolean, email: Option[String] = None)
 
 
-case class UpdateEmail(digital: Boolean, email: Option[String], cohort: String)
+case class UpdateEmail(digital: Boolean, email: Option[String])
 
 object UpdateEmail {
   implicit def formats = Json.format[UpdateEmail]
