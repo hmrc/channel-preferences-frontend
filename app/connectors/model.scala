@@ -1,6 +1,5 @@
 package connectors
 
-import controllers.sa.prefs.internal.EmailOptInCohorts.Cohort
 import play.api.libs.json.{Format, Json}
 
 

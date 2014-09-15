@@ -1,5 +1,6 @@
 package connectors
 
+import play.api.Logger
 import uk.gov.hmrc.common.microservice.MicroServiceConfig
 
 import uk.gov.hmrc.domain.SaUtr
@@ -22,7 +23,7 @@ object PreferencesConnector extends PreferencesConnector {
 
 trait PreferencesConnector extends Status {
 
-  def http: HttpGet with HttpPost
+  def http: HttpGet with HttpPost with HttpPut
 
   def serviceUrl: String
 
@@ -38,10 +39,12 @@ trait PreferencesConnector extends Status {
   }
 
   def saveCohort(utr: SaUtr, cohort: Cohort)(implicit hc: HeaderCarrier): Future[Any] =
-    http.POST(url(s"/a-b-testing/cohort/opt-in-email/sa/$SaUtr"), Cohort)
+    http.PUT(url(s"/a-b-testing/cohort/opt-in-email/sa/$utr"), cohort).recover {
+      case e: NotFoundException => Logger.warn("Cannot save cohort for opt-in-email")
+    }
 
   def getCohort(utr: SaUtr)(implicit headerCarrier: HeaderCarrier): Future[Option[Cohort]] =
-    http.GET[Cohort](url(s"/a-b-testing/cohort/opt-in-email/sa/$SaUtr")).map(Some(_)).recover {
+    http.GET[Cohort](url(s"/a-b-testing/cohort/opt-in-email/sa/$utr")).map(Some(_)).recover {
       case e: NotFoundException => None
     }
 

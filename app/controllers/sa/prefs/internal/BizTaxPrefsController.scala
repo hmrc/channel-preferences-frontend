@@ -19,7 +19,11 @@ import uk.gov.hmrc.play.config.AppName
 import uk.gov.hmrc.play.connectors.HeaderCarrier
 import uk.gov.hmrc.play.monitoring.EventTypes
 
-class BizTaxPrefsController(val auditConnector: AuditConnector, preferencesConnector: PreferencesConnector, emailConnector: EmailConnector)
+import scala.concurrent.Future
+
+class BizTaxPrefsController(val auditConnector: AuditConnector,
+                            preferencesConnector: PreferencesConnector,
+                            emailConnector: EmailConnector)
                            (implicit override val authConnector: AuthConnector)
   extends BaseController
   with Actions
@@ -37,7 +41,7 @@ class BizTaxPrefsController(val auditConnector: AuditConnector, preferencesConne
     implicit user => implicit request => Redirect(routes.BizTaxPrefsController.displayPrefsFormForCohort(calculateCohort(user), emailAddress))
   }
 
-  def displayPrefsFormForCohort(cohort: Cohort, emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(SaRegime) {
+  def displayPrefsFormForCohort(cohort: Cohort, emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(SaRegime).async {
     implicit user => implicit request => displayPrefsFormAction(emailAddress, cohort)
   }
 
@@ -71,18 +75,22 @@ class BizTaxPrefsController(val auditConnector: AuditConnector, preferencesConne
   private[prefs] def displayInterstitialPrefsFormAction(implicit user: User, request: Request[AnyRef], cohort: Cohort) = {
     implicit val hc = HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)
     val saUtr = user.userAuthority.accounts.sa.get.utr
-    preferencesConnector.getPreferences(saUtr).map {
-      case Some(saPreference) =>  FrontEndRedirect.toBusinessTax
+    preferencesConnector.getPreferences(saUtr).flatMap {
+      case Some(saPreference) =>  Future.successful(FrontEndRedirect.toBusinessTax)
       case None =>
-        auditPageShown(saUtr, Interstitial, cohort)
-        displayPreferencesFormAction(None, getSavePrefsFromInterstitialCall, cohort = cohort)
+        preferencesConnector.saveCohort(saUtr, connectors.Cohort(calculateCohort(user).toString)).map { case _ =>
+          auditPageShown(saUtr, Interstitial, cohort)
+          displayPreferencesFormAction(None, getSavePrefsFromInterstitialCall, cohort = cohort)
+        }
     }
   }
 
   private[prefs] def displayPrefsFormAction(emailAddress: Option[Encrypted[EmailAddress]], cohort: Cohort)(implicit user: User, request: Request[AnyRef]) = {
     val saUtr = user.userAuthority.accounts.sa.get.utr
-    auditPageShown(saUtr, AccountDetails, cohort)
-    displayPreferencesFormAction(emailAddress.map(_.decryptedValue), getSavePrefsFromNonInterstitialPageCall, withBanner = true, cohort)
+    preferencesConnector.saveCohort(saUtr, connectors.Cohort(calculateCohort(user).toString)).map { case _ =>
+      auditPageShown(saUtr, AccountDetails, cohort)
+      displayPreferencesFormAction(emailAddress.map(_.decryptedValue), getSavePrefsFromNonInterstitialPageCall, withBanner = true, cohort)
+    }
   }
 
   private[prefs] def submitPrefsFormAction(journey: Journey)(implicit user: User, request: Request[AnyRef], withBanner: Boolean = false) = {
@@ -93,15 +101,17 @@ class BizTaxPrefsController(val auditConnector: AuditConnector, preferencesConne
       emailConnector = emailConnector,
       saUtr = user.userAuthority.accounts.sa.get.utr,
       savePreferences = (utr, digital, email, hc) => {
-
-        preferencesConnector.savePreferences(utr, digital, email)(hc).map(_ => {
+        implicit val headerCarrier = hc
+        for {
+          _ <- preferencesConnector.saveCohort(utr, connectors.Cohort(calculateCohort(utr).toString))(hc)
+          _ <- preferencesConnector.savePreferences(utr, digital, email)(hc)
+        } yield {
           auditChoice(utr, journey, cohort, digital, email)(request, hc)
           digital match {
             case true => Redirect(routes.BizTaxPrefsController.thankYou())
             case false => Redirect(ExternalUrls.businessTaxHome)
           }
         }
-        )(mdcExecutionContext(hc))
       }
     )
   }
