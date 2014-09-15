@@ -28,7 +28,7 @@ trait PreferencesConnector extends Status {
 
   def url(path: String) = s"$serviceUrl$path"
 
-  def savePreferences(utr: SaUtr, digital: Boolean, email: Option[String] = None)(implicit hc: HeaderCarrier): Future[Any] =
+  def savePreferences(utr: SaUtr, digital: Boolean, email: Option[String])(implicit hc: HeaderCarrier): Future[Any] =
     http.POST(url(s"/preferences/sa/individual/$utr/print-suppression"), UpdateEmail(digital, email))
 
   def getPreferences(utr: SaUtr)(implicit headerCarrier: HeaderCarrier): Future[Option[SaPreference]] = {
@@ -36,6 +36,14 @@ trait PreferencesConnector extends Status {
       case e: NotFoundException => None
     }
   }
+
+  def saveCohort(utr: SaUtr, cohort: Cohort)(implicit hc: HeaderCarrier): Future[Any] =
+    http.POST(url(s"/a-b-testing/cohort/opt-in-email/sa/$SaUtr"), Cohort)
+
+  def getCohort(utr: SaUtr)(implicit headerCarrier: HeaderCarrier): Future[Option[Cohort]] =
+    http.GET[Cohort](url(s"/a-b-testing/cohort/opt-in-email/sa/$SaUtr")).map(Some(_)).recover {
+      case e: NotFoundException => None
+    }
 
   // TODO Could/should this use /portal/preferences/sa/individual/:utr/print-suppression/verified-email-address ?
   def getEmailAddress(utr: SaUtr)(implicit hc: HeaderCarrier) = {
