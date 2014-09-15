@@ -7,6 +7,7 @@ import controllers.sa.prefs.ExternalUrls
 import controllers.sa.prefs.internal.EmailOptInJourney._
 import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
+import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import play.api.test.{FakeApplication, FakeRequest, WithApplication}
@@ -30,9 +31,12 @@ abstract class BizTaxPrefsControllerSetup extends WithApplication(FakeApplicatio
   val emailConnector = mock[EmailConnector]
   val controller = new BizTaxPrefsController(auditConnector, preferencesConnector, emailConnector)(authConnector) {
     override def calculateCohort(user: User) = assignedCohort
+    override def calculateCohort(utr: SaUtr) = assignedCohort
   }
 
   val request = FakeRequest()
+
+  when(preferencesConnector.saveCohort(any(), any())(any())).thenReturn(Future.successful(()))
 }
 
 class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
@@ -276,8 +280,10 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       status(page) shouldBe 303
       header("Location", page).get should include(routes.BizTaxPrefsController.thankYou().toString())
 
+      verify(preferencesConnector).saveCohort(is(validUtr), is(connectors.Cohort(assignedCohort.toString)))(any())
       verify(preferencesConnector).savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())
       verify(emailConnector).isValid(is(emailAddress))(any())
+
       verifyNoMoreInteractions(preferencesConnector, emailConnector)
     }
 
@@ -289,7 +295,9 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       status(page) shouldBe 303
       header("Location", page).get should include(FrontEndRedirect.businessTaxHome)
 
+      verify(preferencesConnector).saveCohort(is(validUtr), is(connectors.Cohort(assignedCohort.toString)))(any())
       verify(preferencesConnector).savePreferences(is(validUtr), is(false), is(None))(any())
+
       verifyNoMoreInteractions(preferencesConnector, emailConnector)
     }
   }
@@ -305,7 +313,9 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       status(page) shouldBe 303
       header("Location", page).get should include(routes.BizTaxPrefsController.thankYou().toString())
 
+      verify(preferencesConnector).saveCohort(is(validUtr), is(connectors.Cohort(assignedCohort.toString)))(any())
       verify(preferencesConnector).savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())
+
       verifyNoMoreInteractions(preferencesConnector, emailConnector)
     }
 

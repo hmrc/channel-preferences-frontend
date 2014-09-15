@@ -17,7 +17,7 @@ class PreferencesConnectorSpec extends UnitSpec with ScalaFutures {
   class TestPreferencesConnector extends PreferencesConnector {
     override def serviceUrl: String = "http://prefernces.service/"
 
-    override def http: HttpGet with HttpPost = ???
+    override def http: HttpGet with HttpPost with HttpPut = ???
   }
 
   "The getEmailAddres method" should {
@@ -49,7 +49,8 @@ class PreferencesConnectorSpec extends UnitSpec with ScalaFutures {
     }
 
     def preferencesConnector(returnFromDoGet: Future[HttpResponse]): TestPreferencesConnector = new TestPreferencesConnector {
-      override def http = new HttpGet with HttpPost {
+      override def http = new HttpGet with HttpPost with HttpPut {
+        protected def doPut[A](url: String, body: A)(implicit rds: Writes[A], hc: HeaderCarrier): Future[HttpResponse] = ???
         protected def doFormPost(url: String, body: Map[String, Seq[String]])(implicit hc: HeaderCarrier) = ???
         protected def doPost[A](url: String, body: A)(implicit rds: Writes[A], hc: HeaderCarrier) = ???
         protected def doGet(url: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
@@ -93,17 +94,5 @@ class PreferencesConnectorSpec extends UnitSpec with ScalaFutures {
       val result = preferenceConnector.responseToEmailVerificationLinkStatus(Future.failed(new Upstream4xxResponse("", 410, 500)))
       result.futureValue shouldBe EXPIRED
     }
-  }
-
-  "Save of preferences should include cohort" in {
-    val updateEmail = UpdateEmail(
-      digital = true,
-      email = Some("me@mail.com"),
-      cohort = EmailOptInCohorts.OptInNotSelected.toString)
-
-    Json.toJson(updateEmail) shouldBe Json.obj(
-      "digital" -> true,
-      "email" -> "me@mail.com",
-      "cohort" -> "OptInNotSelected")
   }
 }
