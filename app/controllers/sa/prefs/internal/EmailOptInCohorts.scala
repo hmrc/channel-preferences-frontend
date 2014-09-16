@@ -1,5 +1,6 @@
 package controllers.sa.prefs.internal
 
+import play.api.libs.json._
 import play.api.mvc.PathBindable
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.domain.SaUtr
@@ -26,5 +27,7 @@ object EmailOptInCohorts extends Enumeration {
 
   implicit val pathBinder: PathBindable[Cohort] = PathBindable.bindableInt.transform(apply, _.id)
 
-
+  implicit def cohortWrites = new Writes[Cohort] {
+    override def writes(cohort: Cohort): JsObject = Json.obj("cohort" -> cohort.toString)
+  }
 }

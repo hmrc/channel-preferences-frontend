@@ -78,7 +78,7 @@ class BizTaxPrefsController(val auditConnector: AuditConnector,
     preferencesConnector.getPreferences(saUtr).flatMap {
       case Some(saPreference) =>  Future.successful(FrontEndRedirect.toBusinessTax)
       case None =>
-        preferencesConnector.saveCohort(saUtr, connectors.Cohort(calculateCohort(user).toString)).map { case _ =>
+        preferencesConnector.saveCohort(saUtr, calculateCohort(user)).map { case _ =>
           auditPageShown(saUtr, Interstitial, cohort)
           displayPreferencesFormAction(None, getSavePrefsFromInterstitialCall, cohort = cohort)
         }
@@ -87,7 +87,7 @@ class BizTaxPrefsController(val auditConnector: AuditConnector,
 
   private[prefs] def displayPrefsFormAction(emailAddress: Option[Encrypted[EmailAddress]], cohort: Cohort)(implicit user: User, request: Request[AnyRef]) = {
     val saUtr = user.userAuthority.accounts.sa.get.utr
-    preferencesConnector.saveCohort(saUtr, connectors.Cohort(calculateCohort(user).toString)).map { case _ =>
+    preferencesConnector.saveCohort(saUtr, calculateCohort(user)).map { case _ =>
       auditPageShown(saUtr, AccountDetails, cohort)
       displayPreferencesFormAction(emailAddress.map(_.decryptedValue), getSavePrefsFromNonInterstitialPageCall, withBanner = true, cohort)
     }
@@ -103,7 +103,7 @@ class BizTaxPrefsController(val auditConnector: AuditConnector,
       savePreferences = (utr, digital, email, hc) => {
         implicit val headerCarrier = hc
         for {
-          _ <- preferencesConnector.saveCohort(utr, connectors.Cohort(calculateCohort(utr).toString))(hc)
+          _ <- preferencesConnector.saveCohort(utr, calculateCohort(utr))(hc)
           _ <- preferencesConnector.savePreferences(utr, digital, email)(hc)
         } yield {
           auditChoice(utr, journey, cohort, digital, email)(request, hc)

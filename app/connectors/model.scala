@@ -13,15 +13,9 @@ object SaPreferenceSimplified {
   implicit val formats = Json.format[SaPreferenceSimplified]
 }
 
-object Cohort{
-  implicit val formats = Json.format[Cohort]
-}
-
 case class SaPreferenceSimplified(digital: Boolean, email: Option[String] = None)
 
 case class UpdateEmail(digital: Boolean, email: Option[String])
-
-case class Cohort(cohort: String)
 
 object UpdateEmail {
   implicit def formats = Json.format[UpdateEmail]

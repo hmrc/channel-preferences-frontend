@@ -1,19 +1,17 @@
 package connectors
 
+import controllers.sa.prefs.internal.EmailOptInCohorts._
 import play.api.Logger
-import uk.gov.hmrc.common.microservice.MicroServiceConfig
-
-import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.emailaddress.EmailAddress
-import scala.concurrent.Future
-import uk.gov.hmrc.play.connectors.HeaderCarrier
-import uk.gov.hmrc.play.logging.MdcLoggingExecutionContext._
-import play.api.libs.json.Json
 import play.api.http.Status
-import uk.gov.hmrc.play.http.ws.WSHttp
-import uk.gov.hmrc.play.http._
-import uk.gov.hmrc.play.http.Upstream4xxResponse
 import play.api.libs.json._
+import uk.gov.hmrc.common.microservice.MicroServiceConfig
+import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.play.connectors.HeaderCarrier
+import uk.gov.hmrc.play.http.{Upstream4xxResponse, _}
+import uk.gov.hmrc.play.http.ws.WSHttp
+import uk.gov.hmrc.play.logging.MdcLoggingExecutionContext._
+
+import scala.concurrent.Future
 
 object PreferencesConnector extends PreferencesConnector {
   override val serviceUrl = MicroServiceConfig.preferencesServiceUrl
@@ -38,15 +36,11 @@ trait PreferencesConnector extends Status {
     }
   }
 
-  def saveCohort(utr: SaUtr, cohort: Cohort)(implicit hc: HeaderCarrier): Future[Any] =
-    http.PUT(url(s"/a-b-testing/cohort/opt-in-email/sa/$utr"), cohort).recover {
+  def saveCohort(utr: SaUtr, cohort: Cohort)(implicit hc: HeaderCarrier): Future[Any] = {
+    http.PUT(url(s"/a-b-testing/cohort/email-opt-in/sa/$utr"), cohort).recover {
       case e: NotFoundException => Logger.warn("Cannot save cohort for opt-in-email")
     }
-
-  def getCohort(utr: SaUtr)(implicit headerCarrier: HeaderCarrier): Future[Option[Cohort]] =
-    http.GET[Cohort](url(s"/a-b-testing/cohort/opt-in-email/sa/$utr")).map(Some(_)).recover {
-      case e: NotFoundException => None
-    }
+  }
 
   // TODO Could/should this use /portal/preferences/sa/individual/:utr/print-suppression/verified-email-address ?
   def getEmailAddress(utr: SaUtr)(implicit hc: HeaderCarrier) = {
