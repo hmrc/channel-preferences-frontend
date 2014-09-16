@@ -280,7 +280,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       status(page) shouldBe 303
       header("Location", page).get should include(routes.BizTaxPrefsController.thankYou().toString())
 
-      verify(preferencesConnector).saveCohort(is(validUtr), is(connectors.Cohort(assignedCohort.toString)))(any())
+      verify(preferencesConnector).saveCohort(is(validUtr), is(assignedCohort))(any())
       verify(preferencesConnector).savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())
       verify(emailConnector).isValid(is(emailAddress))(any())
 
@@ -295,7 +295,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       status(page) shouldBe 303
       header("Location", page).get should include(FrontEndRedirect.businessTaxHome)
 
-      verify(preferencesConnector).saveCohort(is(validUtr), is(connectors.Cohort(assignedCohort.toString)))(any())
+      verify(preferencesConnector).saveCohort(is(validUtr), is(assignedCohort))(any())
       verify(preferencesConnector).savePreferences(is(validUtr), is(false), is(None))(any())
 
       verifyNoMoreInteractions(preferencesConnector, emailConnector)
@@ -313,7 +313,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       status(page) shouldBe 303
       header("Location", page).get should include(routes.BizTaxPrefsController.thankYou().toString())
 
-      verify(preferencesConnector).saveCohort(is(validUtr), is(connectors.Cohort(assignedCohort.toString)))(any())
+      verify(preferencesConnector).saveCohort(is(validUtr), is(assignedCohort))(any())
       verify(preferencesConnector).savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())
 
       verifyNoMoreInteractions(preferencesConnector, emailConnector)
