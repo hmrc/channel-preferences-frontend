@@ -1,10 +1,10 @@
-package controllers.sa.prefs
+package controllers.sa.prefs.filing
 
 import java.net.{URLDecoder, URLEncoder}
 
 import org.joda.time.{DateTime, DateTimeZone}
 import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.play.crypto.AesCrypto
+import uk.gov.hmrc.crypto.AesCrypto
 import uk.gov.hmrc.test.UnitSpec
 
 class TokenEncryptionSpec extends UnitSpec {

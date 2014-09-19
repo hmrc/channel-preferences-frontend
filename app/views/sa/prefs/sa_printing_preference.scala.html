@@ -1,82 +1,9 @@
-@(showBanner:Boolean,emailForm: Form[_], submitPrefsFormAction: Call)(implicit request: Request[_])
+@(showBanner:Boolean,emailForm: Form[_], submitPrefsFormAction: Call, cohort: controllers.sa.prefs.internal.EmailOptInCohorts.Cohort)(implicit request: Request[_])
 
-@import views.helpers.Link
+@import views.html.sa.prefs.cohorts._
+@import controllers.sa.prefs.internal.EmailOptInCohorts._
 
-@main(title = Messages("sa_printing_preference.title"), nav = showBanner, logout=Call("GET", controllers.sa.prefs.ExternalUrls.survey)) {
-
-<header class="page-header">
-    <h1>@Messages("sa_printing_preference.heading")</h1>
-</header>
-
-
-<p>@Messages("sa_printing_preference.paragraph.1")</p>
-<ul class="bullets">
-    <li>@Messages("sa_printing_preference.list.1.item.1")</li>
-    <li>@Messages("sa_printing_preference.list.1.item.2")</li>
-    <li>@Messages("sa_printing_preference.list.1.item.3")</li>
-    <li>@Messages("sa_printing_preference.list.1.item.4")</li>
-</ul>
-<h2>@Messages("sa_printing_preference.heading.2")</h2>
-<p>@Messages("sa_printing_preference.paragraph.2")</p>
-<p>@Messages("sa_printing_preference.paragraph.3")</p>
-<p>@Messages("sa_printing_preference.paragraph.4")</p>
-
-@_root_.views.html.helpers.form(action = submitPrefsFormAction, 'id -> "form-submit-email-address") {
-<h3>@Messages("sa_printing_preference.heading.3")</h3>
-
-<label class="selectable">
-    <input
-        id="opt-in-in"
-        type="radio"
-        name="opt-in"
-        value="true"
-        class="email-prefs__toggle"
-        @if(emailForm("opt-in").value == Some("true")) { checked="checked" }
-    />
-    @Messages("sa_printing_preference.option.yes")
-</label>
-<fieldset class="connected js-hidden">
-    @helpers.input(
-    emailForm("email.main"),
-    '_label -> "Email address",
-    '_labelClass -> "bold",
-    '_labelHighlight -> true,
-    '_divClass -> "row",
-    '_inputClass -> "input--medium input--cleared",
-    'parentField -> emailForm("email")
-    )
-
-    @helpers.input(
-    emailForm("email.confirm"),
-    '_label -> "Confirm email address",
-    '_labelClass -> "bold",
-    '_labelHighlight -> true,
-    '_divClass -> "row",
-    '_inputClass -> "input--medium input--cleared"
-    )
-    <p>@Html(Messages("sa_printing_preference.tc",
-        Link.toExternalPage(url = "https://online.hmrc.gov.uk/information/terms#8", value = Some(Messages("sa_printing_preference.tc.linkText"))).toHtml))
-</fieldset>
-<label class="selectable">
-    <input
-           id="opt-in-out"
-           type="radio"
-           name="opt-in"
-           value="false"
-           class="email-prefs__toggle"
-           @if(emailForm("opt-in").value == Some("false")) { checked="checked" }
-           />
-    @Messages("sa_printing_preference.option.no")
-</label>
-<div class="email-form-errors">
-    @emailForm("opt-in").errors.map { error => <label class="error-notification">@Messages(error.message)</label>}
-    @emailForm.globalErrors.map { error => <label class="error-notification">@Messages(error.message)</label>}
-</div>
-<br>
-<div class="form-field">
-    <button id="submitEmailButton" class="button" name="submitButton" type="submit">@Messages("sa_printing_preference.submitButton")</button>
-</div>
-
-}
-
-}
+@{cohort match {
+    case OptInNotSelected => opt_in_not_selected(showBanner,emailForm,submitPrefsFormAction)
+    case OptInSelected => opt_in_selected(showBanner,emailForm,submitPrefsFormAction)
+}}

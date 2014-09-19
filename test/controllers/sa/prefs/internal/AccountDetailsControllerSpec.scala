@@ -15,16 +15,17 @@ import connectors.EmailConnector
 import play.api.test.Helpers._
 import org.mockito.Matchers
 import java.net.URI
-import uk.gov.hmrc.common.crypto.Encrypted
+import uk.gov.hmrc.crypto.Encrypted
 import controllers.sa.prefs.AuthorityUtils._
-import connectors.{FormattedUri, SaEmailPreference, SaPreference, PreferencesConnector}
+import connectors.{SaEmailPreference, SaPreference, PreferencesConnector}
 
 abstract class Setup extends WithApplication(FakeApplication()) with MockitoSugar {
   val auditConnector = mock[AuditConnector]
   val authConnector = mock[AuthConnector]
   val mockPreferencesConnector = mock[PreferencesConnector]
   val mockEmailConnector = mock[EmailConnector]
-  val controller = new AccountDetailsController(auditConnector, mockPreferencesConnector,mockEmailConnector)(authConnector)
+
+  val controller = new AccountDetailsController(auditConnector, mockPreferencesConnector,mockEmailConnector, EmailOptInCohortCalculator)(authConnector)
 
   val request = FakeRequest()
 }
@@ -88,7 +89,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
       val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.pending)))
 
       when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Future.successful(Some(saPreferences)))
-      when(mockPreferencesConnector.savePreferences(is(validUtr), is(true), is(Some("test@test.com")))(any())).thenReturn(Future.successful(None))
+      when(mockPreferencesConnector.savePreferences(is(validUtr), is(true), is(Some("test@test.com")))(any())).thenReturn(Future.successful(()))
 
       val page = Future.successful(controller.resendValidationEmailAction(user, FakeRequest()))
 
@@ -316,7 +317,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
       val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.verified)))
 
       when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Future.successful(Some(saPreferences)))
-      when(mockPreferencesConnector.savePreferences(is(validUtr), is(false), is(None))(any())).thenReturn(Future.successful(Some(FormattedUri(new URI("http://1234/")))))
+      when(mockPreferencesConnector.savePreferences(is(validUtr), is(false), is(None))(any())).thenReturn(Future.successful(()))
 
       val result = Future.successful(controller.confirmOptOutOfEmailRemindersPage(user, request))
 

@@ -1,5 +1,7 @@
 package connectors
 
+import controllers.sa.prefs.internal.EmailOptInCohorts
+import play.api.libs.json.{Json, Writes}
 import uk.gov.hmrc.domain.SaUtr
 import org.scalatest.concurrent.ScalaFutures
 import uk.gov.hmrc.play.http._
@@ -11,16 +13,56 @@ class PreferencesConnectorSpec extends UnitSpec with ScalaFutures {
 
   implicit val hc = new HeaderCarrier
 
-  lazy val preferenceConnector = new TestPreferencesConnector()
 
   class TestPreferencesConnector extends PreferencesConnector {
-    override def serviceUrl: String = ???
+    override def serviceUrl: String = "http://prefernces.service/"
 
-    override def http: HttpGet with HttpPost = ???
+    override def http: HttpGet with HttpPost with HttpPut = ???
+  }
+
+  "The getEmailAddres method" should {
+    "return None for a 404" in {
+      val preferenceConnector = preferencesConnector(Future.successful(HttpResponse(404)))
+      preferenceConnector.getEmailAddress(SaUtr("1")).futureValue should be (None)
+    }
+
+    "return None when there is not an email preference" in {
+      val preferenceConnector = preferencesConnector(Future.successful(HttpResponse(200, Some(Json.parse(
+        """
+          |{
+          |  "digital": false
+          |}
+        """.stripMargin)))))
+      preferenceConnector.getEmailAddress(SaUtr("1")).futureValue should be (None)
+    }
+
+    "return an email address when there is an email preference" in {
+      val preferenceConnector = preferencesConnector(Future.successful(HttpResponse(200, Some(Json.parse(
+        """
+          |{
+          |  "email": {
+          |    "email" : "a@b.com"
+          |  }
+          |}
+        """.stripMargin)))))
+      preferenceConnector.getEmailAddress(SaUtr("1")).futureValue should be (Some("a@b.com"))
+    }
+
+    def preferencesConnector(returnFromDoGet: Future[HttpResponse]): TestPreferencesConnector = new TestPreferencesConnector {
+      override def http = new HttpGet with HttpPost with HttpPut {
+        protected def doPut[A](url: String, body: A)(implicit rds: Writes[A], hc: HeaderCarrier): Future[HttpResponse] = ???
+        protected def doFormPost(url: String, body: Map[String, Seq[String]])(implicit hc: HeaderCarrier) = ???
+        protected def doPost[A](url: String, body: A)(implicit rds: Writes[A], hc: HeaderCarrier) = ???
+        protected def doGet(url: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+          returnFromDoGet
+        }
+      }
+    }
   }
 
   "The responseToEmailVerificationLinkStatus method" should {
     import EmailVerificationLinkResponse._
+    lazy val preferenceConnector = new TestPreferencesConnector()
 
     "return ok if updateEmailValidationStatusUnsecured returns 200" in {
       val result = preferenceConnector.responseToEmailVerificationLinkStatus(Future.successful(HttpResponse(200)))

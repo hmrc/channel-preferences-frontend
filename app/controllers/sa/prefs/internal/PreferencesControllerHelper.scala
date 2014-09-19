@@ -1,23 +1,27 @@
-package controllers.sa.prefs
-
-import play.api.mvc.{SimpleResult, Call, Request}
-import play.api.data._
-import play.api.mvc.Results._
-import play.api.data.Forms._
+package controllers.sa.prefs.internal
 
 import connectors.EmailConnector
+import controllers.sa.prefs._
+import controllers.sa.prefs.internal.EmailOptInCohorts.Cohort
+import play.api.data.Forms._
+import play.api.data._
+import play.api.mvc.Results._
+import play.api.mvc.{Call, Request, Result}
+import play.api.templates.HtmlFormat
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
-import scala.concurrent._
-import Function.const
-import play.api.templates.HtmlFormat
 import uk.gov.hmrc.play.connectors.HeaderCarrier
 import uk.gov.hmrc.play.logging.MdcLoggingExecutionContext._
-import connectors.FormattedUri
+
+import scala.Function.const
+import scala.concurrent._
 
 trait PreferencesControllerHelper {
 
-  val emailWithLimitedLength: Mapping[String] = email.verifying("error.email_too_long", email => email.size < 320)
+  val emailWithLimitedLength: Mapping[String] =
+    text
+      .verifying("error.email", EmailAddress.isValid _)
+      .verifying("error.email_too_long", email => email.size < 320)
 
   // TODO the duplication of these forms is all wrong - need to alter the field names in the HTML to
   // be able to restructure and sort this out.
@@ -52,28 +56,27 @@ trait PreferencesControllerHelper {
       .verifying("email.confirmation.emails.unequal", formData => formData.email._1 == formData.email._2)
     )
 
-  def getSubmitPreferencesView(savePrefsCall: Call)(implicit request: Request[AnyRef], withBanner: Boolean = false): Form[_] => HtmlFormat.Appendable = {
-    errors => views.html.sa.prefs.sa_printing_preference(withBanner, errors, savePrefsCall)
+  def getSubmitPreferencesView(savePrefsCall: Call, cohort: Cohort)(implicit request: Request[AnyRef], withBanner: Boolean = false): Form[_] => HtmlFormat.Appendable = {
+    errors => views.html.sa.prefs.sa_printing_preference(withBanner, errors, savePrefsCall, cohort)
   }
 
-  def displayPreferencesFormAction(email: Option[EmailAddress], savePrefsCall: Call, withBanner: Boolean = false)(implicit request: Request[AnyRef]) = {
-
+  def displayPreferencesFormAction(email: Option[EmailAddress], savePrefsCall: Call, withBanner: Boolean = false, cohort: Cohort)(implicit request: Request[AnyRef]) =
     Ok(
-      views.html.sa.prefs.sa_printing_preference(
-        withBanner,
-        emailForm = emailFormWithPreference.fill(EmailFormDataWithPreference(email, email.map(_ => OptIn))),
-        submitPrefsFormAction = savePrefsCall
-      )
+    views.html.sa.prefs.sa_printing_preference(
+      withBanner,
+      emailForm = emailFormWithPreference.fill(EmailFormDataWithPreference(email, email.map(_ => OptIn))),
+      submitPrefsFormAction = savePrefsCall,
+      cohort
     )
-  }
+  )
 
   protected def submitEmailForm(errorsView: (Form[_]) => play.api.templates.HtmlFormat.Appendable,
                                 emailWarningView: (String) => play.api.templates.HtmlFormat.Appendable,
                                 successRedirect: () => Call,
                                 emailConnector: EmailConnector,
                                 saUtr: SaUtr,
-                                savePreferences: (SaUtr, Boolean, Option[String], HeaderCarrier) => Future[Option[FormattedUri]])
-                               (implicit request: Request[AnyRef]): Future[SimpleResult] = {
+                                savePreferences: (SaUtr, Boolean, Option[String], HeaderCarrier) => Future[_])
+                               (implicit request: Request[AnyRef]): Future[Result] = {
 
     implicit def hc = HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)
 
@@ -96,8 +99,8 @@ trait PreferencesControllerHelper {
                                       emailWarningView: (String) => play.api.templates.HtmlFormat.Appendable,
                                       emailConnector: EmailConnector,
                                       saUtr: SaUtr,
-                                      savePreferences: (SaUtr, Boolean, Option[String], HeaderCarrier) => Future[SimpleResult])
-                                     (implicit request: Request[AnyRef]): Future[SimpleResult] = {
+                                      savePreferences: (SaUtr, Boolean, Option[String], HeaderCarrier) => Future[Result])
+                                     (implicit request: Request[AnyRef]): Future[Result] = {
 
     implicit def hc = HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)
 

@@ -1,8 +1,6 @@
 package connectors
 
 import play.api.libs.json.{Format, Json}
-import java.net.URI
-import com.netaporter.uri.Uri
 
 
 object EmailVerificationLinkResponse extends Enumeration {
@@ -11,13 +9,11 @@ object EmailVerificationLinkResponse extends Enumeration {
   val OK, EXPIRED, ERROR = Value
 }
 
-
 object SaPreferenceSimplified {
   implicit val formats = Json.format[SaPreferenceSimplified]
 }
 
 case class SaPreferenceSimplified(digital: Boolean, email: Option[String] = None)
-
 
 case class UpdateEmail(digital: Boolean, email: Option[String])
 
@@ -53,10 +49,3 @@ object ValidateEmail {
 }
 
 case class ValidateEmail(token: String)
-
-
-object FormattedUri {
-  implicit val formats = Json.format[FormattedUri]
-}
-
-case class FormattedUri(uri: URI)
