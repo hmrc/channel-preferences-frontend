@@ -48,7 +48,7 @@ class AccountDetailsController(val auditConnector: AuditConnector,
   }
 
   def optedBackIntoPaperThankYou() = AuthorisedFor(regime = SaRegime).async {
-    user => implicit request => Future(Ok(views.html.opted_back_into_paper_thank_you(user)))
+    implicit user => implicit request => Future(Ok(views.html.opted_back_into_paper_thank_you()))
   }
 
   def resendValidationEmail() = AuthorisedFor(regime = SaRegime).async {
@@ -68,7 +68,7 @@ class AccountDetailsController(val auditConnector: AuditConnector,
     lookupCurrentEmail {
       email =>
         preferencesConnector.savePreferences(user.userAuthority.accounts.sa.get.utr, true, Some(email)).map(_ =>
-          Ok(views.html.account_details_verification_email_resent_confirmation(user))
+          Ok(views.html.account_details_verification_email_resent_confirmation())
         )
     }
   }
@@ -106,6 +106,6 @@ class AccountDetailsController(val auditConnector: AuditConnector,
     preferencesConnector.savePreferences(utr, digital, email)(hc)
 
   private[prefs] def emailAddressChangeThankYouPage(implicit user: User, request: Request[AnyRef]): Future[Result] = {
-    lookupCurrentEmail(email => Future.successful(Ok(views.html.account_details_update_email_address_thank_you(email.obfuscated)(user))))
+    lookupCurrentEmail(email => Future.successful(Ok(views.html.account_details_update_email_address_thank_you(email.obfuscated))))
   }
 }
