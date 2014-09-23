@@ -1,6 +1,7 @@
 @(showBanner:Boolean,emailForm: Form[_], submitPrefsFormAction: Call)(implicit request: Request[_])
 
-@import views.helpers._
+@import views.helpers.HeaderNav
+@import uk.gov.hmrc.urls.Link
 
 @main(title = Messages(s"sa_printing_preference.title"), headerNav = if (showBanner) Some(HeaderNav.yta) else None) {
 

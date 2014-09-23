@@ -1,6 +1,6 @@
 @(user: Option[uk.gov.hmrc.common.microservice.domain.User], redirectUrl: String, cohort: controllers.sa.prefs.internal.EmailOptInCohorts.Cohort)(implicit request: Request[_])
 
-@import views.helpers.Link
+@import uk.gov.hmrc.urls.Link
 
 @main(title = Messages(s"sa_printing_preference.title"), headerNav = Some(views.helpers.HeaderNav.yta), userLoggedIn = user.isDefined) {
 

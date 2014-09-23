@@ -1,6 +1,6 @@
 @(emailAddress: uk.gov.hmrc.emailaddress.ObfuscatedEmailAddress)(implicit user: uk.gov.hmrc.common.microservice.domain.User, request : Request[_])
 
-@import views.helpers.Link
+@import uk.gov.hmrc.urls.Link
 
 @main(title = "Your details - Stop your Self Assessment email reminders", headerNav = Some(views.helpers.HeaderNav.yta), userLoggedIn = true) {
 
