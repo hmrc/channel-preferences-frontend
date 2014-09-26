@@ -1,18 +1,13 @@
 @()(implicit request: Request[_])
+@import uk.gov.hmrc.urls.Link
 
-@main(title = "Your email address has been verified", footerLinks=None) {
+@main(title = "Email address verified", footerLinks=None) {
 
 <header class="page-header">
     <h1 id="success-heading">@Messages("sa_printing_preference.verification.heading")</h1>
 </header>
-
-<p>@Messages("sa_printing_preference.verification.paragraph.1")</p>
-<p id="hmrc-update">@Messages("sa_printing_preference.verification.paragraph.2")</p>
-<p>@Messages("sa_printing_preference.verification.paragraph.3")</p>
-<ol>
-    <li>@Messages("sa_printing_preference.verification.action_list.1")</li>
-    <li>@Messages("sa_printing_preference.verification.action_list.2")</li>
-</ol>
-
-
+<p id="success-message">@Messages("sa_printing_preference.verification.paragraph.1")</p>
+<p id="success-action">@Messages("sa_printing_preference.verification.paragraph.2")</p>
+<p>@Link.toExternalPage(url = "https://online.hmrc.gov.uk", value = Some(Messages("sa_printing_preference.verification.action"))).toHtml))
+    ).toHtml</p>
 }
