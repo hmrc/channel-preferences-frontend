@@ -44,7 +44,7 @@ sa_printing_preference_confirm.paragraph.2=You’ve been sent an email telling y
 sa_printing_preference_confirm.linkText=Go to your tax account
 
 sa_printing_preference.verification.heading=Email address verified
-sa_printing_preference.verification.heading.already=This email address has already been verified
+sa_printing_preference.verification.heading.already=Email address already verified
 sa_printing_preference.verification.paragraph.1=You’re now signed up for Self Assessment email reminders.
 sa_printing_preference.verification.paragraph.2=Most of your reminders will now be sent by email.
 sa_printing_preference.verification.action=Sign in to your HMRC online account.
