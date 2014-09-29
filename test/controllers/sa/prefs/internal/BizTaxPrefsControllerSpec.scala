@@ -2,6 +2,7 @@ package controllers.sa.prefs.internal
 
 import connectors.{EmailConnector, PreferencesConnector, SaEmailPreference, SaPreference}
 import controllers.common.FrontEndRedirect
+import controllers.sa.Encrypted
 import controllers.sa.prefs.AuthorityUtils._
 import controllers.sa.prefs.ExternalUrls
 import controllers.sa.prefs.internal.EmailOptInJourney._
@@ -14,7 +15,6 @@ import play.api.test.{FakeApplication, FakeRequest, WithApplication}
 import uk.gov.hmrc.common.microservice.audit.{AuditConnector, AuditEvent}
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.domain.User
-import uk.gov.hmrc.crypto.Encrypted
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.monitoring.EventTypes
