@@ -9,7 +9,7 @@ import org.joda.time.{DateTime, DateTimeZone}
 import play.api.Logger
 import play.api.mvc.{Action, AnyContent, Request, Results}
 import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.crypto.{CompositeSymmetricCrypto, Decrypter, KeysFromConfig}
+import uk.gov.hmrc.crypto._
 
 import scala.concurrent.Future
 
@@ -19,6 +19,9 @@ private[filing] case class Token(utr: SaUtr, timestamp: Long, encryptedToken: St
 
 private[filing] trait TokenEncryption extends Decrypter {
 
+  implicit def toCrypted(encryted: String): Crypted =  Crypted(encryted)
+  implicit def toPlainText(plaintext: String): PlainText =  PlainText(plaintext)
+
   val base64 = "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$"
   val baseConfigKey = "sso.encryption"
 
@@ -27,7 +30,7 @@ private[filing] trait TokenEncryption extends Decrypter {
       if (encryptedToken.matches(base64)) decrypt(encryptedToken)
       else decrypt(URLDecoder.decode(encryptedToken, "UTF-8"))
 
-    val (utr, time) = tokenAsString.split(":") match {
+    val (utr, time) = tokenAsString.value.split(":") match {
       case Array(u, t) => (u.trim, t.trim.toLong)
     }
     if (currentTime.minusMinutes(timeout).isAfter(time)) throw TokenExpiredException(encryptedToken, time)

@@ -6,8 +6,9 @@ import com.netaporter.uri.encoding._
 import connectors.{EmailConnector, PreferencesConnector}
 import controllers.common.BaseController
 import controllers.common.service.FrontEndConfig
+import controllers.sa.Encrypted
 import play.api.mvc._
-import uk.gov.hmrc.crypto.Encrypted
+import uk.gov.hmrc.crypto.PlainText
 import uk.gov.hmrc.emailaddress.EmailAddress
 
 class FilingInterceptController(whiteList: Set[String], preferencesConnector: PreferencesConnector, emailConnector: EmailConnector) extends BaseController {
@@ -24,7 +25,7 @@ class FilingInterceptController(whiteList: Set[String], preferencesConnector: Pr
           val utr = token.utr
           preferencesConnector.getEmailAddress(utr) map {
             case Some(emailAddress) =>
-              Redirect(returnUrl ? ("email" -> TokenEncryption.encrypt(emailAddress)))
+              Redirect(returnUrl ? ("email" -> TokenEncryption.encrypt(PlainText(emailAddress)).value))
             case _ =>
               Redirect(returnUrl)
           }

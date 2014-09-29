@@ -4,15 +4,15 @@ import connectors.{EmailConnector, PreferencesConnector}
 import controllers.common.actions.Actions
 import controllers.common.service.Connectors
 import controllers.common.{BaseController, FrontEndRedirect}
+import controllers.sa.Encrypted
 import controllers.sa.prefs.ExternalUrls.businessTaxHome
-import controllers.sa.prefs.internal.EmailOptInJourney._
-import controllers.sa.prefs.{SaRegime, _}
+import controllers.sa.prefs._
 import controllers.sa.prefs.internal.EmailOptInCohorts.Cohort
+import controllers.sa.prefs.internal.EmailOptInJourney._
 import play.api.mvc._
 import uk.gov.hmrc.common.microservice.audit.{AuditConnector, AuditEvent}
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.domain.User
-import uk.gov.hmrc.crypto.Encrypted
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.config.AppName
