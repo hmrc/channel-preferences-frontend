@@ -33,7 +33,7 @@ class EncryptedEmailQueryBinderSpec extends UnitSpec with MockitoSugar {
       decryptedEmail = Some("asdfasdf")
       binder.bind("exampleKey", Map.empty) should be (Some(Left("Not a valid email address")))
     }
-    "Give an an if decryption throws an exception" in new TestCase {
+    "Give an error if decryption throws an exception" in new TestCase {
       when(stringBinder.bind(any(), any())).thenReturn(Some(Right(encryptedData)))
       decryptedEmail = None
       binder.bind("exampleKey", Map.empty) should be (Some(Left("Could not decrypt value")))
