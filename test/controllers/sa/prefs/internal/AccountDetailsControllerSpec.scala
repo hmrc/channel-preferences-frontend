@@ -1,23 +1,22 @@
 package controllers.sa.prefs.internal
 
-import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.emailaddress.EmailAddress
-import uk.gov.hmrc.test.UnitSpec
-import play.api.test.{FakeRequest, FakeApplication, WithApplication}
+import connectors.{EmailConnector, PreferencesConnector, SaEmailPreference, SaPreference}
+import controllers.sa.Encrypted
+import controllers.sa.prefs.AuthorityUtils._
+import org.jsoup.Jsoup
+import org.mockito.Matchers
+import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
+import play.api.test.Helpers._
+import play.api.test.{FakeApplication, FakeRequest, WithApplication}
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.emailaddress.EmailAddress
+import uk.gov.hmrc.test.UnitSpec
+
 import scala.concurrent.Future
-import org.jsoup.Jsoup
-import org.mockito.Mockito._
-import connectors.EmailConnector
-import play.api.test.Helpers._
-import org.mockito.Matchers
-import java.net.URI
-import uk.gov.hmrc.crypto.Encrypted
-import controllers.sa.prefs.AuthorityUtils._
-import connectors.{SaEmailPreference, SaPreference, PreferencesConnector}
 
 abstract class Setup extends WithApplication(FakeApplication()) with MockitoSugar {
   val auditConnector = mock[AuditConnector]
@@ -31,7 +30,7 @@ abstract class Setup extends WithApplication(FakeApplication()) with MockitoSuga
 }
 
 class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
-  import Matchers.{any, eq => is}
+  import org.mockito.Matchers.{any, eq => is}
 
   val validUtr = SaUtr("1234567890")
   val user = User(userId = "userId", userAuthority = saAuthority("userId", "1234567890"), nameFromGovernmentGateway = Some("Ciccio"), decryptedToken = None)

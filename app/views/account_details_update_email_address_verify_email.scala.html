@@ -1,7 +1,7 @@
 @(emailAddress: String)(implicit user: uk.gov.hmrc.common.microservice.domain.User, request : Request[_])
 
 @import uk.gov.hmrc.urls.Link
-@import uk.gov.hmrc.crypto.Encrypted
+@import controllers.sa.Encrypted
 @import uk.gov.hmrc.emailaddress.EmailAddress
 
 @main(title = "Your Details - Check your email address is correct", headerNav = Some(views.helpers.HeaderNav.yta), userLoggedIn = true) {

@@ -2,8 +2,8 @@ package controllers.sa.prefs.filing
 
 import java.net.URLEncoder.{encode => urlEncode}
 
-import connectors.SaEmailPreference.Status
-import connectors.{EmailConnector, PreferencesConnector, SaEmailPreference, SaPreference}
+import connectors.{EmailConnector, PreferencesConnector}
+import controllers.sa.Encrypted
 import org.joda.time.{DateTime, DateTimeZone}
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
@@ -11,9 +11,9 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, OptionValues, ShouldMatchers, WordSpec}
 import play.api.mvc.{AnyContent, Request}
-import play.api.test.{FakeApplication, FakeRequest, WithApplication}
+import play.api.test.FakeRequest
 import uk.gov.hmrc.crypto.ApplicationCrypto.SsoPayloadCrypto.encrypt
-import uk.gov.hmrc.crypto.Encrypted
+import uk.gov.hmrc.crypto.{Crypted, PlainText}
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.connectors.HeaderCarrier
@@ -85,18 +85,21 @@ class FilingInterceptControllerSpec extends WordSpec with ShouldMatchers with Mo
 
   trait TestCase {
 
+    implicit def toCrypted(encryted: String): Crypted =  Crypted(encryted)
+    implicit def toPlainText(plaintext: String): PlainText =  PlainText(plaintext)
+
     val preferencesConnector = mock[PreferencesConnector]
     val emailConnector = mock[EmailConnector]
     val controller = new FilingInterceptController(whiteList = Set("localhost"), preferencesConnector, emailConnector)
 
     val emailAddress = "foo@bar.com"
     val validUtr = SaUtr("1234567")
-    lazy val validToken = urlEncode(encrypt(s"$validUtr:${DateTime.now(DateTimeZone.UTC).getMillis}"), "UTF-8")
-    lazy val expiredToken = urlEncode(encrypt(s"$validUtr:${DateTime.now(DateTimeZone.UTC).minusDays(1).getMillis}"), "UTF-8")
+    lazy val validToken = urlEncode(encrypt(s"$validUtr:${DateTime.now(DateTimeZone.UTC).getMillis}").value, "UTF-8")
+    lazy val expiredToken = urlEncode(encrypt(s"$validUtr:${DateTime.now(DateTimeZone.UTC).minusDays(1).getMillis}").value, "UTF-8")
     lazy val incorrectToken = "this is an incorrect token khdskjfhasduiy3784y37yriuuiyr3i7rurkfdsfhjkdskh"
     val decodedReturnUrl = "http://localhost:8080/portal?exampleQuery=exampleValue"
     val encodedReturnUrl = urlEncode(decodedReturnUrl, "UTF-8")
-    lazy val decodedReturnUrlWithEmailAddress = s"$decodedReturnUrl&email=${urlEncode(encrypt(emailAddress), "UTF-8")}"
+    lazy val decodedReturnUrlWithEmailAddress = s"$decodedReturnUrl&email=${urlEncode(encrypt(emailAddress).value, "UTF-8")}"
     val encodedUrlNotOnWhitelist = urlEncode("http://notOnWhiteList/something", "UTF-8")
 
     val request = FakeRequest()

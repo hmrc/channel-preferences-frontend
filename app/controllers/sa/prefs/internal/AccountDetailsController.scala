@@ -4,12 +4,12 @@ import connectors.{EmailConnector, PreferencesConnector, SaPreference}
 import controllers.common.BaseController
 import controllers.common.actions.Actions
 import controllers.common.service.Connectors
+import controllers.sa.Encrypted
 import controllers.sa.prefs.{EmailFormData, SaRegime}
 import play.api.mvc.{Request, Result}
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.domain.User
-import uk.gov.hmrc.crypto.Encrypted
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.connectors.HeaderCarrier

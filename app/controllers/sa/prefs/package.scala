@@ -1,9 +1,11 @@
 package controllers.sa
 
-import play.api.mvc._
-import uk.gov.hmrc.crypto.{ApplicationCrypto, Encrypted}
+
+import uk.gov.hmrc.crypto._
+import play.api.mvc.QueryStringBindable
 import uk.gov.hmrc.emailaddress.EmailAddress
-import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
+
+case class Encrypted[T](decryptedValue: T)
 
 package object prefs {
   // Workaround for play route compilation bug https://github.com/playframework/playframework/issues/2402
@@ -18,9 +20,9 @@ class EncryptedEmailBinder(crypto: Encrypter with Decrypter, stringBinder: Query
     stringBinder.bind(key, params).map {
       case Right(encryptedString) =>
         try {
-          val decrypted = crypto.decrypt(encryptedString)
+          val decrypted = crypto.decrypt(Crypted(encryptedString))
           try {
-            Right(Encrypted(EmailAddress(decrypted)))
+            Right(Encrypted(EmailAddress(decrypted.value)))
           } catch {
             case e: IllegalArgumentException =>
               Left("Not a valid email address")
@@ -32,5 +34,5 @@ class EncryptedEmailBinder(crypto: Encrypter with Decrypter, stringBinder: Query
       case Left(f) => Left(f)
     }
 
-  override def unbind(key: String, email: Encrypted[EmailAddress]): String = stringBinder.unbind(key, crypto.encrypt(email.decryptedValue.value))
+  override def unbind(key: String, email: Encrypted[EmailAddress]): String = stringBinder.unbind(key, crypto.encrypt(PlainText(email.decryptedValue.value)).value)
 }
