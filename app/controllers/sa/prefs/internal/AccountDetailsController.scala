@@ -18,13 +18,12 @@ import scala.concurrent.Future
 
 class AccountDetailsController(val auditConnector: AuditConnector,
                                val preferencesConnector: PreferencesConnector,
-                               val emailConnector: EmailConnector,
-                               val cohortCalculator: EmailOptInCohortCalculator)(implicit override val authConnector: AuthConnector)
+                               val emailConnector: EmailConnector)(implicit override val authConnector: AuthConnector)
   extends BaseController
   with Actions
   with PreferencesControllerHelper {
 
-  def this() = this(Connectors.auditConnector, PreferencesConnector, EmailConnector, EmailOptInCohortCalculator)(Connectors.authConnector)
+  def this() = this(Connectors.auditConnector, PreferencesConnector, EmailConnector)(Connectors.authConnector)
 
   def changeEmailAddress(emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(regime = SaRegime).async {
     user => request => changeEmailAddressPage(emailAddress)(user, request)

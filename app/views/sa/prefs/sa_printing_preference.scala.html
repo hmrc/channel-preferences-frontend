@@ -1,7 +1,7 @@
-@(showBanner:Boolean,emailForm: Form[_], submitPrefsFormAction: Call, cohort: controllers.sa.prefs.internal.EmailOptInCohorts.Cohort)(implicit request: Request[_])
+@(showBanner:Boolean,emailForm: Form[_], submitPrefsFormAction: Call, cohort: controllers.sa.prefs.internal.Cohort)(implicit request: Request[_])
 
 @import views.html.sa.prefs.cohorts._
-@import controllers.sa.prefs.internal.EmailOptInCohorts._
+@import controllers.sa.prefs.internal._
 
 @{cohort match {
     case OptInNotSelected => opt_in_not_selected(showBanner,emailForm,submitPrefsFormAction)

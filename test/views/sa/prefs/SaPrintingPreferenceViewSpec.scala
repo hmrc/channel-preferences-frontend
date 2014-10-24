@@ -1,15 +1,12 @@
 package views.sa.prefs
 
-import controllers.sa.prefs.internal.PreferencesControllerHelper
+import controllers.sa.prefs.internal._
 import org.jsoup.Jsoup
-import org.openqa.selenium.internal.seleniumemulation.GetSelectOptions
-import play.api.i18n.Messages
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import uk.gov.hmrc.play.test.WithFakeApplication
 import uk.gov.hmrc.test.UnitSpec
 import views.html.sa.prefs.sa_printing_preference
-import controllers.sa.prefs.internal.EmailOptInCohorts._
 
 class SaPrintingPreferenceViewSpec extends UnitSpec with PreferencesControllerHelper with WithFakeApplication {
 

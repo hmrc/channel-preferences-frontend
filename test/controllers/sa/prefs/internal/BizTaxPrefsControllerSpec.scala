@@ -23,7 +23,7 @@ import uk.gov.hmrc.test.UnitSpec
 import scala.concurrent.Future
 
 abstract class BizTaxPrefsControllerSetup extends WithApplication(FakeApplication()) with MockitoSugar {
-  def assignedCohort = EmailOptInCohorts.OptInNotSelected
+  def assignedCohort: OptInCohort = OptInNotSelected
 
   val auditConnector = mock[AuditConnector]
   val preferencesConnector = mock[PreferencesConnector]
@@ -31,7 +31,7 @@ abstract class BizTaxPrefsControllerSetup extends WithApplication(FakeApplicatio
   val emailConnector = mock[EmailConnector]
   val controller = new BizTaxPrefsController(auditConnector, preferencesConnector, emailConnector)(authConnector) {
     override def calculateCohort(user: User) = assignedCohort
-    override def calculateCohort(utr: SaUtr) = assignedCohort
+    override def calculate(hashCode: Int): OptInCohort = assignedCohort
   }
 
   val request = FakeRequest()
@@ -104,7 +104,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
     }
 
     "audit the cohort information for OptInSelected" in new BizTaxPrefsControllerSetup {
-      override def assignedCohort = EmailOptInCohorts.OptInSelected
+      override def assignedCohort = OptInSelected
       when(preferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(None)
 
       val page = controller.displayInterstitialPrefsFormAction(user, request, assignedCohort)
@@ -123,7 +123,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
     }
 
     "audit the cohort information for OptInNotSelected" in new BizTaxPrefsControllerSetup {
-      override def assignedCohort = EmailOptInCohorts.OptInNotSelected
+      override def assignedCohort = OptInNotSelected
       when(preferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(None)
 
       val page = controller.displayInterstitialPrefsFormAction(user, request, assignedCohort)
@@ -353,7 +353,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
   "An audit event" should {
     "be created when submitting a print preference from OptInSelected" in new BizTaxPrefsControllerSetup {
 
-      override def assignedCohort = EmailOptInCohorts.OptInSelected
+      override def assignedCohort = OptInSelected
 
       val emailAddress = "someone@email.com"
       when(emailConnector.isValid(is(emailAddress))(any())).thenReturn(true)
@@ -379,7 +379,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
     }
     "be created when submitting a print preference from OptInNotSelected" in new BizTaxPrefsControllerSetup {
 
-      override def assignedCohort = EmailOptInCohorts.OptInNotSelected
+      override def assignedCohort = OptInNotSelected
       val emailAddress = "someone@email.com"
       when(emailConnector.isValid(is(emailAddress))(any())).thenReturn(true)
       when(preferencesConnector.savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())).thenReturn(Future.successful(None))
@@ -405,7 +405,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
 
     "be created when choosing to not accept email reminders from OptInSelected" in new BizTaxPrefsControllerSetup {
 
-      override def assignedCohort = EmailOptInCohorts.OptInSelected
+      override def assignedCohort = OptInSelected
       when(preferencesConnector.savePreferences(
         is(validUtr),
         is(false),
@@ -432,7 +432,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
 
     "be created when choosing to not accept email reminders from OptInNotSelected" in new BizTaxPrefsControllerSetup {
 
-      override def assignedCohort = EmailOptInCohorts.OptInNotSelected
+      override def assignedCohort = OptInNotSelected
       when(preferencesConnector.savePreferences(
         is(validUtr),
         is(false),

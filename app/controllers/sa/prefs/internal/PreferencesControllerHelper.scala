@@ -2,7 +2,6 @@ package controllers.sa.prefs.internal
 
 import connectors.EmailConnector
 import controllers.sa.prefs._
-import controllers.sa.prefs.internal.EmailOptInCohorts.Cohort
 import play.api.data.Forms._
 import play.api.data._
 import play.api.mvc.Results._
