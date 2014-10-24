@@ -1,13 +1,13 @@
 package connectors
 
-import controllers.sa.prefs.internal.EmailOptInCohorts
+import org.scalatest.concurrent.ScalaFutures
 import play.api.libs.json.{Json, Writes}
 import uk.gov.hmrc.domain.SaUtr
-import org.scalatest.concurrent.ScalaFutures
+import uk.gov.hmrc.play.connectors.HeaderCarrier
 import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.test.UnitSpec
+
 import scala.concurrent.Future
-import uk.gov.hmrc.play.connectors.HeaderCarrier
 
 class PreferencesConnectorSpec extends UnitSpec with ScalaFutures {
 
@@ -61,7 +61,7 @@ class PreferencesConnectorSpec extends UnitSpec with ScalaFutures {
   }
 
   "The responseToEmailVerificationLinkStatus method" should {
-    import EmailVerificationLinkResponse._
+    import connectors.EmailVerificationLinkResponse._
     lazy val preferenceConnector = new TestPreferencesConnector()
 
     "return ok if updateEmailValidationStatusUnsecured returns 200" in {

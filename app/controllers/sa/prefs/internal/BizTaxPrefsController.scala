@@ -7,7 +7,6 @@ import controllers.common.{BaseController, FrontEndRedirect}
 import controllers.sa.Encrypted
 import controllers.sa.prefs.ExternalUrls.businessTaxHome
 import controllers.sa.prefs._
-import controllers.sa.prefs.internal.EmailOptInCohorts.Cohort
 import controllers.sa.prefs.internal.EmailOptInJourney._
 import play.api.mvc._
 import uk.gov.hmrc.common.microservice.audit.{AuditConnector, AuditEvent}
@@ -28,8 +27,10 @@ class BizTaxPrefsController(val auditConnector: AuditConnector,
   extends BaseController
   with Actions
   with PreferencesControllerHelper
-  with EmailOptInCohortCalculator
+  with CohortCalculator[OptInCohort]
   with AppName {
+
+  override val values = OptInCohort.values
 
   def this() = this(Connectors.auditConnector, PreferencesConnector, EmailConnector)(Connectors.authConnector)
 
@@ -103,7 +104,7 @@ class BizTaxPrefsController(val auditConnector: AuditConnector,
       savePreferences = (utr, digital, email, hc) => {
         implicit val headerCarrier = hc
         for {
-          _ <- preferencesConnector.saveCohort(utr, calculateCohort(utr))(hc)
+          _ <- preferencesConnector.saveCohort(utr, calculate(utr.hashCode))(hc)
           _ <- preferencesConnector.savePreferences(utr, digital, email)(hc)
         } yield {
           auditChoice(utr, journey, cohort, digital, email)(request, hc)
@@ -134,7 +135,7 @@ class BizTaxPrefsController(val auditConnector: AuditConnector,
         "cohort" -> cohort.toString)))(hc)
   }
 
-  private def auditChoice(utr: SaUtr, journey: Journey, cohort: EmailOptInCohorts.Value, digital: Boolean, emailOption: Option[String])(implicit request: Request[_], hc: HeaderCarrier) = {
+  private def auditChoice(utr: SaUtr, journey: Journey, cohort: Cohort, digital: Boolean, emailOption: Option[String])(implicit request: Request[_], hc: HeaderCarrier) = {
     auditConnector.audit(AuditEvent(
       auditSource = appName,
       auditType = EventTypes.Succeeded,
@@ -147,5 +148,6 @@ class BizTaxPrefsController(val auditConnector: AuditConnector,
         "email" -> emailOption.getOrElse(""))))(hc)
 
   }
+
 }
 
