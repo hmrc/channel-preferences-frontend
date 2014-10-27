@@ -13,23 +13,25 @@ import scala.util.Random
 
 class EmailOptInCohortCalculatorSpec extends UnitSpec with Inspectors with Tolerance with LoneElement {
 
+  val allCohortsOn = Map("abTesting.cohort.OptInNotSelected.enabled" -> true, "abTesting.cohort.OptInSelected.enabled" -> true)
+
   "Cohort value" should {
 
-    "always be the same for a given user" in new WithApplication(FakeApplication()) with CohortCalculator[OptInCohort] {
+    "always be the same for a given user" in new WithApplication(FakeApplication(additionalConfiguration = allCohortsOn)) with CohortCalculator[OptInCohort] {
       override val values: List[OptInCohort] = OptInCohort.values
       val user = userWithSaUtr("1234567890")
       val cohorts = (1 to 10) map { _ => calculateCohort(user)}
       cohorts.toSet.loneElement should be(a[Cohort])
     }
 
-    "return a default a cohort value for a user with no SA-UTR" in new WithApplication(FakeApplication()) with CohortCalculator[OptInCohort] {
+    "return a default a cohort value for a user with no SA-UTR" in new WithApplication(FakeApplication(additionalConfiguration = allCohortsOn)) with CohortCalculator[OptInCohort] {
       override val values: List[OptInCohort] = OptInCohort.values
       val user = userWithNoUtr
       val cohorts = (1 to 10) map { _ => calculateCohort(user)}
       cohorts.toSet.loneElement should be(OptInNotSelected)
     }
 
-    "be evenly spread for given set of users" in new WithApplication(FakeApplication()) with CohortCalculator[OptInCohort] {
+    "be evenly spread for given set of users" in new WithApplication(FakeApplication(additionalConfiguration = allCohortsOn)) with CohortCalculator[OptInCohort] {
       override val values: List[OptInCohort] = OptInCohort.values
 
       def generateRandomUtr(): String = (for {_ <- 1 to 10} yield Random.nextInt(8) + 1).mkString("")
@@ -46,7 +48,7 @@ class EmailOptInCohortCalculatorSpec extends UnitSpec with Inspectors with Toler
       }
     }
 
-    "not return a disabled cohort" in new WithApplication(FakeApplication(additionalConfiguration = Map("abTesting.cohort.OptInSelected.enabled" -> false))) with CohortCalculator[OptInCohort] {
+    "not return a disabled cohort" in new WithApplication(FakeApplication(additionalConfiguration = Map("abTesting.cohort.OptInNotSelected.enabled" -> true))) with CohortCalculator[OptInCohort] {
       override val values: List[OptInCohort] = OptInCohort.values
 
       def generateRandomUtr(): String = (for {_ <- 1 to 10} yield Random.nextInt(8) + 1).mkString("")
@@ -81,11 +83,11 @@ class EmailOptInCohortCalculatorSpec extends UnitSpec with Inspectors with Toler
   }
 
   "CohortValues" should {
-    "find the correct cohort by id" in new WithApplication(FakeApplication()) {
+    "find the correct cohort by id" in new WithApplication(FakeApplication(additionalConfiguration = allCohortsOn)) {
       OptInCohort.fromId(0) shouldBe OptInNotSelected
       OptInCohort.fromId(1) shouldBe OptInSelected
     }
-    "throw an IllegalArgoumentException if cohort not found" in new WithApplication(FakeApplication()) {
+    "throw an IllegalArgoumentException if cohort not found" in new WithApplication(FakeApplication(additionalConfiguration = allCohortsOn)) {
       intercept[IllegalArgumentException] {
         OptInCohort.fromId(100)
       }
