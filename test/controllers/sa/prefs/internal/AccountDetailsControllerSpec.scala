@@ -18,7 +18,7 @@ import uk.gov.hmrc.test.UnitSpec
 
 import scala.concurrent.Future
 
-abstract class Setup extends WithApplication(FakeApplication(additionalConfiguration = Map("abTesting.cohort.OptInNotSelected.enabled" -> true, "abTesting.cohort.OptInSelected.enabled" -> true))) with MockitoSugar {
+abstract class Setup extends WithApplication(FakeApplication()) with MockitoSugar {
   val auditConnector = mock[AuditConnector]
   val authConnector = mock[AuthConnector]
   val mockPreferencesConnector = mock[PreferencesConnector]
