@@ -46,7 +46,7 @@ class EmailOptInCohortCalculatorSpec extends UnitSpec with Inspectors with Toler
       }
     }
 
-    "not return a disabled cohort" in new WithApplication(FakeApplication(additionalConfiguration = Map("abTesting.cohort.OptInSelected.enabled" -> false))) with CohortCalculator[OptInCohort] {
+    "not return a disabled cohort" in new WithApplication(FakeApplication(additionalConfiguration = disabledCohorts)) with CohortCalculator[OptInCohort] {
       override val values: List[OptInCohort] = OptInCohort.values
 
       def generateRandomUtr(): String = (for {_ <- 1 to 10} yield Random.nextInt(8) + 1).mkString("")
@@ -73,11 +73,18 @@ class EmailOptInCohortCalculatorSpec extends UnitSpec with Inspectors with Toler
 
       intercept[RuntimeException] {
         Play.start(FakeApplication(withGlobal = Some(PreferencesGlobalForTest),
-          additionalConfiguration = Map("abTesting.cohort.OptInSelected.enabled" -> false,
-            "abTesting.cohort.OptInNotSelected.enabled" -> false)
+          additionalConfiguration = disabledCohorts ++ Map("abTesting.cohort.OptInNotSelected.enabled" -> false)
         ))
       }
     }
+  }
+
+  def disabledCohorts: Map[String, Boolean] = {
+    Map("abTesting.cohort.OptInSelected.enabled" -> false,
+      "abTesting.cohort.CPage.enabled" -> false,
+      "abTesting.cohort.DPage.enabled" -> false,
+      "abTesting.cohort.EPage.enabled" -> false
+    )
   }
 
   "CohortValues" should {
