@@ -6,16 +6,16 @@
 @gaScript = {
 }
 
-@main(title = Messages(s"sa_printing_preference.e_page.title"), headerNav = if (showBanner) Some(HeaderNav.yta) else None, headScripts = Some(gaScript)) {
+@main(title = Messages(s"sa_printing_preference.de_page.title"), headerNav = if (showBanner) Some(HeaderNav.yta) else None, headScripts = Some(gaScript)) {
 
 <header class="page-header">
     <h1>@Messages(s"sa_printing_preference.e_page.heading")</h1>
 </header>
 
-<p>@Messages(s"sa_printing_preference.e_page.paragraph.1")</p>
-<p>@Messages(s"sa_printing_preference.e_page.paragraph.2")</p>
-<p>@Messages(s"sa_printing_preference.e_page.paragraph.3")</p>
-<p>@Messages(s"sa_printing_preference.e_page.paragraph.4")</p>
+<p>@Messages(s"sa_printing_preference.de_page.paragraph.1")</p>
+<p>@Messages(s"sa_printing_preference.cde_page.paragraph.2")</p>
+<p>@Messages(s"sa_printing_preference.cde_page.paragraph.3")</p>
+<p>@Messages(s"sa_printing_preference.cde_page.paragraph.4")</p>
 
 @_root_.views.html.helpers.form(action = submitPrefsFormAction, 'id -> "form-submit-email-address") {
 <h3>@Messages("sa_printing_preference.heading.3")</h3>
@@ -29,7 +29,7 @@
             class="email-prefs__toggle"
             checked="checked"
             />
-    @Messages(s"sa_printing_preference.e_page.option.yes")
+    @Messages(s"sa_printing_preference.cde_page.option.yes")
 </label>
 <fieldset class="connected js-hidden">
     @helpers.input(
@@ -62,7 +62,7 @@
             class="email-prefs__toggle"
     @if(emailForm("opt-in").value == Some("false")) { checked="checked" }
     />
-    @Messages(s"sa_printing_preference.e_page.option.no")
+    @Messages(s"sa_printing_preference.cde_page.option.no")
 </label>
 <div class="email-form-errors">
     @emailForm("opt-in").errors.map { error => <label class="error-notification">@Messages(error.message)</label>}
