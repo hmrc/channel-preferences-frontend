@@ -14,8 +14,10 @@
 
 <p>@Messages(s"sa_printing_preference.de_page.paragraph.1")</p>
 <p>@Messages(s"sa_printing_preference.cde_page.paragraph.2")</p>
-<p>@Messages(s"sa_printing_preference.cde_page.paragraph.3")</p>
-<p>@Messages(s"sa_printing_preference.cde_page.paragraph.4")</p>
+<ul class="bullets">
+    <li>@Messages(s"sa_printing_preference.cde_page.paragraph.3")</li>
+    <li>@Messages(s"sa_printing_preference.cde_page.paragraph.4")</li>
+</ul>
 
 @_root_.views.html.helpers.form(action = submitPrefsFormAction, 'id -> "form-submit-email-address") {
 <h3>@Messages("sa_printing_preference.heading.3")</h3>
@@ -31,7 +33,7 @@
             />
     @Messages(s"sa_printing_preference.cde_page.option.yes")
 </label>
-<fieldset class="connected js-hidden">
+<fieldset class="connected">
     @helpers.input(
     emailForm("email.main"),
     '_label -> "Email address",
@@ -51,7 +53,8 @@
     '_inputClass -> "input--medium input--cleared"
     )
     <p>@Html(Messages(s"sa_printing_preference.tc",
-        Link.toExternalPage(url = "https://online.hmrc.gov.uk/information/terms#secure", value = Some(Messages("sa_printing_preference.tc.linkText"))).toHtml))
+        Link.toExternalPage(url = "https://online.hmrc.gov.uk/information/terms#secure", value = Some(Messages("sa_printing_preference.tc.linkText"))).toHtml))</p>
+    <p class="form-hint">@Messages(s"sa_printing_preference.legal")</p>
 </fieldset>
 <label class="selectable">
     <input

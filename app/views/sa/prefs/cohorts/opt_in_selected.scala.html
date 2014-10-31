@@ -38,7 +38,7 @@
     />
     @Messages(s"sa_printing_preference.option.yes")
 </label>
-<fieldset class="connected js-hidden">
+<fieldset class="connected">
     @helpers.input(
     emailForm("email.main"),
     '_label -> "Email address",
@@ -58,7 +58,8 @@
     '_inputClass -> "input--medium input--cleared"
     )
     <p>@Html(Messages(s"sa_printing_preference.tc",
-        Link.toExternalPage(url = "https://online.hmrc.gov.uk/information/terms#secure", value = Some(Messages("sa_printing_preference.tc.linkText"))).toHtml))
+        Link.toExternalPage(url = "https://online.hmrc.gov.uk/information/terms#secure", value = Some(Messages("sa_printing_preference.tc.linkText"))).toHtml))</p>
+    <p class="form-hint">@Messages(s"sa_printing_preference.legal")</p>
 </fieldset>
 <label class="selectable">
     <input
