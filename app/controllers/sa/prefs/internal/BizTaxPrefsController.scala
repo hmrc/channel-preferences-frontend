@@ -58,9 +58,9 @@ class BizTaxPrefsController(val auditConnector: AuditConnector,
     implicit user => implicit request => submitPrefsFormAction(AccountDetails)(user, request, withBanner = true)
   }
 
-  def thankYou() = AuthorisedFor(SaRegime) {
+  def thankYou(emailAddress: Option[controllers.sa.prefs.EncryptedEmail]) = AuthorisedFor(SaRegime) {
     implicit user => implicit request =>
-      Ok(views.html.account_details_printing_preference_confirm(Some(user), businessTaxHome, calculateCohort(user)))
+      Ok(views.html.account_details_printing_preference_confirm(Some(user), businessTaxHome, calculateCohort(user), emailAddress.map(_.decryptedValue)))
   }
 
   val getSavePrefsFromInterstitialCall = controllers.sa.prefs.internal.routes.BizTaxPrefsController.submitPrefsFormForInterstitial()
@@ -109,7 +109,8 @@ class BizTaxPrefsController(val auditConnector: AuditConnector,
         } yield {
           auditChoice(utr, journey, cohort, digital, email)(request, hc)
           digital match {
-            case true => Redirect(routes.BizTaxPrefsController.thankYou())
+            case true =>
+              Redirect(routes.BizTaxPrefsController.thankYou(email map (emailAddress => Encrypted(EmailAddress(emailAddress)))))
             case false => Redirect(ExternalUrls.businessTaxHome)
           }
         }

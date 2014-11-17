@@ -270,7 +270,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       document.select("#emailIsCorrectLink") shouldNot be(null)
     }
 
-    "when opting-in, validate the email address, save the preference and redirect to the thank you page" in new BizTaxPrefsControllerSetup {
+    "when opting-in, validate the email address, save the preference and redirect to the thank you page with the email address encrpyted" in new BizTaxPrefsControllerSetup {
       val emailAddress = "someone@email.com"
       when(emailConnector.isValid(is(emailAddress))(any())).thenReturn(true)
       when(preferencesConnector.savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())).thenReturn(Future.successful(None))
@@ -278,7 +278,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress),("email.confirm", emailAddress))))
 
       status(page) shouldBe 303
-      header("Location", page).get should include(routes.BizTaxPrefsController.thankYou().toString())
+      header("Location", page).get should include(routes.BizTaxPrefsController.thankYou(Some(Encrypted(EmailAddress(emailAddress)))).toString())
 
       verify(preferencesConnector).saveCohort(is(validUtr), is(assignedCohort))(any())
       verify(preferencesConnector).savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())
@@ -311,7 +311,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "true"))))
 
       status(page) shouldBe 303
-      header("Location", page).get should include(routes.BizTaxPrefsController.thankYou().toString())
+      header("Location", page).get should include(routes.BizTaxPrefsController.thankYou(Some(Encrypted(EmailAddress(emailAddress)))).toString())
 
       verify(preferencesConnector).saveCohort(is(validUtr), is(assignedCohort))(any())
       verify(preferencesConnector).savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())
