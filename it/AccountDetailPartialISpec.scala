@@ -21,9 +21,7 @@ class AccountDetailPartialISpec extends ServiceSpec with ScalaFutures with Respo
     }
 
     "contain title" in {
-
-      `/preferences-admin/sa/individual/print-suppression`.delete()
-
+      `/preferences-admin/sa/individual/print-suppression`.delete() should have(status(200))
       val response = `/email-reminders-status`.withHeaders(authenticationCookie(userId, password)).get
       response should have (status(200))
       response.futureValue.body should (
@@ -33,7 +31,7 @@ class AccountDetailPartialISpec extends ServiceSpec with ScalaFutures with Respo
     }
 
     "contain pending details when a pending email is present" in {
-      `/preferences-admin/sa/individual/print-suppression`.delete()
+      `/preferences-admin/sa/individual/print-suppression`.delete() should have(status(200))
 
       val email = s"${UUID.randomUUID().toString}@email.com"
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
@@ -57,7 +55,7 @@ class AccountDetailPartialISpec extends ServiceSpec with ScalaFutures with Respo
   def `/email-reminders-status` = WS.url(resource("/account/account-details/sa/email-reminders-status"))
 
   val `/preferences-admin/sa/individual/print-suppression` = new {
-    def delete() = WS.url(server.externalResource("preferences", s"/preferences-admin/sa/individual/print-suppression")).delete()
+    def delete() = WS.url(server.externalResource("preferences", "/preferences-admin/sa/individual/print-suppression")).delete()
   }
 
   val `/portal/preferences/sa/individual` = new {

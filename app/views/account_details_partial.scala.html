@@ -7,9 +7,10 @@
 <h2 id="saEmailRemindersHeader">Self Assessment email reminders</h2>
 
 
-@{ saPreferences match {
+@{saPreferences match {
         case Some(SaPreference(true, Some(email))) => digital_true(email)
         case Some(preference)  => digital_false()
+        case None => <p></p>
     }
  }
 
