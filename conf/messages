@@ -53,7 +53,7 @@ sa_printing_preference_confirm.title=Nearly done...
 sa_printing_preference_confirm.heading=Nearly done...
 sa_printing_preference_confirm.heading.2=Verify your email address
 sa_printing_preference_confirm.paragraph=An email has been sent to {0}. Click on the link in the email to verify your email address with HMRC.
-sa_printing_preference_confirm.linkText=Go to your tax account
+sa_printing_preference_confirm.linkText=Continue to your tax account
 
 sa_printing_preference.verification.heading=Email address verified
 sa_printing_preference.verification.heading.already=Email address already verified
