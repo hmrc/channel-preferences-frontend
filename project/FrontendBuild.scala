@@ -23,6 +23,12 @@ private object Dependencies {
 
   private val metricsGraphiteVersion = "3.0.1"
   private val playMetricsVersion = "0.1.3"
+  private val scalatestVersion = "2.2.0"
+  private val mockitoVersion = "1.9.5"
+  private val pegdownVersion = "1.4.2"
+  private val jsoupVersion = "1.7.2"
+
+
   val requiredDependencies = Seq(
     ws,
 //    "com.kenshoo" %% "metrics-play" % playMetricsVersion,
@@ -35,9 +41,13 @@ private object Dependencies {
     "uk.gov.hmrc"    %% "crypto"         % "1.3.0",
     "com.netaporter" %% "scala-uri"      % "0.4.2",
 
-    "org.jsoup"      %  "jsoup"       % "1.7.2"  % "test",
-    "org.scalatest"  %% "scalatest"   % "2.2.0"  % "test",
-    "org.pegdown"    %  "pegdown"     % "1.4.2"  % "test",
-    "org.mockito"    %  "mockito-all" % "1.9.5"  % "test"
+    "org.jsoup"      %  "jsoup"       % jsoupVersion  % "test",
+    "org.scalatest"  %% "scalatest"   % scalatestVersion  % "test",
+    "org.pegdown"    %  "pegdown"     % pegdownVersion  % "test",
+    "org.mockito"    %  "mockito-all" % mockitoVersion  % "test",
+
+    "org.scalatest" %% "scalatest" % scalatestVersion % "it",
+    "org.pegdown" % "pegdown" % pegdownVersion % "it",
+    "org.jsoup" % "jsoup" % jsoupVersion % "it"
   )
 }

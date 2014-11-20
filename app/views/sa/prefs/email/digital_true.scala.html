@@ -1,0 +1,11 @@
+@(email : connectors.SaEmailPreference)
+@import connectors.SaEmailPreference
+
+@{ email.status match {
+    case SaEmailPreference.Status.pending =>  {
+        <p>You need to verify <span id="email-address">@{email.email}</span></p>
+    }
+
+    case _ => <p></p>
+
+}}

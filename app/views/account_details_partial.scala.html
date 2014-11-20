@@ -1,0 +1,16 @@
+@(saPreferences : Option[connectors.SaPreference])(implicit user: uk.gov.hmrc.common.microservice.domain.User, request: Request[_])
+@import connectors.SaEmailPreference
+@import connectors.SaPreference
+@import views.html.sa.prefs.email._
+
+
+<h2 id="saEmailRemindersHeader">Self Assessment email reminders</h2>
+
+
+@{ saPreferences match {
+        case Some(SaPreference(true, Some(email))) => digital_true(email)
+        case Some(preference)  => digital_false()
+    }
+ }
+
+
