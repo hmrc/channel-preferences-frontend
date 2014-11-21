@@ -16,34 +16,39 @@ import scala.concurrent.Future
 class RemindersStatusPartialHtmlSpec extends UnitSpec with WithHeaderCarrier with WithFakeApplication with ScalaFutures {
 
   "Reminders Partial Html" should {
-    "render details with user preference" in new TestCase{
+    "contain the email reminder title for a sa user" in pending
+
+    "contain resend-validation-email option for a pending email in preference" in new TestCase {
+      val emailPreferences: SaEmailPreference = SaEmailPreference("test@test.com", Status.pending, false)
+      val saPreference: SaPreference = SaPreference(true, Some(emailPreferences))
+
       implicit val request = FakeRequest("GET", "/portal/sa/123456789")
       implicit val hc = new HeaderCarrier()
       implicit val saUser = User(userId = "userId", userAuthority = saAuthority("userId", "1234567890"))
 
-      val partialHtml = TestHtml.detailsStatus().futureValue
+      val partialHtml = new PartialHtml(saPreference).detailsStatus().futureValue
 
       partialHtml.body should (
-        include(emailPreferences.email)
+        include(emailPreferences.email) and
+        include("Send verification email") and
+        include("/account/account-details/sa/resend-validation-email") and
+        include("/account/account-details/sa/update-email-address")
       )
     }
   }
 
 }
 
-class TestCase {
+class TestCase{
 
-  val emailPreferences: SaEmailPreference = SaEmailPreference("test@test.com", Status.pending, false)
-  val saPreferences: SaPreference = SaPreference(true, Some(emailPreferences))
-
-  object TestHtml extends RemindersStatusPartialHtml {
+  class PartialHtml(saPreference: SaPreference) extends RemindersStatusPartialHtml {
 
     override val preferencesConnector = new PreferencesConnector {
       override def http: HttpGet with HttpPost with HttpPut = ???
 
       override def serviceUrl: String = ???
 
-      override def getPreferences(utr: SaUtr)(implicit headerCarrier: HeaderCarrier): Future[Option[SaPreference]] = Future.successful(Some(saPreferences))
+      override def getPreferences(utr: SaUtr)(implicit headerCarrier: HeaderCarrier): Future[Option[SaPreference]] = Future.successful(Some(saPreference))
     }
   }
 

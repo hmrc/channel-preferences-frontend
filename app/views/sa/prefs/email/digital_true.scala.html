@@ -1,11 +1,28 @@
-@(email : connectors.SaEmailPreference)
+@(email : connectors.SaEmailPreference, resendValidationUrl: String)(implicit user: uk.gov.hmrc.common.microservice.domain.User, request: Request[_])
 @import connectors.SaEmailPreference
+@import views.helpers.Link
 
-@{ email.status match {
-    case SaEmailPreference.Status.pending =>  {
-        <p>You need to verify <span id="email-address">@{email.email}</span></p>
+<h2 id="saEmailRemindersHeader">Self Assessment email reminders</h2>
+
+
+@if(email.status == SaEmailPreference.Status.pending) {
+    <p>You need to verify <span id="email-address">@{email.email}</span></p>
+    <p id="pending-status-message">Reminders can’t be sent to this email address until it’s been verified.</p>
+    @helpers.form(action = play.api.mvc.Call("POST", resendValidationUrl)){
+        <div class="form-field">
+            <p>
+                <button id="resend-email-button" class="button" type="submit">Send verification email</button>
+            </p>
+        </div>
     }
+    <ul class="action-list">
+        <li>
+            @Link.toInternalPage(
+            id = Some("change-email-address-link"),
+            url = controllers.sa.prefs.internal.routes.AccountDetailsController.changeEmailAddress(None).absoluteURL(),
+            value = Some("Change your email address")
+            ).toHtml
+        </li>
+    </ul>
+}
 
-    case _ => <p></p>
-
-}}
