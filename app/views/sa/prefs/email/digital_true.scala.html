@@ -1,6 +1,6 @@
-@(email : connectors.SaEmailPreference, resendValidationUrl: String)(implicit user: uk.gov.hmrc.common.microservice.domain.User, request: Request[_])
+@(email : connectors.SaEmailPreference, resendValidationUrl: String)(implicit request: Request[_])
 @import connectors.SaEmailPreference
-@import views.helpers.Link
+@import uk.gov.hmrc.urls.Link
 @import uk.gov.hmrc.emailaddress.EmailAddress
 
 <h2 id="saEmailRemindersHeader">Self Assessment email reminders</h2>

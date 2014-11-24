@@ -20,11 +20,11 @@ class AccountDetailPartialISpec extends ServiceSpec with TestUser {
       `/email-reminders-status`.get should have(status(401))
     }
 
-    "return nothing when no preference is set" in new TestCase {
+    "return opted out details when no preference is set" in new TestCase {
       val response = `/email-reminders-status`.withHeaders(authenticationCookie(userId, password)).get
       response should have(status(200))
       response.futureValue.body should (
-          not include("Self Assessment email reminders") and
+          include("Self Assessment email reminders") and
           not include ("You need to verify")
         )
     }
@@ -93,8 +93,6 @@ class AccountDetailPartialISpec extends ServiceSpec with TestUser {
   override protected val server = new PreferencesFrontendIntegrationServer("AccountDetailPartialISpec")
 
   class PreferencesFrontendIntegrationServer(override val testName: String) extends MicroServiceEmbeddedServer {
-    // Note: preferences is also need to avoid exceptions in the log of notification,
-    // but is not required for these tests
     override protected val externalServices: Seq[ExternalService] = Seq(
       "datastream",
       "external-government-gateway",

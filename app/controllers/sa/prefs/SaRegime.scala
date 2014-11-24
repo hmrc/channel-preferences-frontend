@@ -23,7 +23,7 @@ object SaRegimeWithoutRedirection extends TaxRegime with Results{
   def isAuthorised(accounts: Accounts) = accounts.sa.isDefined
 
   val authenticationType = new GovernmentGateway {
-    lazy val login: String = ExternalUrls.signIn
+    lazy val login: String = ???
 
     override def handleNotAuthenticated(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]) = {
       case UserCredentials(None, token@_) =>

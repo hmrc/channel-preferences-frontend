@@ -27,11 +27,11 @@ class AccountDetailsController(val auditConnector: AuditConnector,
   def this() = this(Connectors.auditConnector, PreferencesConnector, EmailConnector)(Connectors.authConnector)
 
   def emailRemindersStatus() = AuthorisedFor(regime = SaRegimeWithoutRedirection, redirectToOrigin= false).async {
-    implicit user => implicit request => detailsStatus.map(Ok(_))
+    user => implicit request => detailsStatus(user.userAuthority.accounts.sa.get.utr).map(Ok(_))
   }
 
   def changeEmailAddress(emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(regime = SaRegime).async {
-    (user: User) => request => changeEmailAddressPage(emailAddress)(user, request)
+    user => request => changeEmailAddressPage(emailAddress)(user, request)
   }
 
   def submitEmailAddress = AuthorisedFor(regime = SaRegime).async {
