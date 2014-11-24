@@ -6,6 +6,7 @@ POST        /opt-out-email-reminders                   @controllers.sa.prefs.int
 GET         /opt-out-email-reminders-thank-you         @controllers.sa.prefs.internal.AccountDetailsController.optedBackIntoPaperThankYou
 POST        /resend-validation-email                   @controllers.sa.prefs.internal.AccountDetailsController.resendValidationEmail
 
+# New endpoint - not yet in service
 GET         /email-reminders-status                    @controllers.sa.prefs.internal.AccountDetailsController.emailRemindersStatus
 
 GET         /login-opt-in-email-reminders              @controllers.sa.prefs.internal.BizTaxPrefsController.redirectToBTAOrInterstitialPage

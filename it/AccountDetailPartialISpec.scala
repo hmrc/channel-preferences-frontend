@@ -21,7 +21,6 @@ class AccountDetailPartialISpec extends ServiceSpec with TestUser {
     }
 
     "return nothing when no preference is set" in new TestCase {
-      `/preferences-admin/sa/individual/print-suppression`.deleteAll should have(status(200))
       val response = `/email-reminders-status`.withHeaders(authenticationCookie(userId, password)).get
       response should have(status(200))
       response.futureValue.body should (
@@ -31,8 +30,6 @@ class AccountDetailPartialISpec extends ServiceSpec with TestUser {
     }
 
     "contain pending details when a pending email is present" in new TestCase {
-      `/preferences-admin/sa/individual/print-suppression`.deleteAll should have(status(200))
-
       val email = s"${UUID.randomUUID().toString}@email.com"
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
 
@@ -89,6 +86,8 @@ class AccountDetailPartialISpec extends ServiceSpec with TestUser {
     case class AuthorisationHeader(value: Option[String]) {
       def asHeader: Seq[(String, String)] = value.fold(Seq.empty[(String, String)])(v => Seq(HeaderNames.AUTHORIZATION -> v))
     }
+
+    `/preferences-admin/sa/individual/print-suppression`.deleteAll should have(status(200))
   }
 
   override protected val server = new PreferencesFrontendIntegrationServer("AccountDetailPartialISpec")
