@@ -1,0 +1,53 @@
+@(email : connectors.SaEmailPreference, resendValidationUrl: String)(implicit request: Request[_])
+@import connectors.SaEmailPreference
+@import uk.gov.hmrc.urls.Link
+@import uk.gov.hmrc.emailaddress.EmailAddress
+
+<h2 id="saEmailRemindersHeader">Self Assessment email reminders</h2>
+
+
+@if(email.status == SaEmailPreference.Status.pending) {
+    <p>You need to verify <span id="email-address">@{email.email}</span></p>
+    <p id="pending-status-message">Reminders can’t be sent to this email address until it’s been verified.</p>
+    @helpers.form(action = play.api.mvc.Call("POST", resendValidationUrl)){
+        <div class="form-field">
+            <p>
+                <button id="resend-email-button" class="button" type="submit">Send verification email</button>
+            </p>
+        </div>
+    }
+}
+
+@if(email.status == SaEmailPreference.Status.verified ) {
+    <p>Reminders are sent to: <span id="email-address">@{EmailAddress(email.email).obfuscated}</span></p>
+}
+
+@if(email.status == SaEmailPreference.Status.bounced) {
+    <p id="bouncing-status-message">You need to verify <span id="email-address">@{email.email}</span></p>
+
+    @if(email.mailboxFull) {
+        <p id="bounce-reason">The email telling you how to do this can’t be sent because your inbox is full.</p>
+        <p id="bounce-reason-more">Clear your inbox or use a different email address.</p>
+    } else {
+        <p id="bounce-reason">The email telling you how to do this can’t be delivered.</p>
+        <p>Use a different email address</p>
+    }
+}
+<ul class="action-list">
+    <li>
+        @Link.toInternalPage(
+            id = if(email.status == SaEmailPreference.Status.bounced) Some("revalidate-email-link") else Some("change-email-address-link"),
+            url = controllers.sa.prefs.internal.routes.AccountDetailsController.changeEmailAddress(None).absoluteURL(),
+            value = Some("Change your email address")
+        ).toHtml
+    </li>
+    <li>
+        @Link.toInternalPage(
+            id = Some("opt-out-of-email-link"),
+            url = controllers.sa.prefs.internal.routes.AccountDetailsController.optOutOfEmailReminders.absoluteURL(),
+            value = Some("Stop your email reminders")
+        ).toHtml
+    </li>
+</ul>
+
+
