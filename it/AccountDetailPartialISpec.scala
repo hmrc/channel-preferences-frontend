@@ -20,6 +20,10 @@ class AccountDetailPartialISpec extends ServiceSpec with TestUser {
       `/email-reminders-status`.get should have(status(401))
     }
 
+    "return not authorised when not enrolled in SA" in new TestCase {
+      `/email-reminders-status`.withHeaders(authenticationCookie(userId = "643212300020", password)).get should have (status(401))
+    }
+
     "return opted out details when no preference is set" in new TestCase {
       val response = `/email-reminders-status`.withHeaders(authenticationCookie(userId, password)).get
       response should have(status(200))

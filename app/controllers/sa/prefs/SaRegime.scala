@@ -2,7 +2,7 @@ package controllers.sa.prefs
 
 import controllers.common.{GovernmentGateway, UserCredentials}
 import play.api.Logger
-import play.api.mvc.{AnyContent, Request, Results}
+import play.api.mvc.{Result, AnyContent, Request, Results}
 import uk.gov.hmrc.common.microservice.auth.domain.Accounts
 import uk.gov.hmrc.common.microservice.domain.TaxRegime
 
@@ -24,6 +24,8 @@ object SaRegimeWithoutRedirection extends TaxRegime with Results{
 
   val authenticationType = new GovernmentGateway {
     lazy val login: String = ???
+
+    override def redirectToLogin(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]): Future[Result] = Future.successful(Unauthorized)
 
     override def handleNotAuthenticated(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]) = {
       case UserCredentials(None, token@_) =>
