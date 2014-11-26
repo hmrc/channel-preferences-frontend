@@ -32,6 +32,7 @@ trait PreferencesConnector extends Status {
 
   def getPreferences(utr: SaUtr)(implicit headerCarrier: HeaderCarrier): Future[Option[SaPreference]] = {
     http.GET[Option[SaPreference]](url(s"/preferences/sa/individual/$utr/print-suppression")).recover {
+      case response: Upstream4xxResponse if response.upstreamResponseCode == GONE => None
       case e: NotFoundException => None
     }
   }
@@ -47,6 +48,7 @@ trait PreferencesConnector extends Status {
   def getEmailAddress(utr: SaUtr)(implicit hc: HeaderCarrier) = {
     implicit val emailAddressFromPreferenceRds: Reads[Option[String]] = (__ \ "email").readNullable((__ \ "email").read[String])
     http.GET[Option[String]](url(s"/portal/preferences/sa/individual/$utr/print-suppression")).recover {
+      case response: Upstream4xxResponse if response.upstreamResponseCode == GONE => None
       case e: NotFoundException => None
     }
   }

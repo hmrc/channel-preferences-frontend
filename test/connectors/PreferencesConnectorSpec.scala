@@ -15,14 +15,70 @@ class PreferencesConnectorSpec extends UnitSpec with ScalaFutures {
 
 
   class TestPreferencesConnector extends PreferencesConnector {
-    override def serviceUrl: String = "http://prefernces.service/"
+    override def serviceUrl: String = "http://preferences.service/"
 
     override def http: HttpGet with HttpPost with HttpPut = ???
   }
 
-  "The getEmailAddres method" should {
+  def preferencesConnector(returnFromDoGet: Future[HttpResponse]): TestPreferencesConnector = new TestPreferencesConnector {
+    override def http = new HttpGet with HttpPost with HttpPut {
+      protected def doPut[A](url: String, body: A)(implicit rds: Writes[A], hc: HeaderCarrier): Future[HttpResponse] = ???
+      protected def doFormPost(url: String, body: Map[String, Seq[String]])(implicit hc: HeaderCarrier) = ???
+      protected def doPost[A](url: String, body: A)(implicit rds: Writes[A], hc: HeaderCarrier) = ???
+      protected def doGet(url: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+        returnFromDoGet
+      }
+    }
+  }
+
+  "The getPreferences method" should {
+    "return the preferences" in {
+      val preferenceConnector = preferencesConnector(Future.successful(HttpResponse(200, Some(Json.parse(
+        """
+          |{
+          |   "digital": true,
+          |   "email": {
+          |     "email": "test@mail.com",
+          |     "status": "verified",
+          |     "mailboxFull": false
+          |   }
+          |}
+        """.stripMargin)))))
+
+      val preferences = preferenceConnector.getPreferences(SaUtr("1")).futureValue
+
+      preferences shouldBe Some(SaPreference(
+        digital = true, email = Some(SaEmailPreference(
+          email = "test@mail.com",
+          status = "verified"))
+      ))
+    }
+
+    "return None for a 404" in {
+      val preferenceConnector = preferencesConnector(Future.successful(HttpResponse(404, None)))
+
+      val preferences = preferenceConnector.getPreferences(SaUtr("1")).futureValue
+
+      preferences shouldBe None
+    }
+
+    "return None for a 410" in {
+      val preferenceConnector = preferencesConnector(Future.successful(HttpResponse(410, None)))
+
+      val preferences = preferenceConnector.getPreferences(SaUtr("1")).futureValue
+
+      preferences shouldBe None
+    }
+  }
+
+  "The getEmailAddress method" should {
     "return None for a 404" in {
       val preferenceConnector = preferencesConnector(Future.successful(HttpResponse(404)))
+      preferenceConnector.getEmailAddress(SaUtr("1")).futureValue should be (None)
+    }
+
+    "return None for a 410" in {
+      val preferenceConnector = preferencesConnector(Future.successful(HttpResponse(410)))
       preferenceConnector.getEmailAddress(SaUtr("1")).futureValue should be (None)
     }
 
@@ -46,17 +102,6 @@ class PreferencesConnectorSpec extends UnitSpec with ScalaFutures {
           |}
         """.stripMargin)))))
       preferenceConnector.getEmailAddress(SaUtr("1")).futureValue should be (Some("a@b.com"))
-    }
-
-    def preferencesConnector(returnFromDoGet: Future[HttpResponse]): TestPreferencesConnector = new TestPreferencesConnector {
-      override def http = new HttpGet with HttpPost with HttpPut {
-        protected def doPut[A](url: String, body: A)(implicit rds: Writes[A], hc: HeaderCarrier): Future[HttpResponse] = ???
-        protected def doFormPost(url: String, body: Map[String, Seq[String]])(implicit hc: HeaderCarrier) = ???
-        protected def doPost[A](url: String, body: A)(implicit rds: Writes[A], hc: HeaderCarrier) = ???
-        protected def doGet(url: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
-          returnFromDoGet
-        }
-      }
     }
   }
 
