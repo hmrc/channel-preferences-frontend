@@ -1,4 +1,4 @@
-@()(implicit user: uk.gov.hmrc.common.microservice.domain.User, request: Request[_])
+@(email: String)(implicit user: uk.gov.hmrc.common.microservice.domain.User, request: Request[_])
 
 @import uk.gov.hmrc.urls.Link
 
@@ -9,7 +9,7 @@
 
         <h2>Verification email sent</h2>
     </header>
-    <p id="verification-mail-message">Check your inbox and verify your email address to complete the sign-up process.</p>
+    <p id="verification-mail-message">A new email has been sent to @email. Click on the link in the email to verify your email address with HMRC.</p>
 
     <ul class="action-list">
         <li>@Link.toInternalPage(id = Some("return-to-dashboard-button"), url = controllers.sa.prefs.ExternalUrls.businessTaxHome, value = Some("Go to your tax account")).toHtml</li>

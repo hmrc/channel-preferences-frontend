@@ -71,7 +71,7 @@ class AccountDetailsController(val auditConnector: AuditConnector,
     lookupCurrentEmail {
       email =>
         preferencesConnector.savePreferences(user.userAuthority.accounts.sa.get.utr, true, Some(email)).map(_ =>
-          Ok(views.html.account_details_verification_email_resent_confirmation())
+          Ok(views.html.account_details_verification_email_resent_confirmation(email))
         )
     }
   }

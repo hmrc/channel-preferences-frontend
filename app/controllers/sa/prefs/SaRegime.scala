@@ -18,7 +18,7 @@ object SaRegime extends TaxRegime {
 }
 
 
-object SaRegimeWithoutRedirection extends TaxRegime with Results{
+object SaRegimeWithoutRedirection extends TaxRegime with Results {
 
   def isAuthorised(accounts: Accounts) = accounts.sa.isDefined
 
