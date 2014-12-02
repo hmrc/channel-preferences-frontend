@@ -1,10 +1,12 @@
 import java.util.UUID
 
-import play.api.Play.current
-import play.api.libs.json.Json
-import play.api.libs.ws.WS
+import org.scalatest.BeforeAndAfterEach
 
-class AccountDetailPartialISpec extends PreferencesFrontEndServer with UserAuthentication {
+
+class AccountDetailPartialISpec
+  extends PreferencesFrontEndServer
+  with UserAuthentication
+  with BeforeAndAfterEach {
 
   "Account detail partial" should {
     "return not authorised when no credentials supplied" in new TestCase {
@@ -36,19 +38,10 @@ class AccountDetailPartialISpec extends PreferencesFrontEndServer with UserAuthe
     }
   }
 
-  trait TestCase {
 
-    def `/email-reminders-status` = WS.url(resource("/account/account-details/sa/email-reminders-status"))
-
-    val `/preferences-admin/sa/individual/print-suppression` = new {
-      def deleteAll() = WS.url(server.externalResource("preferences", "/preferences-admin/sa/individual/print-suppression")).delete()
-    }
-
-    val `/portal/preferences/sa/individual` = new {
-      def postPendingEmail(utr: String, pendingEmail: String) = WS.url(server.externalResource("preferences",
-        s"/portal/preferences/sa/individual/$utr/print-suppression")).post(Json.parse( s"""{"digital": true, "email":"$pendingEmail"}"""))
-    }
-
-    `/preferences-admin/sa/individual/print-suppression`.deleteAll should have(status(200))
+  override def beforeEach() = {
+    val testCase = new TestCase()
+    testCase.`/preferences-admin/sa/individual/print-suppression`.deleteAll should have(status(200))
   }
+
 }

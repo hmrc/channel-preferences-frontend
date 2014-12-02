@@ -1,1 +1,1 @@
-GET         /      @controllers.sa.prefs.internal.BizTaxHomePagePartialController.preferencesWarning()
+GET         /      @controllers.sa.prefs.internal.BizTaxPartialController.preferencesWarning()

@@ -1,11 +1,13 @@
 import org.jsoup.Jsoup
 import play.api.Play.current
 import play.api.http.HeaderNames
+import play.api.libs.json.Json
 import play.api.libs.ws.{WS, WSResponse}
+import play.api.mvc.Results.EmptyContent
 import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.play.audit.http.HeaderCarrier
-import uk.gov.hmrc.play.http.test.ResponseMatchers
+import uk.gov.hmrc.play.connectors.HeaderCarrier
 import uk.gov.hmrc.play.it.{BearerTokenHelper, ExternalService, MicroServiceEmbeddedServer, ServiceSpec}
+import uk.gov.hmrc.play.test.ResponseMatchers
 
 import scala.concurrent.Future
 
@@ -61,8 +63,31 @@ trait PreferencesFrontEndServer extends ServiceSpec  {
       "external-government-gateway",
       "government-gateway",
       "ca-frontend",
-      "preferences",
       "email",
-      "auth").map(ExternalService.runFromJar(_))
+      "auth").map(ExternalService.runFromJar(_)) :+ ExternalService.runFromSource("preferences")
+  }
+
+  class TestCase extends TestUser {
+
+    def `/email-reminders-status` = WS.url(resource("/account/account-details/sa/email-reminders-status"))
+
+    val `/preferences-admin/sa/individual/print-suppression` = new {
+      def deleteAll() = WS.url(server.externalResource("preferences", "/preferences-admin/sa/individual/print-suppression")).delete()
+    }
+
+    val `/portal/preferences/sa/individual` = new {
+      def postPendingEmail(utr: String, pendingEmail: String) = WS.url(server.externalResource("preferences",
+        s"/portal/preferences/sa/individual/$utr/print-suppression")).post(Json.parse( s"""{"digital": true, "email":"$pendingEmail"}"""))
+    }
+
+    val `/preferences-admin/sa/individual` = new {
+      def verifyEmail(utr: String) = WS.url(server.externalResource("preferences",
+        s"/preferences-admin/sa/individual/$utr/verify-email")).post(EmptyContent())
+    }
+
+    def `/account/preferences/warnings` = {
+      WS.url(resource("/account/preferences/warnings"))
+    }
   }
 }
+
