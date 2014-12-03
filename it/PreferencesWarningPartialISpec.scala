@@ -21,7 +21,11 @@ class PreferencesWarningPartialISpec
     }
 
     "contain last verification email sent date and email address" in new TestCase {
+      val email = s"${UUID.randomUUID().toString}@email.com"
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
+
       val response =`/account/preferences/warnings`.withHeaders(authenticationCookie(userId, password)).get
+
       response should have(status(200))
       response.futureValue.body should (
           include("Verify your Self Assessment email address") and
