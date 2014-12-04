@@ -7,8 +7,7 @@ class PreferencesWarningPartialISpec
   "partial html for pending verification email" should {
 
     "return not authorised when no credentials supplied" in new TestCase {
-      val response = `/account/preferences/warnings`.get() should have(status(401))
-
+      `/account/preferences/warnings`.get() should have(status(401))
     }
 
     "be empty if email is already verified" in new TestCase {
