@@ -5,7 +5,6 @@ import play.api.mvc.Request
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
-import uk.gov.hmrc.play.connectors.HeaderCarrier
 import views.html.sa.prefs.email._
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 

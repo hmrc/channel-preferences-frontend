@@ -5,9 +5,9 @@ import play.api.libs.json.Json
 import play.api.libs.ws.{WS, WSResponse}
 import play.api.mvc.Results.EmptyContent
 import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.play.connectors.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.HeaderCarrier
 import uk.gov.hmrc.play.it.{BearerTokenHelper, ExternalService, MicroServiceEmbeddedServer, ServiceSpec}
-import uk.gov.hmrc.play.test.ResponseMatchers
+import uk.gov.hmrc.play.http.test.ResponseMatchers
 
 import scala.concurrent.Future
 

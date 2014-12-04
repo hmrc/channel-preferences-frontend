@@ -10,7 +10,7 @@ import play.api.mvc.Result
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.config.RunMode
-import uk.gov.hmrc.play.connectors.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.HeaderCarrier
 import views.html.sa.prefs.warning.pending_email_verification
 
 import scala.concurrent.Future
