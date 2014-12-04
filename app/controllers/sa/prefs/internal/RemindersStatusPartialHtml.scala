@@ -16,12 +16,10 @@ trait RemindersStatusPartialHtml {
   def preferencesConnector : PreferencesConnector
 
   def detailsStatus(utr: SaUtr)(implicit request: Request[_]): Future[HtmlFormat.Appendable] = {
-    //Fixme: this may not work in QA
-    val resendVerificationUrl = controllers.sa.prefs.internal.routes.AccountDetailsController.resendValidationEmail().url
-    implicit def hc = HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)
+    implicit val hc = HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)
 
     preferencesConnector.getPreferences(utr) map {
-        case Some(SaPreference(true, Some(email))) => digital_true(email, resendVerificationUrl)
+        case Some(SaPreference(true, Some(email))) => digital_true(email)
         case _ => digital_false()
     }
   }
