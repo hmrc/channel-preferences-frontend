@@ -63,8 +63,9 @@ trait PreferencesFrontEndServer extends ServiceSpec  {
       "external-government-gateway",
       "government-gateway",
       "ca-frontend",
+      "preferences",
       "email",
-      "auth").map(ExternalService.runFromJar(_)) :+ ExternalService.runFromSource("preferences")
+      "auth").map(ExternalService.runFromJar(_))
   }
 
   class TestCase extends TestUser {
