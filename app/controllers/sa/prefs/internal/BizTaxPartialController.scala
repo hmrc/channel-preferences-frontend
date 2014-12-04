@@ -26,7 +26,7 @@ class BizTaxPartialController(val preferenceConnector: PreferencesConnector)(imp
         .getOrElse(throw new RuntimeException(s"Could not find account details URL under govuk-tax.$env.platform.accountDetailsUrl"))
 
     preferenceConnector.getPreferences(utr).map {
-      case Some(prefs) if prefs.email.get.status != SaEmailPreference.Status.verified => Ok(pending_email_verification(accountDetailsUrl))
+      case Some(prefs) if prefs.email.get.status != SaEmailPreference.Status.verified => Ok(pending_email_verification(prefs.email.get, accountDetailsUrl))
       case _ => NoContent
     }
   }

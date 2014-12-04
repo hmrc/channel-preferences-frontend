@@ -1,5 +1,8 @@
 import java.util.UUID
 
+import uk.gov.hmrc.time.DateTimeUtils
+import views.sa.prefs.helpers.DateFormat
+
 class PreferencesWarningPartialISpec
   extends PreferencesFrontEndServer
   with UserAuthentication {
@@ -16,6 +19,7 @@ class PreferencesWarningPartialISpec
       `/preferences-admin/sa/individual`.verifyEmail(utr) should have(status(204))
 
       val response = `/account/preferences/warnings`.withHeaders(authenticationCookie(userId, password)).get
+
       response should have(status(204))
     }
 
@@ -28,11 +32,12 @@ class PreferencesWarningPartialISpec
       response should have(status(200))
       response.futureValue.body should (
           include("Verify your Self Assessment email address") and
-          include("EMAIL") and
-          include("DATE") and
+          include(email) and
+          include(todayDate) and
           include("Your details")
         )
     }
   }
-
+  
+  val todayDate = DateFormat.longDateFormat(Some(DateTimeUtils.now.toLocalDate)).get.body
 }
