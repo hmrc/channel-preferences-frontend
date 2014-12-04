@@ -9,8 +9,8 @@ import play.api.mvc.{Call, Request, Result}
 import play.api.templates.HtmlFormat
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
-import uk.gov.hmrc.play.connectors.HeaderCarrier
-import uk.gov.hmrc.play.logging.MdcLoggingExecutionContext._
+import uk.gov.hmrc.play.audit.http.HeaderCarrier
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
 import scala.Function.const
 import scala.concurrent._

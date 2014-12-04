@@ -6,10 +6,11 @@ import play.api.http.Status
 import play.api.libs.json._
 import uk.gov.hmrc.common.microservice.MicroServiceConfig
 import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.play.connectors.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.HeaderCarrier
 import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.http.ws.WSHttp
-import uk.gov.hmrc.play.logging.MdcLoggingExecutionContext._
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
 import scala.concurrent.Future
 

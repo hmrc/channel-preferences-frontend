@@ -1,4 +1,5 @@
 @(currentEmail : String, emailForm: Form[_])(implicit user: uk.gov.hmrc.common.microservice.domain.User, request: Request[_])
+@import uk.gov.hmrc.play.views.html.helpers._
 
 @main(title = "Your details - Change your email address", headerNav = Some(views.helpers.HeaderNav.yta), userLoggedIn = true) {
 
@@ -9,16 +10,16 @@
     </header>
    <p>Reminders are sent to <span id="current-email-address">@{currentEmail}.</span></p>
 
-    @helpers.form(action = controllers.sa.prefs.internal.routes.AccountDetailsController.submitEmailAddress, 'id -> "form-submit-email-address") {
+    @form(action = controllers.sa.prefs.internal.routes.AccountDetailsController.submitEmailAddress, 'id -> "form-submit-email-address") {
         <fieldset>
-        @helpers.input(
+        @input(
             emailForm("email.main"),
             '_label -> "New email address",
             '_divClass -> "form-field",
             '_inputClass -> "input--medium input--cleared",
             'parentField -> emailForm("email")
         )
-        @helpers.input(
+        @input(
             emailForm("email.confirm"),
             '_label -> "Confirm new email address",
             '_divClass -> "form-field",

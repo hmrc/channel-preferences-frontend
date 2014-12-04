@@ -2,6 +2,7 @@
 @import connectors.SaEmailPreference
 @import uk.gov.hmrc.urls.Link
 @import uk.gov.hmrc.emailaddress.EmailAddress
+@import uk.gov.hmrc.play.views.html.helpers._
 
 <h2 id="saEmailRemindersHeader">Self Assessment email reminders</h2>
 
@@ -9,7 +10,7 @@
 @if(email.status == SaEmailPreference.Status.pending) {
     <p>You need to verify <span id="email-address">@{email.email}</span></p>
     <p id="pending-status-message">Reminders can’t be sent to this email address until it’s been verified.</p>
-    @helpers.form(action = play.api.mvc.Call("POST", resendValidationUrl)){
+    @form(action = play.api.mvc.Call("POST", resendValidationUrl)){
         <div class="form-field">
             <p>
                 <button id="resend-email-button" class="button" type="submit">Send verification email</button>

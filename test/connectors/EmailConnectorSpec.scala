@@ -2,7 +2,7 @@ package connectors
 
 import org.scalatest.concurrent.ScalaFutures
 import play.api.libs.json.Json
-import uk.gov.hmrc.play.connectors.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HttpResponse
 import uk.gov.hmrc.play.test._
 import uk.gov.hmrc.test.UnitSpec

@@ -3,13 +3,14 @@ package connectors
 import org.scalatest.concurrent.ScalaFutures
 import play.api.libs.json.{Json, Writes}
 import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.play.connectors.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.HeaderCarrier
 import uk.gov.hmrc.play.http._
+import uk.gov.hmrc.play.test.WithFakeApplication
 import uk.gov.hmrc.test.UnitSpec
 
 import scala.concurrent.Future
 
-class PreferencesConnectorSpec extends UnitSpec with ScalaFutures {
+class PreferencesConnectorSpec extends UnitSpec with ScalaFutures with WithFakeApplication {
 
   implicit val hc = new HeaderCarrier
 
