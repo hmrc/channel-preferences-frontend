@@ -1,16 +1,15 @@
-package controllers.sa.prefs.internal
+package controllers.sa.prefs.partial
 
-import connectors.{SaPreference, PreferencesConnector, SaEmailPreference}
+import connectors.{PreferencesConnector, SaEmailPreference, SaPreference}
 import controllers.common.BaseController
 import controllers.common.actions.Actions
 import controllers.common.service.Connectors
 import controllers.sa.prefs.SaRegimeWithoutRedirection
-import play.api.Play.current
 import play.api.mvc.Result
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.play.config.RunMode
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
+import uk.gov.hmrc.play.config.RunMode
 import views.html.sa.prefs.warning.pending_email_verification
 
 import scala.concurrent.Future
