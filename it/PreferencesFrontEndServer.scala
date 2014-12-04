@@ -3,9 +3,9 @@ import play.api.Play.current
 import play.api.http.HeaderNames
 import play.api.libs.ws.{WS, WSResponse}
 import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.play.connectors.HeaderCarrier
-import uk.gov.hmrc.play.it.{ServiceSpec, BearerTokenHelper, ExternalService, MicroServiceEmbeddedServer}
-import uk.gov.hmrc.play.test.ResponseMatchers
+import uk.gov.hmrc.play.audit.http.HeaderCarrier
+import uk.gov.hmrc.play.http.test.ResponseMatchers
+import uk.gov.hmrc.play.it.{BearerTokenHelper, ExternalService, MicroServiceEmbeddedServer, ServiceSpec}
 
 import scala.concurrent.Future
 

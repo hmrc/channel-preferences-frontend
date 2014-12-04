@@ -17,7 +17,7 @@ import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
-import uk.gov.hmrc.play.monitoring.EventTypes
+import uk.gov.hmrc.play.audit.model.EventTypes
 import uk.gov.hmrc.test.UnitSpec
 
 import scala.concurrent.Future

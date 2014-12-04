@@ -16,7 +16,7 @@ import uk.gov.hmrc.crypto.ApplicationCrypto.SsoPayloadCrypto.encrypt
 import uk.gov.hmrc.crypto.{Crypted, PlainText}
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
-import uk.gov.hmrc.play.connectors.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.HeaderCarrier
 import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future

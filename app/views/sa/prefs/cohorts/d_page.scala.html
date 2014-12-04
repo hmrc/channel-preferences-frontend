@@ -2,6 +2,7 @@
 
 @import views.helpers.HeaderNav
 @import uk.gov.hmrc.urls.Link
+@import uk.gov.hmrc.play.views.html.helpers._
 
 @gaScript = {
 }
@@ -19,7 +20,7 @@
     <li>@Messages(s"sa_printing_preference.cde_page.paragraph.4")</li>
 </ul>
 
-@_root_.views.html.helpers.form(action = submitPrefsFormAction, 'id -> "form-submit-email-address") {
+@form(action = submitPrefsFormAction, 'id -> "form-submit-email-address") {
 <h3>@Messages("sa_printing_preference.heading.3")</h3>
 
 <label class="selectable">
@@ -34,7 +35,7 @@
     @Messages(s"sa_printing_preference.cde_page.option.yes")
 </label>
 <fieldset class="connected">
-    @helpers.input(
+    @input(
     emailForm("email.main"),
     '_label -> "Email address",
     '_labelClass -> "bold",
@@ -44,7 +45,7 @@
     'parentField -> emailForm("email")
     )
 
-    @helpers.input(
+    @input(
     emailForm("email.confirm"),
     '_label -> "Confirm email address",
     '_labelClass -> "bold",

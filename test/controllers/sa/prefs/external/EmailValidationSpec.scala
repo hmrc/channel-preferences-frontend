@@ -8,7 +8,7 @@ import play.api.test.Helpers._
 import play.api.test.{FakeApplication, WithApplication, FakeRequest}
 import org.jsoup.Jsoup
 import scala.concurrent.Future
-import uk.gov.hmrc.play.connectors.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.HeaderCarrier
 import connectors.{EmailVerificationLinkResponse, PreferencesConnector}
 
 class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar {

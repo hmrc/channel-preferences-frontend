@@ -12,7 +12,7 @@ import uk.gov.hmrc.common.microservice.auth.AuthConnector
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
-import uk.gov.hmrc.play.connectors.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.HeaderCarrier
 
 import scala.concurrent.Future
 

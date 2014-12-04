@@ -1,7 +1,7 @@
 package views.helpers
 
 import views.html.helper.FieldConstructor
-import views.html.helpers.simpleFieldConstructor
+import views.html.sa.prefs.helpers.simpleFieldConstructor
 
 object CustomHelpers {
 

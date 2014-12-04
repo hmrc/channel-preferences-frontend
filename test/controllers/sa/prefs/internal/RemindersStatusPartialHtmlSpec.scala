@@ -3,16 +3,18 @@ package controllers.sa.prefs.internal
 import connectors.SaEmailPreference.Status
 import connectors.{PreferencesConnector, SaEmailPreference, SaPreference}
 import controllers.sa.prefs.AuthorityUtils._
-import controllers.sa.prefs.internal.routes.{BizTaxPrefsController, AccountDetailsController}
+import controllers.sa.prefs.internal.routes.{AccountDetailsController, BizTaxPrefsController}
 import org.scalatest.concurrent.ScalaFutures
 import play.api.test.FakeRequest
 import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
-import uk.gov.hmrc.play.connectors.HeaderCarrier
-import uk.gov.hmrc.play.http.{HttpPut, HttpPost, HttpGet}
-import uk.gov.hmrc.play.test.{WithFakeApplication, WithHeaderCarrier}
+import uk.gov.hmrc.play.audit.http.HeaderCarrier
+import uk.gov.hmrc.play.http.test.WithHeaderCarrier
+import uk.gov.hmrc.play.http.{HttpGet, HttpPost, HttpPut}
+import uk.gov.hmrc.play.test.WithFakeApplication
 import uk.gov.hmrc.test.UnitSpec
+
 import scala.concurrent.Future
 
 class RemindersStatusPartialHtmlSpec extends UnitSpec with WithHeaderCarrier with WithFakeApplication with ScalaFutures {

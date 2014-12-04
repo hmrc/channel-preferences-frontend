@@ -1,6 +1,7 @@
 @(emailAddress: uk.gov.hmrc.emailaddress.ObfuscatedEmailAddress)(implicit user: uk.gov.hmrc.common.microservice.domain.User, request : Request[_])
 
 @import uk.gov.hmrc.urls.Link
+@import uk.gov.hmrc.play.views.html.helpers._
 
 @main(title = "Your details - Stop your Self Assessment email reminders", headerNav = Some(views.helpers.HeaderNav.yta), userLoggedIn = true) {
 
@@ -12,12 +13,12 @@
 
 <p>Your Self Assessment reminders will be sent in the post.</p>
 
-@helpers.form(action = controllers.sa.prefs.internal.routes.AccountDetailsController.confirmOptOutOfEmailReminders) {
+@form(action = controllers.sa.prefs.internal.routes.AccountDetailsController.confirmOptOutOfEmailReminders) {
 <div class="form-field">
     <button id="confirm-opt-out" class="button" type="submit">@Messages("bt.account.stopreminders")</button>
 </div>
 }
-@helper.form(action = play.api.mvc.Call("GET", controllers.sa.prefs.ExternalUrls.accountDetails)) {
+@form(action = play.api.mvc.Call("GET", controllers.sa.prefs.ExternalUrls.accountDetails)) {
     <p class="form-field">
         @Link.toInternalPage(id = Some("cancel-opt-out-link"), url = controllers.sa.prefs.ExternalUrls.accountDetails, value = Some("Don’t stop your email reminders")).toHtml
     </p>

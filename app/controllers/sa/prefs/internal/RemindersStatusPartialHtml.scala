@@ -4,9 +4,9 @@ import connectors.{PreferencesConnector, SaPreference}
 import play.api.mvc.Request
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.play.connectors.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.HeaderCarrier
 import views.html.sa.prefs.email._
-import uk.gov.hmrc.play.logging.MdcLoggingExecutionContext._
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
 import scala.concurrent.Future
 
