@@ -79,6 +79,9 @@ trait PreferencesFrontEndServer extends ServiceSpec  {
     val `/portal/preferences/sa/individual` = new {
       def postPendingEmail(utr: String, pendingEmail: String) = WS.url(server.externalResource("preferences",
         s"/portal/preferences/sa/individual/$utr/print-suppression")).post(Json.parse( s"""{"digital": true, "email":"$pendingEmail"}"""))
+
+      def postOptOut(utr: String) = WS.url(server.externalResource("preferences",
+        s"/portal/preferences/sa/individual/$utr/print-suppression")).post(Json.parse( s"""{"digital": false}"""))
     }
 
     val `/preferences-admin/sa/individual` = new {
