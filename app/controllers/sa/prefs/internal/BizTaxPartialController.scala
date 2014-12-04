@@ -22,12 +22,10 @@ class BizTaxPartialController(val preferenceConnector: PreferencesConnector)(imp
   def this() = this(PreferencesConnector)(Connectors.authConnector)
 
   def pendingEmailVerification(utr: SaUtr)(implicit hc: HeaderCarrier): Future[Result] = {
-    val accountDetailsUrl = play.api.Play.configuration.getString(s"govuk-tax.$env.platform.accountDetailsUrl")
-        .getOrElse(throw new RuntimeException(s"Could not find account details URL under govuk-tax.$env.platform.accountDetailsUrl"))
 
     preferenceConnector.getPreferences(utr).map {
       case Some(SaPreference(_, Some(email))) if email.status != SaEmailPreference.Status.verified =>
-        Ok(pending_email_verification(email, accountDetailsUrl))
+        Ok(pending_email_verification(email))
       case _ => NoContent
     }
   }

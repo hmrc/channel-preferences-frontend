@@ -1,4 +1,4 @@
-@(emailPreference: connectors.SaEmailPreference, accountDetailsUrl: String)
+@(emailPreference: connectors.SaEmailPreference)
 
 @import views.sa.prefs.helpers.DateFormat._
 @import views.helpers.Link
@@ -10,7 +10,7 @@
         <p>If you can’t find it you can get a new email sent to you from
             @Link.toInternalPage(
             id = Some("remindersProblem"),
-            url = accountDetailsUrl,
+            url = controllers.sa.prefs.ExternalUrls.accountDetails,
             value = Some("Your details")
             ).toHtml.</p>
     </div>
