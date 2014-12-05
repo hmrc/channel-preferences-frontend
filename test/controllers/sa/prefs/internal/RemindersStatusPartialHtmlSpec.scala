@@ -4,6 +4,7 @@ import connectors.SaEmailPreference.Status
 import connectors.{PreferencesConnector, SaEmailPreference, SaPreference}
 import controllers.sa.prefs.AuthorityUtils._
 import controllers.sa.prefs.internal.routes.{AccountDetailsController, BizTaxPrefsController}
+import org.joda.time.LocalDate
 import org.scalatest.concurrent.ScalaFutures
 import play.api.test.FakeRequest
 import uk.gov.hmrc.common.microservice.domain.User
@@ -26,17 +27,21 @@ class RemindersStatusPartialHtmlSpec extends UnitSpec with WithHeaderCarrier wit
     implicit val saUser = User(userId = "userId", userAuthority = saAuthority("userId", utr))
 
     "contain pending email details in content when opted-in and unverified" in new TestCase {
-      val emailPreferences = SaEmailPreference("test@test.com", Status.pending, false)
-      val saPreference = SaPreference(true, Some(emailPreferences))
+      val emailPreferences = SaEmailPreference(email = "test@test.com",
+        status = Status.pending,
+        mailboxFull = false,
+      linkSent = Some(new LocalDate(2014,10,2)))
+      val saPreference = SaPreference(digital = true, Some(emailPreferences))
 
       val partialHtml = new PartialHtml(Some(saPreference)).detailsStatus(SaUtr(utr)).futureValue
 
       partialHtml.body should (
         include(emailPreferences.email) and
-          include("Send verification email") and
+          include("send a new verification email") and
           include(`/account/account-details/sa/resend-validation-email`) and
           include(`/account/account-details/sa/opt-out-email-reminders`) and
-          include(`/account/account-details/sa/update-email-address`)
+          include(`/account/account-details/sa/update-email-address`) and
+          include("2 October 2014")
         )
     }
 

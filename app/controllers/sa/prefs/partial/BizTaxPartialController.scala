@@ -21,7 +21,6 @@ class BizTaxPartialController(val preferenceConnector: PreferencesConnector)(imp
   def this() = this(PreferencesConnector)(Connectors.authConnector)
 
   def pendingEmailVerification(utr: SaUtr)(implicit hc: HeaderCarrier): Future[Result] = {
-
     preferenceConnector.getPreferences(utr).map {
       case Some(SaPreference(_, Some(email))) if email.status != SaEmailPreference.Status.verified =>
         Ok(pending_email_verification(email))
