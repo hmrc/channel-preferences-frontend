@@ -1,1 +1,1 @@
-GET    /account/preferences/warnings   @controllers.sa.prefs.partial.BizTaxPartialController.preferencesWarning()
+GET    /preferences/warnings   @controllers.sa.prefs.partial.BizTaxPartialController.preferencesWarning()
