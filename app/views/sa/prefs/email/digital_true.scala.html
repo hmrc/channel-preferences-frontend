@@ -6,44 +6,47 @@
 @import controllers.sa.prefs.ExternalUrls._
 @import views.sa.prefs.helpers.DateFormat._
 
-<h2 id="saEmailRemindersHeader">Self Assessment email reminders</h2>
+<section class="divider--bottom">
+    <h2 id="saEmailRemindersHeader">Self Assessment email reminders</h2>
 
 
-@if(email.status == SaEmailPreference.Status.pending) {
-    <p>You need to verify your email address with HMRC</p>
-    <p id="pending-status-message">An email was sent to  <span id="email-address">@{email.email}</span> on @longDateFormat(email.linkSent). Click on the link in the email to verify your email address.</p>
-    <p>If you can’t find it you can ask HMRC to @Link.toInternalPage( id = Some("resend-email-button"), url = resendValidationUrl, value = Some("send a new verification email") ).toHtml </p>
-}
-
-@if(email.status == SaEmailPreference.Status.verified ) {
-    <p>Reminders are sent to: <span id="email-address">@{EmailAddress(email.email).obfuscated}</span></p>
-}
-
-@if(email.status == SaEmailPreference.Status.bounced) {
-    <p id="bouncing-status-message">You need to verify <span id="email-address">@{email.email}</span></p>
-
-    @if(email.mailboxFull) {
-        <p id="bounce-reason">The email telling you how to do this can’t be sent because your inbox is full.</p>
-        <p id="bounce-reason-more">Clear your inbox or use a different email address.</p>
-    } else {
-        <p id="bounce-reason">The email telling you how to do this can’t be delivered.</p>
-        <p>Use a different email address</p>
+    @if(email.status == SaEmailPreference.Status.pending) {
+        <p>You need to verify your email address with HMRC</p>
+        <div class="indent">
+            <p id="pending-status-message">An email was sent to <strong id="email-address">@{email.email}</strong> on @longDateFormat(email.linkSent). Click on the link in the email to verify your email address.</p>
+        </div>
+        <p>If you can’t find it you can ask HMRC to @Link.toInternalPage( id = Some("resend-email-button"), url = resendValidationUrl, value = Some("send a new verification email") ).toHtml </p>
     }
-}
 
-        <p>
-        @Link.toInternalPage(
-            id = if(email.status == SaEmailPreference.Status.bounced) Some("revalidate-email-link") else Some("change-email-address-link"),
-            url = changeEmailAddress,
-            value = Some("Change your email address")
-        ).toHtml
-        </p><p>
-        @Link.toInternalPage(
-            id = Some("opt-out-of-email-link"),
-            url = optOutOfEmailReminders,
-            value = Some("Stop your email reminders")
-        ).toHtml
-        </p>
+    @if(email.status == SaEmailPreference.Status.verified ) {
+        <p>Reminders are sent to: <span id="email-address">@{EmailAddress(email.email).obfuscated}</span></p>
+    }
 
+    @if(email.status == SaEmailPreference.Status.bounced) {
+        <p id="bouncing-status-message">You need to verify <span id="email-address">@{email.email}</span></p>
 
+        @if(email.mailboxFull) {
+            <p id="bounce-reason">The email telling you how to do this can’t be sent because your inbox is full.</p>
+            <p id="bounce-reason-more">Clear your inbox or use a different email address.</p>
+        } else {
+            <p id="bounce-reason">The email telling you how to do this can’t be delivered.</p>
+            <p>Use a different email address</p>
+        }
+    }
+
+    <p>
+    @Link.toInternalPage(
+        id = if(email.status == SaEmailPreference.Status.bounced) Some("revalidate-email-link") else Some("change-email-address-link"),
+        url = changeEmailAddress,
+        value = Some("Change your email address")
+    ).toHtml
+    </p>
+    <p>
+    @Link.toInternalPage(
+        id = Some("opt-out-of-email-link"),
+        url = optOutOfEmailReminders,
+        value = Some("Stop your email reminders")
+    ).toHtml
+    </p>
+</section>
 
