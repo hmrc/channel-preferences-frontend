@@ -13,16 +13,6 @@ class PreferencesWarningPartialISpec
       `/account/preferences/warnings`.get() should have(status(401))
     }
 
-    "be empty if email is already verified" in new TestCase {
-      val email = s"${UUID.randomUUID().toString}@email.com"
-      `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
-      `/preferences-admin/sa/individual`.verifyEmail(utr) should have(status(204))
-
-      val response = `/account/preferences/warnings`.withHeaders(authenticationCookie(userId, password)).get
-
-      response should have(status(204))
-    }
-
     "be empty if user has opted out" in new TestCase {
       `/portal/preferences/sa/individual`.postOptOut(utr) should have(status(201))
 
@@ -31,19 +21,22 @@ class PreferencesWarningPartialISpec
       response should have(status(204))
     }
 
-    "contain last verification email sent date and email address" in new TestCase {
+    "have warning content for pending unverified email" in new TestCase {
       val email = s"${UUID.randomUUID().toString}@email.com"
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
 
       val response =`/account/preferences/warnings`.withHeaders(authenticationCookie(userId, password)).get
 
       response should have(status(200))
-      response.futureValue.body should (
-          include("Verify your Self Assessment email address") and
-          include(email) and
-          include(todayDate) and
-          include("Your details")
-        )
+    }
+
+    "have warning content for bounced" ignore new TestCase{
+      val email = s"${UUID.randomUUID().toString}@email.com"
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
+
+      val response =`/account/preferences/warnings`.withHeaders(authenticationCookie(userId, password)).get
+
+      response should have(status(200))
     }
   }
   
