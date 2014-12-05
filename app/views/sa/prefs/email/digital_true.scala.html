@@ -3,21 +3,16 @@
 @import uk.gov.hmrc.urls.Link
 @import uk.gov.hmrc.emailaddress.EmailAddress
 @import uk.gov.hmrc.play.views.html.helpers._
-@import controllers.sa.prefs.ExternalUrls
+@import controllers.sa.prefs.ExternalUrls._
+@import views.sa.prefs.helpers.DateFormat._
 
 <h2 id="saEmailRemindersHeader">Self Assessment email reminders</h2>
 
 
 @if(email.status == SaEmailPreference.Status.pending) {
-    <p>You need to verify <span id="email-address">@{email.email}</span></p>
-    <p id="pending-status-message">Reminders can’t be sent to this email address until it’s been verified.</p>
-    @form(action = play.api.mvc.Call("POST", ExternalUrls.resendValidationUrl)){
-        <div class="form-field">
-            <p>
-                <button id="resend-email-button" class="button" type="submit">Send verification email</button>
-            </p>
-        </div>
-    }
+    <p>You need to verify your email address with HMRC</p>
+    <p id="pending-status-message">An email was sent to  <span id="email-address">@{email.email}</span> on @longDateFormat(email.linkSent). Click on the link in the email to verify your email address.</p>
+    <p>If you can’t find it you can ask HMRC to @Link.toInternalPage( id = Some("resend-email-button"), url = resendValidationUrl, value = Some("send a new verification email") ).toHtml </p>
 }
 
 @if(email.status == SaEmailPreference.Status.verified ) {
@@ -35,21 +30,20 @@
         <p>Use a different email address</p>
     }
 }
-<ul class="action-list">
-    <li>
+
+        <p>
         @Link.toInternalPage(
             id = if(email.status == SaEmailPreference.Status.bounced) Some("revalidate-email-link") else Some("change-email-address-link"),
-            url = ExternalUrls.changeEmailAddress,
+            url = changeEmailAddress,
             value = Some("Change your email address")
         ).toHtml
-    </li>
-    <li>
+        </p><p>
         @Link.toInternalPage(
             id = Some("opt-out-of-email-link"),
-            url = ExternalUrls.optOutOfEmailReminders,
+            url = optOutOfEmailReminders,
             value = Some("Stop your email reminders")
         ).toHtml
-    </li>
-</ul>
+        </p>
+
 
 
