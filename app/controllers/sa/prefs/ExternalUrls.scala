@@ -12,6 +12,7 @@ object ExternalUrls extends RunMode {
   val resendValidationUrl     = s"$pfHost/account/account-details/sa/resend-validation-email"
   val changeEmailAddress      = s"$pfHost/account/account-details/sa/update-email-address"
   val optOutOfEmailReminders  = s"$pfHost/account/account-details/sa/opt-out-email-reminders"
+  val displayPreferences      = s"$pfHost/account/account-details/sa/opt-in-email-reminders"
 
   val accountDetails          = s"$ytaHost/account/account-details"
   val businessTaxHome         = s"$ytaHost/account"

@@ -8,7 +8,7 @@
 <p>
     @Link.toInternalPage(
     id = Some("opt-in-to-digital-email-link"),
-    url = controllers.sa.prefs.internal.routes.BizTaxPrefsController.displayPrefsForm(None).absoluteURL(),
+    url = controllers.sa.prefs.ExternalUrls.displayPreferences,
     value = Some("Sign up for Self Assessment email reminders")
     ).toHtml
 </p>
