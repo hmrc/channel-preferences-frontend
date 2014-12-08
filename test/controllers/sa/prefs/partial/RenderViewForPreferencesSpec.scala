@@ -13,50 +13,47 @@ class RenderViewForPreferencesSpec extends UnitSpec with Results with WithFakeAp
 
   "rendering of preferences warnings" should {
     "have no content when opted out " in {
-      preferencesWarningView.renderPrefs(Some(SaPreference(digital = false))) should be (None)
+      preferencesWarningView.renderPrefs(SaPreference(digital = false)).body should be("")
     }
 
     "have no content when verified" in {
-      preferencesWarningView.renderPrefs(Some(SaPreference(digital = true, email = Some(SaEmailPreference(
+      preferencesWarningView.renderPrefs(SaPreference(digital = true, email = Some(SaEmailPreference(
         email = "test@test.com",
         status = SaEmailPreference.Status.verified))
-      ))) should be (None)
+      )).body should be("")
     }
 
     "have pending verification warning if email not verified" in {
-      val result = preferencesWarningView.renderPrefs(Some(SaPreference(
+      val result = preferencesWarningView.renderPrefs(SaPreference(
         digital = true, email = Some(SaEmailPreference(
           email = "test@test.com",
           status = SaEmailPreference.Status.pending,
           linkSent = Some(LocalDate.parse("2014-12-05"))))
-      )))
-      val contentAsString = result.get.toString()
-      contentAsString should include ("test@test.com")
-      contentAsString should include (" 5 December 2014")
+      )).body
+      result should include ("test@test.com")
+      result should include (" 5 December 2014")
     }
 
     "have mail box full warning if email bounces due to mail box being full" in {
-      val result = preferencesWarningView.renderPrefs(Some(SaPreference(
+      val result = preferencesWarningView.renderPrefs(SaPreference(
         digital = true, email = Some(SaEmailPreference(
           email = "test@test.com",
           status = SaEmailPreference.Status.bounced,
           linkSent = Some(LocalDate.parse("2014-12-05")),
           mailboxFull = true))
-      )))
-      val contentAsString = result.get.toString()
-      contentAsString should include ("can't be sent because your inbox is full")
+      )).body
+      result should include ("can't be sent because your inbox is full")
     }
 
     "have problem warning if email bounces due to some other reason than mail box being full" in {
-      val result = preferencesWarningView.renderPrefs(Some(SaPreference(
+      val result = preferencesWarningView.renderPrefs(SaPreference(
         digital = true, email = Some(SaEmailPreference(
           email = "test@test.com",
           status = SaEmailPreference.Status.bounced,
           linkSent = Some(LocalDate.parse("2014-12-05")),
           mailboxFull = false))
-      )))
-      val contentAsString = result.get.toString()
-      contentAsString should include ("can't be delivered")
+      )).body
+      result should include ("can't be delivered")
     }
   }
 }

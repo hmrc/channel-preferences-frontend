@@ -17,7 +17,9 @@ import scala.concurrent.Future
 
 trait TestUser {
   def userId = "SA0055"
+
   val password = "testing123"
+
   def utr = "1555369043"
 }
 
@@ -34,7 +36,7 @@ trait UserAuthentication extends BearerTokenHelper with PreferencesFrontEndServe
       HeaderNames.COOKIE -> response.futureValue.header(HeaderNames.SET_COOKIE).getOrElse(throw new IllegalStateException("Failed to set auth cookie"))
     }
 
-    def csrfTokenAndAuthenticateUrlFrom(accountSignInResponse : Future[WSResponse]): (String, String) = {
+    def csrfTokenAndAuthenticateUrlFrom(accountSignInResponse: Future[WSResponse]): (String, String) = {
       val form = Jsoup.parse(accountSignInResponse.futureValue.body).getElementsByTag("form").first
       val csrfToken: String = form.getElementsByAttributeValue("name", "csrfToken").first.attr("value")
       csrfToken should not be empty
@@ -58,9 +60,10 @@ trait UserAuthentication extends BearerTokenHelper with PreferencesFrontEndServe
   case class AuthorisationHeader(value: Option[String]) {
     def asHeader: Seq[(String, String)] = value.fold(Seq.empty[(String, String)])(v => Seq(HeaderNames.AUTHORIZATION -> v))
   }
+
 }
 
-trait PreferencesFrontEndServer extends ServiceSpec  {
+trait PreferencesFrontEndServer extends ServiceSpec {
   protected val server = new PreferencesFrontendIntegrationServer("AccountDetailPartialISpec")
 
   class PreferencesFrontendIntegrationServer(override val testName: String) extends MicroServiceEmbeddedServer {
@@ -91,6 +94,9 @@ trait PreferencesFrontEndServer extends ServiceSpec  {
       def postPendingEmail(utr: String, pendingEmail: String) = WS.url(server.externalResource("preferences",
         s"/portal/preferences/sa/individual/$utr/print-suppression")).post(Json.parse( s"""{"digital": true, "email":"$pendingEmail"}"""))
 
+      def postDeEnrolling(utr: String) = WS.url(server.externalResource("preferences",
+        s"/portal/preferences/sa/individual/$utr/print-suppression")).post(Json.parse(s"""{"de-enrolling": true, "reason": "Pour le-test"}"""))
+
       def postOptOut(utr: String) = WS.url(server.externalResource("preferences",
         s"/portal/preferences/sa/individual/$utr/print-suppression")).post(Json.parse( s"""{"digital": false}"""))
     }
@@ -98,6 +104,9 @@ trait PreferencesFrontEndServer extends ServiceSpec  {
     val `/preferences-admin/sa/individual` = new {
       def verifyEmailFor(utr: String) = WS.url(server.externalResource("preferences",
         s"/preferences-admin/sa/individual/$utr/verify-email")).post(EmptyContent())
+
+      def delete(utr: String) = WS.url(server.externalResource("preferences",
+        s"/preferences-admin/sa/individual/$utr/print-suppression")).delete()
     }
 
     val `/preferences-admin/sa/bounce-email` = new {
@@ -111,5 +120,6 @@ trait PreferencesFrontEndServer extends ServiceSpec  {
       WS.url(resource("/account/preferences/warnings"))
     }
   }
+
 }
 

@@ -13,15 +13,15 @@ import uk.gov.hmrc.play.config.RunMode
 
 import scala.concurrent.Future
 
-class BizTaxPartialController(val preferenceConnector: PreferencesConnector)(implicit override val authConnector: AuthConnector)
+class ReminderWarningPartialController(val preferenceConnector: PreferencesConnector)(implicit override val authConnector: AuthConnector)
   extends BaseController with RunMode with Actions with RenderViewForPreferences {
 
   def this() = this(PreferencesConnector)(Connectors.authConnector)
 
   def pendingEmailVerification(utr: SaUtr)(implicit hc: HeaderCarrier): Future[Result] =
-    preferenceConnector.getPreferences(utr).map(renderPrefs).map {
-      case None => NoContent
-      case Some(html) => Ok(html)
+    preferenceConnector.getPreferences(utr).map {
+      case None => NotFound
+      case Some(prefs) => Ok(renderPrefs(prefs))
     }
 
   def preferencesWarning() = AuthorisedFor(regime = SaRegimeWithoutRedirection, redirectToOrigin = false).async {
