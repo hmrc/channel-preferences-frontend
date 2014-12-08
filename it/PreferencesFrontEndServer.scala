@@ -1,3 +1,5 @@
+import java.util.UUID
+
 import org.jsoup.Jsoup
 import play.api.Play.current
 import play.api.http.HeaderNames
@@ -8,6 +10,8 @@ import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
 import uk.gov.hmrc.play.it.{BearerTokenHelper, ExternalService, MicroServiceEmbeddedServer, ServiceSpec}
 import uk.gov.hmrc.play.http.test.ResponseMatchers
+import uk.gov.hmrc.time.DateTimeUtils
+import views.sa.prefs.helpers.DateFormat
 
 import scala.concurrent.Future
 
@@ -27,7 +31,7 @@ trait UserAuthentication extends BearerTokenHelper with PreferencesFrontEndServe
 
   def authenticationCookie(userId: String, password: String) = {
     def cookieFrom(response: Future[WSResponse]) = {
-      HeaderNames.COOKIE -> response.futureValue.header(HeaderNames.SET_COOKIE).get
+      HeaderNames.COOKIE -> response.futureValue.header(HeaderNames.SET_COOKIE).getOrElse(throw new IllegalStateException("Failed to set auth cookie"))
     }
 
     def csrfTokenAndAuthenticateUrlFrom(accountSignInResponse : Future[WSResponse]): (String, String) = {
@@ -42,7 +46,9 @@ trait UserAuthentication extends BearerTokenHelper with PreferencesFrontEndServe
 
     val (authenticateUrl: String, csrfToken: String) = csrfTokenAndAuthenticateUrlFrom(accountSignInResponse)
 
-    val loginResponse = WS.url(server.externalResource("ca-frontend", authenticateUrl)).withHeaders(cookieFrom(accountSignInResponse)).post(Map("csrfToken" -> csrfToken, "userId" -> userId, "password" -> password).mapValues(Seq(_)))
+    val loginResponse = WS.url(server.externalResource("ca-frontend", authenticateUrl))
+      .withHeaders(cookieFrom(accountSignInResponse))
+      .post(Map("csrfToken" -> csrfToken, "userId" -> userId, "password" -> password).mapValues(Seq(_)))
 
     cookieFrom(loginResponse)
   }
@@ -64,11 +70,16 @@ trait PreferencesFrontEndServer extends ServiceSpec  {
       "government-gateway",
       "ca-frontend",
       "preferences",
+      "message",
       "email",
       "auth").map(ExternalService.runFromJar(_))
   }
 
   class TestCase extends TestUser {
+
+    val todayDate = DateFormat.longDateFormat(Some(DateTimeUtils.now.toLocalDate)).get.body
+
+    def uniqueEmail = s"${UUID.randomUUID().toString}@email.com"
 
     def `/email-reminders-status` = WS.url(resource("/account/account-details/sa/email-reminders-status"))
 
@@ -85,8 +96,15 @@ trait PreferencesFrontEndServer extends ServiceSpec  {
     }
 
     val `/preferences-admin/sa/individual` = new {
-      def verifyEmail(utr: String) = WS.url(server.externalResource("preferences",
+      def verifyEmailFor(utr: String) = WS.url(server.externalResource("preferences",
         s"/preferences-admin/sa/individual/$utr/verify-email")).post(EmptyContent())
+    }
+
+    val `/preferences-admin/sa/bounce-email` = new {
+      def post(emailAddress: String) = WS.url(server.externalResource("preferences",
+        "/preferences-admin/sa/bounce-email")).post(Json.parse( s"""{
+             |"emailAddress": "$emailAddress"
+             |}""".stripMargin))
     }
 
     def `/account/preferences/warnings` = {
