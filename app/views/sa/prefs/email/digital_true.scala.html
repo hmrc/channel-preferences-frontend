@@ -15,7 +15,11 @@
         <div class="indent">
             <p id="pending-status-message">An email was sent to <strong id="email-address">@{email.email}</strong> on @longDateFormat(email.linkSent). Click on the link in the email to verify your email address.</p>
         </div>
-        <p>If you can’t find it you can ask HMRC to @Link.toInternalPage( id = Some("resend-email-button"), url = resendValidationUrl, value = Some("send a new verification email") ).toHtml </p>
+        @form(action = play.api.mvc.Call("POST", resendValidationUrl)){
+            <div class="form-field">
+                <p> If you can’t find it you can ask HMRC to <button id="resend-email-button" class="button" type="submit">send a new verification email</button></p>
+            </div>
+        }
     }
 
     @if(email.status == SaEmailPreference.Status.verified ) {
