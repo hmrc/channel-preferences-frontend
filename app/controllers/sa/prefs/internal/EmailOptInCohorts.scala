@@ -5,7 +5,7 @@ import play.api.mvc.PathBindable
 sealed trait OptInCohort extends Cohort
 
 object OptInCohort extends CohortValues[OptInCohort] {
-  override val values = List(OptInNotSelected, OptInSelected, CPage, DPage, EPage)
+  override val values = List(OptInNotSelected, OptInSelected, CPage, DPage, EPage, FPage, GPage)
   implicit val pathBinder: PathBindable[OptInCohort] = PathBindable.bindableInt.transform(fromId, _.id)
 }
 
@@ -32,4 +32,14 @@ object DPage extends OptInCohort {
 object EPage extends OptInCohort {
   override val id: Int = 4
   override val name: String = "EPage"
+}
+
+object FPage extends OptInCohort {
+  override val id: Int = 5
+  override val name: String = "FPage"
+}
+
+object GPage extends OptInCohort {
+  override val id: Int = 6
+  override val name: String = "GPage"
 }

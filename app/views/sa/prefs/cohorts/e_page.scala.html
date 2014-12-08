@@ -4,10 +4,10 @@
 @import uk.gov.hmrc.urls.Link
 @import uk.gov.hmrc.play.views.html.helpers._
 
-@gaScript = {
+@gaScript() = {
 }
 
-@main(title = Messages(s"sa_printing_preference.de_page.title"), headerNav = if (showBanner) Some(HeaderNav.yta) else None, headScripts = Some(gaScript)) {
+@main(title = Messages(s"sa_printing_preference.de_page.title"), headerNav = if (showBanner) Some(HeaderNav.yta) else None, headScripts = Some(gaScript())) {
 
 <header class="page-header">
     <h1>@Messages(s"sa_printing_preference.e_page.heading")</h1>
@@ -16,8 +16,8 @@
 <p>@Messages(s"sa_printing_preference.de_page.paragraph.1")</p>
 <p>@Messages(s"sa_printing_preference.cde_page.paragraph.2")</p>
 <ul class="bullets">
-    <li>@Messages(s"sa_printing_preference.cde_page.paragraph.3")</li>
-    <li>@Messages(s"sa_printing_preference.cde_page.paragraph.4")</li>
+    <li>@Messages(s"sa_printing_preference.cdefg_page.paragraph.3")</li>
+    <li>@Messages(s"sa_printing_preference.cdefg_page.paragraph.4")</li>
 </ul>
 
 @form(action = submitPrefsFormAction, 'id -> "form-submit-email-address") {
