@@ -18,14 +18,13 @@ class BizTaxPartialController(val preferenceConnector: PreferencesConnector)(imp
 
   def this() = this(PreferencesConnector)(Connectors.authConnector)
 
-  def pendingEmailVerification(utr: SaUtr)(implicit hc: HeaderCarrier): Future[Result] = {
+  def pendingEmailVerification(utr: SaUtr)(implicit hc: HeaderCarrier): Future[Result] =
     preferenceConnector.getPreferences(utr).map(renderPrefs).map {
       case None => NoContent
       case Some(html) => Ok(html)
     }
-  }
 
-  def preferencesWarning() = AuthorisedFor(regime = SaRegimeWithoutRedirection, redirectToOrigin= false).async {
+  def preferencesWarning() = AuthorisedFor(regime = SaRegimeWithoutRedirection, redirectToOrigin = false).async {
     implicit user => implicit request => pendingEmailVerification(user.userAuthority.accounts.sa.get.utr)
   }
 }
