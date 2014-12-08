@@ -5,7 +5,7 @@ import controllers.common.BaseController
 import controllers.common.actions.Actions
 import controllers.common.service.Connectors
 import controllers.sa.Encrypted
-import controllers.sa.prefs.{SaRegimeWithoutRedirection, EmailFormData, SaRegime}
+import controllers.sa.prefs.{EmailFormData, SaRegime}
 import play.api.mvc.{Request, Result}
 import uk.gov.hmrc.common.microservice.audit.AuditConnector
 import uk.gov.hmrc.common.microservice.auth.AuthConnector
@@ -21,14 +21,9 @@ class AccountDetailsController(val auditConnector: AuditConnector,
                                val emailConnector: EmailConnector)(implicit override val authConnector: AuthConnector)
   extends BaseController
   with Actions
-  with RemindersStatusPartialHtml
   with PreferencesControllerHelper {
 
   def this() = this(Connectors.auditConnector, PreferencesConnector, EmailConnector)(Connectors.authConnector)
-
-  def emailRemindersStatus() = AuthorisedFor(regime = SaRegimeWithoutRedirection, redirectToOrigin= false).async {
-    user => implicit request => detailsStatus(user.userAuthority.accounts.sa.get.utr).map(Ok(_))
-  }
 
   def changeEmailAddress(emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(regime = SaRegime).async {
     user => request => changeEmailAddressPage(emailAddress)(user, request)

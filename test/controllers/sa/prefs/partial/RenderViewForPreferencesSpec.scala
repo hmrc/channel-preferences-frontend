@@ -1,6 +1,7 @@
 package controllers.sa.prefs.partial
 
 import connectors.{SaEmailPreference, SaPreference}
+import controllers.sa.prefs.partial.homepage.RenderViewForPreferences
 import org.joda.time.LocalDate
 import play.api.mvc.Results
 import uk.gov.hmrc.play.test.WithFakeApplication
@@ -43,8 +44,6 @@ class RenderViewForPreferencesSpec extends UnitSpec with Results with WithFakeAp
           mailboxFull = true))
       )))
       val contentAsString = result.get.toString()
-      contentAsString should not include "test@test.com"
-      contentAsString should not include "5 December 2014"
       contentAsString should include ("can't be sent because your inbox is full")
     }
 
@@ -57,9 +56,6 @@ class RenderViewForPreferencesSpec extends UnitSpec with Results with WithFakeAp
           mailboxFull = false))
       )))
       val contentAsString = result.get.toString()
-      contentAsString should not include "test@test.com"
-      contentAsString should not include "5 December 2014"
-      contentAsString should not include "inbox is full"
       contentAsString should include ("can't be delivered")
     }
   }

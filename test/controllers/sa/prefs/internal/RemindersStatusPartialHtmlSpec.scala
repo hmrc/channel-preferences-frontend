@@ -4,6 +4,7 @@ import connectors.SaEmailPreference.Status
 import connectors.{PreferencesConnector, SaEmailPreference, SaPreference}
 import controllers.sa.prefs.AuthorityUtils._
 import controllers.sa.prefs.internal.routes.{AccountDetailsController, BizTaxPrefsController}
+import controllers.sa.prefs.partial.accountdetails.ReminderStatusPartialHtml
 import org.joda.time.LocalDate
 import org.scalatest.concurrent.ScalaFutures
 import play.api.test.FakeRequest
@@ -116,7 +117,7 @@ class RemindersStatusPartialHtmlSpec extends UnitSpec with WithHeaderCarrier wit
 
 class TestCase {
 
-  class PartialHtml(saPreference: Option[SaPreference]) extends RemindersStatusPartialHtml {
+  class PartialHtml(saPreference: Option[SaPreference]) extends ReminderStatusPartialHtml {
 
     override val preferencesConnector = new PreferencesConnector {
       override def http: HttpGet with HttpPost with HttpPut = ???
