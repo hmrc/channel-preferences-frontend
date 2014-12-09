@@ -16,6 +16,7 @@ class PreferencesWarningPartialISpec
       val response = `/account/preferences/warnings`.withHeaders(authenticationCookie(userId, password)).get()
 
       response should have(status(200))
+      response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("false"))
     }
 
     "be not found if the user has no preferences" in new TestCase {
@@ -44,6 +45,7 @@ class PreferencesWarningPartialISpec
       val response =`/account/preferences/warnings`.withHeaders(authenticationCookie(userId, password)).get()
 
       response should have(status(200))
+      response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("true"))
     }
 
     "have warning for a pending unverified email" in new TestCase {
@@ -53,6 +55,7 @@ class PreferencesWarningPartialISpec
       val response =`/account/preferences/warnings`.withHeaders(authenticationCookie(userId, password)).get()
 
       response should have(status(200))
+      response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("true"))
     }
 
     "have warning for a bounced and unverified pending email address" in new TestCase {
@@ -63,6 +66,7 @@ class PreferencesWarningPartialISpec
       val response =`/account/preferences/warnings`.withHeaders(authenticationCookie(userId, password)).get()
 
       response should have(status(200))
+      response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("true"))
     }
 
     "have warning for a bounced and verified email address" in new TestCase {
@@ -74,6 +78,7 @@ class PreferencesWarningPartialISpec
       val response =`/account/preferences/warnings`.withHeaders(authenticationCookie(userId, password)).get()
 
       response should have(status(200))
+      response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("true"))
     }
   }
 }

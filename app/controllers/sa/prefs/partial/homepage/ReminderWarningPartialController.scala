@@ -21,7 +21,7 @@ class ReminderWarningPartialController(val preferenceConnector: PreferencesConne
   def pendingEmailVerification(utr: SaUtr)(implicit hc: HeaderCarrier): Future[Result] =
     preferenceConnector.getPreferences(utr).map {
       case None => NotFound
-      case Some(prefs) => Ok(renderPrefs(prefs))
+      case Some(prefs) => Ok(renderPrefs(prefs)).withHeaders("X-Opted-In-Email" -> prefs.digital.toString)
     }
 
   def preferencesWarning() = AuthorisedFor(regime = SaRegimeWithoutRedirection, redirectToOrigin = false).async {
