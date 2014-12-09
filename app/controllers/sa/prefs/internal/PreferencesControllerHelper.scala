@@ -48,7 +48,7 @@ trait PreferencesControllerHelper {
         _.map(EmailPreference.fromBoolean), (p: Option[EmailPreference]) => p.map(_.toBoolean)
       )
     )(EmailFormDataWithPreference.apply)(EmailFormDataWithPreference.unapply)
-      .verifying("error.email.optIn", {
+      .verifying("error.email.optIn", _ match {
       case EmailFormDataWithPreference((None, _), _, Some(OptIn)) => false
       case _ => true
     })

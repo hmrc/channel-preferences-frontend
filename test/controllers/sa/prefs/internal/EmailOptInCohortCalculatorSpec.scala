@@ -56,7 +56,7 @@ class EmailOptInCohortCalculatorSpec extends UnitSpec with Inspectors with Toler
 
       val cohorts = utrs.map(userWithSaUtr).map(calculateCohort)
 
-      forEvery(cohorts) { cohort => cohort shouldBe OptInNotSelected}
+      forEvery(cohorts) { _ shouldBe OptInNotSelected}
     }
   }
 
@@ -83,7 +83,9 @@ class EmailOptInCohortCalculatorSpec extends UnitSpec with Inspectors with Toler
     Map("abTesting.cohort.OptInSelected.enabled" -> false,
       "abTesting.cohort.CPage.enabled" -> false,
       "abTesting.cohort.DPage.enabled" -> false,
-      "abTesting.cohort.EPage.enabled" -> false
+      "abTesting.cohort.EPage.enabled" -> false,
+      "abTesting.cohort.FPage.enabled" -> false,
+      "abTesting.cohort.GPage.enabled" -> false
     )
   }
 
