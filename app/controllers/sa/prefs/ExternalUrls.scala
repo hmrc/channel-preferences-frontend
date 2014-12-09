@@ -5,9 +5,9 @@ import play.api.Play
 
 object ExternalUrls extends RunMode {
   import play.api.Play.current
-  val pfUrlPrefix             = Play.configuration.getString(s"govuk-tax.$env.preferences-frontend.urlPrefix").getOrElse("")
-  val ytaUrlPrefix            = Play.configuration.getString(s"govuk-tax.$env.yta.urlPrefix").getOrElse("")
-  val caUrlPrefix             = Play.configuration.getString(s"govuk-tax.$env.company-auth.urlPrefix").getOrElse("")
+  val pfUrlPrefix             = Play.configuration.getString(s"govuk-tax.$env.preferences-frontend.host").getOrElse("")
+  val ytaUrlPrefix            = Play.configuration.getString(s"govuk-tax.$env.yta.host").getOrElse("")
+  val caUrlPrefix             = Play.configuration.getString(s"govuk-tax.$env.company-auth.host").getOrElse("")
 
   val resendValidationUrl     = s"$pfUrlPrefix/account/account-details/sa/resend-validation-email"
   val changeEmailAddress      = s"$pfUrlPrefix/account/account-details/sa/update-email-address"
