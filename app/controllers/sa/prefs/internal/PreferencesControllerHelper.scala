@@ -48,10 +48,10 @@ trait PreferencesControllerHelper {
         _.map(EmailPreference.fromBoolean), (p: Option[EmailPreference]) => p.map(_.toBoolean)
       )
     )(EmailFormDataWithPreference.apply)(EmailFormDataWithPreference.unapply)
-      .verifying("error.email.optIn", b => b match {
-        case EmailFormDataWithPreference((None, _), _, Some(OptIn)) => false
-        case _ => true
-      })
+      .verifying("error.email.optIn", {
+      case EmailFormDataWithPreference((None, _), _, Some(OptIn)) => false
+      case _ => true
+    })
       .verifying("email.confirmation.emails.unequal", formData => formData.email._1 == formData.email._2)
     )
 
@@ -77,7 +77,7 @@ trait PreferencesControllerHelper {
                                 savePreferences: (SaUtr, Boolean, Option[String], HeaderCarrier) => Future[_])
                                (implicit request: Request[AnyRef]): Future[Result] = {
 
-    implicit def hc = HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)
+    implicit def hc: HeaderCarrier = HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)
 
     emailForm.bindFromRequest()(request).fold(
       errors => Future.successful(BadRequest(errorsView(errors))),
@@ -101,12 +101,12 @@ trait PreferencesControllerHelper {
                                       savePreferences: (SaUtr, Boolean, Option[String], HeaderCarrier) => Future[Result])
                                      (implicit request: Request[AnyRef]): Future[Result] = {
 
-    implicit def hc = HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)
+    implicit def hc: HeaderCarrier = HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)
 
     preferenceForm.bindFromRequest.fold(
       errors => Future.successful(BadRequest(errorsView(errors))),
       success => {
-        if (success.optedIn.exists(_ == false)) savePreferences(saUtr, false, None, hc)
+        if (success.optedIn.contains(false)) savePreferences(saUtr, false, None, hc)
         else {
           emailFormWithPreference.bindFromRequest.fold(
             errors => Future.successful(BadRequest(errorsView(errors))),
