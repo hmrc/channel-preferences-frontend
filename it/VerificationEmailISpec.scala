@@ -1,15 +1,12 @@
-import java.util.UUID
-
 import EmailSupport.Email
+import org.scalatest.concurrent.Eventually
 import play.api.Play.current
 import play.api.libs.json.Json
-import play.api.libs.ws.{WSResponse, WS}
-import org.scalatest.concurrent.Eventually
-import play.api.mvc.Results.EmptyContent
+import play.api.libs.ws.WS
 
-import scala.concurrent.{Future, Await}
-
-class VerificationEmailISpec extends PreferencesFrontEndServer with UserAuthentication {
+class VerificationEmailISpec
+  extends PreferencesFrontEndServer
+  with UserAuthentication {
 
   "Verification email confirmation" should {
     "confirm email has been sent to the users verification email address" in new VerificationEmailTestCase {
@@ -25,6 +22,7 @@ class VerificationEmailISpec extends PreferencesFrontEndServer with UserAuthenti
   "Attempt to verify an email" should {
 
     "display success message if the email link is valid" in new VerificationEmailTestCase {
+      clearEmails()
 
       val email = uniqueEmail
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
@@ -48,6 +46,7 @@ class VerificationEmailISpec extends PreferencesFrontEndServer with UserAuthenti
     }
 
     "display failure message if the link has expired" in new VerificationEmailTestCase {
+      clearEmails()
 
       val email = uniqueEmail
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
@@ -72,6 +71,8 @@ class VerificationEmailISpec extends PreferencesFrontEndServer with UserAuthenti
     }
 
     "display failure message if the email has been verified already" in new VerificationEmailTestCase {
+      clearEmails()
+
       val email = uniqueEmail
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
 
@@ -97,9 +98,8 @@ class VerificationEmailISpec extends PreferencesFrontEndServer with UserAuthenti
 
 
 trait VerificationEmailTestCase extends TestCase with EmailSupport with Eventually {
-    clearEmails()
 
-    `/preferences-admin/sa/individual`.delete(utr) should have(status(200))
+  `/preferences-admin/sa/individual`.delete(utr) should have(status(200))
 
     val emptyJsonValue = Json.parse("{}")
 

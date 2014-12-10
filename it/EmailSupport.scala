@@ -1,5 +1,4 @@
 import org.scalatest.Matchers._
-import org.scalatest.concurrent.ScalaFutures
 import play.api.libs.json.Json
 import play.api.libs.ws.WS
 import uk.gov.hmrc.play.config.ServicesConfig
@@ -9,10 +8,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{Await, Future}
 import scala.util.matching.Regex.Match
 
-trait EmailSupport extends ResponseMatchers with ScalaFutures{
-  import EmailSupport._
+trait EmailSupport extends ResponseMatchers {
 
-import scala.concurrent.duration._
+  import scala.concurrent.duration._
+  import EmailSupport._
 
   implicit val emailReads = Json.reads[Email]
   implicit val emailTokenWrites = Json.writes[Token]
