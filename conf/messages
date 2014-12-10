@@ -57,6 +57,7 @@ sa_printing_preference_confirm.linkText=Continue to your tax account
 
 sa_printing_preference.verification.heading=Email address verified
 sa_printing_preference.verification.heading.already=Email address already verified
+sa_printing_preference.verification.heading.expired=This link has expired
 sa_printing_preference.verification.paragraph.1=You’re now signed up for Self Assessment email reminders.
 sa_printing_preference.verification.already.paragraph.1=Your email address has already been verified.
 sa_printing_preference.verification.paragraph.2=Most of your reminders will now be sent by email.

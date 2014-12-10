@@ -68,14 +68,15 @@ trait PreferencesFrontEndServer extends ServiceSpec {
 
   class PreferencesFrontendIntegrationServer(override val testName: String) extends MicroServiceEmbeddedServer {
     override protected val externalServices: Seq[ExternalService] = Seq(
-      "datastream",
       "external-government-gateway",
       "government-gateway",
       "ca-frontend",
       "preferences",
       "message",
+      "mailgun",
       "email",
-      "auth").map(ExternalService.runFromJar(_))
+      "auth",
+      "datastream").map(ExternalService.runFromJar(_))
   }
 
   class TestCase extends TestUser {
@@ -86,10 +87,6 @@ trait PreferencesFrontEndServer extends ServiceSpec {
 
     def `/email-reminders-status` = WS.url(resource("/account/account-details/sa/email-reminders-status"))
 
-    val `/preferences-admin/sa/individual/print-suppression` = new {
-      def deleteAll() = WS.url(server.externalResource("preferences", "/preferences-admin/sa/individual/print-suppression")).delete()
-    }
-
     val `/portal/preferences/sa/individual` = new {
       def postPendingEmail(utr: String, pendingEmail: String) = WS.url(server.externalResource("preferences",
         s"/portal/preferences/sa/individual/$utr/print-suppression")).post(Json.parse( s"""{"digital": true, "email":"$pendingEmail"}"""))
@@ -99,14 +96,22 @@ trait PreferencesFrontEndServer extends ServiceSpec {
 
       def postOptOut(utr: String) = WS.url(server.externalResource("preferences",
         s"/portal/preferences/sa/individual/$utr/print-suppression")).post(Json.parse( s"""{"digital": false}"""))
+
+      def getPreferences(utr: String) = WS.url(server.externalResource("preferences", s"/portal/preferences/sa/individual/$utr/print-suppression")).get()
     }
 
     val `/preferences-admin/sa/individual` = new {
       def verifyEmailFor(utr: String) = WS.url(server.externalResource("preferences",
         s"/preferences-admin/sa/individual/$utr/verify-email")).post(EmptyContent())
 
+      def postExpireVerificationLink(utr:String) = WS.url(server.externalResource("preferences",
+        s"/preferences-admin/sa/individual/$utr/expire-email-verification-link")).post(EmptyContent())
+
       def delete(utr: String) = WS.url(server.externalResource("preferences",
         s"/preferences-admin/sa/individual/$utr/print-suppression")).delete()
+
+      def deleteAll() = WS.url(server.externalResource("preferences",
+        "/preferences-admin/sa/individual/print-suppression")).delete()
     }
 
     val `/preferences-admin/sa/bounce-email` = new {

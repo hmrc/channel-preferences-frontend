@@ -1,9 +1,13 @@
 @()(implicit request: Request[_])
 
+@import uk.gov.hmrc.urls.Link
+
 @main(title = "Your email address is NOT verified", footerLinks=None) {
     <header class="page-header">
-        <h1>Self Assessment email reminders</h1>
+        <h1 id="failure-heading">@Messages("sa_printing_preference.verification.heading.expired")</h1>
     </header>
-    <h2 id="failure-heading">This verification link has expired</h2>
-    <p id="failure-message">Sign in to your tax account to get another one sent to you.</p>
+        <p id="hmrc-online">@Link.toExternalPage(
+            url = "https://online.hmrc.gov.uk",
+            value = Some(Messages("sa_printing_preference.verification.action"))).toHtml
+            and go to 'Your details' to request a new verification link</p>
 }
