@@ -22,7 +22,6 @@ class VerificationEmailISpec
   "Attempt to verify an email" should {
 
     "display success message if the email link is valid" in new VerificationEmailTestCase {
-      clearEmails()
 
       val email = uniqueEmail
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
@@ -38,7 +37,6 @@ class VerificationEmailISpec
         response.futureValue.body should (
             include ("Email address verified") and
             include ("You’re now signed up for Self Assessment email reminders.") and
-            include ("Most of your reminders will now be sent by email.") and
             include("Sign into your HMRC online account") and
             include("""href="https://online.hmrc.gov.uk"""")
           )
@@ -46,7 +44,6 @@ class VerificationEmailISpec
     }
 
     "display failure message if the link has expired" in new VerificationEmailTestCase {
-      clearEmails()
 
       val email = uniqueEmail
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
@@ -71,7 +68,6 @@ class VerificationEmailISpec
     }
 
     "display failure message if the email has been verified already" in new VerificationEmailTestCase {
-      clearEmails()
 
       val email = uniqueEmail
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
@@ -98,7 +94,7 @@ class VerificationEmailISpec
 
 
 trait VerificationEmailTestCase extends TestCase with EmailSupport with Eventually {
-
+    clearEmails()
   `/preferences-admin/sa/individual`.delete(utr) should have(status(200))
 
     val emptyJsonValue = Json.parse("{}")
