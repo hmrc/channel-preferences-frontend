@@ -26,7 +26,7 @@ class EmailOptInCohortCalculatorSpec extends UnitSpec with Inspectors with Toler
       override val values: List[OptInCohort] = OptInCohort.values
       val user = userWithNoUtr
       val cohorts = (1 to 10) map { _ => calculateCohort(user)}
-      cohorts.toSet.loneElement should be(OptInNotSelected)
+      cohorts.toSet.loneElement should be(FPage)
     }
 
     "be evenly spread for given set of users" in new WithApplication(FakeApplication()) with CohortCalculator[OptInCohort] {
@@ -56,7 +56,7 @@ class EmailOptInCohortCalculatorSpec extends UnitSpec with Inspectors with Toler
 
       val cohorts = utrs.map(userWithSaUtr).map(calculateCohort)
 
-      forEvery(cohorts) { _ shouldBe OptInNotSelected}
+      forEvery(cohorts) { _ shouldBe FPage}
     }
   }
 
@@ -73,31 +73,25 @@ class EmailOptInCohortCalculatorSpec extends UnitSpec with Inspectors with Toler
 
       intercept[RuntimeException] {
         Play.start(FakeApplication(withGlobal = Some(PreferencesGlobalForTest),
-          additionalConfiguration = disabledCohorts ++ Map("abTesting.cohort.OptInNotSelected.enabled" -> false)
+          additionalConfiguration = disabledCohorts ++ Map("abTesting.cohort.FPage.enabled" -> false)
         ))
       }
     }
   }
 
-  def disabledCohorts: Map[String, Boolean] = {
-    Map("abTesting.cohort.OptInSelected.enabled" -> false,
-      "abTesting.cohort.CPage.enabled" -> false,
-      "abTesting.cohort.DPage.enabled" -> false,
-      "abTesting.cohort.EPage.enabled" -> false,
-      "abTesting.cohort.FPage.enabled" -> false,
-      "abTesting.cohort.GPage.enabled" -> false
-    )
-  }
+  def disabledCohorts: Map[String, Boolean] = Map(
+    "abTesting.cohort.FPage.enabled" -> true,
+    "abTesting.cohort.GPage.enabled" -> false
+  )
 
   "CohortValues" should {
     "find the correct cohort by id" in new WithApplication(FakeApplication()) {
-      OptInCohort.fromId(0) shouldBe OptInNotSelected
-      OptInCohort.fromId(1) shouldBe OptInSelected
+      OptInCohort.fromId(5) should contain (FPage)
+      OptInCohort.fromId(6) should contain (GPage)
     }
-    "throw an IllegalArgoumentException if cohort not found" in new WithApplication(FakeApplication()) {
-      intercept[IllegalArgumentException] {
-        OptInCohort.fromId(100)
-      }
+
+    "return none if cohort not found" in new WithApplication(FakeApplication()) {
+      OptInCohort.fromId(100) should be (None)
     }
   }
 

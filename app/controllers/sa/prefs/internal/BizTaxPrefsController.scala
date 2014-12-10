@@ -39,14 +39,14 @@ class BizTaxPrefsController(val auditConnector: AuditConnector,
   }
 
   def displayPrefsForm(emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(SaRegime) {
-    implicit user => implicit request => Redirect(routes.BizTaxPrefsController.displayPrefsFormForCohort(calculateCohort(user), emailAddress))
+    implicit user => implicit request => redirectToPrefsFormWithCohort(emailAddress, user)
   }
 
-  def displayPrefsFormForCohort(cohort: Cohort, emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(SaRegime).async {
+  def displayPrefsFormForCohort(cohort: Option[Cohort], emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(SaRegime).async {
     implicit user => implicit request => displayPrefsFormAction(emailAddress, cohort)
   }
 
-  def displayInterstitialPrefsFormForCohort(cohort: Cohort) = AuthorisedFor(SaRegime).async {
+  def displayInterstitialPrefsFormForCohort(cohort: Option[Cohort]) = AuthorisedFor(SaRegime).async {
     implicit user => implicit request => displayInterstitialPrefsFormAction(user, request, cohort)
   }
 
@@ -70,27 +70,32 @@ class BizTaxPrefsController(val auditConnector: AuditConnector,
   private[prefs] def redirectToBTAOrInterstitialPageAction(implicit user: User, request: Request[AnyRef]) =
     preferencesConnector.getPreferences(user.userAuthority.accounts.sa.get.utr)(HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)).map {
       case Some(saPreference) => FrontEndRedirect.toBusinessTax
-      case None => Redirect(routes.BizTaxPrefsController.displayInterstitialPrefsFormForCohort(calculateCohort(user)))
+      case None => redirectToInterstitialPageWithCohort(user)
     }
 
-  private[prefs] def displayInterstitialPrefsFormAction(implicit user: User, request: Request[AnyRef], cohort: Cohort) = {
+
+  private[prefs] def displayInterstitialPrefsFormAction(implicit user: User, request: Request[AnyRef], possibleCohort: Option[Cohort]) = {
     implicit val hc = HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)
     val saUtr = user.userAuthority.accounts.sa.get.utr
     preferencesConnector.getPreferences(saUtr).flatMap {
-      case Some(saPreference) =>  Future.successful(FrontEndRedirect.toBusinessTax)
+      case Some(saPreference) => Future.successful(FrontEndRedirect.toBusinessTax)
       case None =>
-        preferencesConnector.saveCohort(saUtr, calculateCohort(user)).map { case _ =>
-          auditPageShown(saUtr, Interstitial, cohort)
-          displayPreferencesFormAction(None, getSavePrefsFromInterstitialCall, cohort = cohort)
+        possibleCohort.fold(ifEmpty = Future.successful(redirectToInterstitialPageWithCohort(user))) { cohort =>
+          preferencesConnector.saveCohort(saUtr, calculateCohort(user)).map { case _ =>
+            auditPageShown(saUtr, Interstitial, cohort)
+            displayPreferencesFormAction(None, getSavePrefsFromInterstitialCall, cohort = cohort)
+          }
         }
     }
   }
 
-  private[prefs] def displayPrefsFormAction(emailAddress: Option[Encrypted[EmailAddress]], cohort: Cohort)(implicit user: User, request: Request[AnyRef]) = {
+  private[prefs] def displayPrefsFormAction(emailAddress: Option[Encrypted[EmailAddress]], possibleCohort: Option[Cohort])(implicit user: User, request: Request[AnyRef]) = {
     val saUtr = user.userAuthority.accounts.sa.get.utr
-    preferencesConnector.saveCohort(saUtr, calculateCohort(user)).map { case _ =>
-      auditPageShown(saUtr, AccountDetails, cohort)
-      displayPreferencesFormAction(emailAddress.map(_.decryptedValue), getSavePrefsFromNonInterstitialPageCall, withBanner = true, cohort)
+    possibleCohort.fold(ifEmpty = Future.successful(redirectToPrefsFormWithCohort(emailAddress, user))) { cohort =>
+      preferencesConnector.saveCohort(saUtr, calculateCohort(user)).map { case _ =>
+        auditPageShown(saUtr, AccountDetails, cohort)
+        displayPreferencesFormAction(emailAddress.map(_.decryptedValue), getSavePrefsFromNonInterstitialPageCall, withBanner = true, cohort)
+      }
     }
   }
 
@@ -150,5 +155,10 @@ class BizTaxPrefsController(val auditConnector: AuditConnector,
 
   }
 
+  private def redirectToInterstitialPageWithCohort(user: User) =
+    Redirect(routes.BizTaxPrefsController.displayInterstitialPrefsFormForCohort(Some(calculateCohort(user))))
+
+  private def redirectToPrefsFormWithCohort(emailAddress: Option[Encrypted[EmailAddress]], user: User) =
+    Redirect(routes.BizTaxPrefsController.displayPrefsFormForCohort(Some(calculateCohort(user)), emailAddress))
 }
 

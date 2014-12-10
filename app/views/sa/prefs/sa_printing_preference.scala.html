@@ -4,11 +4,6 @@
     @import controllers.sa.prefs.internal._
 
 @{cohort match {
-        case OptInNotSelected => opt_in_not_selected(showBanner, emailForm, submitPrefsFormAction)
-        case OptInSelected => opt_in_selected(showBanner, emailForm, submitPrefsFormAction)
-        case CPage => c_page(showBanner, emailForm, submitPrefsFormAction)
-        case DPage => d_page(showBanner, emailForm, submitPrefsFormAction)
-        case EPage => e_page(showBanner, emailForm, submitPrefsFormAction)
         case FPage => f_page(showBanner, emailForm, submitPrefsFormAction)
         case GPage => g_page(showBanner, emailForm, submitPrefsFormAction)
     }

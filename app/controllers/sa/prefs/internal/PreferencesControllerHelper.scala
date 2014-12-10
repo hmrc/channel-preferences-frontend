@@ -32,12 +32,12 @@ trait PreferencesControllerHelper {
     "emailVerified" -> optional(text)
   )(EmailFormData.apply)(EmailFormData.unapply))
 
-  protected val preferenceForm =
+  protected val optInOrOutForm =
     Form[PreferenceData](mapping(
       "opt-in" -> optional(boolean).verifying("sa_printing_preference.opt_in_choice_required", _.isDefined)
     )(PreferenceData.apply)(PreferenceData.unapply))
 
-  protected val emailFormWithPreference =
+  protected val optInDetailsForm =
     Form[EmailFormDataWithPreference](mapping(
       "email" -> tuple(
         "main" -> optional(emailWithLimitedLength),
@@ -64,7 +64,7 @@ trait PreferencesControllerHelper {
     Ok(
     views.html.sa.prefs.sa_printing_preference(
       withBanner,
-      emailForm = emailFormWithPreference.fill(EmailFormDataWithPreference(email, email.map(_ => OptIn), Some(false))),
+      emailForm = optInDetailsForm.fill(EmailFormDataWithPreference(email, email.map(_ => OptIn), Some(false))),
       submitPrefsFormAction = savePrefsCall,
       cohort
     )
@@ -104,12 +104,12 @@ trait PreferencesControllerHelper {
 
     implicit def hc: HeaderCarrier = HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)
 
-    preferenceForm.bindFromRequest.fold(
-      errors => Future.successful(BadRequest(errorsView(errors))),
-      success => {
-        if (success.optedIn.contains(false)) savePreferences(saUtr, false, None, hc)
+    optInOrOutForm.bindFromRequest.fold(
+      sadForm => Future.successful(BadRequest(errorsView(sadForm))),
+      happyForm => {
+        if (happyForm.optedIn.contains(false)) savePreferences(saUtr, false, None, hc)
         else {
-          emailFormWithPreference.bindFromRequest.fold(
+          optInDetailsForm.bindFromRequest.fold(
             errors => Future.successful(BadRequest(errorsView(errors))),
             success = {
               case emailForm@EmailFormDataWithPreference((Some(emailAddress), _), _, Some(OptIn), Some(true)) =>
@@ -122,7 +122,7 @@ trait PreferencesControllerHelper {
                   case false => Future.successful(Ok(emailWarningView(emailAddress)))
                 }
               case _ =>
-                Future.successful(BadRequest(errorsView(emailFormWithPreference.bindFromRequest)))
+                Future.successful(BadRequest(errorsView(optInDetailsForm.bindFromRequest)))
             }
           )
         }
