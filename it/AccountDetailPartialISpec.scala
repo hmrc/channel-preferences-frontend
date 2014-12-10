@@ -6,7 +6,8 @@ import org.scalatest.BeforeAndAfterEach
 class AccountDetailPartialISpec
   extends PreferencesFrontEndServer
   with UserAuthentication
-  with BeforeAndAfterEach {
+  with BeforeAndAfterEach
+  with EmailSupport {
 
   "Account detail partial" should {
     "return not authorised when no credentials supplied" in new TestCase {
@@ -38,10 +39,9 @@ class AccountDetailPartialISpec
     }
   }
 
-
   override def beforeEach() = {
     val testCase = new TestCase()
-    testCase.`/preferences-admin/sa/individual/print-suppression`.deleteAll should have(status(200))
+    testCase.`/preferences-admin/sa/individual`.deleteAll should have(status(200))
   }
 
 }
