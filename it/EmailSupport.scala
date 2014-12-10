@@ -1,6 +1,8 @@
 import org.scalatest.Matchers._
+import org.scalatest.concurrent.Eventually
 import play.api.libs.json.Json
 import play.api.libs.ws.WS
+import play.api.mvc.Results.EmptyContent
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http.test.ResponseMatchers
 
@@ -8,7 +10,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{Await, Future}
 import scala.util.matching.Regex.Match
 
-trait EmailSupport extends ResponseMatchers {
+trait EmailSupport extends ResponseMatchers with Eventually {
 
   import scala.concurrent.duration._
   import EmailSupport._
@@ -19,10 +21,14 @@ trait EmailSupport extends ResponseMatchers {
   private implicit lazy val app = play.api.Play.current
 
   private lazy val mailgunStubUrl = ServicesConfig.baseUrl("mailgun")
+  private lazy val emailBaseUrl = ServicesConfig.baseUrl("email")
   private lazy val prefsBaseUrl = ServicesConfig.baseUrl("preferences")
   private lazy val timeout = 5.seconds
 
-  def clearEmails() = Await.result(WS.url(s"$mailgunStubUrl/v2/reset").get(), timeout)
+  def clearEmails() = {
+    eventually(WS.url(s"$emailBaseUrl/email-admin/process-email-queue").post(EmptyContent()) should have (status (200)))
+    Await.result(WS.url(s"$mailgunStubUrl/v2/reset").get(), timeout)
+  }
 
   def emails: Future[List[Email]] = {
     val resp = (WS.url(s"$mailgunStubUrl/v2/email").get())
