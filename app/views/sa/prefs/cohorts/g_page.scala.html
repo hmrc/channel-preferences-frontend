@@ -54,9 +54,16 @@
                 '_divClass -> "row",
                 '_inputClass -> "input--medium input--cleared"
             )
-            <p>@Html(Messages(s"sa_printing_preference.tc",
-                Link.toExternalPage(url = "https://online.hmrc.gov.uk/information/terms#secure", value = Some(Messages("sa_printing_preference.tc.linkText"))).toHtml))</p>
-            <p class="form-hint">@Messages(s"sa_printing_preference.legal")</p>
+
+            @Messages("sa_printing_preference.tc.preLinkText")
+            @singleCheckbox(
+            emailForm("accept-tc"),
+            '_label -> Link.toExternalPage(url = "https://online.hmrc.gov.uk/information/terms#secure", value = Some(Messages("sa_printing_preference.tc.linkText"))).toHtml
+            )
+
+            <p class="form-hint">@Messages("sa_printing_preference.tc.legal.1")</p>
+            <p class="form-hint">@Messages("sa_printing_preference.tc.legal.2")</p>
+            <p class="form-hint">@Messages("sa_printing_preference.tc.legal.3")</p>
         </fieldset>
         <label class="selectable">
             <input

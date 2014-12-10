@@ -25,6 +25,7 @@
         <input type="hidden" name="email.main" value="@emailAddress" />
         <input type="hidden" name="email.confirm" value="@emailAddress" />
         <input type="hidden" name="emailVerified" value="true" />
+        <input type="hidden" name="accept-tc" value="true" />
     }
 
     @Link.toInternalPage(id = Some("email-is-not-correct-link"), url = controllers.sa.prefs.internal.routes.BizTaxPrefsController.displayPrefsForm(Some(Encrypted(EmailAddress(emailAddress)))).url, value = Some("Change this email address")).toHtml

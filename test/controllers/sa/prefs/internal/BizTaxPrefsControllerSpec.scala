@@ -233,9 +233,37 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       verifyZeroInteractions(preferencesConnector, emailConnector)
     }
 
+    "show an error when opting-in if the T&C's are not accepted" in new BizTaxPrefsControllerSetup {
+      override def assignedCohort = FPage
+
+      val emailAddress = "someone@email.com"
+      val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user,
+        FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", "email.main" -> emailAddress, "email.confirm" -> emailAddress, "accept-tc" -> "false")))
+
+      status(page) shouldBe 400
+
+      val document = Jsoup.parse(contentAsString(page))
+      document.select(".error-notification").text shouldBe "You must accept the terms and conditions"
+      verifyZeroInteractions(preferencesConnector, emailConnector)
+    }
+
+    "show an error when opting-in if the T&C's accepted flag is not present" in new BizTaxPrefsControllerSetup {
+      override def assignedCohort = FPage
+
+      val emailAddress = "someone@email.com"
+      val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user,
+        FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", "email.main" -> emailAddress, "email.confirm" -> emailAddress)))
+
+      status(page) shouldBe 400
+
+      val document = Jsoup.parse(contentAsString(page))
+      document.select(".error-notification").text shouldBe "You must accept the terms and conditions"
+      verifyZeroInteractions(preferencesConnector, emailConnector)
+    }
+
     "show an error when opting-in if the email is not set" in new BizTaxPrefsControllerSetup {
 
-      val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", "email.main" -> "")))
+      val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", "email.main" -> "", "accept-tc" -> "true")))
 
       status(page) shouldBe 400
 
@@ -247,7 +275,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
     "show an error when opting-in if the two email fields are not equal" in new BizTaxPrefsControllerSetup {
       val emailAddress = "someone@email.com"
 
-      val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", "email.main" -> emailAddress, "email.confirm" -> "other")))
+      val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", "email.main" -> emailAddress, "email.confirm" -> "other", "accept-tc" -> "true")))
 
       status(page) shouldBe 400
 
@@ -261,7 +289,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       val emailAddress = "someone@dodgy.domain"
       when(emailConnector.isValid(is(emailAddress))(any())).thenReturn(false)
 
-      val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress),("email.confirm", emailAddress))))
+      val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress),("email.confirm", emailAddress), "accept-tc" -> "true")))
 
       status(page) shouldBe 200
 
@@ -275,7 +303,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       when(emailConnector.isValid(is(emailAddress))(any())).thenReturn(true)
       when(preferencesConnector.savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())).thenReturn(Future.successful(None))
 
-      val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress),("email.confirm", emailAddress))))
+      val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress),("email.confirm", emailAddress), "accept-tc" -> "true")))
 
       status(page) shouldBe 303
       header("Location", page).get should include(routes.BizTaxPrefsController.thankYou(Some(Encrypted(EmailAddress(emailAddress)))).toString())
@@ -308,7 +336,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       val emailAddress = "someone@email.com"
       when(preferencesConnector.savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())).thenReturn(Future.successful(None))
 
-      val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "true"))))
+      val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "true"), "accept-tc" -> "true")))
 
       status(page) shouldBe 303
       header("Location", page).get should include(routes.BizTaxPrefsController.thankYou(Some(Encrypted(EmailAddress(emailAddress)))).toString())
@@ -324,7 +352,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       val emailAddress = "someone@dodgy.domain"
       when(emailConnector.isValid(is(emailAddress))(any())).thenReturn(false)
 
-      val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "false"))))
+      val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "false"), "accept-tc" -> "true")))
 
       status(page) shouldBe 200
 
@@ -340,7 +368,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       val emailAddress = "someone@dodgy.domain"
       when(emailConnector.isValid(is(emailAddress))(any())).thenReturn(false)
 
-      val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "hjgjhghjghjgj"))))
+      val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "hjgjhghjghjgj"), "accept-tc" -> "true")))
 
       status(page) shouldBe 200
 
@@ -359,7 +387,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       when(emailConnector.isValid(is(emailAddress))(any())).thenReturn(true)
       when(preferencesConnector.savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())).thenReturn(Future.successful(None))
 
-      val page = Future.successful(controller.submitPrefsFormAction(Interstitial)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress),("email.confirm", emailAddress))))
+      val page = Future.successful(controller.submitPrefsFormAction(Interstitial)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress),("email.confirm", emailAddress), "accept-tc" -> "true")))
 
       status(page) shouldBe 303
 
@@ -384,7 +412,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       when(emailConnector.isValid(is(emailAddress))(any())).thenReturn(true)
       when(preferencesConnector.savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())).thenReturn(Future.successful(None))
 
-      val page = Future.successful(controller.submitPrefsFormAction(Interstitial)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress),("email.confirm", emailAddress))))
+      val page = Future.successful(controller.submitPrefsFormAction(Interstitial)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress),("email.confirm", emailAddress), "accept-tc" -> "true")))
 
       status(page) shouldBe 303
 

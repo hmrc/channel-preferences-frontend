@@ -46,10 +46,11 @@ trait PreferencesControllerHelper {
       "emailVerified" -> optional(text),
       "opt-in" -> optional(boolean).verifying("sa_printing_preference.opt_in_choice_required", _.isDefined).transform(
         _.map(EmailPreference.fromBoolean), (p: Option[EmailPreference]) => p.map(_.toBoolean)
-      )
+      ),
+      "accept-tc" -> optional(boolean).verifying("sa_printing_preference.accept_tc_required", _.contains(true))
     )(EmailFormDataWithPreference.apply)(EmailFormDataWithPreference.unapply)
       .verifying("error.email.optIn", _ match {
-      case EmailFormDataWithPreference((None, _), _, Some(OptIn)) => false
+      case EmailFormDataWithPreference((None, _), _, Some(OptIn), _) => false
       case _ => true
     })
       .verifying("email.confirmation.emails.unequal", formData => formData.email._1 == formData.email._2)
@@ -63,7 +64,7 @@ trait PreferencesControllerHelper {
     Ok(
     views.html.sa.prefs.sa_printing_preference(
       withBanner,
-      emailForm = emailFormWithPreference.fill(EmailFormDataWithPreference(email, email.map(_ => OptIn))),
+      emailForm = emailFormWithPreference.fill(EmailFormDataWithPreference(email, email.map(_ => OptIn), Some(false))),
       submitPrefsFormAction = savePrefsCall,
       cohort
     )
@@ -111,7 +112,7 @@ trait PreferencesControllerHelper {
           emailFormWithPreference.bindFromRequest.fold(
             errors => Future.successful(BadRequest(errorsView(errors))),
             success = {
-              case emailForm@EmailFormDataWithPreference((Some(emailAddress), _), _, Some(OptIn)) =>
+              case emailForm@EmailFormDataWithPreference((Some(emailAddress), _), _, Some(OptIn), Some(true)) =>
                 val emailVerificationStatus =
                   if (emailForm.isEmailVerified) Future.successful(true)
                   else emailConnector.isValid(emailAddress)
