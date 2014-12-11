@@ -4,8 +4,8 @@ import play.api.Play
 import uk.gov.hmrc.common.microservice.domain.User
 
 trait Cohort {
-  def id: Int
-  def name: String
+  val id: Int
+  val name: String
 
   override def toString: String = name
 }
