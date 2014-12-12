@@ -16,6 +16,7 @@ trait CohortCalculator[T <: Cohort] {
 
   def calculateCohort(user: User): T = user.userAuthority.accounts.sa.map(sa => calculate(sa.utr.hashCode)).getOrElse(enabledCohorts.head)
 
+  // TODO this should be private
   def calculate(hashCode: Int): T = {
     verifyConfiguration()
     enabledCohorts(Math.abs(hashCode) % enabledCohorts.size)
@@ -31,5 +32,5 @@ trait CohortCalculator[T <: Cohort] {
 trait CohortValues[T <: Cohort] {
   val values: List[T]
 
-  def fromId(id: Int): T = values.find(c => c.id == id).getOrElse(throw new IllegalArgumentException("Cohort with id not found"))
+  def fromId(id: Int): Option[T] = values.find(c => c.id == id)
 }

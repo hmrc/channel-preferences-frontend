@@ -38,8 +38,6 @@ sa_printing_preference.cdefg_page.paragraph.3=The service is secure and only use
 sa_printing_preference.paragraph.4=They’re secure and will never include any information about your personal tax affairs.
 sa_printing_preference.cdefg_page.paragraph.4=Personal and tax details are never shown in the email reminder.
 
-sa_printing_preference.tc=By signing up for Self Assessment email reminders you accept the {0}.
-sa_printing_preference.legal=Messages are sent to a secure mailbox in your online account. Self Assessment reminders include legal notices, reminders and alerts.  They have the same legal validity as an HMRC reminder sent in the post. Keep your email address up to date - you can do this in your online account.
 sa_printing_preference.option.yes=Yes, I want them by email, don’t send them by post
 sa_printing_preference.cde_page.option.yes=Yes, send my reminders by email
 sa_printing_preference.option.no=No, I don’t want them by email, continue sending them by post
@@ -48,11 +46,16 @@ sa_printing_preference.cde_page.option.no=No, continue sending letters by post o
 sa_printing_preference.heading.3=Do you want to get Self Assessment reminders by email?
 sa_printing_preference.fg_page.heading.3=Would you like Self Assessment email reminders?
 
+sa_printing_preference.tc.preLinkText=I agree with the {0}
 sa_printing_preference.tc.linkText=terms and conditions
+sa_printing_preference.tc.legal.1=Messages will be sent to a secure mailbox in your HMRC online account.
+sa_printing_preference.tc.legal.2=They have the same legal validity as an HMRC reminder sent in the post.
+sa_printing_preference.tc.legal.3=Keep your email address up to date - you can do this in your online account.
 
 sa_printing_preference.submitButton=Continue
 sa_printing_preference.cancelButton=Continue to get letters
 sa_printing_preference.opt_in_choice_required=Confirm if you want Self Assessment email reminders
+sa_printing_preference.accept_tc_required=You must accept the terms and conditions
 sa_printing_preferences.confirm_correct_email.title=Check your email address
 sa_printing_preferences.confirm_correct_email.paragraph.1=Are you sure {0} is correct?
 sa_printing_preferences.confirm_correct_email.confirm=This email address is correct

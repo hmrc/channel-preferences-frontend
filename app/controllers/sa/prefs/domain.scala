@@ -29,14 +29,14 @@ object EmailPreference {
 case object OptIn extends EmailPreference
 case object OptOut extends EmailPreference
 
-case class EmailFormDataWithPreference(email: (Option[String], Option[String]), emailVerified: Option[String], preference: Option[EmailPreference]) {
+case class EmailFormDataWithPreference(email: (Option[String], Option[String]), emailVerified: Option[String], preference: Option[EmailPreference], acceptedTCs: Option[Boolean]) {
   lazy val isEmailVerified = emailVerified == Some("true")
 
   def mainEmail = email._1
 }
 object EmailFormDataWithPreference {
-  def apply(emailAddress: Option[EmailAddress], preference: Option[EmailPreference]): EmailFormDataWithPreference = {
+  def apply(emailAddress: Option[EmailAddress], preference: Option[EmailPreference], acceptedTcs: Option[Boolean]): EmailFormDataWithPreference = {
     val emailAddressAsString = emailAddress.map(_.value)
-    EmailFormDataWithPreference((emailAddressAsString, emailAddressAsString), None, preference)
+    EmailFormDataWithPreference((emailAddressAsString, emailAddressAsString), None, preference, acceptedTcs)
   }
 }
