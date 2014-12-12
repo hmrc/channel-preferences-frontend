@@ -55,10 +55,10 @@
                 '_inputClass -> "input--medium input--cleared"
             )
 
-            @Messages("sa_printing_preference.tc.preLinkText")
             @singleCheckbox(
             emailForm("accept-tc"),
-            '_label -> Link.toExternalPage(url = "https://online.hmrc.gov.uk/information/terms#secure", value = Some(Messages("sa_printing_preference.tc.linkText"))).toHtml
+            '_label -> Html(Messages("sa_printing_preference.tc.preLinkText", Link.toExternalPage(url = "https://online.hmrc.gov.uk/information/terms#secure", value = Some(Messages("sa_printing_preference.tc.linkText"))).toHtml)),
+            '_labelClass -> "label--inline"
             )
 
             <p class="form-hint">@Messages("sa_printing_preference.tc.legal.1")</p>

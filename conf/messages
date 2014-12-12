@@ -46,7 +46,7 @@ sa_printing_preference.cde_page.option.no=No, continue sending letters by post o
 sa_printing_preference.heading.3=Do you want to get Self Assessment reminders by email?
 sa_printing_preference.fg_page.heading.3=Would you like Self Assessment email reminders?
 
-sa_printing_preference.tc.preLinkText=I agree with the
+sa_printing_preference.tc.preLinkText=I agree with the {0}
 sa_printing_preference.tc.linkText=terms and conditions
 sa_printing_preference.tc.legal.1=Messages will be sent to a secure mailbox in your HMRC online account.
 sa_printing_preference.tc.legal.2=They have the same legal validity as an HMRC reminder sent in the post.
