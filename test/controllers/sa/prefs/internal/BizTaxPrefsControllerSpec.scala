@@ -400,6 +400,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       value.detail should contain ("utr" -> validUtr.value)
       value.detail should contain ("email" -> "someone@email.com")
       value.detail should contain ("digital" -> "true")
+      value.detail should contain ("userConfirmedReadTandCs" -> "true")
 
     }
 
@@ -427,6 +428,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       value.detail should contain ("utr" -> validUtr.value)
       value.detail should not contain ("email" -> "someone@email.com")
       value.detail should contain ("digital" -> "false")
+      value.detail should contain ("userConfirmedReadTandCs" -> "false")
 
     }
   }

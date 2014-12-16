@@ -6,7 +6,7 @@ import play.api.data.Forms._
 import play.api.data._
 import play.api.mvc.Results._
 import play.api.mvc.{Call, Request, Result}
-import play.api.templates.HtmlFormat
+import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
@@ -62,16 +62,16 @@ trait PreferencesControllerHelper {
 
   def displayPreferencesFormAction(email: Option[EmailAddress], savePrefsCall: Call, withBanner: Boolean = false, cohort: Cohort)(implicit request: Request[AnyRef]) =
     Ok(
-    views.html.sa.prefs.sa_printing_preference(
-      withBanner,
-      emailForm = optInDetailsForm.fill(EmailFormDataWithPreference(email, email.map(_ => OptIn), Some(false))),
-      submitPrefsFormAction = savePrefsCall,
-      cohort
+      views.html.sa.prefs.sa_printing_preference(
+        withBanner,
+        emailForm = optInDetailsForm.fill(EmailFormDataWithPreference(email, email.map(_ => OptIn), Some(false))),
+        submitPrefsFormAction = savePrefsCall,
+        cohort
+      )
     )
-  )
 
-  protected def submitEmailForm(errorsView: (Form[_]) => play.api.templates.HtmlFormat.Appendable,
-                                emailWarningView: (String) => play.api.templates.HtmlFormat.Appendable,
+  protected def submitEmailForm(errorsView: (Form[_]) => HtmlFormat.Appendable,
+                                emailWarningView: (String) => HtmlFormat.Appendable,
                                 successRedirect: () => Call,
                                 emailConnector: EmailConnector,
                                 saUtr: SaUtr,
@@ -95,11 +95,11 @@ trait PreferencesControllerHelper {
     )
   }
 
-  protected def submitPreferencesForm(errorsView: (Form[_]) => play.api.templates.HtmlFormat.Appendable,
-                                      emailWarningView: (String) => play.api.templates.HtmlFormat.Appendable,
+  protected def submitPreferencesForm(errorsView: (Form[_]) => HtmlFormat.Appendable,
+                                      emailWarningView: (String) => HtmlFormat.Appendable,
                                       emailConnector: EmailConnector,
                                       saUtr: SaUtr,
-                                      savePreferences: (SaUtr, Boolean, Option[String], HeaderCarrier) => Future[Result])
+                                      savePreferences: (SaUtr, Boolean, Option[String], Boolean, HeaderCarrier) => Future[Result])
                                      (implicit request: Request[AnyRef]): Future[Result] = {
 
     implicit def hc: HeaderCarrier = HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)
@@ -107,7 +107,7 @@ trait PreferencesControllerHelper {
     optInOrOutForm.bindFromRequest.fold(
       sadForm => Future.successful(BadRequest(errorsView(sadForm))),
       happyForm => {
-        if (happyForm.optedIn.contains(false)) savePreferences(saUtr, false, None, hc)
+        if (happyForm.optedIn.contains(false)) savePreferences(saUtr, false, None, false, hc)
         else {
           optInDetailsForm.bindFromRequest.fold(
             errors => Future.successful(BadRequest(errorsView(errors))),
@@ -118,7 +118,7 @@ trait PreferencesControllerHelper {
                   else emailConnector.isValid(emailAddress)
 
                 emailVerificationStatus.flatMap {
-                  case true => savePreferences(saUtr, true, Some(emailAddress), hc)
+                  case true => savePreferences(saUtr, true, Some(emailAddress), emailForm.acceptedTCs.contains(true), hc)
                   case false => Future.successful(Ok(emailWarningView(emailAddress)))
                 }
               case _ =>

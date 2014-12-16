@@ -101,25 +101,26 @@ class BizTaxPrefsController(val auditConnector: AuditConnector,
 
   private[prefs] def submitPrefsFormAction(journey: Journey)(implicit user: User, request: Request[AnyRef], withBanner: Boolean = false) = {
     val cohort = calculateCohort(user)
+    def saveAndAuditPreferences(utr:SaUtr, digital: Boolean, email: Option[String], acceptedTAndCs:Boolean, hc: HeaderCarrier):Future[Result] = {
+      implicit val headerCarrier = hc
+      for {
+        _ <- preferencesConnector.saveCohort(utr, calculate(utr.hashCode))
+        _ <- preferencesConnector.savePreferences(utr, digital, email)
+      } yield {
+        auditChoice(utr, journey, cohort, digital, email,acceptedTAndCs)
+        digital match {
+          case true =>
+            Redirect(routes.BizTaxPrefsController.thankYou(email map (emailAddress => Encrypted(EmailAddress(emailAddress)))))
+          case false => Redirect(ExternalUrls.businessTaxHome)
+        }
+      }
+    }
     submitPreferencesForm(
       errorsView = getSubmitPreferencesView(getSavePrefFormAction, cohort),
       emailWarningView = views.html.sa_printing_preference_verify_email(_, cohort),
       emailConnector = emailConnector,
       saUtr = user.userAuthority.accounts.sa.get.utr,
-      savePreferences = (utr, digital, email, hc) => {
-        implicit val headerCarrier = hc
-        for {
-          _ <- preferencesConnector.saveCohort(utr, calculate(utr.hashCode))(hc)
-          _ <- preferencesConnector.savePreferences(utr, digital, email)(hc)
-        } yield {
-          auditChoice(utr, journey, cohort, digital, email)(request, hc)
-          digital match {
-            case true =>
-              Redirect(routes.BizTaxPrefsController.thankYou(email map (emailAddress => Encrypted(EmailAddress(emailAddress)))))
-            case false => Redirect(ExternalUrls.businessTaxHome)
-          }
-        }
-      }
+      savePreferences = saveAndAuditPreferences
     )
   }
 
@@ -138,10 +139,10 @@ class BizTaxPrefsController(val auditConnector: AuditConnector,
       detail = hc.toAuditDetails(
         "utr" -> utr.toString,
         "journey" -> journey.toString,
-        "cohort" -> cohort.toString)))(hc)
+        "cohort" -> cohort.toString)))
   }
 
-  private def auditChoice(utr: SaUtr, journey: Journey, cohort: Cohort, digital: Boolean, emailOption: Option[String])(implicit request: Request[_], hc: HeaderCarrier) = {
+  private def auditChoice(utr: SaUtr, journey: Journey, cohort: Cohort, digital: Boolean, emailOption: Option[String], acceptedTAndCs:Boolean)(implicit request: Request[_], hc: HeaderCarrier) = {
     auditConnector.audit(AuditEvent(
       auditSource = appName,
       auditType = EventTypes.Succeeded,
@@ -151,7 +152,8 @@ class BizTaxPrefsController(val auditConnector: AuditConnector,
         "journey" -> journey.toString,
         "digital" -> digital.toString,
         "cohort" -> cohort.toString,
-        "email" -> emailOption.getOrElse(""))))(hc)
+        "userConfirmedReadTandCs" -> acceptedTAndCs.toString,
+        "email" -> emailOption.getOrElse(""))))
 
   }
 
