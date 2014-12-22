@@ -42,7 +42,7 @@ class RenderViewForPreferencesSpec extends UnitSpec with Results with WithFakeAp
           linkSent = Some(LocalDate.parse("2014-12-05")),
           mailboxFull = true))
       )).body
-      result should include ("can't be sent because your inbox is full")
+      result should include ("Your inbox is full")
     }
 
     "have problem warning if email bounces due to some other reason than mail box being full" in {
@@ -53,7 +53,7 @@ class RenderViewForPreferencesSpec extends UnitSpec with Results with WithFakeAp
           linkSent = Some(LocalDate.parse("2014-12-05")),
           mailboxFull = false))
       )).body
-      result should include ("can't be delivered")
+      result should include ("There’s a problem with your Self Assessment email reminders")
     }
   }
 }
