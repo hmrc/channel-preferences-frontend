@@ -6,9 +6,7 @@
     <summary>There’s a problem with your Self Assessment email reminders.<span class="alert-block">Urgent</span></summary>
     <div class="panel-indent">
         @if(mailBoxFull) {
-            <p>The email telling you how to do this can't be sent because your inbox is full.</p>
-        } else {
-            <p>The email telling you how to do this can't be delivered.</p>
+            <p>Your inbox is full.</p>
         }
         <p>Go to
             @Link.toInternalPage(
