@@ -18,6 +18,7 @@ class EmailValidationController extends BaseController {
           preferencesMicroService.updateEmailValidationStatusUnsecured(token) map {
             case EmailVerificationLinkResponse.OK => Ok(views.html.sa.prefs.sa_printing_preference_verify_email())
             case EmailVerificationLinkResponse.EXPIRED => Ok(views.html.sa.prefs.sa_printing_preference_expired_email())
+            case EmailVerificationLinkResponse.WRONG_TOKEN => Ok(views.html.sa.prefs.sa_printing_preference_wrong_token())
             case EmailVerificationLinkResponse.ERROR => BadRequest(views.html.sa.prefs.sa_printing_preference_verify_email_failed())
           }
         case _ => Future.successful(BadRequest(views.html.sa.prefs.sa_printing_preference_verify_email_failed()))
