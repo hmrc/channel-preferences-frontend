@@ -62,6 +62,7 @@ trait PreferencesConnector extends Status {
     response.map(_ => EmailVerificationLinkResponse.OK)
       .recover {
       case Upstream4xxResponse(_, GONE, _) => EmailVerificationLinkResponse.EXPIRED
+      case Upstream4xxResponse(_, CONFLICT, _) => EmailVerificationLinkResponse.WRONG_TOKEN
       case _ => EmailVerificationLinkResponse.ERROR
     }
   }

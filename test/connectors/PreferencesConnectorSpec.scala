@@ -140,5 +140,10 @@ class PreferencesConnectorSpec extends UnitSpec with ScalaFutures with WithFakeA
       val result = preferenceConnector.responseToEmailVerificationLinkStatus(Future.failed(new Upstream4xxResponse("", 410, 500)))
       result.futureValue shouldBe EXPIRED
     }
+
+    "return wrong token if updateEmailValidationStatusUnsecured returns 409" in {
+      val result = preferenceConnector.responseToEmailVerificationLinkStatus(Future.failed(new Upstream4xxResponse("", 409, 500)))
+      result.futureValue shouldBe WRONG_TOKEN
+    }
   }
 }
