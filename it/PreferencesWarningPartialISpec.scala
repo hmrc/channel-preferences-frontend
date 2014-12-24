@@ -58,6 +58,31 @@ class PreferencesWarningPartialISpec
       response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("true"))
     }
 
+    "have no warning for an opt-out after pending unverified email" in new TestCase {
+      val email = uniqueEmail
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
+      `/portal/preferences/sa/individual`.postOptOut(utr) should have(status(201))
+
+      val response =`/account/preferences/warnings`.withHeaders(authenticationCookie(userId, password)).get()
+
+      response should have(status(200))
+      response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("false"))
+      response.futureValue.body should be("")
+    }
+
+    "have verification warning for a change email after pending unverified email" in new TestCase {
+      val email = uniqueEmail
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, changedUniqueEmail) should have(status(201))
+
+      val response =`/account/preferences/warnings`.withHeaders(authenticationCookie(userId, password)).get()
+
+      response should have(status(200))
+      response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("true"))
+      response.futureValue.body should include("Verify your Self Assessment email address")
+    }
+
+
     "have warning for a bounced and unverified pending email address" in new TestCase {
       val email = uniqueEmail
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
@@ -79,6 +104,57 @@ class PreferencesWarningPartialISpec
 
       response should have(status(200))
       response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("true"))
+    }
+
+    "have no warning for an opt out after a bounce" in new TestCase {
+      val email = uniqueEmail
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
+      `/preferences-admin/sa/bounce-email`.post(email) should have(status(204))
+      `/portal/preferences/sa/individual`.postOptOut(utr)
+
+      val response =`/account/preferences/warnings`.withHeaders(authenticationCookie(userId, password)).get()
+
+      response should have(status(200))
+      response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("false"))
+    }
+
+    "have verification warning for a pending verification after a bounce" in new TestCase {
+      val email = uniqueEmail
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
+      `/preferences-admin/sa/bounce-email`.post(email) should have(status(204))
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
+
+      val response =`/account/preferences/warnings`.withHeaders(authenticationCookie(userId, password)).get()
+
+      response should have(status(200))
+      response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("true"))
+      response.futureValue.body should include("Verify your Self Assessment email address")
+    }
+
+    "have verification warning for a changed email after a bounce" in new TestCase {
+      val email = uniqueEmail
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
+      `/preferences-admin/sa/bounce-email`.post(email) should have(status(204))
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, changedUniqueEmail) should have(status(201))
+
+      val response =`/account/preferences/warnings`.withHeaders(authenticationCookie(userId, password)).get()
+
+      response should have(status(200))
+      response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("true"))
+      response.futureValue.body should include("Verify your Self Assessment email address")
+    }
+
+    "have no warning for a verification after a bounce" in new TestCase {
+      val email = uniqueEmail
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
+      `/preferences-admin/sa/bounce-email`.post(email) should have(status(204))
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
+      `/preferences-admin/sa/individual`.verifyEmailFor(utr) should have(status(204))
+
+      val response =`/account/preferences/warnings`.withHeaders(authenticationCookie(userId, password)).get()
+
+      response should have(status(200))
+      response.futureValue.body should be("")
     }
   }
 }

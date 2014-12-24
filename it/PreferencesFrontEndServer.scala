@@ -85,6 +85,8 @@ trait PreferencesFrontEndServer extends ServiceSpec {
 
     def uniqueEmail = s"${UUID.randomUUID().toString}@email.com"
 
+    def changedUniqueEmail = s"${UUID.randomUUID().toString}@email.com"
+
     def `/email-reminders-status` = WS.url(resource("/account/account-details/sa/email-reminders-status"))
 
     val `/portal/preferences/sa/individual` = new {
