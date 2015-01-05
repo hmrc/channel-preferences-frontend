@@ -112,38 +112,39 @@ class PreferencesConnectorSpec extends UnitSpec with ScalaFutures with WithFakeA
 
     "return ok if updateEmailValidationStatusUnsecured returns 200" in {
       val result = preferenceConnector.responseToEmailVerificationLinkStatus(Future.successful(HttpResponse(200)))
-      result.futureValue shouldBe OK
+      result.futureValue shouldBe Ok
     }
 
     "return ok if updateEmailValidationStatusUnsecured returns 204" in {
       val result = preferenceConnector.responseToEmailVerificationLinkStatus(Future.successful(HttpResponse(204)))
-      result.futureValue shouldBe OK
+      result.futureValue shouldBe Ok
     }
 
     "return error if updateEmailValidationStatusUnsecured returns 400" in {
       val result = preferenceConnector.responseToEmailVerificationLinkStatus(Future.failed(new BadRequestException("")))
-      result.futureValue shouldBe ERROR
+      result.futureValue shouldBe Error
     }
 
     "return error if updateEmailValidationStatusUnsecured returns 404" in {
       val result = preferenceConnector.responseToEmailVerificationLinkStatus(Future.failed(new NotFoundException("")))
-      result.futureValue shouldBe ERROR
+      result.futureValue shouldBe Error
     }
 
     "return error if updateEmailValidationStatusUnsecured returns 500" in {
-      val result = preferenceConnector.responseToEmailVerificationLinkStatus(Future.failed(new Upstream5xxResponse("", 500, 500)))
+      val expectedErrorResponse = Upstream5xxResponse("", 500, 500)
+      val result = preferenceConnector.responseToEmailVerificationLinkStatus(Future.failed(expectedErrorResponse))
 
-      result.futureValue shouldBe ERROR
+      result.failed.futureValue shouldBe expectedErrorResponse
     }
 
     "return expired if updateEmailValidationStatusUnsecured returns 410" in {
-      val result = preferenceConnector.responseToEmailVerificationLinkStatus(Future.failed(new Upstream4xxResponse("", 410, 500)))
-      result.futureValue shouldBe EXPIRED
+      val result = preferenceConnector.responseToEmailVerificationLinkStatus(Future.failed(Upstream4xxResponse("", 410, 500)))
+      result.futureValue shouldBe Expired
     }
 
     "return wrong token if updateEmailValidationStatusUnsecured returns 409" in {
-      val result = preferenceConnector.responseToEmailVerificationLinkStatus(Future.failed(new Upstream4xxResponse("", 409, 500)))
-      result.futureValue shouldBe WRONG_TOKEN
+      val result = preferenceConnector.responseToEmailVerificationLinkStatus(Future.failed(Upstream4xxResponse("", 409, 500)))
+      result.futureValue shouldBe WrongToken
     }
   }
 }
