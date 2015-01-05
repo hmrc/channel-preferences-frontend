@@ -130,7 +130,7 @@ class PreferencesConnectorSpec extends UnitSpec with ScalaFutures with WithFakeA
       result.futureValue shouldBe Error
     }
 
-    "return error if updateEmailValidationStatusUnsecured returns 500" in {
+    "pass through the failure if updateEmailValidationStatusUnsecured returns 500" in {
       val expectedErrorResponse = Upstream5xxResponse("", 500, 500)
       val result = preferenceConnector.responseToEmailVerificationLinkStatus(Future.failed(expectedErrorResponse))
 
