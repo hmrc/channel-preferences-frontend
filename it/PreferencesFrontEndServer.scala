@@ -85,6 +85,8 @@ trait PreferencesFrontEndServer extends ServiceSpec {
 
     def uniqueEmail = s"${UUID.randomUUID().toString}@email.com"
 
+    def changedUniqueEmail = s"${UUID.randomUUID().toString}@email.com"
+
     def `/email-reminders-status` = WS.url(resource("/account/account-details/sa/email-reminders-status"))
 
     val `/portal/preferences/sa/individual` = new {
@@ -118,6 +120,14 @@ trait PreferencesFrontEndServer extends ServiceSpec {
       def post(emailAddress: String) = WS.url(server.externalResource("preferences",
         "/preferences-admin/sa/bounce-email")).post(Json.parse( s"""{
              |"emailAddress": "$emailAddress"
+             |}""".stripMargin))
+    }
+
+    val `/preferences-admin/sa/bounce-email-inbox-full` = new {
+      def post(emailAddress: String) = WS.url(server.externalResource("preferences",
+        "/preferences-admin/sa/bounce-email")).post(Json.parse( s"""{
+             |"emailAddress": "$emailAddress",
+             |"code": 552
              |}""".stripMargin))
     }
 
