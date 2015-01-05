@@ -82,132 +82,125 @@ class VerificationEmailISpec
         )
 
     }
+  }
 
-    "Attempt to verify a change of address with an old link" should {
+  "Attempt to verify a change of address with an old link" should {
 
-      "display expired old email address message if the old email is verified and new email has been verified" in new VerificationEmailTestCase {
+    "display expired old email address message if the old email is verified and new email has been verified" in new VerificationEmailTestCase {
 
-        val email = uniqueEmail
-        `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
+      val email = uniqueEmail
+      val newEmail = uniqueEmail
 
-        aVerificationEmailIsReceivedFor(email)
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
 
-        val verificationTokenFromFirstEmail = verificationTokenFromEmail()
-        `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should have(status(200))
+      aVerificationEmailIsReceivedFor(email)
 
-        val newEmail = uniqueEmail
-        `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(201))
+      val verificationTokenFromFirstEmail = verificationTokenFromEmail()
+      `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should have(status(200))
 
-        aVerificationEmailIsReceivedFor(newEmail)
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(201))
 
-        `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should beForAnExpiredOldEmail
+      `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should beForAnExpiredOldEmail
+    }
 
+    "display expired old email address message if the old email is verified and the new email has been verified" in new VerificationEmailTestCase {
+
+      val email = uniqueEmail
+      val newEmail = uniqueEmail
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
+
+      aVerificationEmailIsReceivedFor(email)
+
+      val verificationTokenFromFirstEmail = verificationTokenFromEmail()
+      `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should have(status(200))
+
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(201))
+
+      `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should beForAnExpiredOldEmail
+    }
+
+    "display expired old email address message if the old email is not verified and the new email has not been verified" in new VerificationEmailTestCase {
+
+      val email = uniqueEmail
+      val newEmail = uniqueEmail
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
+
+      aVerificationEmailIsReceivedFor(email)
+
+      val verificationTokenFromFirstEmail = verificationTokenFromEmail()
+
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(201))
+
+      `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should beForAnExpiredOldEmail
+    }
+
+    "display expired old email address message if the old email is not verified and the new email is verified" in new VerificationEmailTestCase {
+
+      val email = uniqueEmail
+      val newEmail = uniqueEmail
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
+
+      aVerificationEmailIsReceivedFor(email)
+
+      val verificationTokenFromFirstEmail = verificationTokenFromEmail()
+      clearEmails()
+
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(201))
+
+      aVerificationEmailIsReceivedFor(newEmail)
+
+      `/sa/print-preferences/verification`.verify(verificationTokenFromEmail()) should have(status(200))
+
+      `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should beForAnExpiredOldEmail
+
+    }
+
+    "display expired old email address message if another old email is verified and the new email is verified" in new VerificationEmailTestCase {
+
+      val firstEmail = uniqueEmail
+      val newEmail = uniqueEmail
+      val secondEmail = uniqueEmail
+
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, firstEmail) should have(status(201))
+
+      aVerificationEmailIsReceivedFor(firstEmail)
+      val verificationTokenFromFirstEmail = verificationTokenFromEmail()
+      clearEmails()
+
+      `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should have(status(200))
+
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, secondEmail) should have(status(201))
+      clearEmails()
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(201))
+
+      withReceivedEmails(2) { emails =>
+        emails.flatMap(_.to) should contain(newEmail)
       }
 
-      "display expired old email address message if the old email is verified and the new email has been verified" in new VerificationEmailTestCase {
+      `/sa/print-preferences/verification`.verify(verificationTokenFromEmail()) should have(status(200))
 
-        val email = uniqueEmail
-        `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
+      `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should beForAnExpiredOldEmail
 
-        aVerificationEmailIsReceivedFor(email)
+    }
 
-        val verificationTokenFromFirstEmail = verificationTokenFromEmail()
-        `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should have(status(200))
+    "display expired old email address message if another old email is verified and the new email has not been verified" in new VerificationEmailTestCase {
 
-        val newEmail = uniqueEmail
-        `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(201))
+      val firstEmail = uniqueEmail
+      val secondEmail = uniqueEmail
+      val newEmail = uniqueEmail
 
-        aVerificationEmailIsReceivedFor(newEmail)
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, firstEmail) should have(status(201))
 
-        `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should beForAnExpiredOldEmail
+      aVerificationEmailIsReceivedFor(firstEmail)
+      val verificationTokenFromFirstEmail = verificationTokenFromEmail()
 
-      }
+      `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should have(status(200))
 
-      "display expired old email address message if the old email is not verified and the new email has not been verified" in new VerificationEmailTestCase {
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, secondEmail) should have(status(201))
 
-        val email = uniqueEmail
-        `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(201))
 
-        aVerificationEmailIsReceivedFor(email)
-
-        val verificationTokenFromFirstEmail = verificationTokenFromEmail()
-
-        val newEmail = uniqueEmail
-        `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(201))
-
-        aVerificationEmailIsReceivedFor(newEmail)
-
-        `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should beForAnExpiredOldEmail
-
-      }
-
-      "display expired old email address message if the old email is not verified and the new email is verified" in new VerificationEmailTestCase {
-
-        val email = uniqueEmail
-        `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
-
-        aVerificationEmailIsReceivedFor(email)
-
-        val verificationTokenFromFirstEmail = verificationTokenFromEmail()
-
-        val newEmail = uniqueEmail
-        `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(201))
-
-        aVerificationEmailIsReceivedFor(newEmail)
-
-        `/sa/print-preferences/verification`.verify(verificationTokenFromEmail()) should have(status(200))
-
-        `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should beForAnExpiredOldEmail
-
-      }
-
-      "display expired old email address message if another old email is verified and the new email is verified" in new VerificationEmailTestCase {
-
-        val firstEmail = uniqueEmail
-        `/portal/preferences/sa/individual`.postPendingEmail(utr, firstEmail) should have(status(201))
-
-        aVerificationEmailIsReceivedFor(firstEmail)
-        val verificationTokenFromFirstEmail = verificationTokenFromEmail()
-
-        `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should have(status(200))
-
-        val secondEmail = uniqueEmail
-        `/portal/preferences/sa/individual`.postPendingEmail(utr, secondEmail) should have(status(201))
-
-
-        val newEmail = uniqueEmail
-        `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(201))
-
-        aVerificationEmailIsReceivedFor(newEmail)
-
-        `/sa/print-preferences/verification`.verify(verificationTokenFromEmail()) should have(status(200))
-
-        `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should beForAnExpiredOldEmail
-
-      }
-
-      "display expired old email address message if another old email is verified and the new email has not been verified" in new VerificationEmailTestCase {
-
-        val firstEmail = uniqueEmail
-        `/portal/preferences/sa/individual`.postPendingEmail(utr, firstEmail) should have(status(201))
-
-        aVerificationEmailIsReceivedFor(firstEmail)
-        val verificationTokenFromFirstEmail = verificationTokenFromEmail()
-
-        `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should have(status(200))
-
-        val secondEmail = uniqueEmail
-        `/portal/preferences/sa/individual`.postPendingEmail(utr, secondEmail) should have(status(201))
-
-
-        val newEmail = uniqueEmail
-        `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(201))
-
-        aVerificationEmailIsReceivedFor(newEmail)
-
-        `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should beForAnExpiredOldEmail
-
-      }
+      `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should beForAnExpiredOldEmail
     }
   }
 
@@ -243,8 +236,8 @@ class VerificationEmailISpec
     }
 
     def beForAnExpiredOldEmail: Matcher[Future[WSResponse]] = {
-      have(status(400)) and
-        have(bodyWith("You've used a link that has now expired.")) and
+      have(status(200)) and
+        have(bodyWith("You&#x27;ve used a link that has now expired")) and
         have(bodyWith("It may have been sent to an old or alternative email address.")) and
         have(bodyWith("Please use the link in the latest verification email sent to your specified email address."))
     }
@@ -258,5 +251,4 @@ class VerificationEmailISpec
       actualValue = response.futureValue.body
     )
   }
-
 }
