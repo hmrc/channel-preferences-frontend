@@ -178,6 +178,19 @@ class PreferencesWarningPartialISpec
       response.futureValue.body should be("")
     }
 
+    "have inbox full warning if user resends link and their inbox is full" in new TestCase {
+      val email = uniqueEmail
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
+      `/preferences-admin/sa/bounce-email`.post(email) should have(status(204))
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
+      `/preferences-admin/sa/bounce-email-inbox-full`.post(email) should have(status(204))
+
+      val response =`/account/preferences/warnings`.withHeaders(authenticationCookie(userId, password)).get()
+
+      response should have(status(200))
+      response.futureValue.body should include("Your inbox is full")
+    }
+
   }
 
   "partial html for opted out user" should {

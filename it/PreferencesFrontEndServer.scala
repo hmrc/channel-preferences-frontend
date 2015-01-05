@@ -123,6 +123,14 @@ trait PreferencesFrontEndServer extends ServiceSpec {
              |}""".stripMargin))
     }
 
+    val `/preferences-admin/sa/bounce-email-inbox-full` = new {
+      def post(emailAddress: String) = WS.url(server.externalResource("preferences",
+        "/preferences-admin/sa/bounce-email")).post(Json.parse( s"""{
+             |"emailAddress": "$emailAddress",
+             |"code": 552
+             |}""".stripMargin))
+    }
+
     def `/account/preferences/warnings` = {
       WS.url(resource("/account/preferences/warnings"))
     }
