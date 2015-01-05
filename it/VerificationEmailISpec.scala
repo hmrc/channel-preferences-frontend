@@ -91,36 +91,6 @@ class VerificationEmailISpec
       }
     }
 
-    "display failure message if verification link is not valid due to change email" in new VerificationEmailTestCase {
-      val email = uniqueEmail
-      val changedEmail = changedUniqueEmail
-      `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
-
-      withReceivedEmails(1) {case List(mail) =>}
-
-      val oldEmailToken = verificationTokenFromEmail()
-
-      clearEmails()
-
-      `/portal/preferences/sa/individual`.postPendingEmail(utr, changedEmail) should have(status(201))
-
-      withReceivedEmails(1) { case List(mail) =>
-        mail should have(
-          'to(Some(changedEmail)),
-          'subject("Self Assessment reminders: verify your email address")
-        )
-      }
-
-      val response = `/sa/print-preferences/verification`.verify(oldEmailToken)
-      response should have(status(400))
-      response.futureValue.body should (
-        include ("Email address already verified") and
-          include ("Your email address has already been verified.") and
-          include("Sign into your HMRC online account") and
-          include("""href="https://online.hmrc.gov.uk"""")
-        )
-    }
-
     "display failure message if verification link is not valid due to opt out" in new VerificationEmailTestCase {
       val email = uniqueEmail
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
