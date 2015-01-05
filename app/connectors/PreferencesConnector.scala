@@ -1,5 +1,6 @@
 package connectors
 
+
 import controllers.sa.prefs.internal.Cohort
 import play.api.Logger
 import play.api.http.Status
@@ -8,6 +9,7 @@ import uk.gov.hmrc.common.microservice.MicroServiceConfig
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
+import uk.gov.hmrc.play.http.NotFoundException
 import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.http.ws.WSHttp
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
@@ -59,10 +61,11 @@ trait PreferencesConnector extends Status {
   }
 
   private[connectors] def responseToEmailVerificationLinkStatus(response: Future[HttpResponse])(implicit hc: HeaderCarrier) = {
-    response.map(_ => EmailVerificationLinkResponse.OK)
+    response.map(_ => EmailVerificationLinkResponse.Ok)
       .recover {
-      case Upstream4xxResponse(_, GONE, _) => EmailVerificationLinkResponse.EXPIRED
-      case _ => EmailVerificationLinkResponse.ERROR
+      case Upstream4xxResponse(_, GONE, _) => EmailVerificationLinkResponse.Expired
+      case Upstream4xxResponse(_, CONFLICT, _) => EmailVerificationLinkResponse.WrongToken
+      case (_:Upstream4xxResponse |_: NotFoundException |_:BadRequestException) => EmailVerificationLinkResponse.Error
     }
   }
 

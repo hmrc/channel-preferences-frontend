@@ -9,7 +9,7 @@ import scala.language.implicitConversions
 object EmailVerificationLinkResponse extends Enumeration {
   type EmailVerificationLinkResponse = Value
 
-  val OK, EXPIRED, ERROR = Value
+  val Ok, Expired, WrongToken, Error = Value
 }
 
 object SaPreferenceSimplified {

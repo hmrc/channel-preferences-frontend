@@ -32,29 +32,27 @@ class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar
     "call the sa micro service and update the email verification status of the user" in new WithApplication(FakeApplication(additionalConfiguration = additionalConfig)) {
       val controller = createController
       val token = wellFormattedToken
-      when(controller.preferencesMicroService.updateEmailValidationStatusUnsecured(meq(token))).thenReturn(Future.successful(OK))
+      when(controller.preferencesMicroService.updateEmailValidationStatusUnsecured(meq(token))).thenReturn(Future.successful(Ok))
 
       val response = controller.verify(token)(request)
 
       contentAsString(response) shouldNot include("portalHomeLink/home")
       status(response) shouldBe 200
-      verify(controller.preferencesMicroService).updateEmailValidationStatusUnsecured(meq(token))
     }
 
     "display an error when the sa micro service fails to update a users email verification status" in new WithApplication(FakeApplication(additionalConfiguration = additionalConfig)) {
       val controller = createController
       val token = wellFormattedToken
-      when(controller.preferencesMicroService.updateEmailValidationStatusUnsecured(meq(token))).thenReturn(Future.successful(ERROR))
+      when(controller.preferencesMicroService.updateEmailValidationStatusUnsecured(meq(token))).thenReturn(Future.successful(Error))
       val response = controller.verify(token)(request)
       contentAsString(response) shouldNot include("portalHomeLink/home")
       status(response) shouldBe 400
-      verify(controller.preferencesMicroService).updateEmailValidationStatusUnsecured(meq(token))
     }
 
     "display an error if the email verification token is out of date" in new WithApplication(FakeApplication(additionalConfiguration =  additionalConfig)) {
       val controller = createController
       val token = wellFormattedToken
-      when(controller.preferencesMicroService.updateEmailValidationStatusUnsecured(meq(token))).thenReturn(Future.successful(EXPIRED))
+      when(controller.preferencesMicroService.updateEmailValidationStatusUnsecured(meq(token))).thenReturn(Future.successful(Expired))
 
       val response = controller.verify(token)(request)
 
@@ -63,13 +61,25 @@ class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar
       html shouldNot include("portalHomeLink/home")
       val page = Jsoup.parse(html)
       page.getElementsByTag("h1").first.text shouldBe "This link has expired"
-      verify(controller.preferencesMicroService).updateEmailValidationStatusUnsecured(meq(token))
+    }
+
+    "display an error if the email verification token is not for the email pending verification" in new WithApplication(FakeApplication(additionalConfiguration =  additionalConfig)) {
+      val controller = createController
+      val token = wellFormattedToken
+      when(controller.preferencesMicroService.updateEmailValidationStatusUnsecured(meq(token))).thenReturn(Future.successful(WrongToken))
+
+      val response = controller.verify(token)(request)
+
+      status(response) shouldBe 200
+      val html = contentAsString(response)
+      html shouldNot include("portalHomeLink/home")
+      val page = Jsoup.parse(html)
+      page.getElementsByTag("h1").first.text shouldBe "You've used a link that has now expired"
     }
 
     "display an error if the token is not in a valid uuid format without calling the service" in new WithApplication(FakeApplication()) {
       val controller = createController
       val token = "badToken"
-      when(controller.preferencesMicroService.updateEmailValidationStatusUnsecured(meq(token))).thenReturn(Future.successful(ERROR))
       val response = controller.verify(token)(request)
       contentAsString(response) shouldNot include("portalHomeLink/home")
       status(response) shouldBe 400
@@ -79,7 +89,6 @@ class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar
     "display an error if the token is not in a valid uuid format (extra characters) without calling the service" in new WithApplication(FakeApplication()) {
       val controller = createController
       val token = tokenWithSomeExtraStuff
-      when(controller.preferencesMicroService.updateEmailValidationStatusUnsecured(meq(token))).thenReturn(Future.successful(ERROR))
       val response = controller.verify(token)(request)
       contentAsString(response) shouldNot include("portalHomeLink/home")
       status(response) shouldBe 400
