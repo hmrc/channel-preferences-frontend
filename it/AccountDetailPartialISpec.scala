@@ -1,7 +1,6 @@
-import java.text.SimpleDateFormat
-import java.util.{Calendar, UUID}
-import org.scalatest.BeforeAndAfterEach
 
+import java.util.UUID
+import org.scalatest.BeforeAndAfterEach
 
 class AccountDetailPartialISpec
   extends PreferencesFrontEndServer
@@ -45,12 +44,11 @@ class AccountDetailPartialISpec
     "contain new email details for a subsequent change email" in new TestCase {
       val email = s"${UUID.randomUUID().toString}@email.com"
       val newEmail = s"${UUID.randomUUID().toString}@email.com"
-      val todaysDate = getFormattedDateForToday()
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(201))
       val response = `/email-reminders-status`.withHeaders(authenticationCookie(userId, password)).get
       response should have(status(200))
-      checkForChangedEmailDetailsInResponse(response.futureValue.body, email, newEmail)
+      checkForChangedEmailDetailsInResponse(response.futureValue.body, email, newEmail, todayDate)
     }
 
     "contain sign up details for a subsequent opt out" in new TestCase {
@@ -70,13 +68,12 @@ class AccountDetailPartialISpec
     "contain new email details for a subsequent change email" in new TestCase {
       val email = s"${UUID.randomUUID().toString}@email.com"
       val newEmail = s"${UUID.randomUUID().toString}@email.com"
-      val todaysDate = getFormattedDateForToday()
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/preferences-admin/sa/individual`.verifyEmailFor(utr) should have(status(204))
       `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(201))
       val response = `/email-reminders-status`.withHeaders(authenticationCookie(userId, password)).get
       response should have(status(200))
-      checkForChangedEmailDetailsInResponse(response.futureValue.body, email, newEmail)
+      checkForChangedEmailDetailsInResponse(response.futureValue.body, email, newEmail, todayDate)
     }
 
     "contain sign up details for a subsequent opt out" in new TestCase {
@@ -97,13 +94,12 @@ class AccountDetailPartialISpec
     "contain new email details for a subsequent change email" in new TestCase {
       val email = s"${UUID.randomUUID().toString}@email.com"
       val newEmail = s"${UUID.randomUUID().toString}@email.com"
-      val todaysDate = getFormattedDateForToday()
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/preferences-admin/sa/bounce-email`.post(email) should have(status(204))
       `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(201))
       val response = `/email-reminders-status`.withHeaders(authenticationCookie(userId, password)).get
       response should have(status(200))
-      checkForChangedEmailDetailsInResponse(response.futureValue.body, email, newEmail)
+      checkForChangedEmailDetailsInResponse(response.futureValue.body, email, newEmail, todayDate)
     }
 
     "contain sign up details for a subsequent opt out" in new TestCase {
@@ -125,19 +121,12 @@ class AccountDetailPartialISpec
     testCase.`/preferences-admin/sa/individual`.deleteAll should have(status(200))
   }
 
-  def getFormattedDateForToday() = {
-    val today = Calendar.getInstance().getTime()
-    val dateFormat = new SimpleDateFormat("dd MMMM yyyy")
-    dateFormat.format(today)
-  }
-
-  def checkForChangedEmailDetailsInResponse(response: String, oldEmail: String, newEmail: String) = {
-    val todaysDate = getFormattedDateForToday()
+  def checkForChangedEmailDetailsInResponse(response: String, oldEmail: String, newEmail: String, currentFormattedDate: String) = {
     response should (
       include(s"You need to verify your email address with HMRC") and
       include(newEmail) and
       not include(oldEmail) and
-      include(s"on $todaysDate. Click on the link in the email to verify your email address."))
+      include(s"on $currentFormattedDate. Click on the link in the email to verify your email address."))
   }
 
 }

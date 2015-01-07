@@ -45,6 +45,16 @@ trait EmailSupport extends ResponseMatchers with Eventually {
     token.map(matches => matches.group(1)).get
   }
 
+  def  verificationTokenFromMultipleEmailsFor(emailRecipient: String) = {
+    val emailList = Await.result(emails, timeout)
+    val emailMatchedList = emailList.filter(x => x.to.contains(emailRecipient))
+
+    val regex = "/sa/print-preferences/verification/([-a-f0-9]+)".r
+
+    val token: Option[Match] = regex.findFirstMatchIn(emailMatchedList.head.text.get)
+    token.map(matches => matches.group(1)).get
+  }
+
 }
 
 object EmailSupport {

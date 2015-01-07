@@ -82,6 +82,22 @@ class VerificationEmailISpec
         )
 
     }
+
+    "display expired old email address message if verification link is not valid due to opt out" in new VerificationEmailTestCase {
+      val email = uniqueEmail
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
+
+      withReceivedEmails(1) { case List(mail) =>
+        mail should have(
+          'to(Some(email)),
+          'subject("Self Assessment reminders: verify your email address")
+        )
+      }
+
+      `/portal/preferences/sa/individual`.postOptOut(utr) should have(status(201))
+
+      `/sa/print-preferences/verification`.verify(verificationTokenFromEmail()) should beForAnExpiredOldEmail
+    }
   }
 
   "Attempt to verify a change of address with an old link" should {
@@ -98,12 +114,19 @@ class VerificationEmailISpec
       val verificationTokenFromFirstEmail = verificationTokenFromEmail()
       `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should have(status(200))
 
+      clearEmails()
+
       `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(201))
+      withReceivedEmails(2) { emails =>
+        emails.flatMap(_.to) should contain(newEmail)
+      }
+
+      `/sa/print-preferences/verification`.verify(verificationTokenFromMultipleEmailsFor(newEmail)) should have(status(200))
 
       `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should beForAnExpiredOldEmail
     }
 
-    "display expired old email address message if the old email is verified and the new email has been verified" in new VerificationEmailTestCase {
+    "display expired old email address message if the old email is verified and the new email has not been verified" in new VerificationEmailTestCase {
 
       val email = uniqueEmail
       val newEmail = uniqueEmail
@@ -177,7 +200,7 @@ class VerificationEmailISpec
         emails.flatMap(_.to) should contain(newEmail)
       }
 
-      `/sa/print-preferences/verification`.verify(verificationTokenFromEmail()) should have(status(200))
+      `/sa/print-preferences/verification`.verify(verificationTokenFromMultipleEmailsFor(newEmail)) should have(status(200))
 
       `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should beForAnExpiredOldEmail
 
@@ -231,6 +254,15 @@ class VerificationEmailISpec
         mail should have(
           'to(Some(email)),
           'subject("Self Assessment reminders: verify your email address")
+        )
+      }
+    }
+
+    def aVerificationEmailIsReceivedForNewEmail(email: String) {
+      withReceivedEmails(2) { case List(mail) =>
+        mail should have(
+          'to(Some(email)),
+          'subject("Self Assessment reminders: verify your new email address")
         )
       }
     }
