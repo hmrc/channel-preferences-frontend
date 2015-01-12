@@ -87,7 +87,7 @@ class EmailOptInCohortCalculatorSpec extends UnitSpec with Inspectors with Toler
   "CohortValues" should {
     "find the correct cohort by id" in new WithApplication(FakeApplication()) {
       OptInCohort.fromId(5) should contain (FPage)
-      OptInCohort.fromId(6) should contain (HPage)
+      OptInCohort.fromId(7) should contain (HPage)
     }
 
     "return none if cohort not found" in new WithApplication(FakeApplication()) {
