@@ -5,7 +5,7 @@
 @import uk.gov.hmrc.emailaddress.EmailAddress
 @import uk.gov.hmrc.play.views.html.helpers._
 
-@main(title = "Your Details - Check your email address is correct", headerNav = Some(views.helpers.HeaderNav.yta), userLoggedIn = true) {
+@main(title = "Your Details - Check your email address is correct", headerNav = Some(views.html.YtaHeaderNav()), userLoggedIn = true) {
 
     <header class="page-header">
         <h1>@Messages("bt.account.yourdetails")</h1>

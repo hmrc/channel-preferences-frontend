@@ -1,7 +1,7 @@
 @(currentEmail : String, emailForm: Form[_])(implicit user: uk.gov.hmrc.common.microservice.domain.User, request: Request[_])
 @import uk.gov.hmrc.play.views.html.helpers._
 
-@main(title = "Your details - Change your email address", headerNav = Some(views.helpers.HeaderNav.yta), userLoggedIn = true) {
+@main(title = "Your details - Change your email address", headerNav = Some(views.html.YtaHeaderNav()), userLoggedIn = true) {
 
     <header class="page-header">
         <h1>@Messages("bt.account.yourdetails")</h1>
