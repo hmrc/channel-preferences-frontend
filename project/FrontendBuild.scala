@@ -37,7 +37,7 @@ private object Dependencies {
     "uk.gov.hmrc"    %% "play-frontend"  % "9.4.0",
     "uk.gov.hmrc"    %% "play-health"    % "0.5.0",
     "uk.gov.hmrc"    %% "emailaddress"   % "0.2.0",
-    "uk.gov.hmrc"    %% "url-builder"    % "0.2.0",
+    "uk.gov.hmrc"    %% "url-builder"    % "0.3.0",
     "uk.gov.hmrc"    %% "crypto"         % "1.3.0",
     "uk.gov.hmrc"    %% "play-ui"        % "1.2.0",
     "com.netaporter" %% "scala-uri"      % "0.4.2",

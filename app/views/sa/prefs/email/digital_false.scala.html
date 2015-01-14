@@ -9,6 +9,7 @@
     @Link.toInternalPage(
     id = Some("opt-in-to-digital-email-link"),
     url = controllers.sa.prefs.ExternalUrls.displayPreferences,
-    value = Some("Sign up for Self Assessment email reminders")
+    value = Some("Sign up for Self Assessment email reminders"),
+    dataAttributes = Some(Map("journey-click" -> "self-assessment-preferences:Click:Sign up for Self Assessment email reminders"))
     ).toHtml
 </p>
