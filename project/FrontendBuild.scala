@@ -34,7 +34,7 @@ private object Dependencies {
 //    "com.kenshoo" %% "metrics-play" % playMetricsVersion,
 //    "com.codahale.metrics" % "metrics-graphite" % metricsGraphiteVersion,
     "uk.gov.hmrc"    %% "govuk-template" % "2.1.0",
-    "uk.gov.hmrc"    %% "play-frontend"  % "9.4.0",
+    "uk.gov.hmrc"    %% "play-frontend"  % "9.4.1",
     "uk.gov.hmrc"    %% "play-health"    % "0.5.0",
     "uk.gov.hmrc"    %% "emailaddress"   % "0.2.0",
     "uk.gov.hmrc"    %% "url-builder"    % "0.3.0",
