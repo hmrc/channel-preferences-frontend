@@ -5,9 +5,8 @@ import controllers.sa.prefs.internal.Cohort
 import play.api.Logger
 import play.api.http.Status
 import play.api.libs.json._
-import uk.gov.hmrc.common.microservice.MicroServiceConfig
+import uk.gov.hmrc.play.microservice.MicroServiceConfig
 import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.play.audit.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
 import uk.gov.hmrc.play.http.NotFoundException
 import uk.gov.hmrc.play.http._

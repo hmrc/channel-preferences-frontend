@@ -3,8 +3,8 @@ package controllers.sa.prefs
 import controllers.common.{GovernmentGateway, UserCredentials}
 import play.api.Logger
 import play.api.mvc.{Result, AnyContent, Request, Results}
-import uk.gov.hmrc.common.microservice.auth.domain.Accounts
-import uk.gov.hmrc.common.microservice.domain.TaxRegime
+import uk.gov.hmrc.play.microservice.auth.domain.Accounts
+import uk.gov.hmrc.play.microservice.domain.TaxRegime
 
 import scala.concurrent.Future
 

@@ -8,14 +8,13 @@ import controllers.sa.prefs.partial.accountdetails.ReminderStatusPartialHtml
 import org.joda.time.LocalDate
 import org.scalatest.concurrent.ScalaFutures
 import play.api.test.FakeRequest
-import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
 import uk.gov.hmrc.play.http.test.WithHeaderCarrier
 import uk.gov.hmrc.play.http.{HttpGet, HttpPost, HttpPut}
-import uk.gov.hmrc.play.test.WithFakeApplication
-import uk.gov.hmrc.test.UnitSpec
+import uk.gov.hmrc.play.microservice.domain.User
+import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.Future
 
@@ -56,7 +55,7 @@ class RemindersStatusPartialHtmlSpec extends UnitSpec with WithHeaderCarrier wit
           include(EmailAddress(emailPreferences.email).obfuscated) and
           include(`/account/account-details/sa/update-email-address`) and
           include(`/account/account-details/sa/opt-out-email-reminders`) and
-          not include(`/account/account-details/sa/resend-validation-email`)
+          not include `/account/account-details/sa/resend-validation-email`
         )
     }
 
@@ -71,7 +70,7 @@ class RemindersStatusPartialHtmlSpec extends UnitSpec with WithHeaderCarrier wit
           include("your inbox is full") and
           include(`/account/account-details/sa/update-email-address`) and
           include(`/account/account-details/sa/opt-out-email-reminders`) and
-          not include(`/account/account-details/sa/resend-validation-email`)
+          not include `/account/account-details/sa/resend-validation-email`
         )
     }
 
@@ -86,8 +85,8 @@ class RemindersStatusPartialHtmlSpec extends UnitSpec with WithHeaderCarrier wit
           include("can’t be delivered") and
           include(`/account/account-details/sa/update-email-address`) and
           include(`/account/account-details/sa/opt-out-email-reminders`) and
-          not include("your inbox is full") and
-          not include(`/account/account-details/sa/resend-validation-email`)
+          not include "your inbox is full" and
+          not include `/account/account-details/sa/resend-validation-email`
         )
     }
 
@@ -98,7 +97,7 @@ class RemindersStatusPartialHtmlSpec extends UnitSpec with WithHeaderCarrier wit
       partialHtml.body should (
         include("Replace the letters you get about Self Assessment with emails") and
           include(`/account/account-details/sa/opt-in-email-reminders`) and
-          not include(`/account/account-details/sa/resend-validation-email`)
+          not include `/account/account-details/sa/resend-validation-email`
         )
     }
 
@@ -108,7 +107,7 @@ class RemindersStatusPartialHtmlSpec extends UnitSpec with WithHeaderCarrier wit
       partialHtml.body should (
         include("Replace the letters you get about Self Assessment with emails") and
           include(`/account/account-details/sa/opt-in-email-reminders`) and
-          not include(`/account/account-details/sa/resend-validation-email`)
+          not include `/account/account-details/sa/resend-validation-email`
         )
     }
 
@@ -128,8 +127,8 @@ class TestCase {
     }
   }
 
-  val `/account/account-details/sa/update-email-address` = AccountDetailsController.changeEmailAddress(None).toString
-  val `/account/account-details/sa/resend-validation-email` = AccountDetailsController.resendValidationEmail.toString
-  val `/account/account-details/sa/opt-out-email-reminders` = AccountDetailsController.optOutOfEmailReminders.toString
-  val `/account/account-details/sa/opt-in-email-reminders` = BizTaxPrefsController.displayPrefsForm(None).toString
+  val `/account/account-details/sa/update-email-address` = AccountDetailsController.changeEmailAddress(None).toString()
+  val `/account/account-details/sa/resend-validation-email` = AccountDetailsController.resendValidationEmail().toString()
+  val `/account/account-details/sa/opt-out-email-reminders` = AccountDetailsController.optOutOfEmailReminders().toString()
+  val `/account/account-details/sa/opt-in-email-reminders` = BizTaxPrefsController.displayPrefsForm(None).toString()
 }

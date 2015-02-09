@@ -6,7 +6,7 @@ import controllers.common.actions.Actions
 import controllers.common.service.Connectors
 import controllers.sa.prefs.SaRegimeWithoutRedirection
 import play.api.mvc.Result
-import uk.gov.hmrc.common.microservice.auth.AuthConnector
+import uk.gov.hmrc.play.microservice.auth.AuthConnector
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
 import uk.gov.hmrc.play.config.RunMode

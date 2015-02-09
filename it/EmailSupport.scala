@@ -31,7 +31,7 @@ trait EmailSupport extends ResponseMatchers with Eventually {
   }
 
   def emails: Future[List[Email]] = {
-    val resp = (WS.url(s"$mailgunStubUrl/v2/email").get())
+    val resp = WS.url(s"$mailgunStubUrl/v2/email").get()
     resp.futureValue.status should be(200)
     resp.map(r => r.json.as[List[Email]])
   }

@@ -4,17 +4,16 @@ import connectors.{EmailConnector, PreferencesConnector, SaEmailPreference, SaPr
 import controllers.sa.Encrypted
 import controllers.sa.prefs.AuthorityUtils._
 import org.jsoup.Jsoup
-import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import play.api.test.Helpers._
 import play.api.test.{FakeApplication, FakeRequest, WithApplication}
-import uk.gov.hmrc.common.microservice.audit.AuditConnector
-import uk.gov.hmrc.common.microservice.auth.AuthConnector
-import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
-import uk.gov.hmrc.test.UnitSpec
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.microservice.auth.AuthConnector
+import uk.gov.hmrc.play.microservice.domain.User
+import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 

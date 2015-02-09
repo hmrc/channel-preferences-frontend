@@ -3,7 +3,7 @@ package connectors
 import java.net.URLEncoder
 
 import play.api.libs.json._
-import uk.gov.hmrc.common.microservice.MicroServiceConfig
+import uk.gov.hmrc.play.microservice.MicroServiceConfig
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HttpGet
 import uk.gov.hmrc.play.http.ws.WSGet

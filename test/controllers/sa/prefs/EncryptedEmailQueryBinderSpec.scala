@@ -7,7 +7,7 @@ import org.scalatest.mock.MockitoSugar
 import play.api.mvc.QueryStringBindable
 import uk.gov.hmrc.crypto._
 import uk.gov.hmrc.emailaddress.EmailAddress
-import uk.gov.hmrc.test.UnitSpec
+import uk.gov.hmrc.play.test.UnitSpec
 
 
 class EncryptedEmailQueryBinderSpec extends UnitSpec with MockitoSugar {

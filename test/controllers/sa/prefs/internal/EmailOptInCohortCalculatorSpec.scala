@@ -6,8 +6,8 @@ import org.scalactic.Tolerance
 import org.scalatest.{Inspectors, LoneElement}
 import play.api.Play
 import play.api.test.{FakeApplication, WithApplication}
-import uk.gov.hmrc.common.microservice.domain.User
-import uk.gov.hmrc.test.UnitSpec
+import uk.gov.hmrc.play.microservice.domain.User
+import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.util.Random
 

@@ -8,8 +8,9 @@ import play.api.libs.ws.{WS, WSResponse}
 import play.api.mvc.Results.EmptyContent
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
-import uk.gov.hmrc.play.it.{BearerTokenHelper, ExternalService, MicroServiceEmbeddedServer, ServiceSpec}
 import uk.gov.hmrc.play.http.test.ResponseMatchers
+import uk.gov.hmrc.play.it.{ExternalService, MicroServiceEmbeddedServer, ServiceSpec}
+import uk.gov.hmrc.test.it.BearerTokenHelper
 import uk.gov.hmrc.time.DateTimeUtils
 import views.sa.prefs.helpers.DateFormat
 
@@ -29,7 +30,7 @@ trait UserAuthentication extends BearerTokenHelper with PreferencesFrontEndServe
 
   def authResource(path: String) = server.externalResource("auth", path)
 
-  def authToken = AuthorisationHeader(Some(getBarerToken(SaUtr(utr))))
+  def authToken = AuthorisationHeader(Some(createBearerTokenFor(SaUtr(utr))))
 
   def authenticationCookie(userId: String, password: String) = {
     def cookieFrom(response: Future[WSResponse]) = {

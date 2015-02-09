@@ -8,15 +8,16 @@ import controllers.sa.Encrypted
 import controllers.sa.prefs.ExternalUrls.businessTaxHome
 import controllers.sa.prefs._
 import controllers.sa.prefs.internal.EmailOptInJourney._
+import play.api.libs.json.Json
 import play.api.mvc._
-import uk.gov.hmrc.common.microservice.audit.{AuditConnector, AuditEvent}
-import uk.gov.hmrc.common.microservice.auth.AuthConnector
-import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
-import uk.gov.hmrc.play.audit.model.EventTypes
-import uk.gov.hmrc.play.config.AppName
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.audit.model.{ExtendedDataEvent, AuditEvent, EventTypes}
+import uk.gov.hmrc.play.config.AppName
+import uk.gov.hmrc.play.microservice.auth.AuthConnector
+import uk.gov.hmrc.play.microservice.domain.User
 
 import scala.concurrent.Future
 
@@ -131,31 +132,28 @@ class BizTaxPrefsController(val auditConnector: AuditConnector,
       getSavePrefsFromInterstitialCall
   }
 
-  private def auditPageShown(utr: SaUtr, journey: Journey, cohort: Cohort)(implicit request: Request[_], hc: HeaderCarrier) = {
-    auditConnector.audit(AuditEvent(
+  private def auditPageShown(utr: SaUtr, journey: Journey, cohort: Cohort)(implicit request: Request[_], hc: HeaderCarrier) =
+    auditConnector.sendEvent(ExtendedDataEvent(
       auditSource = appName,
       auditType = EventTypes.Succeeded,
       tags = hc.toAuditTags("Show Print Preference Option", request.path),
-      detail = hc.toAuditDetails(
+      detail = Json.toJson(hc.toAuditDetails(
         "utr" -> utr.toString,
         "journey" -> journey.toString,
-        "cohort" -> cohort.toString)))
-  }
+        "cohort" -> cohort.toString))))
 
-  private def auditChoice(utr: SaUtr, journey: Journey, cohort: Cohort, digital: Boolean, emailOption: Option[String], acceptedTAndCs:Boolean)(implicit request: Request[_], hc: HeaderCarrier) = {
-    auditConnector.audit(AuditEvent(
+  private def auditChoice(utr: SaUtr, journey: Journey, cohort: Cohort, digital: Boolean, emailOption: Option[String], acceptedTAndCs:Boolean)(implicit request: Request[_], hc: HeaderCarrier) =
+    auditConnector.sendEvent(ExtendedDataEvent(
       auditSource = appName,
       auditType = EventTypes.Succeeded,
       tags = hc.toAuditTags("Set Print Preference", request.path),
-      detail = hc.toAuditDetails(
+      detail = Json.toJson(hc.toAuditDetails(
         "utr" -> utr.toString,
         "journey" -> journey.toString,
         "digital" -> digital.toString,
         "cohort" -> cohort.toString,
         "userConfirmedReadTandCs" -> acceptedTAndCs.toString,
-        "email" -> emailOption.getOrElse(""))))
-
-  }
+        "email" -> emailOption.getOrElse("")))))
 
   private def redirectToInterstitialPageWithCohort(user: User) =
     Redirect(routes.BizTaxPrefsController.displayInterstitialPrefsFormForCohort(Some(calculateCohort(user))))

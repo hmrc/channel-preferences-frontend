@@ -6,8 +6,8 @@ import controllers.common.actions.Actions
 import controllers.common.service.Connectors
 import controllers.sa.prefs.SaRegimeWithoutRedirection
 import controllers.sa.prefs.internal.PreferencesControllerHelper
-import uk.gov.hmrc.common.microservice.audit.AuditConnector
-import uk.gov.hmrc.common.microservice.auth.AuthConnector
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.microservice.auth.AuthConnector
 
 class ReminderStatusPartialController(val auditConnector: AuditConnector,
                                       val preferencesConnector: PreferencesConnector)(implicit override val authConnector: AuthConnector)

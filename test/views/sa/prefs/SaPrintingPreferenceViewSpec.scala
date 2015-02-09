@@ -4,8 +4,7 @@ import controllers.sa.prefs.internal._
 import org.jsoup.Jsoup
 import play.api.mvc.Call
 import play.api.test.FakeRequest
-import uk.gov.hmrc.play.test.WithFakeApplication
-import uk.gov.hmrc.test.UnitSpec
+import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import views.html.sa.prefs.sa_printing_preference
 
 class SaPrintingPreferenceViewSpec extends UnitSpec with PreferencesControllerHelper with WithFakeApplication {

@@ -4,8 +4,7 @@ import connectors.{SaEmailPreference, SaPreference}
 import controllers.sa.prefs.partial.homepage.RenderViewForPreferences
 import org.joda.time.LocalDate
 import play.api.mvc.Results
-import uk.gov.hmrc.play.test.WithFakeApplication
-import uk.gov.hmrc.test.UnitSpec
+import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 class RenderViewForPreferencesSpec extends UnitSpec with Results with WithFakeApplication{
 

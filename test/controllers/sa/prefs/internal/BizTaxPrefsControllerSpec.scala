@@ -11,14 +11,15 @@ import org.mockito.ArgumentCaptor
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
+import play.api.libs.json.JsString
 import play.api.test.{FakeApplication, FakeRequest, WithApplication}
-import uk.gov.hmrc.common.microservice.audit.{AuditConnector, AuditEvent}
-import uk.gov.hmrc.common.microservice.auth.AuthConnector
-import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
-import uk.gov.hmrc.play.audit.model.EventTypes
-import uk.gov.hmrc.test.UnitSpec
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.audit.model.{EventTypes, ExtendedDataEvent}
+import uk.gov.hmrc.play.microservice.auth.AuthConnector
+import uk.gov.hmrc.play.microservice.domain.User
+import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 
@@ -119,16 +120,16 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       val page = controller.displayInterstitialPrefsFormAction(user, request, Some(assignedCohort))
       status(page) shouldBe 200
 
-      val eventArg : ArgumentCaptor[AuditEvent] = ArgumentCaptor.forClass(classOf[AuditEvent])
-      verify(auditConnector).audit(eventArg.capture())(any())
+      val eventArg : ArgumentCaptor[ExtendedDataEvent] = ArgumentCaptor.forClass(classOf[ExtendedDataEvent])
+      verify(auditConnector).sendEvent(eventArg.capture())(any(), any())
 
-      private val value: AuditEvent = eventArg.getValue
+      private val value: ExtendedDataEvent = eventArg.getValue
       value.auditSource  shouldBe "preferences-frontend"
       value.auditType shouldBe EventTypes.Succeeded
       value.tags should contain ("transactionName" -> "Show Print Preference Option")
-      value.detail should contain ("cohort" -> "FPage")
-      value.detail should contain ("journey" -> "Interstitial")
-      value.detail should contain ("utr" -> validUtr.value)
+      value.detail \ "cohort" shouldBe JsString("FPage")
+      value.detail \ "journey" shouldBe JsString("Interstitial")
+      value.detail \ "utr" shouldBe JsString(validUtr.value)
     }
   }
 
@@ -152,16 +153,16 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       val page = controller.displayPrefsFormAction(None, Some(assignedCohort))(user, request)
       status(page) shouldBe 200
 
-      val eventArg : ArgumentCaptor[AuditEvent] = ArgumentCaptor.forClass(classOf[AuditEvent])
-      verify(auditConnector).audit(eventArg.capture())(any())
+      val eventArg : ArgumentCaptor[ExtendedDataEvent] = ArgumentCaptor.forClass(classOf[ExtendedDataEvent])
+      verify(auditConnector).sendEvent(eventArg.capture())(any(), any())
 
-      private val value: AuditEvent = eventArg.getValue
+      private val value: ExtendedDataEvent = eventArg.getValue
       value.auditSource  shouldBe "preferences-frontend"
       value.auditType shouldBe EventTypes.Succeeded
       value.tags should contain ("transactionName" -> "Show Print Preference Option")
-      value.detail should contain ("cohort" -> assignedCohort.toString)
-      value.detail should contain ("utr" -> validUtr.value)
-      value.detail should contain ("journey" -> "AccountDetails")
+      value.detail \ "cohort" shouldBe JsString(assignedCohort.toString)
+      value.detail \ "journey" shouldBe JsString("AccountDetails")
+      value.detail \ "utr" shouldBe JsString(validUtr.value)
     }
 
     "redirect to a re-calculated cohort when no cohort is supplied" in new BizTaxPrefsControllerSetup {
@@ -388,20 +389,19 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
 
       status(page) shouldBe 303
 
-      val eventArg : ArgumentCaptor[AuditEvent] = ArgumentCaptor.forClass(classOf[AuditEvent])
-      verify(auditConnector).audit(eventArg.capture())(any())
+      val eventArg : ArgumentCaptor[ExtendedDataEvent] = ArgumentCaptor.forClass(classOf[ExtendedDataEvent])
+      verify(auditConnector).sendEvent(eventArg.capture())(any(), any())
 
-      private val value: AuditEvent = eventArg.getValue
+      private val value: ExtendedDataEvent = eventArg.getValue
       value.auditSource  shouldBe "preferences-frontend"
       value.auditType shouldBe EventTypes.Succeeded
       value.tags should contain ("transactionName" -> "Set Print Preference")
-      value.detail should contain ("cohort" -> "FPage")
-      value.detail should contain ("journey" -> "Interstitial")
-      value.detail should contain ("utr" -> validUtr.value)
-      value.detail should contain ("email" -> "someone@email.com")
-      value.detail should contain ("digital" -> "true")
-      value.detail should contain ("userConfirmedReadTandCs" -> "true")
-
+      value.detail \ "cohort" shouldBe JsString("FPage")
+      value.detail \ "journey" shouldBe JsString("Interstitial")
+      value.detail \ "utr" shouldBe JsString(validUtr.value)
+      value.detail \ "email" shouldBe JsString("someone@email.com")
+      value.detail \ "digital" shouldBe JsString("true")
+      value.detail \ "userConfirmedReadTandCs" shouldBe JsString("true")
     }
 
     "be created when choosing to not accept email reminders from FPage" in new BizTaxPrefsControllerSetup {
@@ -416,20 +416,19 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
 
       status(page) shouldBe 303
 
-      val eventArg : ArgumentCaptor[AuditEvent] = ArgumentCaptor.forClass(classOf[AuditEvent])
-      verify(auditConnector).audit(eventArg.capture())(any())
+      val eventArg : ArgumentCaptor[ExtendedDataEvent] = ArgumentCaptor.forClass(classOf[ExtendedDataEvent])
+      verify(auditConnector).sendEvent(eventArg.capture())(any(), any())
 
-      private val value: AuditEvent = eventArg.getValue
+      private val value: ExtendedDataEvent = eventArg.getValue
       value.auditSource  shouldBe "preferences-frontend"
       value.auditType shouldBe EventTypes.Succeeded
       value.tags should contain ("transactionName" -> "Set Print Preference")
-      value.detail should contain ("cohort" -> "FPage")
-      value.detail should contain ("journey" -> "AccountDetails")
-      value.detail should contain ("utr" -> validUtr.value)
-      value.detail should not contain ("email" -> "someone@email.com")
-      value.detail should contain ("digital" -> "false")
-      value.detail should contain ("userConfirmedReadTandCs" -> "false")
-
+      value.detail \ "cohort" shouldBe JsString("FPage")
+      value.detail \ "journey" shouldBe JsString("AccountDetails")
+      value.detail \ "utr" shouldBe JsString(validUtr.value)
+      value.detail \ "email" shouldBe JsString("")
+      value.detail \ "digital" shouldBe JsString("false")
+      value.detail \ "userConfirmedReadTandCs" shouldBe JsString("false")
     }
   }
 }

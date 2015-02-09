@@ -20,9 +20,6 @@ object FrontendBuild extends Build with MicroService {
 }
 
 private object Dependencies {
-
-  private val metricsGraphiteVersion = "3.0.1"
-  private val playMetricsVersion = "0.1.3"
   private val scalatestVersion = "2.2.0"
   private val mockitoVersion = "1.9.5"
   private val pegdownVersion = "1.4.2"
@@ -31,10 +28,8 @@ private object Dependencies {
 
   val requiredDependencies = Seq(
     ws,
-//    "com.kenshoo" %% "metrics-play" % playMetricsVersion,
-//    "com.codahale.metrics" % "metrics-graphite" % metricsGraphiteVersion,
     "uk.gov.hmrc"    %% "govuk-template" % "2.1.0",
-    "uk.gov.hmrc"    %% "play-frontend"  % "9.4.1",
+    "uk.gov.hmrc"    %% "play-frontend"  % "10.10.0",
     "uk.gov.hmrc"    %% "play-health"    % "0.5.0",
     "uk.gov.hmrc"    %% "emailaddress"   % "0.2.0",
     "uk.gov.hmrc"    %% "url-builder"    % "0.3.0",
@@ -46,9 +41,12 @@ private object Dependencies {
     "org.scalatest"  %% "scalatest"   % scalatestVersion  % "test",
     "org.pegdown"    %  "pegdown"     % pegdownVersion  % "test",
     "org.mockito"    %  "mockito-all" % mockitoVersion  % "test",
+    "uk.gov.hmrc"    %% "hmrctest"    % "0.2.0" % "test",
 
-    "org.scalatest" %% "scalatest" % scalatestVersion % "it",
-    "org.pegdown" % "pegdown" % pegdownVersion % "it",
-    "org.jsoup" % "jsoup" % jsoupVersion % "it"
+    "org.scalatest"  %% "scalatest"   % scalatestVersion % "it",
+    "org.pegdown"    %  "pegdown"     % pegdownVersion % "it",
+    "org.jsoup"      %  "jsoup"       % jsoupVersion % "it",
+    "uk.gov.hmrc"    %% "hmrctest"    % "0.2.0" % "it",
+    "uk.gov.hmrc"    %% "auth-test"   % "0.3.0" % "it"
   )
 }

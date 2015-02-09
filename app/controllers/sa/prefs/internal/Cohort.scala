@@ -1,7 +1,7 @@
 package controllers.sa.prefs.internal
 
 import play.api.Play
-import uk.gov.hmrc.common.microservice.domain.User
+import uk.gov.hmrc.play.microservice.domain.User
 
 trait Cohort {
   val id: Int

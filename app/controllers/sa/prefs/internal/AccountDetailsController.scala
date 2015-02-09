@@ -7,12 +7,12 @@ import controllers.common.service.Connectors
 import controllers.sa.Encrypted
 import controllers.sa.prefs.{EmailFormData, SaRegime}
 import play.api.mvc.{Request, Result}
-import uk.gov.hmrc.common.microservice.audit.AuditConnector
-import uk.gov.hmrc.common.microservice.auth.AuthConnector
-import uk.gov.hmrc.common.microservice.domain.User
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.microservice.auth.AuthConnector
+import uk.gov.hmrc.play.microservice.domain.User
 
 import scala.concurrent.Future
 

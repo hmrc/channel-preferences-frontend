@@ -2,7 +2,6 @@ package controllers.sa.prefs
 
 import uk.gov.hmrc.emailaddress.EmailAddress
 
-
 case class EmailFormData(email: (String, Option[String]), emailVerified: Option[String]) {
   lazy val isEmailVerified = emailVerified == Some("true")
 
