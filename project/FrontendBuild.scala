@@ -28,7 +28,7 @@ private object Dependencies {
 
   val requiredDependencies = Seq(
     ws,
-    "uk.gov.hmrc"    %% "govuk-template" % "2.1.0",
+    "uk.gov.hmrc"    %% "govuk-template" % "2.6.0",
     "uk.gov.hmrc"    %% "play-frontend"  % "10.10.0",
     "uk.gov.hmrc"    %% "play-health"    % "0.5.0",
     "uk.gov.hmrc"    %% "emailaddress"   % "0.2.0",
