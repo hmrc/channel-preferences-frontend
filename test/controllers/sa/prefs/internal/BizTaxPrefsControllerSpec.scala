@@ -12,6 +12,7 @@ import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import play.api.libs.json.JsString
+import play.api.test.Helpers._
 import play.api.test.{FakeApplication, FakeRequest, WithApplication}
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
@@ -111,6 +112,8 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
 
       document.getElementById("opt-in-out") shouldNot be(null)
       document.getElementById("opt-in-out").attr("checked") shouldBe ""
+
+      document.getElementById("terms-and-conditions").attr("href") should endWith("terms-and-conditions")
     }
 
     "audit the cohort information for FPage" in new BizTaxPrefsControllerSetup {
@@ -130,6 +133,41 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       value.detail \ "cohort" shouldBe JsString("FPage")
       value.detail \ "journey" shouldBe JsString("Interstitial")
       value.detail \ "utr" shouldBe JsString(validUtr.value)
+    }
+  }
+
+  "The terms and conditions page" should {
+
+    "contain correct content" in new BizTaxPrefsControllerSetup {
+      val page = controller.termsAndConditionsPage()(request)
+
+      status(page) shouldBe 200
+
+      val document = Jsoup.parse(contentAsString(page))
+
+      document.getElementById("success-heading").text() shouldBe "Self Assessment terms and conditions"
+
+      document.getElementById("secure-mailbox") shouldNot be(null)
+      document.getElementById("statutory") shouldNot be(null)
+    }
+
+    "contain correct contents navigation panel" in new BizTaxPrefsControllerSetup {
+      val page = controller.termsAndConditionsPage()(request)
+
+      status(page) shouldBe 200
+      val document = Jsoup.parse(contentAsString(page))
+
+      document.getElementById("secure-mailbox-link").attr("href") should be ("#secure-mailbox")
+      document.getElementById("statutory-link").attr("href") should be ("#statutory")
+    }
+
+    "link to full terms and conditions page" in new BizTaxPrefsControllerSetup {
+      val page = controller.termsAndConditionsPage()(request)
+
+      status(page) shouldBe 200
+      val document = Jsoup.parse(contentAsString(page))
+
+      document.getElementById("full-terms-link").attr("href") should be ("https://online.hmrc.gov.uk/information/terms")
     }
   }
 

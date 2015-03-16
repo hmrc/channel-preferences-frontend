@@ -1,0 +1,42 @@
+@()(implicit request: Request[_])
+@import uk.gov.hmrc.urls.Link
+
+
+@main(title = "Self Assessment terms and conditions", sidebarLinks = Some(sidebarLinks), footerLinks=None) {
+
+    <header class="page-header">
+        <h1 id="success-heading">Self Assessment terms and conditions</h1>
+    </header>
+
+    <div class="ts-cs-note" style="position: relative">
+        <img class="icon-important" style="position:absolute; top: 20px"/>
+        <p style="display: inline-block; font-weight: 600; padding: 0 1em 0 2.2em">The following extract of <a id="full-terms-link" href="https://online.hmrc.gov.uk/information/terms">HMRC's terms and conditions</a> covers Self Assessment users.</p>
+    </div>
+
+    <section class="divider--bottom">
+        <h2 id="secure-mailbox">Secure mailbox</h2>
+        <div class="separator">
+            <p id="7.1">7.1 When you register for the first time, a secure online mailbox will be set up for you on the Government Gateway. Some online services may make use of the secure mailbox to send you communications and replies to email questions. For these services, you can view the contents of your secure mailbox on the HMRC website.</p>
+
+            <p id="7.2">7.2 You should regularly check your mailbox and delete old messages. Read messages that have been on the system for up to three months from delivery will be archived and removed from your mailbox. Unread messages that have been on the system for up to 12 months from delivery will be archived and removed from your mailbox.</p>
+
+            <p id="7.3">7.3 If you opt to receive Self Assessment statutory notices and reminders electronically these will be delivered to a separate dedicated secure online mailbox. This mailbox is different to the secure mailbox set up for you on the Government Gateway.</p>
+        </div>
+
+        <h2 id="statutory">Statutory notices, reminders and certificates</h2>
+        <div class="separator last">
+            <p id="8.1">8.1 Some online services may be used, or may make use of the secure online mailbox, to issue statutory notices and reminders to you. You can view the notices and reminders securely on the HMRC website, or in most cases using third party software applications. You may also print or save them to your own computer. Statutory notices made available in this way by HMRC will have the same legal validity and implications as a paper statutory notice sent to you by post.</p>
+
+            <p id="8.2">8.2 You will be asked to provide your consent before HMRC issues statutory notices to you using the secure online mailbox referred to in paragraph <a href="#7.3">7.3</a>. Where this is the case you will be asked to provide this on screen. If you give your consent you will be required to register an email address with HMRC and HMRC will verify these details with you. When a statutory notice or reminder is issued to you a notification email will also be sent to your registered email address to inform you of this. You should keep the details of your registered email address up-to-date and notify HMRC of any changes.</p>
+
+            <p id="8.3">8.3 If you give the consent referred to in paragraph <a href="#8.2">8.2</a> you may also be asked to register a telephone number with HMRC. When a statutory notice or reminder is issued to you HMRC may also send a text message to this telephone number, or to a daytime telephone number that you have already provided to HMRC, to inform you of this. You should keep the details of your registered telephone number up-to-date and notify HMRC of any changes.</p>
+        </div>
+    </section>
+}
+
+@sidebarLinks = {
+<div class="brand-border--top"></div>
+<h2>Contents</h2>
+<p><a id="secure-mailbox-link" href="#secure-mailbox">Secure mailbox</a></p>
+<p><a id="statutory-link" href="#statutory">Statutory notices, reminders and certificates</a></p>
+}

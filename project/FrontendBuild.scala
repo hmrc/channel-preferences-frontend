@@ -42,6 +42,7 @@ private object Dependencies {
     "org.pegdown"    %  "pegdown"     % pegdownVersion  % "test",
     "org.mockito"    %  "mockito-all" % mockitoVersion  % "test",
     "uk.gov.hmrc"    %% "hmrctest"    % "0.2.0" % "test",
+    "uk.gov.hmrc"    %% "auth-test"   % "0.3.0" % "test",
 
     "org.scalatest"  %% "scalatest"   % scalatestVersion % "it",
     "org.pegdown"    %  "pegdown"     % pegdownVersion % "it",

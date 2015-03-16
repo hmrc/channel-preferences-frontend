@@ -13,5 +13,6 @@ GET         /opt-in-email-reminders                    @controllers.sa.prefs.int
 GET         /opt-in-email-reminders/:cohort            @controllers.sa.prefs.internal.BizTaxPrefsController.displayPrefsFormForCohort(cohort: Option[controllers.sa.prefs.internal.OptInCohort], email: Option[controllers.sa.prefs.EncryptedEmail])
 POST        /opt-in-email-reminders                    @controllers.sa.prefs.internal.BizTaxPrefsController.submitPrefsFormForNonInterstitial
 GET         /opt-in-email-reminders-thank-you          @controllers.sa.prefs.internal.BizTaxPrefsController.thankYou(email: Option[controllers.sa.prefs.EncryptedEmail])
+GET         /terms-and-conditions                      @controllers.sa.prefs.internal.BizTaxPrefsController.termsAndConditions
 
 GET         /email-reminders-status                    @controllers.sa.prefs.partial.accountdetails.ReminderStatusPartialController.emailRemindersStatus
