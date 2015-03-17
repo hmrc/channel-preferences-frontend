@@ -139,7 +139,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
   "The terms and conditions page" should {
 
     "contain correct content" in new BizTaxPrefsControllerSetup {
-      val page = controller.termsAndConditionsPage()(request)
+      val page = controller.termsAndConditionsPage()(request, user)
 
       status(page) shouldBe 200
 
@@ -152,7 +152,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
     }
 
     "contain correct contents navigation panel" in new BizTaxPrefsControllerSetup {
-      val page = controller.termsAndConditionsPage()(request)
+      val page = controller.termsAndConditionsPage()(request, user)
 
       status(page) shouldBe 200
       val document = Jsoup.parse(contentAsString(page))
@@ -162,7 +162,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
     }
 
     "link to full terms and conditions page" in new BizTaxPrefsControllerSetup {
-      val page = controller.termsAndConditionsPage()(request)
+      val page = controller.termsAndConditionsPage()(request, user)
 
       status(page) shouldBe 200
       val document = Jsoup.parse(contentAsString(page))

@@ -68,7 +68,7 @@ class BizTaxPrefsController(val auditConnector: AuditConnector,
     implicit user => implicit request => termsAndConditionsPage()
   }
 
-  def termsAndConditionsPage()(implicit request: Request[AnyRef]) : Future[Result] =
+  def termsAndConditionsPage()(implicit request: Request[AnyRef], user: User) : Future[Result] =
     Future.successful(Ok(views.html.sa.prefs.sa_terms_and_conditions()))
 
   val getSavePrefsFromInterstitialCall = controllers.sa.prefs.internal.routes.BizTaxPrefsController.submitPrefsFormForInterstitial()
