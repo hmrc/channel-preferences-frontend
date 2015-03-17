@@ -1,21 +1,18 @@
-@()(implicit request: Request[_], user: uk.gov.hmrc.play.microservice.domain.User)
+@()(implicit request: Request[_])
 @import uk.gov.hmrc.urls.Link
 @import controllers.common.service.FrontEndConfig._
 
-@main(title = "Self Assessment terms and conditions", sidebarLinks = Some(sidebarLinks), footerLinks=None, serviceInfoContent = Some(serviceInfo), contentHeader = Some(contentHeader)) {
+@main(title = "Self Assessment terms and conditions", sidebarLinks = Some(sidebarLinks), footerLinks=None) {
+
+    <header class="page-header">
+        <h1 id="success-heading">Self Assessment terms and conditions</h1>
+    </header>
 
     <div class="application-notice help-notice" style="background: url(@{assetsUrl}@{assetsVersion}/images/icons/icon-important.png) no-repeat scroll 0 0.5em">
         <p style="margin-top: 0.15em; padding-left: 1.2em">The following extract of <a id="full-terms-link" href="https://online.hmrc.gov.uk/information/terms">HMRC's terms and conditions</a> covers Self Assessment users.</p>
     </div>
 
-    <!--
-        <header class="page-header">
-            <h1 id="success-heading" style="margin-top: 0px">Self Assessment terms and conditions</h1>
-        </header>
-    -->
-
-
-<section class="divider--bottom">
+    <section class="divider--bottom">
         <h2 id="secure-mailbox">Secure mailbox</h2>
         <div class="separator">
             <p id="7.1">7.1 When you register for the first time, a secure online mailbox will be set up for you on the Government Gateway. Some online services may make use of the secure mailbox to send you communications and replies to email questions. For these services, you can view the contents of your secure mailbox on the HMRC website.</p>
@@ -37,18 +34,8 @@
 }
 
 @sidebarLinks = {
-<div class="brand-border--top"></div>
+<div class="brand-border--top" style="margin-top: 30px"></div>
 <h2>Contents</h2>
 <p><a id="secure-mailbox-link" href="#secure-mailbox">Secure mailbox</a></p>
 <p><a id="statutory-link" href="#statutory">Statutory notices, reminders and certificates</a></p>
-}
-
-@serviceInfo = {
-    @if(user.userAuthority.previouslyLoggedInAt.isDefined) {
-        @helpers.last_sign_in(user.userAuthority.previouslyLoggedInAt.get, user.displayName)
-    }
-}
-
-@contentHeader = {
-    <h1 id="success-heading" style="margin-top: 0px">Self Assessment terms and conditions</h1>
 }
