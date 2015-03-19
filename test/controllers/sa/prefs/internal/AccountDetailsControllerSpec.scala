@@ -17,7 +17,9 @@ import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 
-abstract class Setup extends WithApplication(FakeApplication()) with MockitoSugar {
+abstract class Setup extends WithApplication(FakeApplication(additionalConfiguration = Map(
+    "govuk-tax.Test.services.contact-frontend.host" -> "localhost",
+    "govuk-tax.Test.services.contact-frontend.port" -> "9250"))) with MockitoSugar {
   val mockAuditConnector = mock[AuditConnector]
   val mockAuthConnector = mock[AuthConnector]
   val mockPreferencesConnector = mock[PreferencesConnector]
