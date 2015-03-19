@@ -5,18 +5,16 @@ import controllers.sa.prefs.internal.Cohort
 import play.api.Logger
 import play.api.http.Status
 import play.api.libs.json._
-import uk.gov.hmrc.play.microservice.MicroServiceConfig
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
-import uk.gov.hmrc.play.http.NotFoundException
-import uk.gov.hmrc.play.http._
-import uk.gov.hmrc.play.http.ws.WSHttp
+import uk.gov.hmrc.play.config.{ServicesConfig, WSHttp}
+import uk.gov.hmrc.play.http.{NotFoundException, _}
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
 import scala.concurrent.Future
 
-object PreferencesConnector extends PreferencesConnector {
-  override val serviceUrl = MicroServiceConfig.preferencesServiceUrl
+object PreferencesConnector extends PreferencesConnector with ServicesConfig {
+  override val serviceUrl = baseUrl("preferences")
 
   override def http = WSHttp
 }
@@ -46,13 +44,17 @@ trait PreferencesConnector extends Status {
     }
   }
 
-  // TODO Could/should this use /portal/preferences/sa/individual/:utr/print-suppression/verified-email-address ?
   def getEmailAddress(utr: SaUtr)(implicit hc: HeaderCarrier) = {
-    implicit val emailAddressFromPreferenceRds: Reads[Option[String]] = (__ \ "email").readNullable((__ \ "email").read[String])
-    http.GET[Option[String]](url(s"/portal/preferences/sa/individual/$utr/print-suppression")).recover {
-      case response: Upstream4xxResponse if response.upstreamResponseCode == GONE => None
-      case e: NotFoundException => None
+    implicit val rds: Reads[Option[String]] = (__ \ "email").readNullable((__ \ "email").read[String])
+
+    implicit val readOptionOf: HttpReads[Option[String]] = new HttpReads[Option[String]] {
+      def read(method: String, url: String, response: HttpResponse) = response.status match {
+        case 204 | 404 | 410 => None
+        case _ => HttpReads.readFromJson[Option[String]].read(method, url, response)
+      }
     }
+
+    http.GET[Option[String]](url(s"/portal/preferences/sa/individual/$utr/print-suppression"))
   }
 
   def updateEmailValidationStatusUnsecured(token: String)(implicit hc: HeaderCarrier): Future[EmailVerificationLinkResponse.Value] = {
@@ -62,8 +64,8 @@ trait PreferencesConnector extends Status {
   private[connectors] def responseToEmailVerificationLinkStatus(response: Future[HttpResponse])(implicit hc: HeaderCarrier) = {
     response.map(_ => EmailVerificationLinkResponse.Ok)
       .recover {
-      case Upstream4xxResponse(_, GONE, _) => EmailVerificationLinkResponse.Expired
-      case Upstream4xxResponse(_, CONFLICT, _) => EmailVerificationLinkResponse.WrongToken
+      case Upstream4xxResponse(_, GONE, _, _) => EmailVerificationLinkResponse.Expired
+      case Upstream4xxResponse(_, CONFLICT, _, _) => EmailVerificationLinkResponse.WrongToken
       case (_:Upstream4xxResponse |_: NotFoundException |_:BadRequestException) => EmailVerificationLinkResponse.Error
     }
   }

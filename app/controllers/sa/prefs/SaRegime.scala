@@ -1,10 +1,9 @@
 package controllers.sa.prefs
 
-import controllers.common.{GovernmentGateway, UserCredentials}
 import play.api.Logger
-import play.api.mvc.{Result, AnyContent, Request, Results}
-import uk.gov.hmrc.play.microservice.auth.domain.Accounts
-import uk.gov.hmrc.play.microservice.domain.TaxRegime
+import play.api.mvc.{AnyContent, Request, Result, Results}
+import uk.gov.hmrc.play.auth.frontend.connectors.domain.Accounts
+import uk.gov.hmrc.play.frontend.auth.{UserCredentials, GovernmentGateway, TaxRegime}
 
 import scala.concurrent.Future
 

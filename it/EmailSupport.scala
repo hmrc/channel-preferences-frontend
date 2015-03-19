@@ -10,19 +10,20 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{Await, Future}
 import scala.util.matching.Regex.Match
 
-trait EmailSupport extends ResponseMatchers with Eventually {
+trait EmailSupport extends ResponseMatchers with Eventually with ServicesConfig {
 
-  import scala.concurrent.duration._
   import EmailSupport._
+
+import scala.concurrent.duration._
 
   implicit val emailReads = Json.reads[Email]
   implicit val emailTokenWrites = Json.writes[Token]
 
   private implicit lazy val app = play.api.Play.current
 
-  private lazy val mailgunStubUrl = ServicesConfig.baseUrl("mailgun")
-  private lazy val emailBaseUrl = ServicesConfig.baseUrl("email")
-  private lazy val prefsBaseUrl = ServicesConfig.baseUrl("preferences")
+  private lazy val mailgunStubUrl = baseUrl("mailgun")
+  private lazy val emailBaseUrl = baseUrl("email")
+  private lazy val prefsBaseUrl = baseUrl("preferences")
   private lazy val timeout = 5.seconds
 
   def clearEmails() = {

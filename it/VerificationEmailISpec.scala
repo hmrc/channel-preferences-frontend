@@ -2,21 +2,26 @@ import EmailSupport.Email
 import org.scalatest.concurrent.Eventually
 import org.scalatest.matchers.{Matcher, HavePropertyMatchResult, HavePropertyMatcher}
 import play.api.Play.current
+import play.api.http.HeaderNames
 import play.api.libs.json.Json
 import play.api.libs.ws.{WSResponse, WS}
+import play.api.mvc.{Session, Cookie, Cookies}
+import uk.gov.hmrc.crypto.{PlainText, ApplicationCrypto}
+import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.play.audit.http.HeaderCarrier
+import uk.gov.hmrc.test.it.BearerTokenHelper
 
 import scala.concurrent.Future
 
 class VerificationEmailISpec
-  extends PreferencesFrontEndServer
-  with UserAuthentication {
+  extends PreferencesFrontEndServer  {
 
   "Verification email confirmation" should {
-    "confirm email has been sent to the users verification email address" in new VerificationEmailTestCase {
+    "confirm email has been sent to the users verification email address" in new VerificationEmailTestCase with TestCaseWithFrontEndAuthentication {
       val email = uniqueEmail
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
 
-      val response = `/resend-validation-email`.withHeaders(authenticationCookie(userId, password)).post(emptyJsonValue)
+      val response = `/resend-validation-email`.withHeaders(cookie).post(emptyJsonValue)
       response should have(status(200))
       response.futureValue.body should include(s"A new email has been sent to $email")
     }
@@ -226,7 +231,6 @@ class VerificationEmailISpec
       `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should beForAnExpiredOldEmail
     }
   }
-
 
   trait VerificationEmailTestCase extends TestCase with EmailSupport with Eventually {
     clearEmails()

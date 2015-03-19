@@ -2,8 +2,6 @@ package controllers.sa.prefs.internal
 
 import connectors.{EmailConnector, PreferencesConnector, SaPreference}
 import controllers.common.BaseController
-import controllers.common.actions.Actions
-import controllers.common.service.Connectors
 import controllers.sa.Encrypted
 import controllers.sa.prefs.{EmailFormData, SaRegime}
 import play.api.mvc.{Request, Result}
@@ -11,19 +9,28 @@ import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.microservice.auth.AuthConnector
-import uk.gov.hmrc.play.microservice.domain.User
+import uk.gov.hmrc.play.auth.frontend.connectors.AuthConnector
+import uk.gov.hmrc.play.config.AuditConnector
+import uk.gov.hmrc.play.frontend.auth.{Actions, User}
 
 import scala.concurrent.Future
 
-class AccountDetailsController(val auditConnector: AuditConnector,
-                               val preferencesConnector: PreferencesConnector,
-                               val emailConnector: EmailConnector)(implicit override val authConnector: AuthConnector)
+object AccountDetailsController extends AccountDetailsController {
+  lazy val auditConnector = AuditConnector
+  lazy val authConnector = AuthConnector
+  lazy val emailConnector = EmailConnector
+  lazy val preferencesConnector = PreferencesConnector
+}
+
+trait AccountDetailsController
   extends BaseController
   with Actions
   with PreferencesControllerHelper {
 
-  def this() = this(Connectors.auditConnector, PreferencesConnector, EmailConnector)(Connectors.authConnector)
+  val auditConnector: AuditConnector
+  val authConnector: AuthConnector
+  val emailConnector: EmailConnector
+  val preferencesConnector: PreferencesConnector
 
   def changeEmailAddress(emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(regime = SaRegime).async {
     user => request => changeEmailAddressPage(emailAddress)(user, request)
@@ -71,11 +78,10 @@ class AccountDetailsController(val auditConnector: AuditConnector,
     }
   }
 
-  private[prefs] def optOutOfEmailRemindersPage(implicit user: User, request: Request[AnyRef]) = {
+  private[prefs] def optOutOfEmailRemindersPage(implicit user: User, request: Request[AnyRef]) = 
     lookupCurrentEmail(email => Future.successful(Ok(views.html.confirm_opt_back_into_paper(email.obfuscated))))
-  }
 
-  private[prefs] def changeEmailAddressPage(emailAddress: Option[Encrypted[EmailAddress]])(implicit user: User, request: Request[AnyRef]): Future[Result] =
+  private[prefs] def changeEmailAddressPage(emailAddress: Option[Encrypted[EmailAddress]])(implicit user: User, request: Request[AnyRef]): Future[Result] = 
     lookupCurrentEmail(email => Future.successful(Ok(views.html.account_details_update_email_address(email, emailForm.fill(EmailFormData(emailAddress.map(_.decryptedValue)))))))
 
 
@@ -87,7 +93,7 @@ class AccountDetailsController(val auditConnector: AuditConnector,
     }
   }
 
-  private[prefs] def submitEmailAddressPage(implicit user: User, request: Request[AnyRef]): Future[Result] =
+  private[prefs] def submitEmailAddressPage(implicit user: User, request: Request[AnyRef]): Future[Result] = 
     lookupCurrentEmail(
       email =>
         submitEmailForm(

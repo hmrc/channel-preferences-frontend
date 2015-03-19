@@ -1,7 +1,7 @@
 package controllers.sa.prefs
 
 import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.play.microservice.auth.domain.{Accounts, Authority, SaAccount}
+import uk.gov.hmrc.play.auth.frontend.connectors.domain.{Accounts, Authority, SaAccount}
 
 object AuthorityUtils {
 

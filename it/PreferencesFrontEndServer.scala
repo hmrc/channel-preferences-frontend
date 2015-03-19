@@ -5,7 +5,9 @@ import play.api.Play.current
 import play.api.http.HeaderNames
 import play.api.libs.json.Json
 import play.api.libs.ws.{WS, WSResponse}
+import play.api.mvc.{Session, Cookie, Cookies}
 import play.api.mvc.Results.EmptyContent
+import uk.gov.hmrc.crypto.{PlainText, ApplicationCrypto}
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
 import uk.gov.hmrc.play.http.test.ResponseMatchers
@@ -24,45 +26,45 @@ trait TestUser {
   def utr = "1555369043"
 }
 
-trait UserAuthentication extends BearerTokenHelper with PreferencesFrontEndServer with ResponseMatchers with TestUser {
-
-  implicit val hc = HeaderCarrier()
-
-  def authResource(path: String) = server.externalResource("auth", path)
-
-  def authToken = AuthorisationHeader(Some(createBearerTokenFor(SaUtr(utr))))
-
-  def authenticationCookie(userId: String, password: String) = {
-    def cookieFrom(response: Future[WSResponse]) = {
-      HeaderNames.COOKIE -> response.futureValue.header(HeaderNames.SET_COOKIE).getOrElse(throw new IllegalStateException("Failed to set auth cookie"))
-    }
-
-    def csrfTokenAndAuthenticateUrlFrom(accountSignInResponse: Future[WSResponse]): (String, String) = {
-      val form = Jsoup.parse(accountSignInResponse.futureValue.body).getElementsByTag("form").first
-      val csrfToken: String = form.getElementsByAttributeValue("name", "csrfToken").first.attr("value")
-      csrfToken should not be empty
-      (form.attr("action"), csrfToken)
-    }
-
-    val accountSignInResponse = `/account/sign-in`
-    accountSignInResponse should have(status(200))
-
-    val (authenticateUrl: String, csrfToken: String) = csrfTokenAndAuthenticateUrlFrom(accountSignInResponse)
-
-    val loginResponse = WS.url(server.externalResource("ca-frontend", authenticateUrl))
-      .withHeaders(cookieFrom(accountSignInResponse))
-      .post(Map("csrfToken" -> csrfToken, "userId" -> userId, "password" -> password).mapValues(Seq(_)))
-
-    cookieFrom(loginResponse)
-  }
-
-  def `/account/sign-in` = WS.url(server.externalResource("ca-frontend", "/account/sign-in")).get()
-
-  case class AuthorisationHeader(value: Option[String]) {
-    def asHeader: Seq[(String, String)] = value.fold(Seq.empty[(String, String)])(v => Seq(HeaderNames.AUTHORIZATION -> v))
-  }
-
-}
+//trait UserAuthentication extends BearerTokenHelper with PreferencesFrontEndServer with ResponseMatchers with TestUser {
+//
+//  implicit val hc = HeaderCarrier()
+//
+//  def authResource(path: String) = server.externalResource("auth", path)
+//
+//  def authToken = AuthorisationHeader(Some(createBearerTokenFor(SaUtr(utr))))
+//
+//  def authenticationCookie(userId: String, password: String) = {
+//    def cookieFrom(response: Future[WSResponse]) = {
+//      HeaderNames.COOKIE -> response.futureValue.header(HeaderNames.SET_COOKIE).getOrElse(throw new IllegalStateException("Failed to set auth cookie"))
+//    }
+//
+//    def csrfTokenAndAuthenticateUrlFrom(accountSignInResponse: Future[WSResponse]): (String, String) = {
+//      val form = Jsoup.parse(accountSignInResponse.futureValue.body).getElementsByTag("form").first
+//      val csrfToken: String = form.getElementsByAttributeValue("name", "csrfToken").first.attr("value")
+//      csrfToken should not be empty
+//      (form.attr("action"), csrfToken)
+//    }
+//
+//    val accountSignInResponse = `/account/sign-in`
+//    accountSignInResponse should have(status(200))
+//
+//    val (authenticateUrl: String, csrfToken: String) = csrfTokenAndAuthenticateUrlFrom(accountSignInResponse)
+//
+//    val loginResponse = WS.url(server.externalResource("ca-frontend", authenticateUrl))
+//      .withHeaders(cookieFrom(accountSignInResponse))
+//      .post(Map("csrfToken" -> csrfToken, "userId" -> userId, "password" -> password).mapValues(Seq(_)))
+//
+//    cookieFrom(loginResponse)
+//  }
+//
+//  def `/account/sign-in` = WS.url(server.externalResource("ca-frontend", "/account/sign-in")).get()
+//
+//  case class AuthorisationHeader(value: Option[String]) {
+//    def asHeader: Seq[(String, String)] = value.fold(Seq.empty[(String, String)])(v => Seq(HeaderNames.AUTHORIZATION -> v))
+//  }
+//
+//}
 
 trait PreferencesFrontEndServer extends ServiceSpec {
   protected val server = new PreferencesFrontendIntegrationServer("AccountDetailPartialISpec")
@@ -71,12 +73,12 @@ trait PreferencesFrontEndServer extends ServiceSpec {
     override protected val externalServices: Seq[ExternalService] = Seq(
       "external-government-gateway",
       "government-gateway",
-      "ca-frontend",
+      "auth",
       "preferences",
       "message",
       "mailgun",
+      "ca-frontend",
       "email",
-      "auth",
       "datastream").map(ExternalService.runFromJar(_))
   }
 
@@ -135,6 +137,24 @@ trait PreferencesFrontEndServer extends ServiceSpec {
     def `/account/preferences/warnings` = {
       WS.url(resource("/account/preferences/warnings"))
     }
+  }
+
+  trait TestCaseWithFrontEndAuthentication extends TestCase with BearerTokenHelper {
+
+    implicit val hc = HeaderCarrier()
+
+    def authResource(path: String) = {
+      server.externalResource("auth", path)
+    }
+
+    lazy val keyValues = Map(
+      "authToken" -> createBearerTokenFor(SaUtr(utr)).futureValue,
+      "token" -> "system-assumes-valid-token",
+      "userId" -> "/auth/oid/system-assumes-valid-oid"
+    )
+
+    lazy val cookie = HeaderNames.COOKIE ->
+      Cookies.encode(Seq(Cookie("mdtp", ApplicationCrypto.SessionCookieCryptoDeprecated.encrypt(PlainText(Session.encode(keyValues))).value)))
   }
 
 }

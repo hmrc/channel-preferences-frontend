@@ -11,19 +11,24 @@ import play.api.test.{FakeApplication, FakeRequest, WithApplication}
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.microservice.auth.AuthConnector
-import uk.gov.hmrc.play.microservice.domain.User
+import uk.gov.hmrc.play.auth.frontend.connectors.AuthConnector
+import uk.gov.hmrc.play.frontend.auth.User
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 
 abstract class Setup extends WithApplication(FakeApplication()) with MockitoSugar {
-  val auditConnector = mock[AuditConnector]
-  val authConnector = mock[AuthConnector]
+  val mockAuditConnector = mock[AuditConnector]
+  val mockAuthConnector = mock[AuthConnector]
   val mockPreferencesConnector = mock[PreferencesConnector]
   val mockEmailConnector = mock[EmailConnector]
 
-  val controller = new AccountDetailsController(auditConnector, mockPreferencesConnector,mockEmailConnector)(authConnector)
+  val controller = new AccountDetailsController {
+    implicit val authConnector = mockAuthConnector
+    val preferencesConnector = mockPreferencesConnector
+    val emailConnector = mockEmailConnector
+    val auditConnector = mockAuditConnector
+  }
 
   val request = FakeRequest()
 }

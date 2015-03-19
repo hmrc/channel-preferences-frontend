@@ -3,6 +3,7 @@ package connectors
 import org.scalatest.concurrent.ScalaFutures
 import play.api.libs.json.Json
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.http.HttpResponse
 import uk.gov.hmrc.play.test._
 
@@ -31,6 +32,8 @@ class EmailConnectorSpec extends UnitSpec with ScalaFutures with WithFakeApplica
         protected def doGet(url: String)(implicit hc: HeaderCarrier) = {
           Future.successful(responseFromEmailService)
         }
+
+        override def auditConnector: AuditConnector = ???
       }
       val exampleEmailAddress = "bob@somewhere.com"
     }

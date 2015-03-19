@@ -1,5 +1,6 @@
 package controllers.sa.prefs.external
 
+import helpers.ConfigHelper
 import org.scalatest._
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
@@ -15,8 +16,6 @@ class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar
 
   import EmailVerificationLinkResponse._
 
-  val additionalConfig = Map("preferences.Test.portal.destinationRoot" -> "portalHomeLink", "preferences.Test.portal.destinationPath.home" -> "/home")
-
   def createController = new EmailValidationController {
     override lazy val preferencesMicroService = mock[PreferencesConnector]
   }
@@ -29,7 +28,7 @@ class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar
 
   "verify" should {
 
-    "call the sa micro service and update the email verification status of the user" in new WithApplication(FakeApplication(additionalConfiguration = additionalConfig)) {
+    "call the sa micro service and update the email verification status of the user" in new WithApplication(ConfigHelper.fakeApp) {
       val controller = createController
       val token = wellFormattedToken
       when(controller.preferencesMicroService.updateEmailValidationStatusUnsecured(meq(token))).thenReturn(Future.successful(Ok))
@@ -40,7 +39,7 @@ class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar
       status(response) shouldBe 200
     }
 
-    "display an error when the sa micro service fails to update a users email verification status" in new WithApplication(FakeApplication(additionalConfiguration = additionalConfig)) {
+    "display an error when the sa micro service fails to update a users email verification status" in new WithApplication(ConfigHelper.fakeApp) {
       val controller = createController
       val token = wellFormattedToken
       when(controller.preferencesMicroService.updateEmailValidationStatusUnsecured(meq(token))).thenReturn(Future.successful(Error))
@@ -49,7 +48,7 @@ class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar
       status(response) shouldBe 400
     }
 
-    "display an error if the email verification token is out of date" in new WithApplication(FakeApplication(additionalConfiguration =  additionalConfig)) {
+    "display an error if the email verification token is out of date" in new WithApplication(ConfigHelper.fakeApp) {
       val controller = createController
       val token = wellFormattedToken
       when(controller.preferencesMicroService.updateEmailValidationStatusUnsecured(meq(token))).thenReturn(Future.successful(Expired))
@@ -63,7 +62,7 @@ class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar
       page.getElementsByTag("h1").first.text shouldBe "This link has expired"
     }
 
-    "display an error if the email verification token is not for the email pending verification" in new WithApplication(FakeApplication(additionalConfiguration =  additionalConfig)) {
+    "display an error if the email verification token is not for the email pending verification" in new WithApplication(ConfigHelper.fakeApp) {
       val controller = createController
       val token = wellFormattedToken
       when(controller.preferencesMicroService.updateEmailValidationStatusUnsecured(meq(token))).thenReturn(Future.successful(WrongToken))
@@ -77,7 +76,7 @@ class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar
       page.getElementsByTag("h1").first.text shouldBe "You've used a link that has now expired"
     }
 
-    "display an error if the token is not in a valid uuid format without calling the service" in new WithApplication(FakeApplication()) {
+    "display an error if the token is not in a valid uuid format without calling the service" in new WithApplication(ConfigHelper.fakeApp) {
       val controller = createController
       val token = "badToken"
       val response = controller.verify(token)(request)
@@ -86,7 +85,7 @@ class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar
       verify(controller.preferencesMicroService, never()).updateEmailValidationStatusUnsecured(meq(token))
     }
 
-    "display an error if the token is not in a valid uuid format (extra characters) without calling the service" in new WithApplication(FakeApplication()) {
+    "display an error if the token is not in a valid uuid format (extra characters) without calling the service" in new WithApplication(ConfigHelper.fakeApp) {
       val controller = createController
       val token = tokenWithSomeExtraStuff
       val response = controller.verify(token)(request)

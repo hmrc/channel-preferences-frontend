@@ -2,21 +2,24 @@ package controllers.sa.prefs.partial.accountdetails
 
 import connectors.PreferencesConnector
 import controllers.common.BaseController
-import controllers.common.actions.Actions
-import controllers.common.service.Connectors
 import controllers.sa.prefs.SaRegimeWithoutRedirection
 import controllers.sa.prefs.internal.PreferencesControllerHelper
-import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.microservice.auth.AuthConnector
+import uk.gov.hmrc.play.auth.frontend.connectors.AuthConnector
+import uk.gov.hmrc.play.config.AuditConnector
+import uk.gov.hmrc.play.frontend.auth.Actions
 
-class ReminderStatusPartialController(val auditConnector: AuditConnector,
-                                      val preferencesConnector: PreferencesConnector)(implicit override val authConnector: AuthConnector)
+object ReminderStatusPartialController extends ReminderStatusPartialController {
+  lazy val auditConnector = AuditConnector
+  lazy val authConnector = AuthConnector
+  lazy val preferencesConnector = PreferencesConnector
+}
+
+
+trait ReminderStatusPartialController
   extends BaseController
   with Actions
   with ReminderStatusPartialHtml
   with PreferencesControllerHelper {
-
-  def this() = this(Connectors.auditConnector, PreferencesConnector)(Connectors.authConnector)
 
   def emailRemindersStatus() = AuthorisedFor(regime = SaRegimeWithoutRedirection, redirectToOrigin = false).async {
     user => implicit request => detailsStatus(user.userAuthority.accounts.sa.get.utr).map(Ok(_))

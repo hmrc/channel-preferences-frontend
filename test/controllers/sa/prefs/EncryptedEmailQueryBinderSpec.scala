@@ -43,8 +43,11 @@ class EncryptedEmailQueryBinderSpec extends UnitSpec with MockitoSugar {
   trait TestCase {
     val stringBinder = mock[QueryStringBindable[String]]
     val crypto = new Encrypter with Decrypter {
-      override def encrypt(plain: PlainText): Crypted = ???
       override def decrypt(reversiblyEncrypted: Crypted): PlainText = decryptedEmail.map(PlainText).getOrElse(throw new RuntimeException())
+
+      override def encrypt(plain: PlainContent): Crypted = ???
+
+      override def decryptAsBytes(reversiblyEncrypted: Crypted): PlainBytes = ???
     }
     val binder = new EncryptedEmailBinder(crypto, stringBinder)
     val encryptedData: String = "encrypted Data"

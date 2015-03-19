@@ -1,15 +1,19 @@
 package connectors
 
+import helpers.ConfigHelper
 import org.scalatest.concurrent.ScalaFutures
 import play.api.libs.json.{Json, Writes}
+import play.api.test.WithApplication
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.config.AppName
 import uk.gov.hmrc.play.http._
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 
-class PreferencesConnectorSpec extends UnitSpec with ScalaFutures with WithFakeApplication {
+class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) with UnitSpec with ScalaFutures {
 
   implicit val hc = new HeaderCarrier
 
@@ -21,8 +25,10 @@ class PreferencesConnectorSpec extends UnitSpec with ScalaFutures with WithFakeA
   }
 
   def preferencesConnector(returnFromDoGet: Future[HttpResponse]): TestPreferencesConnector = new TestPreferencesConnector {
-    override def http = new HttpGet with HttpPost with HttpPut {
-      override protected def doGet(url: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = returnFromDoGet
+    override def http = new HttpGet with HttpPost with HttpPut with AppName {
+      override protected def doGet(url: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+        returnFromDoGet
+      }
 
       override protected def doPostString(url: String, body: String, headers: Seq[(String, String)])(implicit hc: HeaderCarrier): Future[HttpResponse] = ???
 
@@ -33,6 +39,8 @@ class PreferencesConnectorSpec extends UnitSpec with ScalaFutures with WithFakeA
       override protected def doEmptyPost[A](url: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = ???
 
       override protected def doPut[A](url: String, body: A)(implicit rds: Writes[A], hc: HeaderCarrier): Future[HttpResponse] = ???
+
+      override def auditConnector: AuditConnector = ???
     }
   }
 
@@ -94,7 +102,13 @@ class PreferencesConnectorSpec extends UnitSpec with ScalaFutures with WithFakeA
           |  "digital": false
           |}
         """.stripMargin)))))
-      preferenceConnector.getEmailAddress(SaUtr("1")).futureValue should be (None)
+      val address = preferenceConnector.getEmailAddress(SaUtr("1"))
+      address.futureValue should be (None)
+    }
+
+    "return Error for other status code" in {
+      val preferenceConnector = preferencesConnector(Future.successful(HttpResponse(400)))
+      preferenceConnector.getEmailAddress(SaUtr("1")).failed.futureValue should be (an[Exception])
     }
 
     "return an email address when there is an email preference" in {

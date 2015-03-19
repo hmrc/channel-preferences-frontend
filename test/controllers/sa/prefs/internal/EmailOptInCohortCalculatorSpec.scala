@@ -1,12 +1,14 @@
 package controllers.sa.prefs.internal
 
+import config.{FrontendFilters, DefaultGlobal}
 import controllers.sa.prefs.AuthorityUtils._
 import controllers.sa.prefs.config.PreferencesGlobal
 import org.scalactic.Tolerance
 import org.scalatest.{Inspectors, LoneElement}
-import play.api.Play
+import play.api.{Configuration, Application, Play}
 import play.api.test.{FakeApplication, WithApplication}
-import uk.gov.hmrc.play.microservice.domain.User
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.frontend.auth.User
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.util.Random
@@ -69,6 +71,10 @@ class EmailOptInCohortCalculatorSpec extends UnitSpec with Inspectors with Toler
 
       object PreferencesGlobalForTest extends PreferencesGlobal {
         override val cohortCalculator = OptInCohortCalculatorVerifier
+
+        override def auditConnector: AuditConnector = ???
+
+        override def microserviceMetricsConfig(implicit app: Application): Option[Configuration] = ???
       }
 
       intercept[RuntimeException] {

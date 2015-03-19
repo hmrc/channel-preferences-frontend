@@ -3,14 +3,15 @@ package connectors
 import java.net.URLEncoder
 
 import play.api.libs.json._
-import uk.gov.hmrc.play.microservice.MicroServiceConfig
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.config.{AppName, AuditConnector, ServicesConfig}
 import uk.gov.hmrc.play.http.HttpGet
 import uk.gov.hmrc.play.http.ws.WSGet
 
 import scala.concurrent.Future
 
-trait EmailConnector extends HttpGet {
+trait EmailConnector extends HttpGet with ServicesConfig with AppName {
   protected def serviceUrl: String
 
   def isValid(emailAddress: String)(implicit hc: HeaderCarrier): Future[Boolean] = {
@@ -19,5 +20,7 @@ trait EmailConnector extends HttpGet {
   }
 }
 object EmailConnector extends EmailConnector with WSGet {
-  val serviceUrl = MicroServiceConfig.emailServiceUrl
+  val serviceUrl = baseUrl("email")
+
+  override def auditConnector: AuditConnector = AuditConnector
 }
