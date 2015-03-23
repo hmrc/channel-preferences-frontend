@@ -5,12 +5,12 @@ import controllers.common.BaseController
 import controllers.sa.prefs.SaRegimeWithoutRedirection
 import controllers.sa.prefs.internal.PreferencesControllerHelper
 import uk.gov.hmrc.play.auth.frontend.connectors.AuthConnector
-import uk.gov.hmrc.play.config.AuditConnector
+import uk.gov.hmrc.play.config.{FrontendAuthConnector, AuditConnector}
 import uk.gov.hmrc.play.frontend.auth.Actions
 
 object ReminderStatusPartialController extends ReminderStatusPartialController {
   lazy val auditConnector = AuditConnector
-  lazy val authConnector = AuthConnector
+  lazy val authConnector = FrontendAuthConnector
   lazy val preferencesConnector = PreferencesConnector
 }
 

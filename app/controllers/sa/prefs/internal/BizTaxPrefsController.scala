@@ -14,7 +14,7 @@ import uk.gov.hmrc.play.audit.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.{EventTypes, ExtendedDataEvent}
 import uk.gov.hmrc.play.auth.frontend.connectors.AuthConnector
-import uk.gov.hmrc.play.config.{AppName, AuditConnector}
+import uk.gov.hmrc.play.config.{FrontendAuthConnector, AppName, AuditConnector}
 import uk.gov.hmrc.play.frontend.auth.{Actions, User}
 
 import scala.concurrent.Future
@@ -25,7 +25,7 @@ object BizTaxPrefsController extends BizTaxPrefsController with AppName {
   override val preferencesConnector = PreferencesConnector
   override val emailConnector = EmailConnector
 
-  override protected implicit def authConnector: AuthConnector = AuthConnector
+  override protected implicit def authConnector: AuthConnector = FrontendAuthConnector
 }
 
 trait BizTaxPrefsController

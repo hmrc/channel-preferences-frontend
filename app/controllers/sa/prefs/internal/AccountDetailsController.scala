@@ -10,14 +10,14 @@ import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.auth.frontend.connectors.AuthConnector
-import uk.gov.hmrc.play.config.AuditConnector
+import uk.gov.hmrc.play.config.{FrontendAuthConnector, AuditConnector}
 import uk.gov.hmrc.play.frontend.auth.{Actions, User}
 
 import scala.concurrent.Future
 
 object AccountDetailsController extends AccountDetailsController {
   lazy val auditConnector = AuditConnector
-  lazy val authConnector = AuthConnector
+  lazy val authConnector = FrontendAuthConnector
   lazy val emailConnector = EmailConnector
   lazy val preferencesConnector = PreferencesConnector
 }

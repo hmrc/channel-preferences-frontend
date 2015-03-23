@@ -7,7 +7,7 @@ import play.api.mvc.Result
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
 import uk.gov.hmrc.play.auth.frontend.connectors.AuthConnector
-import uk.gov.hmrc.play.config.RunMode
+import uk.gov.hmrc.play.config.{FrontendAuthConnector, RunMode}
 import uk.gov.hmrc.play.frontend.auth.Actions
 
 import scala.concurrent.Future
@@ -15,7 +15,7 @@ import scala.concurrent.Future
 object ReminderWarningPartialController extends ReminderWarningPartialController {
   override def preferenceConnector: PreferencesConnector = PreferencesConnector
 
-  override protected implicit def authConnector: AuthConnector = AuthConnector
+  override protected implicit def authConnector: AuthConnector = FrontendAuthConnector
 }
 
 trait ReminderWarningPartialController

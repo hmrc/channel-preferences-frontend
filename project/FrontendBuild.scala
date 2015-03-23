@@ -1,7 +1,7 @@
-import play.PlayImport._
 import play.PlayImport.PlayKeys._
+import play.PlayImport._
 import sbt._
-import scala._
+
 import scala.util.Properties._
 
 object FrontendBuild extends Build with MicroService {
@@ -29,12 +29,13 @@ private object Dependencies {
   val requiredDependencies = Seq(
     ws,
     "uk.gov.hmrc"    %% "govuk-template" % "2.6.0",
-    "uk.gov.hmrc"    %% "play-frontend"  % "15.4.0",
+    "uk.gov.hmrc"    %% "play-frontend"  % "16.4.0",
+    "uk.gov.hmrc"    %% "play-authorisation"  % "0.8.0",
     "uk.gov.hmrc"    %% "play-health"    % "0.7.0",
     "uk.gov.hmrc"    %% "emailaddress"   % "0.2.0",
-    "uk.gov.hmrc"    %% "url-builder"    % "0.3.0",
+    "uk.gov.hmrc"    %% "url-builder"    % "0.6.0",
     "uk.gov.hmrc"    %% "crypto"         % "1.6.0",
-    "uk.gov.hmrc"    %% "play-ui"        % "1.5.0",
+    "uk.gov.hmrc"    %% "play-ui"        % "1.8.0",
     "com.netaporter" %% "scala-uri"      % "0.4.2",
 
     "org.jsoup"      %  "jsoup"       % jsoupVersion  % "test",

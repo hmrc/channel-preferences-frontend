@@ -42,6 +42,7 @@ trait MicroService {
       testGrouping in IntegrationTest := oneForkedJvmPerTest((definedTests in IntegrationTest).value),
       parallelExecution in IntegrationTest := false)
     .settings(SbtBuildInfo(): _*)
+    .settings(resolvers += Resolver.bintrayRepo("hmrc", "releases"))
 }
 
 private object TestPhases {
