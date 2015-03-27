@@ -36,6 +36,7 @@ private object Dependencies {
     "uk.gov.hmrc"    %% "url-builder"    % "0.7.0",
     "uk.gov.hmrc"    %% "crypto"         % "1.6.0",
     "uk.gov.hmrc"    %% "play-ui"        % "1.8.0",
+    "uk.gov.hmrc"    %% "a-b-test"       % "0.1.0",
     "com.netaporter" %% "scala-uri"      % "0.4.2",
 
     "org.jsoup"      %  "jsoup"       % jsoupVersion  % "test",

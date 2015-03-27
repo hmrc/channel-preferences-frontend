@@ -1,15 +1,15 @@
 package connectors
 
 
-import controllers.sa.prefs.internal.Cohort
+import controllers.sa.prefs.internal.OptInCohort
 import play.api.Logger
 import play.api.http.Status
 import play.api.libs.json._
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
 import uk.gov.hmrc.play.config.{ServicesConfig, WSHttp}
-import uk.gov.hmrc.play.http.{NotFoundException, _}
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
+import uk.gov.hmrc.play.http.{NotFoundException, _}
 
 import scala.concurrent.Future
 
@@ -37,7 +37,7 @@ trait PreferencesConnector extends Status {
     }
   }
 
-  def saveCohort(utr: SaUtr, cohort: Cohort)(implicit hc: HeaderCarrier): Future[Any] = {
+  def saveCohort(utr: SaUtr, cohort: OptInCohort)(implicit hc: HeaderCarrier): Future[Any] = {
 
     http.PUT(url(s"/a-b-testing/cohort/email-opt-in/sa/$utr"), Json.obj("cohort" -> cohort.name)).recover {
       case e: NotFoundException => Logger.warn("Cannot save cohort for opt-in-email")

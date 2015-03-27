@@ -12,6 +12,7 @@ import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import play.api.libs.json.JsString
 import play.api.test.{FakeApplication, FakeRequest, WithApplication}
+import uk.gov.hmrc.abtest.Cohorts
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
@@ -38,9 +39,9 @@ abstract class BizTaxPrefsControllerSetup
 
   val controller = new BizTaxPrefsController {
 
-    override def calculateCohort(user: User) = assignedCohort
-
-    override def calculate(hashCode: Int): OptInCohort = assignedCohort
+    def optInCohortCalculator: OptInCohortCalculator = new OptInCohortCalculator {
+      def cohorts: Cohorts[OptInCohort] = Cohorts(assignedCohort)
+    }
 
     override def preferencesConnector: PreferencesConnector = mockPreferencesConnector
 

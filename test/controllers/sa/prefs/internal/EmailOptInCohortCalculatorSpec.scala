@@ -1,15 +1,10 @@
 package controllers.sa.prefs.internal
 
-import config.{FrontendFilters, DefaultGlobal}
 import controllers.sa.prefs.AuthorityUtils._
-import controllers.sa.prefs.config.PreferencesGlobal
 import org.scalactic.Tolerance
 import org.scalatest.{Inspectors, LoneElement}
-import play.api.{Configuration, Application, Play}
 import play.api.test.{FakeApplication, WithApplication}
-import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.config.AuditConnector
+import uk.gov.hmrc.abtest.Cohorts
 import uk.gov.hmrc.play.frontend.auth.User
 import uk.gov.hmrc.play.test.UnitSpec
 
@@ -19,70 +14,35 @@ class EmailOptInCohortCalculatorSpec extends UnitSpec with Inspectors with Toler
 
   "Cohort value" should {
 
-    "always be the same for a given user" in new WithApplication(FakeApplication()) with CohortCalculator[OptInCohort] {
-      override val values: List[OptInCohort] = OptInCohort.values
+    "always be the same for a given user" in new WithApplication(FakeApplication()) with OptInCohortCalculator {
+      override val cohorts = Cohorts(FPage, HPage)
       val user = userWithSaUtr("1234567890")
-      val cohorts = (1 to 10) map { _ => calculateCohort(user)}
-      cohorts.toSet.loneElement should be(a[Cohort])
+      val calculatedCohorts = (1 to 10) map { _ => calculateCohort(user)}
+      calculatedCohorts.toSet.loneElement should be(a[OptInCohort])
     }
 
-    "return a default a cohort value for a user with no SA-UTR" in new WithApplication(FakeApplication()) with CohortCalculator[OptInCohort] {
-      override val values: List[OptInCohort] = OptInCohort.values
+    "return a default cohort value for a user with no SA-UTR" in new WithApplication(FakeApplication()) with OptInCohortCalculator {
+      override val cohorts = Cohorts(FPage, HPage)
+
       val user = userWithNoUtr
-      val cohorts = (1 to 10) map { _ => calculateCohort(user)}
-      cohorts.toSet.loneElement should be(FPage)
+      val calculatedCohorts = (1 to 10) map { _ => calculateCohort(user)}
+      calculatedCohorts.toSet.loneElement should be(FPage)
     }
 
-    "be evenly spread for given set of users" in new WithApplication(FakeApplication()) with CohortCalculator[OptInCohort] {
-      override val values: List[OptInCohort] = OptInCohort.values
+    "be evenly spread for given set of users" in new WithApplication(FakeApplication()) with OptInCohortCalculator {
+      override val cohorts = Cohorts(FPage, HPage)
 
       def generateRandomUtr(): String = (for {_ <- 1 to 10} yield Random.nextInt(8) + 1).mkString("")
 
       val sampleSize = 10000
       val utrs = ((1 to sampleSize) map (_ => generateRandomUtr())).distinct
 
-      val cohorts = utrs.map(userWithSaUtr).map(calculateCohort)
+      val calculatedCohorts = utrs.map(userWithSaUtr).map(calculateCohort)
 
-      val cohortCounts = cohorts.groupBy(c => c).mapValues(_.size)
+      val cohortCounts = calculatedCohorts.groupBy(c => c).mapValues(_.size)
 
-      forEvery(values.toSet) { possibleCohort =>
-        cohortCounts(possibleCohort) should be(sampleSize / values.size +- (sampleSize / 10))
-      }
-    }
-
-    "not return a disabled cohort" in new WithApplication(FakeApplication(additionalConfiguration = disabledCohorts)) with CohortCalculator[OptInCohort] {
-      override val values: List[OptInCohort] = OptInCohort.values
-
-      def generateRandomUtr(): String = (for {_ <- 1 to 10} yield Random.nextInt(8) + 1).mkString("")
-
-      val sampleSize = 100
-      val utrs = ((1 to sampleSize) map (_ => generateRandomUtr())).distinct
-
-      val cohorts = utrs.map(userWithSaUtr).map(calculateCohort)
-
-      forEvery(cohorts) { _ shouldBe FPage}
-    }
-  }
-
-  "The preference-frontend microservice" should {
-    "not start the app if all cohorts are disabled" in {
-
-      object OptInCohortCalculatorVerifier extends CohortCalculator[OptInCohort] {
-        override val values: List[OptInCohort] = OptInCohort.values
-      }
-
-      object PreferencesGlobalForTest extends PreferencesGlobal {
-        override val cohortCalculator = OptInCohortCalculatorVerifier
-
-        override def auditConnector: AuditConnector = ???
-
-        override def microserviceMetricsConfig(implicit app: Application): Option[Configuration] = None
-      }
-
-      intercept[RuntimeException] {
-        Play.start(FakeApplication(withGlobal = Some(PreferencesGlobalForTest),
-          additionalConfiguration = disabledCohorts ++ Map("abTesting.cohort.FPage.enabled" -> false)
-        ))
+      forEvery(cohorts.values) { possibleCohort =>
+        cohortCounts(possibleCohort) should be(sampleSize / cohorts.values.size +- (sampleSize / 10))
       }
     }
   }
