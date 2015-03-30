@@ -39,9 +39,7 @@ abstract class BizTaxPrefsControllerSetup
 
   val controller = new BizTaxPrefsController {
 
-    def optInCohortCalculator: OptInCohortCalculator = new OptInCohortCalculator {
-      def cohorts: Cohorts[OptInCohort] = Cohorts(assignedCohort)
-    }
+    def calculateCohort(user: User) = assignedCohort
 
     override def preferencesConnector: PreferencesConnector = mockPreferencesConnector
 

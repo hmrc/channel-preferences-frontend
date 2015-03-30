@@ -19,12 +19,11 @@ import uk.gov.hmrc.play.frontend.auth.{Actions, User}
 
 import scala.concurrent.Future
 
-object BizTaxPrefsController extends BizTaxPrefsController with AppName {
+object BizTaxPrefsController extends BizTaxPrefsController with AppName with OptInCohortCalculator {
 
   override val auditConnector = AuditConnector
   override val preferencesConnector = PreferencesConnector
   override val emailConnector = EmailConnector
-  override def optInCohortCalculator = OptInCohortCalculator
 
   override protected implicit def authConnector: AuthConnector = FrontendAuthConnector
 }
@@ -38,9 +37,8 @@ trait BizTaxPrefsController
   def preferencesConnector: PreferencesConnector
   def emailConnector: EmailConnector
   def auditConnector: AuditConnector
-  def optInCohortCalculator: OptInCohortCalculator
 
-  def calculateCohort(user: User) = optInCohortCalculator.calculateCohort(user)
+  def calculateCohort(user: User): OptInCohort
 
   def redirectToBTAOrInterstitialPage = AuthorisedFor(SaRegime).async {
     implicit user => implicit request => redirectToBTAOrInterstitialPageAction(user, request)
@@ -119,7 +117,7 @@ trait BizTaxPrefsController
     def saveAndAuditPreferences(utr:SaUtr, digital: Boolean, email: Option[String], acceptedTAndCs:Boolean, hc: HeaderCarrier):Future[Result] = {
       implicit val headerCarrier = hc
       for {
-        _ <- preferencesConnector.saveCohort(utr, optInCohortCalculator.calculate(utr))
+        _ <- preferencesConnector.saveCohort(utr, calculateCohort(user))
         _ <- preferencesConnector.savePreferences(utr, digital, email)
       } yield {
         auditChoice(utr, journey, cohort, digital, email,acceptedTAndCs)
