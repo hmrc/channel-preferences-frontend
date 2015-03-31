@@ -56,11 +56,11 @@ trait PreferencesControllerHelper {
       .verifying("email.confirmation.emails.unequal", formData => formData.email._1 == formData.email._2)
     )
 
-  def getSubmitPreferencesView(savePrefsCall: Call, cohort: Cohort)(implicit request: Request[AnyRef], withBanner: Boolean = false): Form[_] => HtmlFormat.Appendable = {
+  def getSubmitPreferencesView(savePrefsCall: Call, cohort: OptInCohort)(implicit request: Request[AnyRef], withBanner: Boolean = false): Form[_] => HtmlFormat.Appendable = {
     errors => views.html.sa.prefs.sa_printing_preference(withBanner, errors, savePrefsCall, cohort)
   }
 
-  def displayPreferencesFormAction(email: Option[EmailAddress], savePrefsCall: Call, withBanner: Boolean = false, cohort: Cohort)(implicit request: Request[AnyRef]) =
+  def displayPreferencesFormAction(email: Option[EmailAddress], savePrefsCall: Call, withBanner: Boolean = false, cohort: OptInCohort)(implicit request: Request[AnyRef]) =
     Ok(
       views.html.sa.prefs.sa_printing_preference(
         withBanner,

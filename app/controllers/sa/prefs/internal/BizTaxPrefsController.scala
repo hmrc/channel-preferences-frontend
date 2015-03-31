@@ -19,7 +19,7 @@ import uk.gov.hmrc.play.frontend.auth.{Actions, User}
 
 import scala.concurrent.Future
 
-object BizTaxPrefsController extends BizTaxPrefsController with AppName {
+object BizTaxPrefsController extends BizTaxPrefsController with AppName with OptInCohortCalculator {
 
   override val auditConnector = AuditConnector
   override val preferencesConnector = PreferencesConnector
@@ -32,14 +32,13 @@ trait BizTaxPrefsController
   extends BaseController
   with Actions
   with PreferencesControllerHelper
-  with CohortCalculator[OptInCohort]
   with AppName {
-
-  override val values = OptInCohort.values
 
   def preferencesConnector: PreferencesConnector
   def emailConnector: EmailConnector
   def auditConnector: AuditConnector
+
+  def calculateCohort(user: User): OptInCohort
 
   def redirectToBTAOrInterstitialPage = AuthorisedFor(SaRegime).async {
     implicit user => implicit request => redirectToBTAOrInterstitialPageAction(user, request)
@@ -49,11 +48,11 @@ trait BizTaxPrefsController
     implicit user => implicit request => redirectToPrefsFormWithCohort(emailAddress, user)
   }
 
-  def displayPrefsFormForCohort(cohort: Option[Cohort], emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(SaRegime).async {
+  def displayPrefsFormForCohort(cohort: Option[OptInCohort], emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(SaRegime).async {
     implicit user => implicit request => displayPrefsFormAction(emailAddress, cohort)
   }
 
-  def displayInterstitialPrefsFormForCohort(cohort: Option[Cohort]) = AuthorisedFor(SaRegime).async {
+  def displayInterstitialPrefsFormForCohort(cohort: Option[OptInCohort]) = AuthorisedFor(SaRegime).async {
     implicit user => implicit request => displayInterstitialPrefsFormAction(user, request, cohort)
   }
 
@@ -88,7 +87,7 @@ trait BizTaxPrefsController
     }
 
 
-  private[prefs] def displayInterstitialPrefsFormAction(implicit user: User, request: Request[AnyRef], possibleCohort: Option[Cohort]) = {
+  private[prefs] def displayInterstitialPrefsFormAction(implicit user: User, request: Request[AnyRef], possibleCohort: Option[OptInCohort]) = {
     implicit val hc = HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)
     val saUtr = user.userAuthority.accounts.sa.get.utr
     preferencesConnector.getPreferences(saUtr).flatMap {
@@ -103,7 +102,7 @@ trait BizTaxPrefsController
     }
   }
 
-  private[prefs] def displayPrefsFormAction(emailAddress: Option[Encrypted[EmailAddress]], possibleCohort: Option[Cohort])(implicit user: User, request: Request[AnyRef]) = {
+  private[prefs] def displayPrefsFormAction(emailAddress: Option[Encrypted[EmailAddress]], possibleCohort: Option[OptInCohort])(implicit user: User, request: Request[AnyRef]) = {
     val saUtr = user.userAuthority.accounts.sa.get.utr
     possibleCohort.fold(ifEmpty = Future.successful(redirectToPrefsFormWithCohort(emailAddress, user))) { cohort =>
       preferencesConnector.saveCohort(saUtr, calculateCohort(user)).map { case _ =>
@@ -118,7 +117,7 @@ trait BizTaxPrefsController
     def saveAndAuditPreferences(utr:SaUtr, digital: Boolean, email: Option[String], acceptedTAndCs:Boolean, hc: HeaderCarrier):Future[Result] = {
       implicit val headerCarrier = hc
       for {
-        _ <- preferencesConnector.saveCohort(utr, calculate(utr.hashCode))
+        _ <- preferencesConnector.saveCohort(utr, calculateCohort(user))
         _ <- preferencesConnector.savePreferences(utr, digital, email)
       } yield {
         auditChoice(utr, journey, cohort, digital, email,acceptedTAndCs)
@@ -145,7 +144,7 @@ trait BizTaxPrefsController
       getSavePrefsFromInterstitialCall
   }
 
-  private def auditPageShown(utr: SaUtr, journey: Journey, cohort: Cohort)(implicit request: Request[_], hc: HeaderCarrier) =
+  private def auditPageShown(utr: SaUtr, journey: Journey, cohort: OptInCohort)(implicit request: Request[_], hc: HeaderCarrier) =
     auditConnector.sendEvent(ExtendedDataEvent(
       auditSource = appName,
       auditType = EventTypes.Succeeded,
@@ -155,7 +154,7 @@ trait BizTaxPrefsController
         "journey" -> journey.toString,
         "cohort" -> cohort.toString))))
 
-  private def auditChoice(utr: SaUtr, journey: Journey, cohort: Cohort, digital: Boolean, emailOption: Option[String], acceptedTAndCs:Boolean)(implicit request: Request[_], hc: HeaderCarrier) =
+  private def auditChoice(utr: SaUtr, journey: Journey, cohort: OptInCohort, digital: Boolean, emailOption: Option[String], acceptedTAndCs:Boolean)(implicit request: Request[_], hc: HeaderCarrier) =
     auditConnector.sendEvent(ExtendedDataEvent(
       auditSource = appName,
       auditType = EventTypes.Succeeded,
