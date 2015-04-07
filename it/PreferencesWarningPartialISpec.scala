@@ -1,7 +1,9 @@
+import org.scalatest.BeforeAndAfterEach
 import uk.gov.hmrc.play.http.test.ResponseMatchers
 
 class PreferencesWarningPartialISpec
   extends PreferencesFrontEndServer
+  with BeforeAndAfterEach
   with ResponseMatchers {
 
   "partial html" should {
@@ -20,7 +22,7 @@ class PreferencesWarningPartialISpec
     "be not found if the user is de-enrolled" in new TestCaseWithFrontEndAuthentication {
       val email = uniqueEmail
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
-      `/portal/preferences/sa/individual`.postDeEnrolling(utr) should have(status(201))
+      `/portal/preferences/sa/individual`.postDeEnrolling(utr) should have(status(200))
 
       val response = `/account/preferences/warnings`.withHeaders(cookie).get()
 
@@ -56,7 +58,7 @@ class PreferencesWarningPartialISpec
     "have no warning if user then opts out" in new TestCaseWithFrontEndAuthentication {
       val email = uniqueEmail
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
-      `/portal/preferences/sa/individual`.postOptOut(utr) should have(status(201))
+      `/portal/preferences/sa/individual`.postOptOut(utr) should have(status(200))
 
       val response =`/account/preferences/warnings`.withHeaders(cookie).get()
 
@@ -68,7 +70,7 @@ class PreferencesWarningPartialISpec
     "have verification warning if user then changes email" in new TestCaseWithFrontEndAuthentication {
       val email = uniqueEmail
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
-      `/portal/preferences/sa/individual`.postPendingEmail(utr, changedUniqueEmail) should have(status(201))
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, changedUniqueEmail) should have(status(200))
 
       val response =`/account/preferences/warnings`.withHeaders(cookie).get()
 
@@ -119,7 +121,7 @@ class PreferencesWarningPartialISpec
       val email = uniqueEmail
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/preferences-admin/sa/bounce-email`.post(email) should have(status(204))
-      `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(200))
 
       val response =`/account/preferences/warnings`.withHeaders(cookie).get()
 
@@ -132,7 +134,7 @@ class PreferencesWarningPartialISpec
       val email = uniqueEmail
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/preferences-admin/sa/bounce-email`.post(email) should have(status(204))
-      `/portal/preferences/sa/individual`.postPendingEmail(utr, changedUniqueEmail) should have(status(201))
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, changedUniqueEmail) should have(status(200))
 
       val response =`/account/preferences/warnings`.withHeaders(cookie).get()
 
@@ -145,7 +147,7 @@ class PreferencesWarningPartialISpec
       val email = uniqueEmail
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/preferences-admin/sa/bounce-email`.post(email) should have(status(204))
-      `/portal/preferences/sa/individual`.postDeEnrolling(utr) should have(status(201))
+      `/portal/preferences/sa/individual`.postDeEnrolling(utr) should have(status(200))
 
       val response =`/account/preferences/warnings`.withHeaders(cookie).get()
 
@@ -156,8 +158,8 @@ class PreferencesWarningPartialISpec
       val email = uniqueEmail
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/preferences-admin/sa/bounce-email`.post(email) should have(status(204))
-      `/portal/preferences/sa/individual`.postDeEnrolling(utr) should have(status(201))
-      `/portal/preferences/sa/individual`.postOptOut(utr) should have(status(201))
+      `/portal/preferences/sa/individual`.postDeEnrolling(utr) should have(status(200))
+      `/portal/preferences/sa/individual`.postOptOut(utr) should have(status(200))
 
       val response =`/account/preferences/warnings`.withHeaders(cookie).get()
 
@@ -169,7 +171,7 @@ class PreferencesWarningPartialISpec
       val email = uniqueEmail
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/preferences-admin/sa/bounce-email`.post(email) should have(status(204))
-      `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(200))
       `/preferences-admin/sa/individual`.verifyEmailFor(utr) should have(status(204))
 
       val response =`/account/preferences/warnings`.withHeaders(cookie).get()
@@ -182,7 +184,7 @@ class PreferencesWarningPartialISpec
       val email = uniqueEmail
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/preferences-admin/sa/bounce-email`.post(email) should have(status(204))
-      `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(200))
       `/preferences-admin/sa/bounce-email-inbox-full`.post(email) should have(status(204))
 
       val response =`/account/preferences/warnings`.withHeaders(cookie).get()
@@ -219,5 +221,10 @@ class PreferencesWarningPartialISpec
       response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("true"))
       response.futureValue.body should include(s"There’s a problem with your Self Assessment email reminders")
     }
+  }
+
+  override def beforeEach() = {
+    val testCase = new TestCase()
+    testCase.`/preferences-admin/sa/individual`.deleteAll should have(status(200))
   }
 }

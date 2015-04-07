@@ -47,7 +47,7 @@ class AccountDetailPartialISpec
       val email = s"${UUID.randomUUID().toString}@email.com"
       val newEmail = s"${UUID.randomUUID().toString}@email.com"
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
-      `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(201))
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(200))
       val response = `/email-reminders-status`.withHeaders(cookie).get
       response should have(status(200))
       checkForChangedEmailDetailsInResponse(response.futureValue.body, email, newEmail, todayDate)
@@ -56,7 +56,7 @@ class AccountDetailPartialISpec
     "contain sign up details for a subsequent opt out" in new TestCase with TestCaseWithFrontEndAuthentication {
       val email = s"${UUID.randomUUID().toString}@email.com"
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
-      `/portal/preferences/sa/individual`.postOptOut(utr) should have(status(201))
+      `/portal/preferences/sa/individual`.postOptOut(utr) should have(status(200))
       val response = `/email-reminders-status`.withHeaders(cookie).get
       response should have(status(200))
       response.futureValue.body should(
@@ -72,7 +72,7 @@ class AccountDetailPartialISpec
       val newEmail = s"${UUID.randomUUID().toString}@email.com"
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/preferences-admin/sa/individual`.verifyEmailFor(utr) should have(status(204))
-      `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(201))
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(200))
       val response = `/email-reminders-status`.withHeaders(cookie).get
       response should have(status(200))
       checkForChangedEmailDetailsInResponse(response.futureValue.body, email, newEmail, todayDate)
@@ -82,7 +82,7 @@ class AccountDetailPartialISpec
       val email = s"${UUID.randomUUID().toString}@email.com"
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/preferences-admin/sa/individual`.verifyEmailFor(utr) should have(status(204))
-      `/portal/preferences/sa/individual`.postOptOut(utr) should have(status(201))
+      `/portal/preferences/sa/individual`.postOptOut(utr) should have(status(200))
       val response = `/email-reminders-status`.withHeaders(cookie).get
       response should have(status(200))
       response.futureValue.body should(
@@ -98,7 +98,7 @@ class AccountDetailPartialISpec
       val newEmail = s"${UUID.randomUUID().toString}@email.com"
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/preferences-admin/sa/bounce-email`.post(email) should have(status(204))
-      `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(201))
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(200))
       val response = `/email-reminders-status`.withHeaders(cookie).get
       response should have(status(200))
       checkForChangedEmailDetailsInResponse(response.futureValue.body, email, newEmail, todayDate)
@@ -108,7 +108,7 @@ class AccountDetailPartialISpec
       val email = s"${UUID.randomUUID().toString}@email.com"
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/preferences-admin/sa/bounce-email`.post(email) should have(status(204))
-      `/portal/preferences/sa/individual`.postOptOut(utr) should have(status(201))
+      `/portal/preferences/sa/individual`.postOptOut(utr) should have(status(200))
       val response = `/email-reminders-status`.withHeaders(cookie).get
       response should have(status(200))
       response.futureValue.body should(

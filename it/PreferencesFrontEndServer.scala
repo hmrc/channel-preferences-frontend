@@ -1,22 +1,18 @@
 import java.util.UUID
 
-import org.jsoup.Jsoup
 import play.api.Play.current
 import play.api.http.HeaderNames
 import play.api.libs.json.Json
-import play.api.libs.ws.{WS, WSResponse}
-import play.api.mvc.{Session, Cookie, Cookies}
+import play.api.libs.ws.WS
 import play.api.mvc.Results.EmptyContent
-import uk.gov.hmrc.crypto.{PlainText, ApplicationCrypto}
+import play.api.mvc.{Cookie, Cookies, Session}
+import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
-import uk.gov.hmrc.play.http.test.ResponseMatchers
 import uk.gov.hmrc.play.it.{ExternalService, MicroServiceEmbeddedServer, ServiceSpec}
 import uk.gov.hmrc.test.it.BearerTokenHelper
 import uk.gov.hmrc.time.DateTimeUtils
 import views.sa.prefs.helpers.DateFormat
-
-import scala.concurrent.Future
 
 trait TestUser {
   def userId = "SA0055"
@@ -25,46 +21,6 @@ trait TestUser {
 
   def utr = "1555369043"
 }
-
-//trait UserAuthentication extends BearerTokenHelper with PreferencesFrontEndServer with ResponseMatchers with TestUser {
-//
-//  implicit val hc = HeaderCarrier()
-//
-//  def authResource(path: String) = server.externalResource("auth", path)
-//
-//  def authToken = AuthorisationHeader(Some(createBearerTokenFor(SaUtr(utr))))
-//
-//  def authenticationCookie(userId: String, password: String) = {
-//    def cookieFrom(response: Future[WSResponse]) = {
-//      HeaderNames.COOKIE -> response.futureValue.header(HeaderNames.SET_COOKIE).getOrElse(throw new IllegalStateException("Failed to set auth cookie"))
-//    }
-//
-//    def csrfTokenAndAuthenticateUrlFrom(accountSignInResponse: Future[WSResponse]): (String, String) = {
-//      val form = Jsoup.parse(accountSignInResponse.futureValue.body).getElementsByTag("form").first
-//      val csrfToken: String = form.getElementsByAttributeValue("name", "csrfToken").first.attr("value")
-//      csrfToken should not be empty
-//      (form.attr("action"), csrfToken)
-//    }
-//
-//    val accountSignInResponse = `/account/sign-in`
-//    accountSignInResponse should have(status(200))
-//
-//    val (authenticateUrl: String, csrfToken: String) = csrfTokenAndAuthenticateUrlFrom(accountSignInResponse)
-//
-//    val loginResponse = WS.url(server.externalResource("ca-frontend", authenticateUrl))
-//      .withHeaders(cookieFrom(accountSignInResponse))
-//      .post(Map("csrfToken" -> csrfToken, "userId" -> userId, "password" -> password).mapValues(Seq(_)))
-//
-//    cookieFrom(loginResponse)
-//  }
-//
-//  def `/account/sign-in` = WS.url(server.externalResource("ca-frontend", "/account/sign-in")).get()
-//
-//  case class AuthorisationHeader(value: Option[String]) {
-//    def asHeader: Seq[(String, String)] = value.fold(Seq.empty[(String, String)])(v => Seq(HeaderNames.AUTHORIZATION -> v))
-//  }
-//
-//}
 
 trait PreferencesFrontEndServer extends ServiceSpec {
   protected val server = new PreferencesFrontendIntegrationServer("AccountDetailPartialISpec")
@@ -88,7 +44,7 @@ trait PreferencesFrontEndServer extends ServiceSpec {
 
     def uniqueEmail = s"${UUID.randomUUID().toString}@email.com"
 
-    def changedUniqueEmail = s"${UUID.randomUUID().toString}@email.com"
+    def changedUniqueEmail = uniqueEmail
 
     def `/email-reminders-status` = WS.url(resource("/account/account-details/sa/email-reminders-status"))
 

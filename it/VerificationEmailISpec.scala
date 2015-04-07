@@ -1,15 +1,9 @@
 import EmailSupport.Email
 import org.scalatest.concurrent.Eventually
-import org.scalatest.matchers.{Matcher, HavePropertyMatchResult, HavePropertyMatcher}
+import org.scalatest.matchers.{HavePropertyMatchResult, HavePropertyMatcher, Matcher}
 import play.api.Play.current
-import play.api.http.HeaderNames
 import play.api.libs.json.Json
-import play.api.libs.ws.{WSResponse, WS}
-import play.api.mvc.{Session, Cookie, Cookies}
-import uk.gov.hmrc.crypto.{PlainText, ApplicationCrypto}
-import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.play.audit.http.HeaderCarrier
-import uk.gov.hmrc.test.it.BearerTokenHelper
+import play.api.libs.ws.{WS, WSResponse}
 
 import scala.concurrent.Future
 
@@ -42,9 +36,7 @@ class VerificationEmailISpec
         have(bodyWith("Email address verified")) and
         have(bodyWith("You’re now signed up for Self Assessment email reminders.")) and
         have(bodyWith("Sign into your HMRC online account")) and
-        have(bodyWith( """href="https://online.hmrc.gov.uk""""))
-        )
-
+        have(bodyWith( """href="https://online.hmrc.gov.uk"""")))
     }
 
     "display expiry message if the link has expired" in new VerificationEmailTestCase {
@@ -62,9 +54,7 @@ class VerificationEmailISpec
         have(bodyWith("This link has expired")) and
         have(bodyWith("Sign into your HMRC online account")) and
         have(bodyWith( """href="https://online.hmrc.gov.uk"""")) and
-        have(bodyWith("go to 'Your details' to request a new verification link"))
-        )
-
+        have(bodyWith("go to 'Your details' to request a new verification link")))
     }
 
     "display already verified message if the email has been verified already" in new VerificationEmailTestCase {
@@ -83,9 +73,7 @@ class VerificationEmailISpec
         have(bodyWith("Email address already verified")) and
         have(bodyWith("Your email address has already been verified.")) and
         have(bodyWith("Sign into your HMRC online account")) and
-        have(bodyWith( """href="https://online.hmrc.gov.uk""""))
-        )
-
+        have(bodyWith( """href="https://online.hmrc.gov.uk"""")))
     }
 
     "display expired old email address message if verification link is not valid due to opt out" in new VerificationEmailTestCase {
@@ -95,11 +83,10 @@ class VerificationEmailISpec
       withReceivedEmails(1) { case List(mail) =>
         mail should have(
           'to(Some(email)),
-          'subject("Self Assessment reminders: verify your email address")
-        )
+          'subject("Self Assessment reminders: verify your email address"))
       }
 
-      `/portal/preferences/sa/individual`.postOptOut(utr) should have(status(201))
+      `/portal/preferences/sa/individual`.postOptOut(utr) should have(status(200))
 
       `/sa/print-preferences/verification`.verify(verificationTokenFromEmail()) should beForAnExpiredOldEmail
     }
@@ -121,7 +108,7 @@ class VerificationEmailISpec
 
       clearEmails()
 
-      `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(201))
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(200))
       withReceivedEmails(2) { emails =>
         emails.flatMap(_.to) should contain(newEmail)
       }
@@ -142,7 +129,7 @@ class VerificationEmailISpec
       val verificationTokenFromFirstEmail = verificationTokenFromEmail()
       `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should have(status(200))
 
-      `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(201))
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(200))
 
       `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should beForAnExpiredOldEmail
     }
@@ -157,7 +144,7 @@ class VerificationEmailISpec
 
       val verificationTokenFromFirstEmail = verificationTokenFromEmail()
 
-      `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(201))
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(200))
 
       `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should beForAnExpiredOldEmail
     }
@@ -173,7 +160,7 @@ class VerificationEmailISpec
       val verificationTokenFromFirstEmail = verificationTokenFromEmail()
       clearEmails()
 
-      `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(201))
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(200))
 
       aVerificationEmailIsReceivedFor(newEmail)
 
@@ -197,9 +184,9 @@ class VerificationEmailISpec
 
       `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should have(status(200))
 
-      `/portal/preferences/sa/individual`.postPendingEmail(utr, secondEmail) should have(status(201))
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, secondEmail) should have(status(200))
       clearEmails()
-      `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(201))
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(200))
 
       withReceivedEmails(2) { emails =>
         emails.flatMap(_.to) should contain(newEmail)
@@ -224,9 +211,9 @@ class VerificationEmailISpec
 
       `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should have(status(200))
 
-      `/portal/preferences/sa/individual`.postPendingEmail(utr, secondEmail) should have(status(201))
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, secondEmail) should have(status(200))
 
-      `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(201))
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(200))
 
       `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should beForAnExpiredOldEmail
     }
