@@ -47,14 +47,7 @@ trait PreferencesConnector extends Status {
   def getEmailAddress(utr: SaUtr)(implicit hc: HeaderCarrier) = {
     implicit val rds: Reads[Option[String]] = (__ \ "email").readNullable((__ \ "email").read[String])
 
-    implicit val readOptionOf: HttpReads[Option[String]] = new HttpReads[Option[String]] {
-      def read(method: String, url: String, response: HttpResponse) = response.status match {
-        case 204 | 404 | 410 => None
-        case _ => HttpReads.readFromJson[Option[String]].read(method, url, response)
-      }
-    }
-
-    http.GET[Option[String]](url(s"/portal/preferences/sa/individual/$utr/print-suppression"))
+    http.GET[Option[String]](url(s"/portal/preferences/sa/individual/$utr/print-suppression/verified-email-address"))
   }
 
   def updateEmailValidationStatusUnsecured(token: String)(implicit hc: HeaderCarrier): Future[EmailVerificationLinkResponse.Value] = {
