@@ -19,6 +19,12 @@ object PreferencesConnector extends PreferencesConnector with ServicesConfig {
   override def http = WSHttp
 }
 
+case class Email(email: String)
+
+object Email {
+  implicit val readsEmail = Json.reads[Email]
+}
+
 trait PreferencesConnector extends Status {
 
   def http: HttpGet with HttpPost with HttpPut
@@ -44,11 +50,9 @@ trait PreferencesConnector extends Status {
     }
   }
 
-  def getEmailAddress(utr: SaUtr)(implicit hc: HeaderCarrier) = {
-    implicit val rds: Reads[Option[String]] = (__ \ "email").readNullable((__ \ "email").read[String])
-
-    http.GET[Option[String]](url(s"/portal/preferences/sa/individual/$utr/print-suppression/verified-email-address"))
-  }
+  def getEmailAddress(utr: SaUtr)(implicit hc: HeaderCarrier) =
+    http.GET[Option[Email]](url(s"/portal/preferences/sa/individual/$utr/print-suppression/verified-email-address"))
+      .map(_.map(_.email))
 
   def updateEmailValidationStatusUnsecured(token: String)(implicit hc: HeaderCarrier): Future[EmailVerificationLinkResponse.Value] = {
     responseToEmailVerificationLinkStatus(http.POST[ValidateEmail](url("/preferences/sa/verify-email"), ValidateEmail(token)))
@@ -59,7 +63,7 @@ trait PreferencesConnector extends Status {
       .recover {
       case Upstream4xxResponse(_, GONE, _, _) => EmailVerificationLinkResponse.Expired
       case Upstream4xxResponse(_, CONFLICT, _, _) => EmailVerificationLinkResponse.WrongToken
-      case (_:Upstream4xxResponse |_: NotFoundException |_:BadRequestException) => EmailVerificationLinkResponse.Error
+      case (_: Upstream4xxResponse | _: NotFoundException | _: BadRequestException) => EmailVerificationLinkResponse.Error
     }
   }
 

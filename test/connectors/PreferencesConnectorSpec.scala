@@ -86,24 +86,9 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
 
   "The getEmailAddress method" should {
     "return None for a 404" in {
-      val preferenceConnector = preferencesConnector(Future.successful(HttpResponse(404)))
+      val preferenceConnector = preferencesConnector(Future.successful(
+        HttpResponse(responseStatus = 404, responseJson = Some(Json.obj("reason" -> "EMAIL_ADDRESS_NOT_VERIFIED")))))
       preferenceConnector.getEmailAddress(SaUtr("1")).futureValue should be (None)
-    }
-
-    "return None for a 410" in {
-      val preferenceConnector = preferencesConnector(Future.successful(HttpResponse(410)))
-      preferenceConnector.getEmailAddress(SaUtr("1")).futureValue should be (None)
-    }
-
-    "return None when there is not an email preference" in {
-      val preferenceConnector = preferencesConnector(Future.successful(HttpResponse(200, Some(Json.parse(
-        """
-          |{
-          |  "digital": false
-          |}
-        """.stripMargin)))))
-      val address = preferenceConnector.getEmailAddress(SaUtr("1"))
-      address.futureValue should be (None)
     }
 
     "return Error for other status code" in {
@@ -113,11 +98,8 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
 
     "return an email address when there is an email preference" in {
       val preferenceConnector = preferencesConnector(Future.successful(HttpResponse(200, Some(Json.parse(
-        """
-          |{
-          |  "email": {
-          |    "email" : "a@b.com"
-          |  }
+        """{
+          |  "email" : "a@b.com"
           |}
         """.stripMargin)))))
       preferenceConnector.getEmailAddress(SaUtr("1")).futureValue should be (Some("a@b.com"))
