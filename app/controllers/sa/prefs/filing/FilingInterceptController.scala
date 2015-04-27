@@ -11,12 +11,12 @@ import play.api.mvc._
 import uk.gov.hmrc.crypto.PlainText
 import uk.gov.hmrc.emailaddress.EmailAddress
 
-class FilingInterceptController(whiteList: Set[String], preferencesConnector: PreferencesConnector, emailConnector: EmailConnector) extends BaseController {
+class FilingInterceptController(whiteList: Set[String], preferencesConnector: PreferencesConnector) extends BaseController {
 
   implicit val wl = whiteList
   implicit val config = UriConfig(encoder = percentEncode)
 
-  def this() = this(FrontEndConfig.redirectDomainWhiteList, PreferencesConnector, EmailConnector)
+  def this() = this(FrontEndConfig.redirectDomainWhiteList, PreferencesConnector)
 
   def redirectWithEmailAddress(encryptedToken: String, encodedReturnUrl: String, emailAddressToPrefill: Option[Encrypted[EmailAddress]]) =
     DecodeAndWhitelist(encodedReturnUrl) { returnUrl =>

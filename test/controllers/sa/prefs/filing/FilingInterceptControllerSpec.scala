@@ -2,7 +2,7 @@ package controllers.sa.prefs.filing
 
 import java.net.URLEncoder.{encode => urlEncode}
 
-import connectors.{EmailConnector, PreferencesConnector}
+import connectors.PreferencesConnector
 import controllers.sa.Encrypted
 import org.joda.time.{DateTime, DateTimeZone}
 import org.mockito.Matchers.{eq => meq, _}
@@ -89,8 +89,7 @@ class FilingInterceptControllerSpec extends WordSpec with ShouldMatchers with Mo
     implicit def toPlainText(plaintext: String): PlainText =  PlainText(plaintext)
 
     val preferencesConnector = mock[PreferencesConnector]
-    val emailConnector = mock[EmailConnector]
-    val controller = new FilingInterceptController(whiteList = Set("localhost"), preferencesConnector, emailConnector)
+    val controller = new FilingInterceptController(whiteList = Set("localhost"), preferencesConnector)
 
     val emailAddress = "foo@bar.com"
     val validUtr = SaUtr("1234567")
