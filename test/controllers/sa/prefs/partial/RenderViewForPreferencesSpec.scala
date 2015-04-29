@@ -2,12 +2,13 @@ package controllers.sa.prefs.partial
 
 import connectors.{SaEmailPreference, SaPreference}
 import controllers.sa.prefs.partial.homepage.RenderViewForPreferences
+import helpers.ConfigHelper
 import org.joda.time.LocalDate
 import play.api.mvc.Results
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
-class RenderViewForPreferencesSpec extends UnitSpec with Results with WithFakeApplication{
-
+class RenderViewForPreferencesSpec extends UnitSpec with Results with WithFakeApplication {
+  override lazy val fakeApplication = ConfigHelper.fakeApp
   val preferencesWarningView = new RenderViewForPreferences {}
 
   "rendering of preferences warnings" should {

@@ -1,0 +1,31 @@
+@(title: String,
+  sidebarLinks: Option[Html] = None,
+  contentHeader: Option[Html] = None,
+  bodyClasses: Option[String] = None,
+  mainClass: Option[String] = None)(mainContent: Html)(implicit authContext: Option[uk.gov.hmrc.play.frontend.auth.AuthContext] = None, request : Request[_])
+
+@import uk.gov.hmrc.play.views.html.layouts
+
+
+@serviceInfoContent = {
+    @if(authContext.exists(_.user.previouslyLoggedInAt.isDefined)) {
+        @includes.last_sign_in(authContext.get.user.previouslyLoggedInAt.get, authContext.get.principal.name)
+    }
+}
+
+@sidebar = {
+    @if(sidebarLinks.isDefined) {
+        @layouts.sidebar(sidebarLinks.get, Some("sidebar"))
+    }
+}
+
+
+@govuk_wrapper(appConfig = controllers.sa.prefs.config.YtaConfig,
+               title = title,
+               mainClass = mainClass,
+               bodyClasses = bodyClasses,
+               sidebar = sidebar,
+               contentHeader = contentHeader,
+               mainContent = layouts.article(mainContent),
+               serviceInfoContent = serviceInfoContent)
+

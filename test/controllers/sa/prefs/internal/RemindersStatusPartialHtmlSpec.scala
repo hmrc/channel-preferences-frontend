@@ -4,13 +4,14 @@ import connectors.SaEmailPreference.Status
 import connectors.{PreferencesConnector, SaEmailPreference, SaPreference}
 import controllers.sa.prefs.AuthorityUtils._
 import controllers.sa.prefs.partial.accountdetails.ReminderStatusPartialHtml
+import helpers.ConfigHelper
 import org.joda.time.LocalDate
 import org.scalatest.concurrent.ScalaFutures
 import play.api.test.FakeRequest
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
-import uk.gov.hmrc.play.frontend.auth.User
+import uk.gov.hmrc.play.frontend.auth.AuthContext
 import uk.gov.hmrc.play.http.test.WithHeaderCarrier
 import uk.gov.hmrc.play.http.{HttpGet, HttpPost, HttpPut}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
@@ -18,12 +19,13 @@ import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import scala.concurrent.Future
 
 class RemindersStatusPartialHtmlSpec extends UnitSpec with WithHeaderCarrier with WithFakeApplication with ScalaFutures {
+  override lazy val fakeApplication = ConfigHelper.fakeApp
 
   "Reminders Partial Html" should {
     val utr = "1234567890"
     implicit val hc = new HeaderCarrier()
     implicit val request = FakeRequest("GET", "/portal/sa/123456789")
-    implicit val saUser = User(userId = "userId", userAuthority = saAuthority("userId", utr))
+    implicit val saUser = AuthContext(authority = saAuthority("userId", utr))
 
     "contain pending email details in content when opted-in and unverified" in new TestCase {
       val emailPreferences = SaEmailPreference(email = "test@test.com",

@@ -1,13 +1,9 @@
 @(showBanner:Boolean,emailForm: Form[_], submitPrefsFormAction: Call)(implicit request: Request[_])
 
-@import views.helpers.HeaderNav
 @import uk.gov.hmrc.urls.Link
 @import uk.gov.hmrc.play.views.html.helpers._
 
-@gaScript() = {
-}
-
-@main(title = Messages(s"sa_printing_preference.fg_page.title"), headerNav = if (showBanner) Some(views.html.YtaHeaderNav()) else None, headScripts = Some(gaScript())) {
+@main(title = Messages(s"sa_printing_preference.fg_page.title")) {
 
     <header class="page-header">
         <h1>@Messages(s"sa_printing_preference.fg_page.heading")</h1>

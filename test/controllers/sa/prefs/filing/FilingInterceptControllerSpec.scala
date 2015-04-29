@@ -4,6 +4,7 @@ import java.net.URLEncoder.{encode => urlEncode}
 
 import connectors.PreferencesConnector
 import controllers.sa.Encrypted
+import helpers.ConfigHelper
 import org.joda.time.{DateTime, DateTimeZone}
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
@@ -24,6 +25,7 @@ import scala.concurrent.Future
 class FilingInterceptControllerSpec extends WordSpec with ShouldMatchers with MockitoSugar with BeforeAndAfter with ScalaFutures with OptionValues with WithFakeApplication {
 
   import play.api.test.Helpers._
+  override lazy val fakeApplication = ConfigHelper.fakeApp
 
   "Preferences pages" should {
     "redirect to the portal when no preference exists for a specific utr" in new TestCase {

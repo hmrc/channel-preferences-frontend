@@ -3,23 +3,22 @@ package controllers.sa.prefs.internal
 import connectors.{EmailConnector, PreferencesConnector, SaEmailPreference, SaPreference}
 import controllers.sa.Encrypted
 import controllers.sa.prefs.AuthorityUtils._
+import helpers.ConfigHelper
 import org.jsoup.Jsoup
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import play.api.test.Helpers._
-import play.api.test.{FakeApplication, FakeRequest, WithApplication}
+import play.api.test.{FakeRequest, WithApplication}
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.auth.frontend.connectors.AuthConnector
-import uk.gov.hmrc.play.frontend.auth.User
+import uk.gov.hmrc.play.frontend.auth.AuthContext
+import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 
-abstract class Setup extends WithApplication(FakeApplication(additionalConfiguration = Map(
-    "govuk-tax.Test.services.contact-frontend.host" -> "localhost",
-    "govuk-tax.Test.services.contact-frontend.port" -> "9250"))) with MockitoSugar {
+abstract class Setup extends WithApplication(ConfigHelper.fakeApp) with MockitoSugar {
   val mockAuditConnector = mock[AuditConnector]
   val mockAuthConnector = mock[AuthConnector]
   val mockPreferencesConnector = mock[PreferencesConnector]
@@ -39,7 +38,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
   import org.mockito.Matchers.{any, eq => is}
 
   val validUtr = SaUtr("1234567890")
-  val user = User(userId = "userId", userAuthority = saAuthority("userId", "1234567890"), nameFromGovernmentGateway = Some("Ciccio"), decryptedToken = None)
+  val user = AuthContext(authority = saAuthority("userId", "1234567890"), nameFromSession = Some("Ciccio"), governmentGatewayToken = None)
 
   "clicking on Change email address link in the account details page" should {
     "display update email address form when accessed from Account Details" in new Setup {

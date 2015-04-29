@@ -7,7 +7,7 @@ import play.api.http.Status
 import play.api.libs.json._
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
-import uk.gov.hmrc.play.config.{ServicesConfig, WSHttp}
+import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import uk.gov.hmrc.play.http.{NotFoundException, _}
 
@@ -16,7 +16,7 @@ import scala.concurrent.Future
 object PreferencesConnector extends PreferencesConnector with ServicesConfig {
   override val serviceUrl = baseUrl("preferences")
 
-  override def http = WSHttp
+  override def http = HttpVerbs
 }
 
 case class Email(email: String)
@@ -55,7 +55,7 @@ trait PreferencesConnector extends Status {
       .map(_.map(_.email))
 
   def updateEmailValidationStatusUnsecured(token: String)(implicit hc: HeaderCarrier): Future[EmailVerificationLinkResponse.Value] = {
-    responseToEmailVerificationLinkStatus(http.POST[ValidateEmail](url("/preferences/sa/verify-email"), ValidateEmail(token)))
+    responseToEmailVerificationLinkStatus(http.POST(url("/preferences/sa/verify-email"), ValidateEmail(token)))
   }
 
   private[connectors] def responseToEmailVerificationLinkStatus(response: Future[HttpResponse])(implicit hc: HeaderCarrier) = {

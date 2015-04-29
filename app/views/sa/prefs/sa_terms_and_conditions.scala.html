@@ -1,14 +1,13 @@
 @()(implicit request: Request[_])
 @import uk.gov.hmrc.urls.Link
-@import controllers.common.service.FrontEndConfig._
 
-@main(title = "Self Assessment terms and conditions", sidebarLinks = Some(sidebarLinks), footerLinks=None) {
+@main(title = "Self Assessment terms and conditions", sidebarLinks = Some(sidebarLinks)) {
 
     <header class="page-header">
         <h1 id="success-heading">@Messages("sa_printing_preference.tc.heading")</h1>
     </header>
 
-    <div class="application-notice help-notice" style="background: url(@{assetsUrl}@{assetsVersion}/images/icons/icon-important.png) no-repeat scroll 0 0.5em">
+    <div class="application-notice help-notice" style="background: url(@{controllers.sa.prefs.ExternalUrls.assets}/images/icons/icon-important.png) no-repeat scroll 0 0.5em">
         <p style="margin-top: 0.15em; padding-left: 1.2em">@Messages("sa_printing_preference.tc.extract.1") <a id="full-terms-link" href="https://online.hmrc.gov.uk/information/terms">@Messages("sa_printing_preference.tc.extract.2")</a> @Messages("sa_printing_preference.tc.extract.3")</p>
     </div>
 

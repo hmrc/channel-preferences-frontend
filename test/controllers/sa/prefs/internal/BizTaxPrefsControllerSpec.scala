@@ -5,6 +5,7 @@ import controllers.sa.Encrypted
 import controllers.sa.prefs.AuthorityUtils._
 import controllers.sa.prefs.ExternalUrls
 import controllers.sa.prefs.internal.EmailOptInJourney._
+import helpers.ConfigHelper
 import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers._
@@ -12,24 +13,18 @@ import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import play.api.libs.json.JsString
 import play.api.test.{FakeApplication, FakeRequest, WithApplication}
-import uk.gov.hmrc.abtest.Cohorts
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.{EventTypes, ExtendedDataEvent}
-import uk.gov.hmrc.play.auth.frontend.connectors.AuthConnector
-import uk.gov.hmrc.play.frontend.auth.User
+import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
+import uk.gov.hmrc.play.frontend.auth.AuthContext
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 
 
-abstract class BizTaxPrefsControllerSetup
-  extends WithApplication(FakeApplication(additionalConfiguration = Map(
-      "govuk-tax.Test.services.contact-frontend.host" -> "localhost",
-      "govuk-tax.Test.services.contact-frontend.port" -> "9250")))
-  with MockitoSugar {
-
+abstract class BizTaxPrefsControllerSetup extends WithApplication(ConfigHelper.fakeApp) with MockitoSugar {
   def assignedCohort: OptInCohort = FPage
 
   val mockAuditConnector = mock[AuditConnector]
@@ -39,7 +34,7 @@ abstract class BizTaxPrefsControllerSetup
 
   val controller = new BizTaxPrefsController {
 
-    def calculateCohort(user: User) = assignedCohort
+    def calculateCohort(user: AuthContext) = assignedCohort
 
     override def preferencesConnector: PreferencesConnector = mockPreferencesConnector
 
@@ -60,7 +55,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
   import play.api.test.Helpers._
 
   val validUtr = SaUtr("1234567890")
-  val user = User(userId = "userId", userAuthority = saAuthority("userId", "1234567890"), nameFromGovernmentGateway = Some("Ciccio"), decryptedToken = None)
+  val user = AuthContext(authority = saAuthority("userId", "1234567890"), nameFromSession = Some("Ciccio"), governmentGatewayToken = None)
 
   "The preferences action on login" should {
 

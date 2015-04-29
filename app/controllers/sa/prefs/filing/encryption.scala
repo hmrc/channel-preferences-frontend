@@ -4,12 +4,13 @@ import java.net.URLDecoder
 
 import com.netaporter.uri.Uri
 import com.netaporter.uri.dsl._
-import controllers.common.service.FrontEndConfig
 import org.joda.time.{DateTime, DateTimeZone}
-import play.api.Logger
+import play.api.{Play, Logger}
+import play.api.Play.current
 import play.api.mvc.{Action, AnyContent, Request, Results}
-import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.crypto._
+import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.play.config.RunMode
 
 import scala.concurrent.Future
 
@@ -42,11 +43,13 @@ private[filing] trait TokenEncryption extends Decrypter {
 
 private[filing] object TokenEncryption extends TokenEncryption with CompositeSymmetricCrypto with KeysFromConfig
 
-private[filing] object DecryptAndValidate extends Results {
+private[filing] object DecryptAndValidate extends Results with RunMode {
+  private lazy val tokenTimeout = Play.configuration.getInt(s"govuk-tax.$env.portal.tokenTimeout").getOrElse(240)
+
   def apply(encryptedToken: String, returnUrl: Uri)(action: Token => (Action[AnyContent])) = Action.async {
     request: Request[AnyContent] =>
       try {
-        implicit val token = TokenEncryption.decryptToken(encryptedToken, FrontEndConfig.tokenTimeout)
+        implicit val token = TokenEncryption.decryptToken(encryptedToken, tokenTimeout)
         action(token)(request)
       } catch {
         case e: TokenExpiredException =>

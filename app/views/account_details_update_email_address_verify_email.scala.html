@@ -1,11 +1,11 @@
-@(emailAddress: String)(implicit user: uk.gov.hmrc.play.frontend.auth.User, request : Request[_])
+@(emailAddress: String)(implicit context: Option[uk.gov.hmrc.play.frontend.auth.AuthContext], request : Request[_])
 
 @import uk.gov.hmrc.urls.Link
 @import controllers.sa.Encrypted
 @import uk.gov.hmrc.emailaddress.EmailAddress
 @import uk.gov.hmrc.play.views.html.helpers._
 
-@main(title = "Your Details - Check your email address is correct", headerNav = Some(views.html.YtaHeaderNav()), userLoggedIn = true) {
+@main(title = "Your Details - Check your email address is correct") {
 
     <header class="page-header">
         <h1>@Messages("bt.account.yourdetails")</h1>
