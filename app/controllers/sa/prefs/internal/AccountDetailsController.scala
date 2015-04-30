@@ -5,7 +5,7 @@ import connectors.{EmailConnector, PreferencesConnector, SaPreference}
 import controllers.sa.Encrypted
 import controllers.sa.prefs.AuthContextAvailability._
 import controllers.sa.prefs.config.Global
-import controllers.sa.prefs.{AuthContextAvailability, EmailFormData}
+import controllers.sa.prefs.{SaRegime, AuthContextAvailability, EmailFormData}
 import play.api.mvc.{Request, Result}
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
@@ -37,23 +37,23 @@ trait AccountDetailsController
   val emailConnector: EmailConnector
   val preferencesConnector: PreferencesConnector
 
-  def changeEmailAddress(emailAddress: Option[Encrypted[EmailAddress]]) = AuthenticatedBy(ValidSessionCredentialsProvider, redirectToOrigin = true).async {
+  def changeEmailAddress(emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(SaRegime).async {
     authContext => request => changeEmailAddressPage(emailAddress)(authContext, request)
   }
 
-  def submitEmailAddress = AuthenticatedBy(ValidSessionCredentialsProvider, redirectToOrigin = true).async {
+  def submitEmailAddress = AuthorisedFor(SaRegime).async {
     authContext => request => submitEmailAddressPage(authContext, request)
   }
 
-  def emailAddressChangeThankYou() = AuthenticatedBy(ValidSessionCredentialsProvider, redirectToOrigin = true).async {
+  def emailAddressChangeThankYou() = AuthorisedFor(SaRegime).async {
     authContext => request => emailAddressChangeThankYouPage(authContext, request)
   }
 
-  def optOutOfEmailReminders = AuthenticatedBy(ValidSessionCredentialsProvider, redirectToOrigin = true).async {
+  def optOutOfEmailReminders = AuthorisedFor(SaRegime).async {
     authContext => request => optOutOfEmailRemindersPage(authContext, request)
   }
 
-  def confirmOptOutOfEmailReminders = AuthenticatedBy(ValidSessionCredentialsProvider, redirectToOrigin = true).async {
+  def confirmOptOutOfEmailReminders = AuthorisedFor(SaRegime).async {
     authContext => request => confirmOptOutOfEmailRemindersPage(authContext, request)
   }
 
@@ -62,7 +62,7 @@ trait AccountDetailsController
       Future(Ok(views.html.opted_back_into_paper_thank_you()))
   }
 
-  def resendValidationEmail() = AuthenticatedBy(ValidSessionCredentialsProvider, redirectToOrigin = true).async {
+  def resendValidationEmail() = AuthorisedFor(SaRegime).async {
     authContext => request => resendValidationEmailAction(authContext, request)
   }
 

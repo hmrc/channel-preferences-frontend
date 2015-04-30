@@ -1,5 +1,6 @@
 package controllers.sa.prefs.internal
 
+import authentication.ValidSessionCredentialsProvider
 import connectors.{EmailConnector, PreferencesConnector}
 import controllers.sa.Encrypted
 import controllers.sa.prefs.ExternalUrls.businessTaxHome
