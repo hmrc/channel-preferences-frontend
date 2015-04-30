@@ -1,9 +1,9 @@
-@(emailAddress: uk.gov.hmrc.emailaddress.ObfuscatedEmailAddress)(implicit user: uk.gov.hmrc.play.frontend.auth.User, request : Request[_])
+@(emailAddress: uk.gov.hmrc.emailaddress.ObfuscatedEmailAddress)(implicit context: Option[uk.gov.hmrc.play.frontend.auth.AuthContext], request : Request[_])
 
 @import uk.gov.hmrc.urls.Link
 @import uk.gov.hmrc.play.views.html.helpers._
 
-@main(title = "Your details - Stop your Self Assessment email reminders", headerNav = Some(views.html.YtaHeaderNav()), userLoggedIn = true) {
+@main(title = "Your details - Stop your Self Assessment email reminders") {
 
 
 <header class="page-header">

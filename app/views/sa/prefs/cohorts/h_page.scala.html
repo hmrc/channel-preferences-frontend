@@ -3,10 +3,7 @@
 @import uk.gov.hmrc.urls.Link
 @import uk.gov.hmrc.play.views.html.helpers._
 
-@gaScript = {
-}
-
-@main(title = Messages(s"sa_printing_preference.h_page.heading"), headerNav = if (showBanner) Some(views.html.YtaHeaderNav()) else None, headScripts = Some(gaScript)) {
+@main(title = Messages(s"sa_printing_preference.h_page.heading")) {
 
     <header class="page-header">
         <h1>@Messages(s"sa_printing_preference.h_page.heading")</h1>

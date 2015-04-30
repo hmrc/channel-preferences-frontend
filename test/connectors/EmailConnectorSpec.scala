@@ -9,7 +9,7 @@ import uk.gov.hmrc.play.test._
 
 import scala.concurrent.Future
 
-class EmailConnectorSpec extends UnitSpec with ScalaFutures with WithFakeApplication {
+class EmailConnectorSpec extends UnitSpec with ScalaFutures {
 
   implicit val hc = HeaderCarrier()
 

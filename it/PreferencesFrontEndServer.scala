@@ -10,7 +10,7 @@ import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
 import uk.gov.hmrc.play.it.{ExternalService, MicroServiceEmbeddedServer, ServiceSpec}
-import uk.gov.hmrc.test.it.BearerTokenHelper
+import uk.gov.hmrc.test.it.{FrontendCookieHelper, BearerTokenHelper}
 import uk.gov.hmrc.time.DateTimeUtils
 import views.sa.prefs.helpers.DateFormat
 
@@ -93,7 +93,7 @@ trait PreferencesFrontEndServer extends ServiceSpec {
     }
   }
 
-  trait TestCaseWithFrontEndAuthentication extends TestCase with BearerTokenHelper {
+  trait TestCaseWithFrontEndAuthentication extends TestCase with BearerTokenHelper with FrontendCookieHelper {
 
     implicit val hc = HeaderCarrier()
 
@@ -107,8 +107,7 @@ trait PreferencesFrontEndServer extends ServiceSpec {
       "userId" -> "/auth/oid/system-assumes-valid-oid"
     )
 
-    lazy val cookie = HeaderNames.COOKIE ->
-      Cookies.encode(Seq(Cookie("mdtp", ApplicationCrypto.SessionCookieCryptoDeprecated.encrypt(PlainText(Session.encode(keyValues))).value)))
+    lazy val cookie = cookieFor(createBearerTokenFor(SaUtr(utr)).futureValue)
   }
 
 }

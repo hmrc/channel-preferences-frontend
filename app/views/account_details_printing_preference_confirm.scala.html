@@ -1,8 +1,8 @@
-@(user: Option[uk.gov.hmrc.play.frontend.auth.User], redirectUrl: String, cohort: controllers.sa.prefs.internal.OptInCohort, email: Option[uk.gov.hmrc.emailaddress.EmailAddress])(implicit request: Request[_])
+@(redirectUrl: String, cohort: controllers.sa.prefs.internal.OptInCohort, email: Option[uk.gov.hmrc.emailaddress.EmailAddress])(implicit request: Request[_])
 
 @import uk.gov.hmrc.urls.Link
 
-@main(title = Messages("sa_printing_preference_confirm.title"), headerNav = Some(views.html.YtaHeaderNav()), userLoggedIn = user.isDefined) {
+@main(title = Messages("sa_printing_preference_confirm.title")){
 
 <header class="page-header">
     <h1>@Messages("sa_printing_preference_confirm.heading")</h1>

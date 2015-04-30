@@ -1,20 +1,21 @@
 package controllers.sa.prefs.external
 
+import connectors.{EmailVerificationLinkResponse, PreferencesConnector}
 import helpers.ConfigHelper
+import org.jsoup.Jsoup
+import org.mockito.Matchers.{any, eq => meq}
+import org.mockito.Mockito._
 import org.scalatest._
 import org.scalatest.mock.MockitoSugar
-import org.mockito.Mockito._
-import org.mockito.Matchers.{any, eq => meq}
 import play.api.test.Helpers._
-import play.api.test.{FakeApplication, WithApplication, FakeRequest}
-import org.jsoup.Jsoup
-import scala.concurrent.Future
+import play.api.test.{FakeRequest, WithApplication}
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
-import connectors.{EmailVerificationLinkResponse, PreferencesConnector}
+
+import scala.concurrent.Future
 
 class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar {
 
-  import EmailVerificationLinkResponse._
+  import connectors.EmailVerificationLinkResponse._
 
   def createController = new EmailValidationController {
     override lazy val preferencesMicroService = mock[PreferencesConnector]

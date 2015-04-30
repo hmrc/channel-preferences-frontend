@@ -1,7 +1,7 @@
 package controllers.sa.prefs
 
-import uk.gov.hmrc.play.config.RunMode
 import play.api.Play
+import uk.gov.hmrc.play.config.RunMode
 
 object ExternalUrls extends RunMode {
   import play.api.Play.current
@@ -20,4 +20,7 @@ object ExternalUrls extends RunMode {
 
   val loginCallback           = Play.configuration.getString(s"govuk-tax.$env.login-callback.url").getOrElse(businessTaxHome)
   val signIn                  = s"$caUrlPrefix/account/sign-in?continue=$loginCallback"
+
+  val assets                  = Play.configuration.getString(s"govuk-tax.$env.assets.url").getOrElse(throw new RuntimeException("no assets url set")) +
+                                Play.configuration.getString(s"govuk-tax.$env.assets.version").getOrElse(throw new RuntimeException("no assets version set"))
 }

@@ -2,18 +2,18 @@ package controllers.sa.prefs
 
 import play.api.Logger
 import play.api.mvc.{AnyContent, Request, Result, Results}
-import uk.gov.hmrc.play.auth.frontend.connectors.domain.Accounts
+import uk.gov.hmrc.play.frontend.auth.connectors.domain.Accounts
 import uk.gov.hmrc.play.frontend.auth.{UserCredentials, GovernmentGateway, TaxRegime}
 
 import scala.concurrent.Future
 
 object SaRegime extends TaxRegime {
 
-  def isAuthorised(accounts: Accounts) = accounts.sa.isDefined
-
   val authenticationType = new GovernmentGateway {
     lazy val login: String = ExternalUrls.signIn
   }
+
+  override def isAuthorised(accounts: Accounts): Boolean = accounts.sa.isDefined
 }
 
 

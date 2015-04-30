@@ -9,7 +9,6 @@ import uk.gov.hmrc.play.test.{WithFakeApplication, UnitSpec}
 import views.html.sa.prefs.sa_printing_preference
 
 class SaPrintingPreferenceViewSpec extends UnitSpec with PreferencesControllerHelper with WithFakeApplication {
-
   override lazy val fakeApplication = ConfigHelper.fakeApp
 
   "preference print template" should {

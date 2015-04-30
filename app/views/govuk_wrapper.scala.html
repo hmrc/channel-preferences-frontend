@@ -1,0 +1,69 @@
+@(appConfig: controllers.sa.prefs.config.AppConfig,
+  title: String,
+  mainClass: Option[String] = None,
+  mainDataAttributes: Option[Html] = None,
+  bodyClasses: Option[String] = None,
+  sidebar: Html = HtmlFormat.empty,
+  contentHeader: Option[Html] = None,
+  mainContent: Html = HtmlFormat.empty,
+  serviceInfoContent: Html = HtmlFormat.empty)(implicit request: Request[_])
+
+@import layouts.{govuk_template => hmrcGovUkTemplate}
+@import uk.gov.hmrc.play.views.html.{layouts => uiLayouts}
+
+@head = {
+    @uiLayouts.head(
+      assetsPrefix = appConfig.assetsPrefix,
+      linkElem = None,
+      headScripts = None)
+    <meta name="format-detection" content="telephone=no" />
+}
+
+@insideHeader = {
+    @uiLayouts.header_nav(
+      navTitle = Some("Your tax account"),
+      navTitleLink = None,
+      showBetaLink = false,
+      navLinks = Some(includes.yta_header_nav_links()))
+}
+
+@afterHeader = {}
+
+@bodyEnd = {
+    @uiLayouts.footer(
+      analyticsToken = Some(appConfig.analyticsToken),
+      analyticsHost = appConfig.analyticsHost,
+      assetsPrefix = appConfig.assetsPrefix,
+      ssoUrl = None,
+      scriptElem = None,
+      gaCalls = None)
+}
+
+@footerTop = {}
+@footerLinks = {}
+
+@betaBanner = {
+    @uiLayouts.betaBanner(
+      userLoggedIn = true,
+      betaFeedbackUrl = appConfig.betaFeedbackUrl,
+      betaFeedbackUnauthenticatedUrl = appConfig.betaFeedbackUnauthenticatedUrl,
+      showFeedbackLinkInBetaBanner = true)
+}
+
+@serviceInfo = {
+    @uiLayouts.serviceInfo(
+      betaBanner = betaBanner,
+      includeGridWrapper = false,
+      serviceInfoContent = Some(serviceInfoContent))
+}
+
+@content = {
+    @uiLayouts.main_content(
+      article = mainContent,
+      mainClass = mainClass,
+      mainDataAttributes = mainDataAttributes,
+      serviceInfo = serviceInfo,
+      sidebar = sidebar)
+}
+
+@hmrcGovUkTemplate(Some(title), bodyClasses)(head, bodyEnd, insideHeader, afterHeader, footerTop, Some(uiLayouts.footer_links()), true)(content)

@@ -1,8 +1,8 @@
-@(emailAddress: uk.gov.hmrc.emailaddress.ObfuscatedEmailAddress)(implicit user: uk.gov.hmrc.play.frontend.auth.User, request: Request[_])
+@(emailAddress: uk.gov.hmrc.emailaddress.ObfuscatedEmailAddress)(implicit context: Option[uk.gov.hmrc.play.frontend.auth.AuthContext], request: Request[_])
 
 @import uk.gov.hmrc.urls.Link
 
-@main(title = "Account details - Verify your new email address", headerNav = Some(views.html.YtaHeaderNav()), userLoggedIn = true) {
+@main(title = "Account details - Verify your new email address") {
 
     <header class="page-header">
         <h1>@Messages("bt.account.yourdetails")</h1>

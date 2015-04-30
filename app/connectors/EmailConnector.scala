@@ -2,10 +2,11 @@ package connectors
 
 import java.net.URLEncoder
 
+import controllers.sa.prefs.config.Global
 import play.api.libs.json._
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.config.{AppName, AuditConnector, ServicesConfig}
+import uk.gov.hmrc.play.config.{AppName, ServicesConfig}
 import uk.gov.hmrc.play.http.HttpGet
 import uk.gov.hmrc.play.http.ws.WSGet
 
@@ -22,5 +23,5 @@ trait EmailConnector extends HttpGet with ServicesConfig with AppName {
 object EmailConnector extends EmailConnector with WSGet {
   val serviceUrl = baseUrl("email")
 
-  override def auditConnector: AuditConnector = AuditConnector
+  override def auditConnector: AuditConnector = Global.auditConnector
 }

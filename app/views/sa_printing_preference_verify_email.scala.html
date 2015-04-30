@@ -1,11 +1,11 @@
-@(emailAddress: String, cohort: controllers.sa.prefs.internal.OptInCohort)(implicit user: uk.gov.hmrc.play.frontend.auth.User, request : Request[_])
+@(emailAddress: String, cohort: controllers.sa.prefs.internal.OptInCohort)(implicit context: Option[uk.gov.hmrc.play.frontend.auth.AuthContext], request : Request[_])
 
 @import uk.gov.hmrc.urls.Link
 @import controllers.sa.Encrypted
 @import uk.gov.hmrc.emailaddress.EmailAddress
 @import uk.gov.hmrc.play.views.html.helpers._
 
-@main(title = "Check your email is correct", userLoggedIn = true) {
+@main(title = "Your Details - Check your email address") {
 
     <header class="page-header">
        <h1>@Messages(s"sa_printing_preference.title")</h1>

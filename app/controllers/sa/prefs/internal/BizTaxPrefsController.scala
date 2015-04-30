@@ -1,10 +1,10 @@
 package controllers.sa.prefs.internal
 
 import connectors.{EmailConnector, PreferencesConnector}
-import controllers.common.BaseController
 import controllers.sa.Encrypted
 import controllers.sa.prefs.ExternalUrls.businessTaxHome
 import controllers.sa.prefs._
+import controllers.sa.prefs.config.Global
 import controllers.sa.prefs.internal.EmailOptInJourney._
 import play.api.libs.json.Json
 import play.api.mvc._
@@ -13,23 +13,25 @@ import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.{EventTypes, ExtendedDataEvent}
-import uk.gov.hmrc.play.auth.frontend.connectors.AuthConnector
-import uk.gov.hmrc.play.config.{FrontendAuthConnector, AppName, AuditConnector}
-import uk.gov.hmrc.play.frontend.auth.{Actions, User}
+import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
+import uk.gov.hmrc.play.config.AppName
+import uk.gov.hmrc.play.frontend.auth.{Actions, AuthContext}
+import uk.gov.hmrc.play.frontend.controller.FrontendController
+import AuthContextAvailability._
 
 import scala.concurrent.Future
 
 object BizTaxPrefsController extends BizTaxPrefsController with AppName with OptInCohortCalculator {
 
-  override val auditConnector = AuditConnector
+  override val auditConnector = Global.auditConnector
   override val preferencesConnector = PreferencesConnector
   override val emailConnector = EmailConnector
 
-  override protected implicit def authConnector: AuthConnector = FrontendAuthConnector
+  override protected implicit def authConnector: AuthConnector = Global.authConnector
 }
 
 trait BizTaxPrefsController
-  extends BaseController
+  extends FrontendController
   with Actions
   with PreferencesControllerHelper
   with AppName {
@@ -38,14 +40,14 @@ trait BizTaxPrefsController
   def emailConnector: EmailConnector
   def auditConnector: AuditConnector
 
-  def calculateCohort(user: User): OptInCohort
+  def calculateCohort(authContext: AuthContext): OptInCohort
 
   def redirectToBTAOrInterstitialPage = AuthorisedFor(SaRegime).async {
     implicit user => implicit request => redirectToBTAOrInterstitialPageAction(user, request)
   }
 
   def displayPrefsForm(emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(SaRegime) {
-    implicit user => implicit request => redirectToPrefsFormWithCohort(emailAddress, user)
+    implicit authContext => implicit request => redirectToPrefsFormWithCohort(emailAddress, authContext)
   }
 
   def displayPrefsFormForCohort(cohort: Option[OptInCohort], emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(SaRegime).async {
@@ -65,36 +67,36 @@ trait BizTaxPrefsController
   }
 
   def thankYou(emailAddress: Option[controllers.sa.prefs.EncryptedEmail]) = AuthorisedFor(SaRegime) {
-    implicit user => implicit request =>
-      Ok(views.html.account_details_printing_preference_confirm(Some(user), businessTaxHome, calculateCohort(user), emailAddress.map(_.decryptedValue)))
+    implicit authContext => implicit request =>
+      Ok(views.html.account_details_printing_preference_confirm(businessTaxHome, calculateCohort(authContext), emailAddress.map(_.decryptedValue)))
   }
 
   def termsAndConditions() = AuthorisedFor(SaRegime).async {
     implicit user => implicit request => termsAndConditionsPage()
   }
 
-  def termsAndConditionsPage()(implicit request: Request[AnyRef], user: User) : Future[Result] =
+  def termsAndConditionsPage()(implicit request: Request[AnyRef], authContext: AuthContext) : Future[Result] =
     Future.successful(Ok(views.html.sa.prefs.sa_terms_and_conditions()))
 
   val getSavePrefsFromInterstitialCall = controllers.sa.prefs.internal.routes.BizTaxPrefsController.submitPrefsFormForInterstitial()
   val getSavePrefsFromNonInterstitialPageCall = controllers.sa.prefs.internal.routes.BizTaxPrefsController.submitPrefsFormForNonInterstitial()
 
 
-  private[prefs] def redirectToBTAOrInterstitialPageAction(implicit user: User, request: Request[AnyRef]) =
-    preferencesConnector.getPreferences(user.userAuthority.accounts.sa.get.utr)(HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)).map {
+  private[prefs] def redirectToBTAOrInterstitialPageAction(implicit authContext: AuthContext, request: Request[AnyRef]) =
+    preferencesConnector.getPreferences(authContext.principal.accounts.sa.get.utr)(HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)).map {
         case Some(saPreference) => Redirect(businessTaxHome)
-      case None => redirectToInterstitialPageWithCohort(user)
+      case None => redirectToInterstitialPageWithCohort(authContext)
     }
 
 
-  private[prefs] def displayInterstitialPrefsFormAction(implicit user: User, request: Request[AnyRef], possibleCohort: Option[OptInCohort]) = {
+  private[prefs] def displayInterstitialPrefsFormAction(implicit authContext: AuthContext, request: Request[AnyRef], possibleCohort: Option[OptInCohort]) = {
     implicit val hc = HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)
-    val saUtr = user.userAuthority.accounts.sa.get.utr
+    val saUtr = authContext.principal.accounts.sa.get.utr
     preferencesConnector.getPreferences(saUtr).flatMap {
       case Some(saPreference) => Future.successful(Redirect(businessTaxHome))
       case None =>
-        possibleCohort.fold(ifEmpty = Future.successful(redirectToInterstitialPageWithCohort(user))) { cohort =>
-          preferencesConnector.saveCohort(saUtr, calculateCohort(user)).map { case _ =>
+        possibleCohort.fold(ifEmpty = Future.successful(redirectToInterstitialPageWithCohort(authContext))) { cohort =>
+          preferencesConnector.saveCohort(saUtr, calculateCohort(authContext)).map { case _ =>
             auditPageShown(saUtr, Interstitial, cohort)
             displayPreferencesFormAction(None, getSavePrefsFromInterstitialCall, cohort = cohort)
           }
@@ -102,22 +104,22 @@ trait BizTaxPrefsController
     }
   }
 
-  private[prefs] def displayPrefsFormAction(emailAddress: Option[Encrypted[EmailAddress]], possibleCohort: Option[OptInCohort])(implicit user: User, request: Request[AnyRef]) = {
-    val saUtr = user.userAuthority.accounts.sa.get.utr
-    possibleCohort.fold(ifEmpty = Future.successful(redirectToPrefsFormWithCohort(emailAddress, user))) { cohort =>
-      preferencesConnector.saveCohort(saUtr, calculateCohort(user)).map { case _ =>
+  private[prefs] def displayPrefsFormAction(emailAddress: Option[Encrypted[EmailAddress]], possibleCohort: Option[OptInCohort])(implicit authContext: AuthContext, request: Request[AnyRef]) = {
+    val saUtr = authContext.principal.accounts.sa.get.utr
+    possibleCohort.fold(ifEmpty = Future.successful(redirectToPrefsFormWithCohort(emailAddress, authContext))) { cohort =>
+      preferencesConnector.saveCohort(saUtr, calculateCohort(authContext)).map { case _ =>
         auditPageShown(saUtr, AccountDetails, cohort)
         displayPreferencesFormAction(emailAddress.map(_.decryptedValue), getSavePrefsFromNonInterstitialPageCall, withBanner = true, cohort)
       }
     }
   }
 
-  private[prefs] def submitPrefsFormAction(journey: Journey)(implicit user: User, request: Request[AnyRef], withBanner: Boolean = false) = {
-    val cohort = calculateCohort(user)
+  private[prefs] def submitPrefsFormAction(journey: Journey)(implicit authContext: AuthContext, request: Request[AnyRef], withBanner: Boolean = false) = {
+    val cohort = calculateCohort(authContext)
     def saveAndAuditPreferences(utr:SaUtr, digital: Boolean, email: Option[String], acceptedTAndCs:Boolean, hc: HeaderCarrier):Future[Result] = {
       implicit val headerCarrier = hc
       for {
-        _ <- preferencesConnector.saveCohort(utr, calculateCohort(user))
+        _ <- preferencesConnector.saveCohort(utr, calculateCohort(authContext))
         _ <- preferencesConnector.savePreferences(utr, digital, email)
       } yield {
         auditChoice(utr, journey, cohort, digital, email,acceptedTAndCs)
@@ -132,7 +134,7 @@ trait BizTaxPrefsController
       errorsView = getSubmitPreferencesView(getSavePrefFormAction, cohort),
       emailWarningView = views.html.sa_printing_preference_verify_email(_, cohort),
       emailConnector = emailConnector,
-      saUtr = user.userAuthority.accounts.sa.get.utr,
+      saUtr = authContext.principal.accounts.sa.get.utr,
       savePreferences = saveAndAuditPreferences
     )
   }
@@ -167,10 +169,10 @@ trait BizTaxPrefsController
         "userConfirmedReadTandCs" -> acceptedTAndCs.toString,
         "email" -> emailOption.getOrElse("")))))
 
-  private def redirectToInterstitialPageWithCohort(user: User) =
-    Redirect(routes.BizTaxPrefsController.displayInterstitialPrefsFormForCohort(Some(calculateCohort(user))))
+  private def redirectToInterstitialPageWithCohort(authContext: AuthContext) =
+    Redirect(routes.BizTaxPrefsController.displayInterstitialPrefsFormForCohort(Some(calculateCohort(authContext))))
 
-  private def redirectToPrefsFormWithCohort(emailAddress: Option[Encrypted[EmailAddress]], user: User) =
-    Redirect(routes.BizTaxPrefsController.displayPrefsFormForCohort(Some(calculateCohort(user)), emailAddress))
+  private def redirectToPrefsFormWithCohort(emailAddress: Option[Encrypted[EmailAddress]], authContext: AuthContext) =
+    Redirect(routes.BizTaxPrefsController.displayPrefsFormForCohort(Some(calculateCohort(authContext)), emailAddress))
 }
 
