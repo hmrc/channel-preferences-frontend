@@ -1,16 +1,13 @@
 import java.util.UUID
 
 import play.api.Play.current
-import play.api.http.HeaderNames
 import play.api.libs.json.Json
 import play.api.libs.ws.WS
 import play.api.mvc.Results.EmptyContent
-import play.api.mvc.{Cookie, Cookies, Session}
-import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
 import uk.gov.hmrc.play.it.{ExternalService, MicroServiceEmbeddedServer, ServiceSpec}
-import uk.gov.hmrc.test.it.{FrontendCookieHelper, BearerTokenHelper}
+import uk.gov.hmrc.test.it.{BearerTokenHelper, FrontendCookieHelper}
 import uk.gov.hmrc.time.DateTimeUtils
 import views.sa.prefs.helpers.DateFormat
 

@@ -1,24 +1,25 @@
-package controllers.sa.prefs.config
+package uk.gov.hmrc.messagerenderer.config
 
+import play.api.Play
 import uk.gov.hmrc.play.audit.filters.FrontendAuditFilter
+import uk.gov.hmrc.play.audit.http.config.LoadAuditingConfig
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.config.AppName
+import uk.gov.hmrc.play.config.{AppName, RunMode}
 import uk.gov.hmrc.play.http.logging.filters.FrontendLoggingFilter
 
-object FrontendFilters {
+object FrontendFilters extends RunMode {
+
+  import play.api.Play.current
 
   val LoggingFilter = new FrontendLoggingFilter {
-    override def controllerNeedsLogging(controllerName: String) = true
+    override def controllerNeedsLogging(controllerName: String) = Play.configuration.getBoolean(s"controllers.$controllerName.needsLogging").getOrElse(true)
   }
 
   val AuditFilter = new FrontendAuditFilter with AppName {
+    val maskedFormFields = Seq()
+    val applicationPort = None
+    val auditConnector = AuditConnector(LoadAuditingConfig(s"$env.auditing"))
 
-    override def maskedFormFields: Seq[String] = Seq()
-
-    override def applicationPort: Option[Int] = None
-
-    override def auditConnector: AuditConnector = Global.auditConnector
-
-    override def controllerNeedsAuditing(controllerName: String) = true
+    def controllerNeedsAuditing(controllerName: String) = Play.configuration.getBoolean(s"controllers.$controllerName.needsAuditing").getOrElse(true)
   }
 }
