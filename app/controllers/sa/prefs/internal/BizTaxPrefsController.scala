@@ -1,5 +1,6 @@
 package controllers.sa.prefs.internal
 
+import authentication.ValidSessionCredentialsProvider
 import connectors.{EmailConnector, PreferencesConnector}
 import controllers.sa.Encrypted
 import controllers.sa.prefs.ExternalUrls.businessTaxHome
@@ -13,10 +14,11 @@ import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.{EventTypes, ExtendedDataEvent}
-import uk.gov.hmrc.play.config.AppName
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
+import uk.gov.hmrc.play.config.AppName
 import uk.gov.hmrc.play.frontend.auth.{Actions, AuthContext}
 import uk.gov.hmrc.play.frontend.controller.FrontendController
+import AuthContextAvailability._
 
 import scala.concurrent.Future
 

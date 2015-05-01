@@ -6,6 +6,7 @@ import play.api.mvc.Request
 import play.api.{Application, Configuration}
 import play.twirl.api.Html
 import uk.gov.hmrc.crypto.ApplicationCrypto
+import uk.gov.hmrc.messagerenderer.config.FrontendFilters
 import uk.gov.hmrc.play.audit.filters.FrontendAuditFilter
 import uk.gov.hmrc.play.audit.http.config.LoadAuditingConfig
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
