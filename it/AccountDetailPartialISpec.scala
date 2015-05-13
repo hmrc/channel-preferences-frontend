@@ -14,18 +14,13 @@ class AccountDetailPartialISpec
       `/email-reminders-status`.get should have(status(401))
     }
 
-    //TODO: Fix this one
-//    "return not authorised when not enrolled in SA" in new TestCase {
-//      `/email-reminders-status`.withHeaders(authenticationCookie(userId = "643212300020", password)).get should have (status(401))
-//    }
-
     "return opted out details when no preference is set" in new TestCaseWithFrontEndAuthentication {
       private val request = `/email-reminders-status`.withHeaders(cookie)
-      val response = request.get
+      val response = request.get()
       response should have(status(200))
       response.futureValue.body should (
         include("Self Assessment email reminders") and
-          not include ("You need to verify")
+          not include "You need to verify"
         )
     }
   }
@@ -36,11 +31,9 @@ class AccountDetailPartialISpec
       val email = s"${UUID.randomUUID().toString}@email.com"
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
 
-      val response = `/email-reminders-status`.withHeaders(cookie).get
+      val response = `/email-reminders-status`.withHeaders(cookie).get()
       response should have(status(200))
-      response.futureValue.body should (
-        include(s"You need to verify")
-        )
+      response.futureValue.body should include(s"You need to verify")
     }
 
     "contain new email details for a subsequent change email" in new TestCaseWithFrontEndAuthentication {
@@ -48,7 +41,7 @@ class AccountDetailPartialISpec
       val newEmail = s"${UUID.randomUUID().toString}@email.com"
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(200))
-      val response = `/email-reminders-status`.withHeaders(cookie).get
+      val response = `/email-reminders-status`.withHeaders(cookie).get()
       response should have(status(200))
       checkForChangedEmailDetailsInResponse(response.futureValue.body, email, newEmail, todayDate)
     }
@@ -57,10 +50,10 @@ class AccountDetailPartialISpec
       val email = s"${UUID.randomUUID().toString}@email.com"
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/portal/preferences/sa/individual`.postOptOut(utr) should have(status(200))
-      val response = `/email-reminders-status`.withHeaders(cookie).get
+      val response = `/email-reminders-status`.withHeaders(cookie).get()
       response should have(status(200))
-      response.futureValue.body should(
-        not include(email) and
+      response.futureValue.body should (
+        not include email and
           include(s"Sign up for Self Assessment email reminders"))
     }
   }
@@ -73,7 +66,7 @@ class AccountDetailPartialISpec
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/preferences-admin/sa/individual`.verifyEmailFor(utr) should have(status(204))
       `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(200))
-      val response = `/email-reminders-status`.withHeaders(cookie).get
+      val response = `/email-reminders-status`.withHeaders(cookie).get()
       response should have(status(200))
       checkForChangedEmailDetailsInResponse(response.futureValue.body, email, newEmail, todayDate)
     }
@@ -83,10 +76,10 @@ class AccountDetailPartialISpec
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/preferences-admin/sa/individual`.verifyEmailFor(utr) should have(status(204))
       `/portal/preferences/sa/individual`.postOptOut(utr) should have(status(200))
-      val response = `/email-reminders-status`.withHeaders(cookie).get
+      val response = `/email-reminders-status`.withHeaders(cookie).get()
       response should have(status(200))
-      response.futureValue.body should(
-        not include(email) and
+      response.futureValue.body should (
+        not include email and
           include(s"Sign up for Self Assessment email reminders"))
     }
   }
@@ -99,7 +92,7 @@ class AccountDetailPartialISpec
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/preferences-admin/sa/bounce-email`.post(email) should have(status(204))
       `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(200))
-      val response = `/email-reminders-status`.withHeaders(cookie).get
+      val response = `/email-reminders-status`.withHeaders(cookie).get()
       response should have(status(200))
       checkForChangedEmailDetailsInResponse(response.futureValue.body, email, newEmail, todayDate)
     }
@@ -109,10 +102,10 @@ class AccountDetailPartialISpec
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/preferences-admin/sa/bounce-email`.post(email) should have(status(204))
       `/portal/preferences/sa/individual`.postOptOut(utr) should have(status(200))
-      val response = `/email-reminders-status`.withHeaders(cookie).get
+      val response = `/email-reminders-status`.withHeaders(cookie).get()
       response should have(status(200))
-      response.futureValue.body should(
-        not include(email) and
+      response.futureValue.body should (
+        not include email and
           include(s"Sign up for Self Assessment email reminders"))
     }
 
@@ -126,9 +119,9 @@ class AccountDetailPartialISpec
   def checkForChangedEmailDetailsInResponse(response: String, oldEmail: String, newEmail: String, currentFormattedDate: String) = {
     response should (
       include(s"You need to verify your email address with HMRC") and
-      include(newEmail) and
-      not include(oldEmail) and
-      include(s"on $currentFormattedDate. Click on the link in the email to verify your email address."))
+        include(newEmail) and
+        not include oldEmail and
+        include(s"on $currentFormattedDate. Click on the link in the email to verify your email address."))
   }
 
 }

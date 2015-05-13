@@ -13,7 +13,7 @@ object ValidSessionCredentialsProvider extends AuthenticationProvider with Resul
     Future.successful(Unauthorized)
 
   def handleNotAuthenticated(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]) = {
-    case UserCredentials(None, token@_) =>
+    case UserCredentials(None, token) =>
       Logger.info(s"No userId found - unauthorized. user: None token : $token")
       Future.successful(Right(Unauthorized))
     case UserCredentials(Some(userId), None) =>
