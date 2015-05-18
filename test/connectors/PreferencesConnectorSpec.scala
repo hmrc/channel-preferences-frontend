@@ -4,7 +4,7 @@ import helpers.ConfigHelper
 import org.scalatest.concurrent.ScalaFutures
 import play.api.libs.json.{Json, Writes}
 import play.api.test.WithApplication
-import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.config.AppName
@@ -24,11 +24,9 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
     override def http: HttpGet with HttpPost with HttpPut = ???
   }
 
-  def preferencesConnector(returnFromDoGet: Future[HttpResponse]): TestPreferencesConnector = new TestPreferencesConnector {
+  def preferencesConnector(returnFromDoGet: String => Future[HttpResponse]): TestPreferencesConnector = new TestPreferencesConnector {
     override def http = new HttpGet with HttpPost with HttpPut with AppName {
-      override protected def doGet(url: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
-        returnFromDoGet
-      }
+      override protected def doGet(url: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = returnFromDoGet(url)
 
       override protected def doPostString(url: String, body: String, headers: Seq[(String, String)])(implicit hc: HeaderCarrier): Future[HttpResponse] = ???
 
@@ -45,18 +43,24 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
   }
 
   "The getPreferences method" should {
-    "return the preferences" in {
-      val preferenceConnector = preferencesConnector(Future.successful(HttpResponse(200, Some(Json.parse(
-        """
-          |{
-          |   "digital": true,
-          |   "email": {
-          |     "email": "test@mail.com",
-          |     "status": "verified",
-          |     "mailboxFull": false
-          |   }
-          |}
-        """.stripMargin)))))
+    val nino = Nino("CE123457D")
+
+    "return the preferences for utr only" in {
+      val preferenceConnector = preferencesConnector { url =>
+        url should not include nino.value
+
+        Future.successful(HttpResponse(200, Some(Json.parse(
+          """
+            |{
+            |   "digital": true,
+            |   "email": {
+            |     "email": "test@mail.com",
+            |     "status": "verified",
+            |     "mailboxFull": false
+            |   }
+            |}
+          """.stripMargin))))
+      }
 
       val preferences = preferenceConnector.getPreferences(SaUtr("1")).futureValue
 
@@ -67,8 +71,33 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
       ))
     }
 
+    "return the preferences for utr and nino" in {
+      val preferenceConnector = preferencesConnector { url =>
+        url should include(nino.value)
+        Future.successful(HttpResponse(200, Some(Json.parse(
+          """
+            |{
+            |   "digital": true,
+            |   "email": {
+            |     "email": "test@mail.com",
+            |     "status": "verified",
+            |     "mailboxFull": false
+            |   }
+            |}
+          """.stripMargin))))
+      }
+
+      val preferences = preferenceConnector.getPreferences(SaUtr("1"), Some(nino)).futureValue
+
+      preferences shouldBe Some(SaPreference(
+        digital = true, email = Some(SaEmailPreference(
+          email = "test@mail.com",
+          status = "verified"))
+      ))
+    }
+
     "return None for a 404" in {
-      val preferenceConnector = preferencesConnector(Future.successful(HttpResponse(404, None)))
+      val preferenceConnector = preferencesConnector(_ => Future.successful(HttpResponse(404, None)))
 
       val preferences = preferenceConnector.getPreferences(SaUtr("1")).futureValue
 
@@ -76,7 +105,7 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
     }
 
     "return None for a 410" in {
-      val preferenceConnector = preferencesConnector(Future.successful(HttpResponse(410, None)))
+      val preferenceConnector = preferencesConnector(_ => Future.successful(HttpResponse(410, None)))
 
       val preferences = preferenceConnector.getPreferences(SaUtr("1")).futureValue
 
@@ -86,23 +115,23 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
 
   "The getEmailAddress method" should {
     "return None for a 404" in {
-      val preferenceConnector = preferencesConnector(Future.successful(
+      val preferenceConnector = preferencesConnector(_ => Future.successful(
         HttpResponse(responseStatus = 404, responseJson = Some(Json.obj("reason" -> "EMAIL_ADDRESS_NOT_VERIFIED")))))
-      preferenceConnector.getEmailAddress(SaUtr("1")).futureValue should be (None)
+      preferenceConnector.getEmailAddress(SaUtr("1")).futureValue should be(None)
     }
 
     "return Error for other status code" in {
-      val preferenceConnector = preferencesConnector(Future.successful(HttpResponse(400)))
-      preferenceConnector.getEmailAddress(SaUtr("1")).failed.futureValue should be (an[Exception])
+      val preferenceConnector = preferencesConnector(_ => Future.successful(HttpResponse(400)))
+      preferenceConnector.getEmailAddress(SaUtr("1")).failed.futureValue should be(an[Exception])
     }
 
     "return an email address when there is an email preference" in {
-      val preferenceConnector = preferencesConnector(Future.successful(HttpResponse(200, Some(Json.parse(
+      val preferenceConnector = preferencesConnector(_ => Future.successful(HttpResponse(200, Some(Json.parse(
         """{
           |  "email" : "a@b.com"
           |}
         """.stripMargin)))))
-      preferenceConnector.getEmailAddress(SaUtr("1")).futureValue should be (Some("a@b.com"))
+      preferenceConnector.getEmailAddress(SaUtr("1")).futureValue should be(Some("a@b.com"))
     }
   }
 

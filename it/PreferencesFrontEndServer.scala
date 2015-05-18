@@ -4,7 +4,7 @@ import play.api.Play.current
 import play.api.libs.json.Json
 import play.api.libs.ws.WS
 import play.api.mvc.Results.EmptyContent
-import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
 import uk.gov.hmrc.play.it.{ExternalService, MicroServiceEmbeddedServer, ServiceSpec}
 import uk.gov.hmrc.test.it.{BearerTokenHelper, FrontendCookieHelper}
@@ -30,8 +30,10 @@ trait PreferencesFrontEndServer extends ServiceSpec {
       "preferences",
       "message",
       "mailgun",
+      "hmrc-deskpro",
       "ca-frontend",
       "email",
+      "cid",
       "datastream").map(ExternalService.runFromJar(_))
   }
 
@@ -70,6 +72,11 @@ trait PreferencesFrontEndServer extends ServiceSpec {
         "/preferences-admin/sa/individual/print-suppression")).delete()
     }
 
+    val `/preferences-admin/sa/process-nino-determination` = new {
+      def post() = WS.url(server.externalResource("preferences",
+        "/preferences-admin/sa/process-nino-determination")).post(EmptyContent())
+    }
+
     val `/preferences-admin/sa/bounce-email` = new {
       def post(emailAddress: String) = WS.url(server.externalResource("preferences",
         "/preferences-admin/sa/bounce-email")).post(Json.parse( s"""{
@@ -105,6 +112,8 @@ trait PreferencesFrontEndServer extends ServiceSpec {
     )
 
     lazy val cookie = cookieFor(createBearerTokenFor(SaUtr(utr)).futureValue)
+
+    def cookieWithNino(nino: Nino) = cookieFor(createBearerTokenFor(List(SaUtr(utr), nino)).futureValue)
   }
 
 }

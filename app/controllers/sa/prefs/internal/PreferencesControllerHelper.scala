@@ -72,7 +72,7 @@ trait PreferencesControllerHelper {
 
   protected def submitEmailForm(errorsView: (Form[_]) => HtmlFormat.Appendable,
                                 emailWarningView: (String) => HtmlFormat.Appendable,
-                                successRedirect: () => Call,
+                                successRedirect: => Call,
                                 emailConnector: EmailConnector,
                                 saUtr: SaUtr,
                                 savePreferences: (SaUtr, Boolean, Option[String], HeaderCarrier) => Future[_])
@@ -88,7 +88,7 @@ trait PreferencesControllerHelper {
           else emailConnector.isValid(emailForm.mainEmail)
 
         emailVerificationStatus.flatMap {
-          case true => savePreferences(saUtr, true, Some(emailForm.mainEmail), hc).map(const(Redirect(successRedirect())))
+          case true => savePreferences(saUtr, true, Some(emailForm.mainEmail), hc).map(const(Redirect(successRedirect)))
           case false => Future.successful(Ok(emailWarningView(emailForm.mainEmail)))
         }
       }

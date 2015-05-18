@@ -8,7 +8,7 @@ import helpers.ConfigHelper
 import org.joda.time.LocalDate
 import org.scalatest.concurrent.ScalaFutures
 import play.api.test.FakeRequest
-import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
 import uk.gov.hmrc.play.frontend.auth.AuthContext
@@ -123,7 +123,7 @@ class TestCase {
 
       override def serviceUrl = ???
 
-      override def getPreferences(utr: SaUtr)(implicit headerCarrier: HeaderCarrier): Future[Option[SaPreference]] = Future.successful(saPreference)
+      override def getPreferences(utr: SaUtr, nino: Option[Nino])(implicit headerCarrier: HeaderCarrier): Future[Option[SaPreference]] = Future.successful(saPreference)
     }
   }
 }

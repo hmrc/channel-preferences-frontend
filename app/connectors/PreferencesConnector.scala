@@ -5,7 +5,7 @@ import controllers.sa.prefs.internal.OptInCohort
 import play.api.Logger
 import play.api.http.Status
 import play.api.libs.json._
-import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
@@ -36,8 +36,9 @@ trait PreferencesConnector extends Status {
   def savePreferences(utr: SaUtr, digital: Boolean, email: Option[String])(implicit hc: HeaderCarrier): Future[Any] =
     http.POST(url(s"/preferences/sa/individual/$utr/print-suppression"), UpdateEmail(digital, email))
 
-  def getPreferences(utr: SaUtr)(implicit headerCarrier: HeaderCarrier): Future[Option[SaPreference]] = {
-    http.GET[Option[SaPreference]](url(s"/preferences/sa/individual/$utr/print-suppression")).recover {
+  def getPreferences(utr: SaUtr, nino: Option[Nino] = None)(implicit headerCarrier: HeaderCarrier): Future[Option[SaPreference]] = {
+    val preferencesUrl = nino.fold(s"/preferences/sa/individual/$utr/print-suppression")(n => s"/preferences/sa/individual/$utr/$n/print-suppression")
+    http.GET[Option[SaPreference]](url(preferencesUrl)).recover {
       case response: Upstream4xxResponse if response.upstreamResponseCode == GONE => None
       case e: NotFoundException => None
     }

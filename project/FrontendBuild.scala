@@ -29,7 +29,7 @@ private object Dependencies {
   val requiredDependencies = Seq(
     ws,
     "uk.gov.hmrc"    %% "govuk-template" % "2.6.0",
-    "uk.gov.hmrc"    %% "play-authorisation"  % "0.8.0",
+    "uk.gov.hmrc"    %% "play-authorisation"  % "0.12.0",
     "uk.gov.hmrc"    %% "play-health"    % "0.7.0",
     "uk.gov.hmrc"    %% "emailaddress"   % "0.2.0",
     "uk.gov.hmrc"    %% "url-builder"    % "0.8.0",
@@ -39,20 +39,20 @@ private object Dependencies {
     "com.netaporter" %% "scala-uri"      % "0.4.2",
     "uk.gov.hmrc" %% "play-authorised-frontend"  % "1.2.0",
     "uk.gov.hmrc" %% "play-config"  % "1.0.0",
-    "uk.gov.hmrc" %% "http-verbs"  % "1.5.0",
-    "uk.gov.hmrc" %% "frontend-bootstrap"  % "0.5.1",
+    "uk.gov.hmrc" %% "http-verbs"  % "1.6.0",
+    "uk.gov.hmrc" %% "frontend-bootstrap"  % "0.6.0",
 
     "org.jsoup"      %  "jsoup"       % jsoupVersion  % "test",
     "org.scalatest"  %% "scalatest"   % scalatestVersion  % "test",
     "org.pegdown"    %  "pegdown"     % pegdownVersion  % "test",
     "org.mockito"    %  "mockito-all" % mockitoVersion  % "test",
     "uk.gov.hmrc"    %% "hmrctest"    % "0.4.0" % "test",
-    "uk.gov.hmrc"    %% "auth-test"   % "0.6.0" % "test",
+    "uk.gov.hmrc"    %% "auth-test"   % "0.7.0" % "test",
 
     "org.scalatest"  %% "scalatest"   % scalatestVersion % "it",
     "org.pegdown"    %  "pegdown"     % pegdownVersion % "it",
     "org.jsoup"      %  "jsoup"       % jsoupVersion % "it",
     "uk.gov.hmrc"    %% "hmrctest"    % "0.4.0" % "it",
-    "uk.gov.hmrc"    %% "auth-test"   % "0.6.0" % "it"
+    "uk.gov.hmrc"    %% "auth-test"   % "0.7.0" % "it"
   )
 }

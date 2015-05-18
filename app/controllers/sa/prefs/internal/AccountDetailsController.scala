@@ -91,7 +91,7 @@ trait AccountDetailsController
     lookupCurrentEmail(email => Future.successful(Ok(views.html.account_details_update_email_address(email, emailForm.fill(EmailFormData(emailAddress.map(_.decryptedValue)))))))
 
   private def lookupCurrentEmail(func: (EmailAddress) => Future[Result])(implicit authContext: AuthContext, request: Request[AnyRef]): Future[Result] = {
-    preferencesConnector.getPreferences(authContext.principal.accounts.sa.get.utr)(HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)).flatMap {
+    preferencesConnector.getPreferences(authContext.principal.accounts.sa.get.utr, None)(HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)).flatMap {
         case Some(SaPreference(true, Some(email))) => func(EmailAddress(email.email))
         case _ => Future.successful(BadRequest("Could not find existing preferences."))
     }
@@ -103,7 +103,7 @@ trait AccountDetailsController
         submitEmailForm(
           views.html.account_details_update_email_address(email, _),
           (enteredEmail) => views.html.account_details_update_email_address_verify_email(enteredEmail),
-          () => routes.AccountDetailsController.emailAddressChangeThankYou(),
+          routes.AccountDetailsController.emailAddressChangeThankYou(),
           emailConnector,
           authContext.principal.accounts.sa.get.utr,
           savePreferences

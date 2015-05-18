@@ -61,7 +61,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
 
     "redirect to BTA when preferences already exist" in new BizTaxPrefsControllerSetup {
       val preferencesAlreadyCreated = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.verified)))
-      when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Some(preferencesAlreadyCreated))
+      when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Some(preferencesAlreadyCreated))
 
       val page = Future.successful(controller.redirectToBTAOrInterstitialPageAction(user, request))
 
@@ -70,7 +70,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
     }
 
     "redirect to interstitial page for the matching cohort if they have no preference set" in new BizTaxPrefsControllerSetup {
-      when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(None)
+      when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(None)
 
       val page = controller.redirectToBTAOrInterstitialPageAction(user, request)
 
@@ -84,7 +84,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
 
     "redirect to BTA when preferences already exist" in new BizTaxPrefsControllerSetup {
       val preferencesAlreadyCreated = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.verified)))
-      when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Some(preferencesAlreadyCreated))
+      when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Some(preferencesAlreadyCreated))
 
       val page = controller.displayInterstitialPrefsFormAction(user, request, Some(assignedCohort))
 
@@ -93,7 +93,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
     }
 
     "redirect to a re-calculated cohort when no cohort is supplied" in new BizTaxPrefsControllerSetup {
-      when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(None)
+      when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(None)
 
       val page = controller.displayInterstitialPrefsFormAction(user, request, possibleCohort = None)
 
@@ -102,7 +102,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
     }
 
     "render the form in the correct initial state when no preferences exist" in new BizTaxPrefsControllerSetup {
-      when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(None)
+      when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(None)
 
       val page = controller.displayInterstitialPrefsFormAction(user, request, Some(assignedCohort))
 
@@ -127,7 +127,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
 
     "audit the cohort information for FPage" in new BizTaxPrefsControllerSetup {
       override def assignedCohort = FPage
-      when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(None)
+      when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(None)
 
       val page = controller.displayInterstitialPrefsFormAction(user, request, Some(assignedCohort))
       status(page) shouldBe 200
@@ -213,7 +213,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
     }
 
     "redirect to a re-calculated cohort when no cohort is supplied" in new BizTaxPrefsControllerSetup {
-      when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(None)
+      when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(None)
 
       val page = controller.displayPrefsFormAction(emailAddress = None, possibleCohort = None)(user, request)
 
