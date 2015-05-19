@@ -1,9 +1,11 @@
 package controllers.sa.prefs.internal
 
 import connectors.PreferencesConnector
+import controllers.sa.prefs.ExternalUrls.yourIncomeTax
+import controllers.sa.prefs.SaRegimeWithoutRedirection
 import controllers.sa.prefs.config.Global
-import controllers.sa.prefs.{SaRegime, SaRegimeWithoutRedirection}
 import play.api.mvc.{Action, AnyContent, Request}
+import play.twirl.api.Html
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.emailaddress.ObfuscatedEmailAddress
 import uk.gov.hmrc.play.frontend.auth.Actions
@@ -31,12 +33,12 @@ trait UpgradeRemindersController extends FrontendController with Actions {
 
   private[controllers] def renderUpgradePageIfPreferencesAvailable(utr: SaUtr, maybeNino: Option[Nino])(implicit request: Request[AnyContent]) = {
     preferencesConnector.getPreferences(utr, maybeNino).map {
-      case Some(prefs) => Ok(upgrade_printing_preferences(utr, maybeNino, prefs.email.map(e => ObfuscatedEmailAddress(e.email))))
+      case Some(prefs) => Ok(upgrade_printing_preferences(utr, maybeNino, prefs.email.map(e => ObfuscatedEmailAddress(e.email)), yourIncomeTax))
       case _ => NotFound
     }
   }
 
-  def upgrade() = AuthorisedFor(SaRegimeWithoutRedirection).async {
-    authContext => request => Future.successful(Ok(""))
+  def upgrade(returnUrl: String) = AuthorisedFor(SaRegimeWithoutRedirection).async {
+    authContext => request => Future.successful(Ok(Html(s"<h1>upgraded</h1><a href='$returnUrl'>Thanks!</a>")))
   }
 }
