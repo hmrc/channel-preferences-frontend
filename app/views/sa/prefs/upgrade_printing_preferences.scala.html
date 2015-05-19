@@ -1,0 +1,25 @@
+@(utr: uk.gov.hmrc.domain.SaUtr, nino: Option[uk.gov.hmrc.domain.Nino], emailAddress: Option[uk.gov.hmrc.emailaddress.ObfuscatedEmailAddress])(implicit request: Request[_])
+
+@import uk.gov.hmrc.play.views.html.helpers.form
+
+<head>
+    <title>Upgrade your paperless</title>
+</head>
+
+<h1>Get the full paperless service</h1>
+
+<p>Previously we asked you if you wanted to receive information from us via email</p>
+<p id="opted-in-utr">Your UTR is @utr</p>
+@nino.map { nino =>
+    <p id="opted-in-nino">Your Nino is @nino</p>
+}
+@emailAddress.map { emailAddress =>
+    <p id="opted-in-email">You opted to have us contact you at @emailAddress</p>
+}
+
+<p>Good news!</p>
+<p>You can now receive your PAYE notifications this way too</p>
+
+@form(action = controllers.sa.prefs.internal.routes.UpgradeRemindersController.upgrade) {
+    <p>Just click <button class="link" name="submitButton" type="submit">here to upgrade now</button> and we'll do the rest!</p>
+}

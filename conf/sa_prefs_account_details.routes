@@ -17,4 +17,5 @@ GET         /terms-and-conditions                        controllers.sa.prefs.in
 
 GET         /email-reminders-status                      controllers.sa.prefs.partial.accountdetails.ReminderStatusPartialController.emailRemindersStatus
 
-GET         /opt-in-paye-email-reminders                 controllers.sa.prefs.internal.PayePrefsController.displayPrefsForm
+GET         /upgrade-email-reminders                     controllers.sa.prefs.internal.UpgradeRemindersController.display
+POST        /upgrade-email-reminders                     controllers.sa.prefs.internal.UpgradeRemindersController.upgrade
