@@ -2,7 +2,7 @@ package connectors
 
 import helpers.ConfigHelper
 import org.scalatest.concurrent.ScalaFutures
-import play.api.libs.json.{Json, Writes}
+import play.api.libs.json.{JsString, JsValue, Json, Writes}
 import play.api.test.WithApplication
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
@@ -18,13 +18,22 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
   implicit val hc = new HeaderCarrier
 
 
+  private def defaultGetHandler: (String) => Future[AnyRef with HttpResponse] = {
+    _ => Future.successful(HttpResponse(200))
+  }
+
+  private def defaultPostHandler: (String, Any) => Future[AnyRef with HttpResponse] = {
+    (a, b) => Future.successful(HttpResponse(200))
+  }
+
   class TestPreferencesConnector extends PreferencesConnector {
+
     override def serviceUrl: String = "http://preferences.service/"
 
     override def http: HttpGet with HttpPost with HttpPut = ???
   }
 
-  def preferencesConnector(returnFromDoGet: String => Future[HttpResponse]): TestPreferencesConnector = new TestPreferencesConnector {
+  def preferencesConnector(returnFromDoGet: String => Future[HttpResponse] = defaultGetHandler, returnFromDoPost: (String, Any) => Future[HttpResponse] = defaultPostHandler) = new TestPreferencesConnector {
     override def http = new HttpGet with HttpPost with HttpPut with AppName {
       override protected def doGet(url: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = returnFromDoGet(url)
 
@@ -32,7 +41,7 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
 
       override protected def doFormPost(url: String, body: Map[String, Seq[String]])(implicit hc: HeaderCarrier): Future[HttpResponse] = ???
 
-      override protected def doPost[A](url: String, body: A, headers: Seq[(String, String)])(implicit rds: Writes[A], hc: HeaderCarrier): Future[HttpResponse] = ???
+      override protected def doPost[A](url: String, body: A, headers: Seq[(String, String)])(implicit rds: Writes[A], hc: HeaderCarrier): Future[HttpResponse] = returnFromDoPost(url, body)
 
       override protected def doEmptyPost[A](url: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = ???
 
@@ -174,6 +183,42 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
     "return wrong token if updateEmailValidationStatusUnsecured returns 409" in {
       val result = preferenceConnector.responseToEmailVerificationLinkStatus(Future.failed(Upstream4xxResponse("", 409, 500)))
       result.futureValue shouldBe WrongToken
+    }
+  }
+
+  "The upgradeTermsAndConditions method" should {
+    trait PayloadCheck {
+      def status: Int = 200
+      def expectedPayload: TermsAndConditionsUpdate
+      def postedPayload(payload: TermsAndConditionsUpdate) = payload should be (expectedPayload)
+
+      val connector = preferencesConnector(returnFromDoPost = checkPayloadAndReturn)
+
+      def checkPayloadAndReturn(url: String, requestBody: Any): Future[HttpResponse] = {
+        postedPayload(requestBody.asInstanceOf[TermsAndConditionsUpdate])
+        Future.successful(HttpResponse(status))
+      }
+
+    }
+
+    "send accepted true and return true if terms and conditions are accepted and updated" in new PayloadCheck {
+      override val expectedPayload = TermsAndConditionsUpdate(GenericTermsAndConditionsUpdate(true))
+
+      connector.upgradeTermsAndConditions(SaUtr("testing"), true).futureValue should be (true)
+    }
+
+    "send accepted false and return true if terms and conditions are not accepted and updated" in new PayloadCheck {
+      override val expectedPayload = TermsAndConditionsUpdate(GenericTermsAndConditionsUpdate(false))
+
+      connector.upgradeTermsAndConditions(SaUtr("testing"), false).futureValue should be (true)
+    }
+
+
+    "return false if any problems" in new PayloadCheck {
+      override val status = 401
+      override val expectedPayload = TermsAndConditionsUpdate(GenericTermsAndConditionsUpdate(true))
+
+      connector.upgradeTermsAndConditions(SaUtr("testing"), true).futureValue should be (false)
     }
   }
 }

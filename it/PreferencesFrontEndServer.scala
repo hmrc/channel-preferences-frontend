@@ -1,6 +1,7 @@
 import java.util.UUID
 
 import play.api.Play.current
+import play.api.http.HeaderNames
 import play.api.libs.json.Json
 import play.api.libs.ws.WS
 import play.api.mvc.Results.EmptyContent
@@ -47,6 +48,15 @@ trait PreferencesFrontEndServer extends ServiceSpec {
 
     def `/email-reminders-status` = WS.url(resource("/account/account-details/sa/email-reminders-status"))
 
+    def `/preferences/paye/individual/:nino/activations`(nino: String, headers: (String, String)) = new {
+
+      def post() = WS.url(server.externalResource("preferences", s"/preferences/paye/individual/$nino/activations"))
+        .withHeaders(headers)
+        .post(Json.parse(s"""{"returnUrl":"/some/return/url", "formTypes":"paye"}"""))
+
+      val resource = WS.url(server.externalResource("preferences", s"/preferences/paye/individual/$nino/activations"))
+    }
+
     val `/portal/preferences/sa/individual` = new {
       def postPendingEmail(utr: String, pendingEmail: String) = WS.url(server.externalResource("preferences",
         s"/portal/preferences/sa/individual/$utr/print-suppression")).post(Json.parse( s"""{"digital": true, "email":"$pendingEmail"}"""))
@@ -56,6 +66,8 @@ trait PreferencesFrontEndServer extends ServiceSpec {
 
       def postOptOut(utr: String) = WS.url(server.externalResource("preferences",
         s"/portal/preferences/sa/individual/$utr/print-suppression")).post(Json.parse( s"""{"digital": false}"""))
+
+      def get(utr: String) = WS.url(server.externalResource("preferences", s"/portal/preferences/sa/individual/$utr/print-suppression")).get()
       }
 
     val `/preferences-admin/sa/individual` = new {
@@ -70,6 +82,7 @@ trait PreferencesFrontEndServer extends ServiceSpec {
 
       def deleteAll() = WS.url(server.externalResource("preferences",
         "/preferences-admin/sa/individual/print-suppression")).delete()
+
     }
 
     val `/preferences-admin/sa/process-nino-determination` = new {
@@ -95,6 +108,7 @@ trait PreferencesFrontEndServer extends ServiceSpec {
     def `/account/preferences/warnings` = {
       WS.url(resource("/account/preferences/warnings"))
     }
+
   }
 
   trait TestCaseWithFrontEndAuthentication extends TestCase with BearerTokenHelper with FrontendCookieHelper {
@@ -112,6 +126,9 @@ trait PreferencesFrontEndServer extends ServiceSpec {
     )
 
     lazy val cookie = cookieFor(createBearerTokenFor(SaUtr(utr)).futureValue)
+
+    def bearerTokenHeader() =
+      HeaderNames.AUTHORIZATION -> createBearerTokenFor(SaUtr(utr)).futureValue
 
     def cookieWithNino(nino: Nino) = cookieFor(createBearerTokenFor(List(SaUtr(utr), nino)).futureValue)
   }

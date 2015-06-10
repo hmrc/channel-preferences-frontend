@@ -44,6 +44,10 @@ trait UpgradeRemindersController extends FrontendController with Actions {
   }
 
   def upgrade(returnUrl: String) = AuthorisedFor(SaRegimeWithoutRedirection).async {
-    authContext => request => Future.successful(Ok(Html(s"<h1>upgraded</h1><a href='$returnUrl'>Thanks!</a>")))
+    authContext => implicit request => {
+      preferencesConnector.upgradeTermsAndConditions(authContext.principal.accounts.sa.get.utr, true).map {
+        _ => Redirect(returnUrl)
+      }
+    }
   }
 }

@@ -45,7 +45,6 @@ trait PreferencesConnector extends Status {
   }
 
   def saveCohort(utr: SaUtr, cohort: OptInCohort)(implicit hc: HeaderCarrier): Future[Any] = {
-
     http.PUT(url(s"/a-b-testing/cohort/email-opt-in/sa/$utr"), Json.obj("cohort" -> cohort.name)).recover {
       case e: NotFoundException => Logger.warn("Cannot save cohort for opt-in-email")
     }
@@ -59,6 +58,15 @@ trait PreferencesConnector extends Status {
     responseToEmailVerificationLinkStatus(http.POST(url("/preferences/sa/verify-email"), ValidateEmail(token)))
   }
 
+  def upgradeTermsAndConditions(utr: SaUtr, accepted: Boolean)(implicit hc: HeaderCarrier) : Future[Boolean] = {
+    implicit val f = TermsAndConditionsUpdate.format
+    http.POST(url(s"/preferences/sa/individual/$utr/terms-and-conditions"), TermsAndConditionsUpdate(GenericTermsAndConditionsUpdate(accepted))).map(_ => true).recover {
+      case e =>
+        Logger.error("Unable to save upgraded terms and conditions", e)
+        false
+    }
+  }
+
   private[connectors] def responseToEmailVerificationLinkStatus(response: Future[HttpResponse])(implicit hc: HeaderCarrier) = {
     response.map(_ => EmailVerificationLinkResponse.Ok)
       .recover {
@@ -67,5 +75,10 @@ trait PreferencesConnector extends Status {
       case (_: Upstream4xxResponse | _: NotFoundException | _: BadRequestException) => EmailVerificationLinkResponse.Error
     }
   }
-
 }
+
+object GenericTermsAndConditionsUpdate {  implicit val format = Json.format[GenericTermsAndConditionsUpdate] }
+case class GenericTermsAndConditionsUpdate(accepted: Boolean)
+
+object TermsAndConditionsUpdate { implicit val format = Json.format[TermsAndConditionsUpdate] }
+case class TermsAndConditionsUpdate(generic: GenericTermsAndConditionsUpdate)
