@@ -24,7 +24,7 @@
 <p>You can now receive your PAYE notifications this way too</p>
 
 @form(action = controllers.sa.prefs.internal.routes.UpgradeRemindersController.upgrade(returnUrl)) {
-    <p>Just click <button id="confirm-upgrade" class="link" name="submitButton" type="submit">here to upgrade now</button> and we'll do the rest!</p>
+    <p>Just click <button id="confirm-upgrade" class="link" name="submitButton" type="submit" value="accepted">here to upgrade now</button> and we'll do the rest!</p>
+    <button id="cancel-upgrade" class="link" name="submitButton" type="submit" value="declined">No, thanks.</button>
 }
 
-@returnUrl
