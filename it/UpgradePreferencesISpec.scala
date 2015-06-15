@@ -1,16 +1,6 @@
-import java.io.ByteArrayOutputStream
+import play.api.libs.ws.{WS, WSResponse}
 
-
-import com.ning.http.client.FluentCaseInsensitiveStringsMap
-import com.ning.http.client.providers.netty.NettyResponse
-import play.api.http.{ContentTypeOf, Writeable}
-import play.api.libs.json.Json
-import play.api.libs.ws.{WSResponse, WS}
-import play.api.mvc.Results.EmptyContent
-import play.api.test.FakeRequest
-import play.core.parsers.FormUrlEncodedParser
-import com.ning.http.multipart.{StringPart, FilePart, MultipartRequestEntity, Part}
-;
+import scala.collection.mutable
 
 class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSupport {
 
@@ -21,10 +11,10 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
       `/preferences/paye/individual/:nino/activations`(nino,authHeader).post().futureValue.status should be (412)
 
       val response = `/upgrade-email-reminders`.post(accept = true).futureValue
-//      response.status should be (404)
-      response.underlying[NettyResponse].getUri.getPath should be(returnUrl)
+      response should have('status(303))
+      response.header("Location") should contain (returnUrl)
 
-      `/preferences/paye/individual/:nino/activations`(nino,authHeader).post().futureValue.status should be (200)
+      `/preferences/paye/individual/:nino/activations`(nino, authHeader).post().futureValue.status should be (200)
     }
   }
 
@@ -39,18 +29,15 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
     val nino = "CE123457D"
 
-    val parts = Array[Part](new StringPart("submitButton", "accepted"))
-    val mpre = new MultipartRequestEntity(parts, new FluentCaseInsensitiveStringsMap)
-    val baos = new ByteArrayOutputStream
-    mpre.writeRequest(baos)
-    val bytes = baos.toByteArray
-    val contentType = mpre.getContentType
-
     val `/upgrade-email-reminders` = new {
-      def post(accept: Boolean) = WS.url(resource("/account/account-details/sa/upgrade-email-reminders")).withHeaders(cookie).withQueryString(("returnUrl" -> returnUrl)).
-//        post(bytes)(Writeable.wBytes, ContentTypeOf(Some(contentType)))
-        post(Map("submitButton" -> Seq("accepted")))
-      //post(EmptyContent())
+
+      val url = WS.url(resource("/account/account-details/sa/upgrade-email-reminders")).withQueryString(("returnUrl" -> returnUrl))
+
+      def post(accept: Boolean) = {
+        url.withHeaders(cookie,"Csrf-Token"->"nocheck").withFollowRedirects(false).post(Map("submitButton" -> Seq("accepted")))
+      }
+
+      def get() = url.withHeaders(cookie).get()
     }
 
     def createOptedInVerifiedPreferenceWithNino() : WSResponse = {
@@ -59,5 +46,6 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
       `/preferences-admin/sa/individual`.verifyEmailFor(utr)
       await(`/preferences-admin/sa/process-nino-determination`.post())
     }
+
   }
 }
