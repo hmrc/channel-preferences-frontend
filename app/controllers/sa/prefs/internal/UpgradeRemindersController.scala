@@ -55,14 +55,14 @@ trait UpgradeRemindersController extends FrontendController with Actions with Ap
 
   def upgrade(returnUrl: String) = AuthorisedFor(SaRegimeWithoutRedirection).async {
     authContext => implicit request => {
-      val accepted = request.body.asFormUrlEncoded.get("submitButton").head == "accepted"
-      upgradeTermsAndConditions(authContext.principal.accounts.sa.get.utr, authContext.principal.accounts.paye.map(_.nino), accepted)
+      val digital = request.body.asFormUrlEncoded.get("submitButton").head == "digital"
+      upgradeTermsAndConditions(authContext.principal.accounts.sa.get.utr, authContext.principal.accounts.paye.map(_.nino), digital)
     }.map(_ => Redirect(returnUrl))
   }
 
-  private[controllers] def upgradeTermsAndConditions(utr: SaUtr, nino: Option[Nino], accepted: Boolean)(implicit request: Request[AnyContent], hc: HeaderCarrier) =
-    preferencesConnector.upgradeTermsAndConditions(utr, accepted).map {
-      case true => auditChoice(utr, nino, true, true)
+  private[controllers] def upgradeTermsAndConditions(utr: SaUtr, nino: Option[Nino], digital: Boolean)(implicit request: Request[AnyContent], hc: HeaderCarrier) =
+    preferencesConnector.upgradeTermsAndConditions(utr, digital).map {
+      case true => auditChoice(utr, nino, true, digital)
     }
 
   private def auditChoice(utr: SaUtr, nino: Option[Nino], acceptedTAndCs:Boolean, digital: Boolean)(implicit request: Request[_], hc: HeaderCarrier) =
@@ -76,7 +76,7 @@ trait UpgradeRemindersController extends FrontendController with Actions with Ap
         "utr" -> utr.toString,
         "TandCsScope" -> "Generic",
         "TandCsVersion" -> "V1",
-        "userConfirmedREadTandCs" -> acceptedTAndCs.toString,
+        "userConfirmedReadTandCs" -> acceptedTAndCs.toString,
         "journey" -> "GenericUpgrade",
         "digital" -> digital.toString,
         "cohort" -> "TES_MVP"))))

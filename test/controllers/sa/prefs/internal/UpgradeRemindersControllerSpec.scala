@@ -21,36 +21,50 @@ import scala.concurrent.Future
 
 class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication {
 
-  import org.mockito.Matchers.{any, eq => is}
+  "create an audit event with positive upgrade decision" in new UpgradeTestCase {
+    val digital = true
+    val event = upgradeAndCaptureAuditEvent(digital).getValue
 
-  "create an audit event with upgrade decision" in new UpgradeTestCase {
-    when(controller.preferencesConnector.upgradeTermsAndConditions(is(utr), is(true))(any())).thenReturn(Future.successful(true))
-
-    await(controller.upgradeTermsAndConditions(utr, Some(Nino(nino)), true))
-
-    val eventArg : ArgumentCaptor[ExtendedDataEvent] = ArgumentCaptor.forClass(classOf[ExtendedDataEvent])
-    verify(controller.auditConnector).sendEvent(eventArg.capture())(any(), any())
-
-    private val value: ExtendedDataEvent = eventArg.getValue
-    value.auditSource  shouldBe "preferences-frontend"
-    value.auditType shouldBe EventTypes.Succeeded
-    value.tags should contain ("transactionName" -> "Set Print Preference")
-    value.detail \ "client" shouldBe JsString("PAYETAI")
-    value.detail \ "nino" shouldBe JsString(nino)
-    value.detail \ "utr" shouldBe JsString(utr.utr)
-    value.detail \ "TandCsScope" shouldBe JsString("Generic")
-    value.detail \ "TandCsVersion" shouldBe JsString("V1")
-    value.detail \ "userConfirmedREadTandCs" shouldBe JsString("true")
-    value.detail \ "journey" shouldBe JsString("GenericUpgrade")
-    value.detail \ "digital" shouldBe JsString("true")
-    value.detail \ "cohort" shouldBe JsString("TES_MVP")
+    event.auditSource  shouldBe "preferences-frontend"
+    event.auditType shouldBe EventTypes.Succeeded
+    event.tags should contain ("transactionName" -> "Set Print Preference")
+    event.detail \ "client" shouldBe JsString("PAYETAI")
+    event.detail \ "nino" shouldBe JsString(nino)
+    event.detail \ "utr" shouldBe JsString(utr.utr)
+    event.detail \ "TandCsScope" shouldBe JsString("Generic")
+    event.detail \ "TandCsVersion" shouldBe JsString("V1")
+    event.detail \ "userConfirmedReadTandCs" shouldBe JsString("true")
+    event.detail \ "journey" shouldBe JsString("GenericUpgrade")
+    event.detail \ "digital" shouldBe JsString("true")
+    event.detail \ "cohort" shouldBe JsString("TES_MVP")
 
   }
 
+  "create an audit event with negative upgrade decision" in new UpgradeTestCase {
+    val digital = false
+    val event = upgradeAndCaptureAuditEvent(digital).getValue
+
+    event.auditSource  shouldBe "preferences-frontend"
+    event.auditType shouldBe EventTypes.Succeeded
+    event.tags should contain ("transactionName" -> "Set Print Preference")
+    event.detail \ "client" shouldBe JsString("PAYETAI")
+    event.detail \ "nino" shouldBe JsString(nino)
+    event.detail \ "utr" shouldBe JsString(utr.utr)
+    event.detail \ "TandCsScope" shouldBe JsString("Generic")
+    event.detail \ "TandCsVersion" shouldBe JsString("V1")
+    event.detail \ "userConfirmedReadTandCs" shouldBe JsString("true")
+    event.detail \ "journey" shouldBe JsString("GenericUpgrade")
+    event.detail \ "digital" shouldBe JsString("false")
+    event.detail \ "cohort" shouldBe JsString("TES_MVP")
+
+  }
+
+
   trait UpgradeTestCase  {
 
-    implicit val hc = HeaderCarrier()
+    import org.mockito.Matchers.{any, eq => is}
 
+    implicit val hc = HeaderCarrier()
     implicit val request = mock[Request[AnyContent]]
 
     val utr = SaUtr("testUtr")
@@ -58,13 +72,16 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
 
     val controller = new UpgradeRemindersController {
       override val preferencesConnector: PreferencesConnector = mock[PreferencesConnector]
-
       override val authConnector: AuthConnector = mock[AuthConnector]
-
       override val auditConnector: AuditConnector = mock[AuditConnector]
     }
+
+    def upgradeAndCaptureAuditEvent(digital: Boolean):ArgumentCaptor[ExtendedDataEvent] = {
+      when(controller.preferencesConnector.upgradeTermsAndConditions(is(utr), is(digital))(any())).thenReturn(Future.successful(true))
+      await(controller.upgradeTermsAndConditions(utr, Some(Nino(nino)), digital))
+      val eventArg : ArgumentCaptor[ExtendedDataEvent] = ArgumentCaptor.forClass(classOf[ExtendedDataEvent])
+      verify(controller.auditConnector).sendEvent(eventArg.capture())(any(), any())
+      return  eventArg
+    }
   }
-
-
-
 }
