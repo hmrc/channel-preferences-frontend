@@ -4,10 +4,16 @@ import connectors.PreferencesConnector
 import controllers.sa.prefs.ExternalUrls.yourIncomeTax
 import controllers.sa.prefs.SaRegimeWithoutRedirection
 import controllers.sa.prefs.config.Global
+import controllers.sa.prefs.internal.EmailOptInJourney._
+import play.api.libs.json.Json
 import play.api.mvc.{Result, Action, AnyContent, Request}
 import play.twirl.api.Html
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.emailaddress.ObfuscatedEmailAddress
+import uk.gov.hmrc.play.audit.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.audit.model.{EventTypes, ExtendedDataEvent}
+import uk.gov.hmrc.play.config.AppName
 import uk.gov.hmrc.play.frontend.auth.Actions
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 import uk.gov.hmrc.play.frontend.controller.FrontendController
@@ -18,13 +24,17 @@ import scala.concurrent.Future
 object UpgradeRemindersController extends UpgradeRemindersController {
   override def authConnector = Global.authConnector
   def preferencesConnector = PreferencesConnector
+
+  override def auditConnector: AuditConnector = Global.auditConnector
 }
 
-trait UpgradeRemindersController extends FrontendController with Actions {
+trait UpgradeRemindersController extends FrontendController with Actions with AppName  {
 
   def authConnector: AuthConnector
 
   def preferencesConnector: PreferencesConnector
+
+  def auditConnector: AuditConnector
 
   def display(): Action[AnyContent] = AuthorisedFor(SaRegimeWithoutRedirection).async {
     authContext => implicit request =>
@@ -46,7 +56,28 @@ trait UpgradeRemindersController extends FrontendController with Actions {
   def upgrade(returnUrl: String) = AuthorisedFor(SaRegimeWithoutRedirection).async {
     authContext => implicit request => {
       val accepted = request.body.asFormUrlEncoded.get("submitButton").head == "accepted"
-      preferencesConnector.upgradeTermsAndConditions(authContext.principal.accounts.sa.get.utr, accepted)
+      upgradeTermsAndConditions(authContext.principal.accounts.sa.get.utr, authContext.principal.accounts.paye.map(_.nino), accepted)
     }.map(_ => Redirect(returnUrl))
   }
+
+  private[controllers] def upgradeTermsAndConditions(utr: SaUtr, nino: Option[Nino], accepted: Boolean)(implicit request: Request[AnyContent], hc: HeaderCarrier) =
+    preferencesConnector.upgradeTermsAndConditions(utr, accepted).map {
+      case true => auditChoice(utr, nino, true, true)
+    }
+
+  private def auditChoice(utr: SaUtr, nino: Option[Nino], acceptedTAndCs:Boolean, digital: Boolean)(implicit request: Request[_], hc: HeaderCarrier) =
+    auditConnector.sendEvent(ExtendedDataEvent(
+      auditSource = appName,
+      auditType = EventTypes.Succeeded,
+      tags = hc.toAuditTags("Set Print Preference", request.path),
+      detail = Json.toJson(hc.toAuditDetails(
+        "client" -> "PAYETAI",
+        "nino" -> nino.map(_.nino).getOrElse("N/A"),
+        "utr" -> utr.toString,
+        "TandCsScope" -> "Generic",
+        "TandCsVersion" -> "V1",
+        "userConfirmedREadTandCs" -> acceptedTAndCs.toString,
+        "journey" -> "GenericUpgrade",
+        "digital" -> digital.toString,
+        "cohort" -> "TES_MVP"))))
 }

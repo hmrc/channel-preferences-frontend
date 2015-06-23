@@ -1,8 +1,21 @@
+import connectors.PreferencesConnector
+import controllers.sa.prefs.internal.EmailOptInJourney._
+import controllers.sa.prefs.internal.UpgradeRemindersController
+import org.mockito.ArgumentCaptor
+import org.mockito.Matchers._
+import org.mockito.Mockito._
+import org.scalatest.mock.MockitoSugar
+import play.api.libs.json.JsString
 import play.api.libs.ws.{WS, WSResponse}
+import play.api.test.FakeRequest
+import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.audit.model.{EventTypes, ExtendedDataEvent}
+import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 
-import scala.collection.mutable
+import scala.concurrent.Future
 
-class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSupport {
+class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSupport with MockitoSugar {
 
   "Upgrading preferences should" should {
     "set upgraded terms and conditions and allow subsequent activation"  in new UpgradeTestCase  {
@@ -47,5 +60,12 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
       await(`/preferences-admin/sa/process-nino-determination`.post())
     }
 
+    val controller = new UpgradeRemindersController {
+      override def preferencesConnector: PreferencesConnector = mock[PreferencesConnector]
+
+      override def authConnector: AuthConnector = mock[AuthConnector]
+
+      override def auditConnector: AuditConnector = mock[AuditConnector]
+    }
   }
 }
