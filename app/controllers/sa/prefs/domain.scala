@@ -39,3 +39,5 @@ object EmailFormDataWithPreference {
     EmailFormDataWithPreference((emailAddressAsString, emailAddressAsString), None, preference, acceptedTcs)
   }
 }
+
+case class UpgradeRemindersTandC (acceptedTCs: Option[Boolean], submitButton: String)

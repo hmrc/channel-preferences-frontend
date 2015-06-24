@@ -56,6 +56,16 @@ trait PreferencesControllerHelper {
       .verifying("email.confirmation.emails.unequal", formData => formData.email._1 == formData.email._2)
     )
 
+  protected val upgradeRemindersForm = Form[UpgradeRemindersTandC](mapping(
+    "accept-tc" -> optional(boolean),
+    "submitButton" -> text
+  )
+    (UpgradeRemindersTandC.apply)(UpgradeRemindersTandC.unapply) verifying("sa_printing_preference.accept_tc_required", fields => fields match {
+      case formData if formData.submitButton.equals("digital") && formData.acceptedTCs == Some(true) => true
+      case formData if formData.submitButton.equals("digital") && formData.acceptedTCs == None => false
+      case _ => true
+    }))
+
   def getSubmitPreferencesView(savePrefsCall: Call, cohort: OptInCohort)(implicit request: Request[AnyRef], withBanner: Boolean = false): Form[_] => HtmlFormat.Appendable = {
     errors => views.html.sa.prefs.sa_printing_preference(withBanner, errors, savePrefsCall, cohort)
   }

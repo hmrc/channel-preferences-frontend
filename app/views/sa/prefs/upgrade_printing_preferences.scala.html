@@ -1,9 +1,12 @@
 @(utr: uk.gov.hmrc.domain.SaUtr,
   nino: Option[uk.gov.hmrc.domain.Nino],
   emailAddress: Option[uk.gov.hmrc.emailaddress.ObfuscatedEmailAddress],
-  returnUrl: String)(implicit request: Request[_])
+  returnUrl: String,
+  tandc: Form[_] )(implicit request: Request[_])
 
 @import uk.gov.hmrc.play.views.html.helpers.form
+@import uk.gov.hmrc.urls.Link
+@import uk.gov.hmrc.play.views.html.helpers._
 
 <head>
     <title>Upgrade your paperless</title>
@@ -20,10 +23,21 @@
     <p id="opted-in-email">You opted to have us contact you at @emailAddress</p>
 }
 
+<div class="email-form-errors">
+    @tandc.globalErrors.map { error => <label class="error-notification">@Messages(error.message)</label>}
+</div>
+
 <p>Good news!</p>
 <p>You can now receive your PAYE notifications this way too</p>
 
-@form(action = controllers.sa.prefs.internal.routes.UpgradeRemindersController.upgrade(returnUrl)) {
+@form(action = controllers.sa.prefs.internal.routes.UpgradeRemindersController.upgrade(returnUrl)){
+
+    @singleCheckbox(
+    tandc("accept-tc"),
+         '_label -> Html(Messages("sa_printing_preference.tc.preLinkText", Link.toExternalPage(id = Some("terms-and-conditions"), url =  controllers.sa.prefs.internal.routes.BizTaxPrefsController.termsAndConditions.url, value = Some(Messages("sa_printing_preference.tc.linkText"))).toHtml)),
+        '_labelClass -> "label--inline"
+    )
+
     <p>Just click <button id="confirm-upgrade" class="link" name="submitButton" type="submit" value="digital">here to upgrade now</button> and we'll do the rest!</p>
     <button id="cancel-upgrade" class="link" name="submitButton" type="submit" value="non-digital">No, thanks.</button>
 }
