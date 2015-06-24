@@ -47,7 +47,9 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
       val url = WS.url(resource("/account/account-details/sa/upgrade-email-reminders")).withQueryString(("returnUrl" -> returnUrl))
 
       def post(accept: Boolean) = {
-        url.withHeaders(cookie,"Csrf-Token"->"nocheck").withFollowRedirects(false).post(Map("submitButton" -> Seq("digital")))
+        url.withHeaders(cookie,"Csrf-Token"->"nocheck").withFollowRedirects(false).post(
+          Map("submitButton" -> Seq("digital"), "accept-tc" -> Seq("true"))
+        )
       }
 
       def get() = url.withHeaders(cookie).get()
