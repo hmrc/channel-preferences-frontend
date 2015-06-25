@@ -1,10 +1,11 @@
 package controllers.sa.prefs.internal
 
-import connectors.PreferencesConnector
+import connectors.{PreferencesConnector, SaEmailPreference, SaPreference}
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{any, eq => is}
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
+import play.api.i18n.Messages
 import play.api.libs.json.JsString
 import play.api.mvc.{AnyContent, Request}
 import play.api.test.FakeRequest
@@ -58,34 +59,56 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
 
   }
 
-// TODO...WHAT SHOULD BE DONE CONCERNING SENDING A REQUEST TO THE POST URL IF THE GET HAS NOT BEEN CALLED>
-
   "the validate upgrade form" should {
     "redirect to supplied url if terms and conditions are checked and digital button pressed " in new UpgradeTestCase {
 
       when(controller.preferencesConnector.upgradeTermsAndConditions(is(utr), is(true))(any())).thenReturn(Future.successful(true))
 
-      val result = await(controller.validateUpgradeForm("someurl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("submitButton" -> "digital", "accept-tc" -> "true")))
+      val result = await(controller.validateUpgradeForm("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("submitButton" -> "digital", "accept-tc" -> "true")))
 
       status(result) shouldBe 303
-      header("Location", result).get should include("someurl")
+      header("Location", result).get should include("someUrl")
     }
 
     "return bad request if terms and conditions are not checked and digital button pressed" in new UpgradeTestCase {
 
-      val result = await(controller.validateUpgradeForm("someurl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("submitButton" -> "digital")))
+      when(controller.preferencesConnector.getPreferences(is(utr), is(Some(nino)))(any())).thenReturn(Future.successful(Some(SaPreference(true, Some(email)))))
 
-      status(result) shouldBe 400
+      val result = await(controller.validateUpgradeForm("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("submitButton" -> "digital")))
+
+      status(result) shouldBe 200
+      bodyOf(result) should include(Messages("sa_printing_preference.accept_tc_required"))
     }
 
     "redirect to supplied url if non-digital button pressed " in new UpgradeTestCase {
 
       when(controller.preferencesConnector.upgradeTermsAndConditions(is(utr), is(false))(any())).thenReturn(Future.successful(true))
 
-      val result = await(controller.validateUpgradeForm("someurl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("submitButton" -> "non-digital")))
+      val result = await(controller.validateUpgradeForm("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("submitButton" -> "non-digital")))
 
       status(result) shouldBe 303
-      header("Location", result).get should include("someurl")
+      header("Location", result).get should include("someUrl")
+    }
+
+    "redirect to supplied url when no preference found" in new UpgradeTestCase {
+      when(controller.preferencesConnector.getPreferences(is(utr), is(Some(nino)))(any())).thenReturn(Future.successful(None))
+
+      val result = await(controller.validateUpgradeForm("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("submitButton" -> "digital")))
+
+      status(result) shouldBe 303
+      header("Location", result).get should include("someUrl")
+    }
+
+  }
+  "the upgrade page" should {
+
+    "redirect to supplied url when no preference found" in new UpgradeTestCase {
+      when(controller.preferencesConnector.getPreferences(is(utr), is(Some(nino)))(any())).thenReturn(Future.successful(None))
+
+      val result = await(controller.renderUpgradePageIfPreferencesAvailable(utr, Some(nino))( testRequestwithRedirectUrl ) )
+
+      status(result) shouldBe 303
+      header("Location", result).get should include("someUrl")
     }
   }
 
@@ -95,8 +118,13 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
     implicit val request = mock[Request[AnyContent]]
 
     val testRequest = FakeRequest()
+    val testRequestwithRedirectUrl = FakeRequest(GET, "/anything?returnUrl=someUrl")
+
     val utr = SaUtr("testUtr")
     val nino = Nino("CE123456A")
+    val emailAddress = "someone@something.com"
+    val email = SaEmailPreference(emailAddress, "STATUS", false, None, None)
+
 
     val controller = new UpgradeRemindersController {
       override val preferencesConnector: PreferencesConnector = mock[PreferencesConnector]

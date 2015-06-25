@@ -1,23 +1,14 @@
 import connectors.PreferencesConnector
-import controllers.sa.prefs.internal.EmailOptInJourney._
 import controllers.sa.prefs.internal.UpgradeRemindersController
-import org.mockito.ArgumentCaptor
-import org.mockito.Matchers._
-import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
-import play.api.libs.json.JsString
 import play.api.libs.ws.{WS, WSResponse}
-import play.api.test.FakeRequest
-import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.audit.model.{EventTypes, ExtendedDataEvent}
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
-
-import scala.concurrent.Future
 
 class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSupport with MockitoSugar {
 
   "Upgrading preferences should" should {
+
     "set upgraded terms and conditions and allow subsequent activation"  in new UpgradeTestCase  {
       createOptedInVerifiedPreferenceWithNino()
 
@@ -29,6 +20,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
       `/preferences/paye/individual/:nino/activations`(nino, authHeader).post().futureValue.status should be (200)
     }
+
   }
 
   trait UpgradeTestCase extends TestCaseWithFrontEndAuthentication {
@@ -48,7 +40,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
       def post(accept: Boolean) = {
         url.withHeaders(cookie,"Csrf-Token"->"nocheck").withFollowRedirects(false).post(
-          Map("submitButton" -> Seq("digital"), "accept-tc" -> Seq("true"))
+          Map("submitButton" -> Seq("digital"), "accept-tc" -> Seq(accept.toString))
         )
       }
 
