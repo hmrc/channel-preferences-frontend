@@ -1,5 +1,6 @@
 package controllers.sa.prefs.config
 
+import com.kenshoo.play.metrics.{MetricsRegistry, MetricsFilter}
 import connectors.HttpVerbs
 import controllers.sa.prefs.internal.OptInCohortConfigurationValues
 import play.api.mvc.Request
@@ -38,6 +39,16 @@ object Global extends DefaultFrontendGlobal with RunMode with ServicesConfig {
   override def loggingFilter: FrontendLoggingFilter = FrontendFilters.LoggingFilter
 
   override def frontendAuditFilter: FrontendAuditFilter = FrontendFilters.AuditFilter
+
+  override def metricsFilter = new MetricsFilter {
+    def registry = MetricsRegistry.defaultRegistry
+    override val knownStatuses = Seq(
+      200, 201, 202, 204, 206,
+      301, 302, 303, 304, 307, 308,
+      400, 401, 403, 404, 408, 409, 410, 412, 413, 414, 417, 422, 499,
+      500, 502, 503, 504
+    )
+  }
 
   override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: Request[_]): Html = Html("")
 }
