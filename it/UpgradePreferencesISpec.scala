@@ -10,15 +10,16 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
   "Upgrading preferences should" should {
 
     "set upgraded terms and conditions and allow subsequent activation"  in new UpgradeTestCase  {
+
       createOptedInVerifiedPreferenceWithNino()
 
-      `/preferences/paye/individual/:nino/activations`(nino,authHeader).post().futureValue.status should be (412)
+      `/preferences/paye/individual/:nino/activations/paye`(nino,authHeader).put().futureValue.status should be (412)
 
       val response = `/upgrade-email-reminders`.post(accept = true).futureValue
       response should have('status(303))
       response.header("Location") should contain (returnUrl)
 
-      `/preferences/paye/individual/:nino/activations`(nino, authHeader).post().futureValue.status should be (200)
+      `/preferences/paye/individual/:nino/activations/paye`(nino, authHeader).put().futureValue.status should be (200)
     }
 
   }
@@ -48,9 +49,14 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
     }
 
     def createOptedInVerifiedPreferenceWithNino() : WSResponse = {
+
+      println(" 1 ")
       await(`/preferences-admin/sa/individual`.delete(utr))
+      println(" 2 ")
       `/portal/preferences/sa/individual`.postPendingEmail(utr, uniqueEmail) should (have(status(200)) or have(status(201)))
+      println(" 3 ")
       `/preferences-admin/sa/individual`.verifyEmailFor(utr)
+      println(" 4 ")
       await(`/preferences-admin/sa/process-nino-determination`.post())
     }
 
