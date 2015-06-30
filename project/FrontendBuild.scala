@@ -41,7 +41,7 @@ private object Dependencies {
     "uk.gov.hmrc"    %% "play-config"              % "1.0.0",
     "uk.gov.hmrc"    %% "play-json-logger"         % "1.0.0",
     "uk.gov.hmrc"    %% "http-verbs"               % "1.6.0",
-    "uk.gov.hmrc"    %% "frontend-bootstrap"       % "0.6.0",
+    "uk.gov.hmrc"    %% "frontend-bootstrap"       % "0.8.0",
 
     "org.jsoup"      %  "jsoup"       % jsoupVersion     % "test",
     "org.scalatest"  %% "scalatest"   % scalatestVersion % "test",
