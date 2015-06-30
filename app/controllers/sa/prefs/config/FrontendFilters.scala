@@ -20,6 +20,7 @@ object FrontendFilters extends RunMode {
     val applicationPort = None
     val auditConnector = AuditConnector(LoadAuditingConfig(s"$env.auditing"))
 
-    def controllerNeedsAuditing(controllerName: String) = Play.configuration.getBoolean(s"controllers.$controllerName.needsAuditing").getOrElse(true)
+    def controllerNeedsAuditing(controllerName: String) =
+      Play.configuration.getBoolean(s"$env.controllers.$controllerName.needsAuditing").getOrElse(true)
   }
 }
