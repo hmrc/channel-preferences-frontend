@@ -50,13 +50,9 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
     def createOptedInVerifiedPreferenceWithNino() : WSResponse = {
 
-      println(" 1 ")
       await(`/preferences-admin/sa/individual`.delete(utr))
-      println(" 2 ")
       `/portal/preferences/sa/individual`.postPendingEmail(utr, uniqueEmail) should (have(status(200)) or have(status(201)))
-      println(" 3 ")
       `/preferences-admin/sa/individual`.verifyEmailFor(utr)
-      println(" 4 ")
       await(`/preferences-admin/sa/process-nino-determination`.post())
     }
 
