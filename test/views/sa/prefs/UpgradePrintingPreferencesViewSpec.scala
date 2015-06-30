@@ -20,7 +20,7 @@ class UpgradePrintingPreferencesViewSpec extends UnitSpec with PreferencesContro
       val utr = new SaUtr("testUtr")
       val nino = new Nino("CE123457D")
 
-      val document = Jsoup.parse(upgrade_printing_preferences(utr, Some(nino), Some(emailAddress), "someReturnUrl")(FakeRequest("GET", "/")).toString())
+      val document = Jsoup.parse(upgrade_printing_preferences(utr, Some(nino), Some(emailAddress), "someReturnUrl", upgradeRemindersForm)(FakeRequest("GET", "/")).toString())
       document.getElementById("opted-in-email").text() should include (emailAddress)
       document.getElementById("opted-in-utr").text() should include (utr.utr)
       document.getElementById("opted-in-nino").text() should include (nino.nino)

@@ -48,13 +48,15 @@ trait PreferencesFrontEndServer extends ServiceSpec {
 
     def `/email-reminders-status` = WS.url(resource("/account/account-details/sa/email-reminders-status"))
 
-    def `/preferences/paye/individual/:nino/activations`(nino: String, headers: (String, String)) = new {
+    def `/preferences/paye/individual/:nino/activations/paye`(nino: String, headers: (String, String)) = new {
 
-      def post() = WS.url(server.externalResource("preferences", s"/preferences/paye/individual/$nino/activations"))
+     val payeFormTypeBody = Json.parse(s"""{"active":true}""")
+
+      def put() = WS.url(server.externalResource("preferences", s"/preferences/paye/individual/$nino/activations/paye")).withQueryString("returnUrl" -> "/some/return/url")
         .withHeaders(headers)
-        .post(Json.parse(s"""{"returnUrl":"/some/return/url", "formTypes":"paye"}"""))
+        .put(payeFormTypeBody)
 
-      val resource = WS.url(server.externalResource("preferences", s"/preferences/paye/individual/$nino/activations"))
+      val resource = WS.url(server.externalResource("preferences", s"/preferences/paye/individual/$nino/activations/paye"))
     }
 
     val `/portal/preferences/sa/individual` = new {

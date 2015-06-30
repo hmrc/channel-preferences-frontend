@@ -1,21 +1,21 @@
 package controllers.sa.prefs.internal
 
-import connectors.PreferencesConnector
-import controllers.sa.prefs.AuthorityUtils._
+import connectors.{PreferencesConnector, SaEmailPreference, SaPreference}
 import org.mockito.ArgumentCaptor
-import org.mockito.Matchers._
+import org.mockito.Matchers.{any, eq => is}
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
+import play.api.i18n.Messages
 import play.api.libs.json.JsString
-import play.api.mvc.{Request, AnyContent}
-import play.api.test.WithApplication
+import play.api.mvc.{AnyContent, Request}
+import play.api.test.FakeRequest
+import play.api.test.Helpers._
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.{EventTypes, ExtendedDataEvent}
-import uk.gov.hmrc.play.frontend.auth.AuthContext
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
-import uk.gov.hmrc.play.test.{WithFakeApplication, UnitSpec}
+import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.Future
 
@@ -29,7 +29,7 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
     event.auditType shouldBe EventTypes.Succeeded
     event.tags should contain ("transactionName" -> "Set Print Preference")
     event.detail \ "client" shouldBe JsString("PAYETAI")
-    event.detail \ "nino" shouldBe JsString(nino)
+    event.detail \ "nino" shouldBe JsString(nino.value)
     event.detail \ "utr" shouldBe JsString(utr.utr)
     event.detail \ "TandCsScope" shouldBe JsString("Generic")
     event.detail \ "TandCsVersion" shouldBe JsString("V1")
@@ -48,7 +48,7 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
     event.auditType shouldBe EventTypes.Succeeded
     event.tags should contain ("transactionName" -> "Set Print Preference")
     event.detail \ "client" shouldBe JsString("PAYETAI")
-    event.detail \ "nino" shouldBe JsString(nino)
+    event.detail \ "nino" shouldBe JsString(nino.value)
     event.detail \ "utr" shouldBe JsString(utr.utr)
     event.detail \ "TandCsScope" shouldBe JsString("Generic")
     event.detail \ "TandCsVersion" shouldBe JsString("V1")
@@ -59,16 +59,72 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
 
   }
 
+  "the validate upgrade form" should {
+    "redirect to supplied url if terms and conditions are checked and digital button pressed " in new UpgradeTestCase {
+
+      when(controller.preferencesConnector.upgradeTermsAndConditions(is(utr), is(true))(any())).thenReturn(Future.successful(true))
+
+      val result = await(controller.validateUpgradeForm("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("submitButton" -> "digital", "accept-tc" -> "true")))
+
+      status(result) shouldBe 303
+      header("Location", result).get should include("someUrl")
+    }
+
+    "return bad request if terms and conditions are not checked and digital button pressed" in new UpgradeTestCase {
+
+      when(controller.preferencesConnector.getPreferences(is(utr), is(Some(nino)))(any())).thenReturn(Future.successful(Some(SaPreference(true, Some(email)))))
+
+      val result = await(controller.validateUpgradeForm("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("submitButton" -> "digital")))
+
+      status(result) shouldBe 200
+      bodyOf(result) should include(Messages("sa_printing_preference.accept_tc_required"))
+    }
+
+    "redirect to supplied url if non-digital button pressed " in new UpgradeTestCase {
+
+      when(controller.preferencesConnector.upgradeTermsAndConditions(is(utr), is(false))(any())).thenReturn(Future.successful(true))
+
+      val result = await(controller.validateUpgradeForm("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("submitButton" -> "non-digital")))
+
+      status(result) shouldBe 303
+      header("Location", result).get should include("someUrl")
+    }
+
+    "redirect to supplied url when no preference found" in new UpgradeTestCase {
+      when(controller.preferencesConnector.getPreferences(is(utr), is(Some(nino)))(any())).thenReturn(Future.successful(None))
+
+      val result = await(controller.validateUpgradeForm("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("submitButton" -> "digital")))
+
+      status(result) shouldBe 303
+      header("Location", result).get should include("someUrl")
+    }
+
+  }
+  "the upgrade page" should {
+
+    "redirect to supplied url when no preference found" in new UpgradeTestCase {
+      when(controller.preferencesConnector.getPreferences(is(utr), is(Some(nino)))(any())).thenReturn(Future.successful(None))
+
+      val result = await(controller.renderUpgradePageIfPreferencesAvailable(utr, Some(nino))( testRequestwithRedirectUrl ) )
+
+      status(result) shouldBe 303
+      header("Location", result).get should include("someUrl")
+    }
+  }
 
   trait UpgradeTestCase  {
-
-    import org.mockito.Matchers.{any, eq => is}
 
     implicit val hc = HeaderCarrier()
     implicit val request = mock[Request[AnyContent]]
 
+    val testRequest = FakeRequest()
+    val testRequestwithRedirectUrl = FakeRequest(GET, "/anything?returnUrl=someUrl")
+
     val utr = SaUtr("testUtr")
-    val nino = "CE123456A"
+    val nino = Nino("CE123456A")
+    val emailAddress = "someone@something.com"
+    val email = SaEmailPreference(emailAddress, "STATUS", false, None, None)
+
 
     val controller = new UpgradeRemindersController {
       override val preferencesConnector: PreferencesConnector = mock[PreferencesConnector]
@@ -78,7 +134,7 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
 
     def upgradeAndCaptureAuditEvent(digital: Boolean):ArgumentCaptor[ExtendedDataEvent] = {
       when(controller.preferencesConnector.upgradeTermsAndConditions(is(utr), is(digital))(any())).thenReturn(Future.successful(true))
-      await(controller.upgradeTermsAndConditions(utr, Some(Nino(nino)), digital))
+      await(controller.upgradeTermsAndConditions(utr, Some(nino), digital))
       val eventArg : ArgumentCaptor[ExtendedDataEvent] = ArgumentCaptor.forClass(classOf[ExtendedDataEvent])
       verify(controller.auditConnector).sendEvent(eventArg.capture())(any(), any())
       return  eventArg

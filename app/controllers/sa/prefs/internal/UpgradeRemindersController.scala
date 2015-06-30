@@ -1,13 +1,11 @@
 package controllers.sa.prefs.internal
 
 import connectors.PreferencesConnector
-import controllers.sa.prefs.ExternalUrls.yourIncomeTax
-import controllers.sa.prefs.SaRegimeWithoutRedirection
 import controllers.sa.prefs.config.Global
-import controllers.sa.prefs.internal.EmailOptInJourney._
+import controllers.sa.prefs.{SaRegimeWithoutRedirection, UpgradeRemindersTandC}
+import play.api.data.Form
 import play.api.libs.json.Json
-import play.api.mvc.{Result, Action, AnyContent, Request}
-import play.twirl.api.Html
+import play.api.mvc.{Action, AnyContent, Request, Result}
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.emailaddress.ObfuscatedEmailAddress
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
@@ -28,7 +26,7 @@ object UpgradeRemindersController extends UpgradeRemindersController {
   override def auditConnector: AuditConnector = Global.auditConnector
 }
 
-trait UpgradeRemindersController extends FrontendController with Actions with AppName  {
+trait UpgradeRemindersController extends FrontendController with Actions with AppName with PreferencesControllerHelper  {
 
   def authConnector: AuthConnector
 
@@ -43,21 +41,31 @@ trait UpgradeRemindersController extends FrontendController with Actions with Ap
 
   private[controllers] def renderUpgradePageIfPreferencesAvailable(utr: SaUtr, maybeNino: Option[Nino])(implicit request: Request[AnyContent]): Future[Result] = {
     request.getQueryString("returnUrl") match {
-      case Some(returnUrl) =>
-        preferencesConnector.getPreferences(utr, maybeNino).map {
-          case Some(prefs) => Ok(upgrade_printing_preferences(utr, maybeNino, prefs.email.map(e => ObfuscatedEmailAddress(e.email)), returnUrl))
-          case _ => NotFound
-        }
+      case Some(returnUrl) => decideRoutingFromPreference(utr,maybeNino, returnUrl, upgradeRemindersForm)
       case _ => Future.successful(BadRequest("returnUrl parameter missing"))
     }
-
   }
 
   def upgrade(returnUrl: String) = AuthorisedFor(SaRegimeWithoutRedirection).async {
-    authContext => implicit request => {
-      val digital = request.body.asFormUrlEncoded.get("submitButton").head == "digital"
-      upgradeTermsAndConditions(authContext.principal.accounts.sa.get.utr, authContext.principal.accounts.paye.map(_.nino), digital)
-    }.map(_ => Redirect(returnUrl))
+    authContext => implicit request =>
+      validateUpgradeForm(returnUrl, authContext.principal.accounts.sa.get.utr, authContext.principal.accounts.paye.map(_.nino)).map(response => response)
+  }
+
+  private[controllers] def validateUpgradeForm(returnUrl:String, utr: SaUtr, maybeNino: Option[Nino])(implicit request: Request[AnyContent]): Future[Result] = {
+
+    upgradeRemindersForm.bindFromRequest()(request).fold(
+      formWithErrors => decideRoutingFromPreference(utr,maybeNino, returnUrl, formWithErrors)
+      ,
+      formOK => upgradeTermsAndConditions(utr, maybeNino, formOK.isDigitalButtonSelected).map(resp => Redirect(returnUrl))
+    )
+  }
+
+  private def decideRoutingFromPreference(utr: SaUtr, maybeNino: Option[Nino], returnUrl:String, tandcForm:Form[UpgradeRemindersTandC])(implicit request: Request[AnyContent]) = {
+
+    preferencesConnector.getPreferences(utr, maybeNino).map {
+      case Some(prefs) => Ok(upgrade_printing_preferences(utr, maybeNino, prefs.email.map(e => ObfuscatedEmailAddress(e.email)), returnUrl, tandcForm ))
+      case _ => Redirect(returnUrl)
+    }
   }
 
   private[controllers] def upgradeTermsAndConditions(utr: SaUtr, nino: Option[Nino], digital: Boolean)(implicit request: Request[AnyContent], hc: HeaderCarrier) =
