@@ -1,10 +1,26 @@
-<!DOCTYPE html>
-<html>
-<head lang="en">
-    <meta charset="UTF-8">
-    <title></title>
-</head>
-<body>
-THANK YOU
-</body>
-</html>
+@()(implicit request: Request[_])
+
+@import uk.gov.hmrc.play.views.html.helpers.form
+@import uk.gov.hmrc.urls.Link
+@import uk.gov.hmrc.play.views.html.helpers._
+@import uk.gov.hmrc.play.views.html.{layouts => uiLayouts}
+
+@signoutLink = {
+  <li><a id="logOutNavHref" href="/tai/signout" data-journey-click="primary-navigation:Click:Sign out">Sign out</a></li>
+}
+
+@betaBanner = {
+    @uiLayouts.betaBanner(
+      userLoggedIn = true,
+      betaFeedbackUrl = "/contact/beta-feedback",
+      betaFeedbackUnauthenticatedUrl = "/contact/beta-feedback-unauthenticated",
+      showFeedbackLinkInBetaBanner = true)
+}
+
+@main(title = "", navTitle = "", navLinks = signoutLink, betaBanner = betaBanner) {
+
+
+
+  <a href="">Check your Income Tax Estimate</a>
+
+}
