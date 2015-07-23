@@ -1,4 +1,7 @@
 @(title: String,
+  navTitle: String = "Your tax account",
+  navLinks: Html = includes.yta_header_nav_links(),
+  betaBanner: Html = HtmlFormat.empty,
   sidebarLinks: Option[Html] = None,
   contentHeader: Option[Html] = None,
   bodyClasses: Option[String] = None,
@@ -22,6 +25,9 @@
 
 @govuk_wrapper(appConfig = controllers.sa.prefs.config.YtaConfig,
                title = title,
+               navTitle = navTitle,
+               navLinks = navLinks,
+               betaBanner = betaBanner,
                mainClass = mainClass,
                bodyClasses = bodyClasses,
                sidebar = sidebar,

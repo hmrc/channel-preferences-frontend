@@ -1,5 +1,8 @@
 @(appConfig: controllers.sa.prefs.config.AppConfig,
   title: String,
+  navTitle: String,
+  navLinks: Html = HtmlFormat.empty,
+  betaBanner: Html = HtmlFormat.empty,
   mainClass: Option[String] = None,
   mainDataAttributes: Option[Html] = None,
   bodyClasses: Option[String] = None,
@@ -21,10 +24,10 @@
 
 @insideHeader = {
     @uiLayouts.header_nav(
-      navTitle = Some("Your tax account"),
+      navTitle = Some(navTitle),
       navTitleLink = None,
       showBetaLink = false,
-      navLinks = Some(includes.yta_header_nav_links()))
+      navLinks = Some(navLinks))
 }
 
 @afterHeader = {}
@@ -44,7 +47,7 @@
 
 @serviceInfo = {
     @uiLayouts.serviceInfo(
-      betaBanner = HtmlFormat.empty,
+      betaBanner = betaBanner,
       includeGridWrapper = false,
       serviceInfoContent = Some(serviceInfoContent))
 }

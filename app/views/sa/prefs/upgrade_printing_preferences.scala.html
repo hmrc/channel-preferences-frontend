@@ -7,38 +7,57 @@
 @import uk.gov.hmrc.play.views.html.helpers.form
 @import uk.gov.hmrc.urls.Link
 @import uk.gov.hmrc.play.views.html.helpers._
+@import uk.gov.hmrc.play.views.html.{layouts => uiLayouts}
 
-<head>
-    <title>Upgrade your paperless</title>
-</head>
-
-<h1>Get the full paperless service</h1>
-
-<p>Previously we asked you if you wanted to receive information from us via email</p>
-<p id="opted-in-utr">Your UTR is @utr</p>
-@nino.map { nino =>
-    <p id="opted-in-nino">Your Nino is @nino</p>
-}
-@emailAddress.map { emailAddress =>
-    <p id="opted-in-email">You opted to have us contact you at @emailAddress</p>
+@signoutLink = {
+  <li><a id="logOutNavHref" href="/tai/signout" data-journey-click="primary-navigation:Click:Sign out">Sign out</a></li>
 }
 
-<div class="email-form-errors">
-    @tandc.globalErrors.map { error => <label class="error-notification">@Messages(error.message)</label>}
-</div>
-
-<p>Good news!</p>
-<p>You can now receive your PAYE notifications this way too</p>
-
-@form(action = controllers.sa.prefs.internal.routes.UpgradeRemindersController.upgrade(returnUrl)){
-
-    @singleCheckbox(
-    tandc("accept-tc"),
-         '_label -> Html(Messages("sa_printing_preference.tc.preLinkText", Link.toExternalPage(id = Some("terms-and-conditions"), url =  controllers.sa.prefs.internal.routes.BizTaxPrefsController.termsAndConditions.url, value = Some(Messages("sa_printing_preference.tc.linkText"))).toHtml)),
-        '_labelClass -> "label--inline"
-    )
-
-    <p>Just click <button id="confirm-upgrade" class="link" name="submitButton" type="submit" value="digital">here to upgrade now</button> and we'll do the rest!</p>
-    <button id="cancel-upgrade" class="link" name="submitButton" type="submit" value="non-digital">No, thanks.</button>
+@betaBanner = {
+    @uiLayouts.betaBanner(
+      userLoggedIn = true,
+      betaFeedbackUrl = "/contact/beta-feedback",
+      betaFeedbackUnauthenticatedUrl = "/contact/beta-feedback-unauthenticated",
+      showFeedbackLinkInBetaBanner = true)
 }
 
+@main(title = "Get email notifications", navTitle = "", navLinks = signoutLink, betaBanner = betaBanner) {
+
+  <h1>
+    <span class="email-notifications__subheading">Before you check your Income Tax</span>
+    <p class="email-notifications__heading push">Get email notifications</p>
+  </h1>
+
+  <p class="you-can-chose__p font-medium">You can choose to get email notifications about your Income Tax.</p>
+
+  <p class="font-small">Like the emails you get for Self Assessment, the notifications won't contain any personal or tax details and will we tell you if:</p>
+
+  <ul class="bullets">
+    <li class="font-small">your Income Tax estimate has changed</li>
+    <li class="font-small">there's something you need to see or do</li>
+  </ul>
+
+  @emailAddress.map { emailAddress =>
+      <p id="opted-in-email" class="font-small">We'll send emails to @emailAddress. You’ll be able to manage your message settings through 'Your tax account’.</p>
+  }
+
+  <p class="panel-indent">You'll still continue to receive paper copies of important documents.</p>
+
+  <div class="email-form-errors">
+      @tandc.globalErrors.map { error => <label class="error-notification">@Messages(error.message)</label>}
+  </div>
+
+  @form(action = controllers.sa.prefs.internal.routes.UpgradeRemindersController.upgrade(returnUrl)){
+
+      @singleCheckbox(
+      tandc("accept-tc"),
+           '_label -> Html(Messages("sa_printing_preference.tc.preLinkText", Link.toExternalPage(id = Some("terms-and-conditions"), url =  controllers.sa.prefs.internal.routes.BizTaxPrefsController.termsAndConditions.url, value = Some(Messages("sa_printing_preference.tc.linkText"))).toHtml)),
+          '_labelClass -> "label--inline"
+      )
+
+      <p><button id="confirm-upgrade" class="link" name="submitButton" type="submit" value="digital">Sign up for email notifications</button></p>
+  
+      <button id="cancel-upgrade" class="link button--link-style" name="submitButton" type="submit" value="non-digital">No, I don't want to sign up for email notifications</button>
+  }
+
+}
