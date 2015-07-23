@@ -14,6 +14,7 @@ trait AppConfig {
   val accountDetailsUrl: String
   val helpUrl: String
   val signOutUrl: String
+  val taiSignOutUrl: String
 }
 
 object YtaConfig extends AppConfig with RunMode {
@@ -29,4 +30,5 @@ object YtaConfig extends AppConfig with RunMode {
   override lazy val accountDetailsUrl = ExternalUrls.accountDetails
   override lazy val helpUrl = s"${ExternalUrls.caUrlPrefix}/contact/contact-hmrc"
   override lazy val signOutUrl = ExternalUrls.survey
+  override lazy val taiSignOutUrl = ExternalUrls.taiSignOutUrl
 }

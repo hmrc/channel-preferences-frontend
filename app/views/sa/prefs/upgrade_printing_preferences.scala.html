@@ -2,7 +2,9 @@
   nino: Option[uk.gov.hmrc.domain.Nino],
   emailAddress: Option[uk.gov.hmrc.emailaddress.ObfuscatedEmailAddress],
   returnUrl: String,
-  tandc: Form[_] )(implicit request: Request[_])
+  tandc: Form[_],
+  appConfig: controllers.sa.prefs.config.AppConfig = controllers.sa.prefs.config.YtaConfig
+)(implicit request: Request[_])
 
 @import uk.gov.hmrc.play.views.html.helpers.form
 @import uk.gov.hmrc.urls.Link
@@ -10,14 +12,14 @@
 @import uk.gov.hmrc.play.views.html.{layouts => uiLayouts}
 
 @signoutLink = {
-  <li><a id="logOutNavHref" href="/tai/signout" data-journey-click="primary-navigation:Click:Sign out">Sign out</a></li>
+  <li><a id="logOutNavHref" href="@appConfig.taiSignOutUrl" data-journey-click="primary-navigation:Click:Sign out">Sign out</a></li>
 }
 
 @betaBanner = {
     @uiLayouts.betaBanner(
       userLoggedIn = true,
-      betaFeedbackUrl = "/contact/beta-feedback",
-      betaFeedbackUnauthenticatedUrl = "/contact/beta-feedback-unauthenticated",
+      betaFeedbackUrl = appConfig.betaFeedbackUrl,
+      betaFeedbackUnauthenticatedUrl = appConfig.betaFeedbackUnauthenticatedUrl,
       showFeedbackLinkInBetaBanner = true)
 }
 

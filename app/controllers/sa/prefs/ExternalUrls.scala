@@ -19,6 +19,7 @@ object ExternalUrls extends RunMode {
   val businessTaxHome         = s"$ytaUrlPrefix/account"
   val survey                  = s"$businessTaxHome/survey"
   val yourIncomeTax           = s"$taiUrlPrefix/tai/your-income-tax"
+  val taiSignOutUrl           = s"$taiUrlPrefix/tai/signout"
 
   val loginCallback           = Play.configuration.getString(s"govuk-tax.$env.login-callback.url").getOrElse(businessTaxHome)
   val signIn                  = s"$caUrlPrefix/account/sign-in?continue=$loginCallback"
