@@ -1,4 +1,6 @@
-@()(implicit request: Request[_])
+@(returnUrl: String,
+  appConfig: controllers.sa.prefs.config.AppConfig = controllers.sa.prefs.config.YtaConfig
+)(implicit request: Request[_])
 
 @import uk.gov.hmrc.play.views.html.helpers.form
 @import uk.gov.hmrc.urls.Link
@@ -6,14 +8,14 @@
 @import uk.gov.hmrc.play.views.html.{layouts => uiLayouts}
 
 @signoutLink = {
-  <li><a id="logOutNavHref" href="/tai/signout" data-journey-click="primary-navigation:Click:Sign out">Sign out</a></li>
+  <li><a id="logOutNavHref" href="@appConfig.taiSignOutUrl" data-journey-click="primary-navigation:Click:Sign out">Sign out</a></li>
 }
 
 @betaBanner = {
     @uiLayouts.betaBanner(
       userLoggedIn = true,
-      betaFeedbackUrl = "/contact/beta-feedback",
-      betaFeedbackUnauthenticatedUrl = "/contact/beta-feedback-unauthenticated",
+	  betaFeedbackUrl = appConfig.betaFeedbackUrl,
+      betaFeedbackUnauthenticatedUrl = appConfig.betaFeedbackUnauthenticatedUrl,
       showFeedbackLinkInBetaBanner = true)
 }
 
@@ -30,6 +32,6 @@
 
   	<p class="email-notifications__p">You can manage your message settings and keep your email address up to date using 'Your tax account'.</p>
 
- 	<a href="" class="button">Check your Income Tax Estimate</a>
+ 	<a href="@returnUrl" class="button">Check your Income Tax Estimate</a>
 
 }

@@ -55,9 +55,9 @@ trait UpgradeRemindersController extends FrontendController with Actions with Ap
   private[controllers] def validateUpgradeForm(returnUrl:String, utr: SaUtr, maybeNino: Option[Nino])(implicit request: Request[AnyContent]): Future[Result] = {
 
     upgradeRemindersForm.bindFromRequest()(request).fold(
-      formWithErrors => decideRoutingFromPreference(utr,maybeNino, returnUrl, formWithErrors)
+      formWithErrors => upgradeTermsAndConditions(utr, maybeNino, true).map(resp => Ok(upgrade_printing_preferences_thank_you(returnUrl))) //decideRoutingFromPreference(utr,maybeNino, returnUrl, formWithErrors)
       ,
-      formOK => upgradeTermsAndConditions(utr, maybeNino, formOK.isDigitalButtonSelected).map(resp => Redirect(returnUrl))
+      formOK => upgradeTermsAndConditions(utr, maybeNino, formOK.isDigitalButtonSelected).map(resp => Ok(upgrade_printing_preferences_thank_you(returnUrl)))
     )
   }
 
@@ -65,7 +65,6 @@ trait UpgradeRemindersController extends FrontendController with Actions with Ap
 
     preferencesConnector.getPreferences(utr, maybeNino).map {
       case Some(prefs) => Ok(upgrade_printing_preferences(utr, maybeNino, prefs.email.map(e => ObfuscatedEmailAddress(e.email)), returnUrl, tandcForm ))
-      case _ => Redirect(returnUrl)
     }
   }
 
@@ -91,8 +90,8 @@ trait UpgradeRemindersController extends FrontendController with Actions with Ap
         "cohort" -> "TES_MVP"))))
 
 
-  def thankYou(): Action[AnyContent] = AuthorisedFor(SaRegimeWithoutRedirection).async {
+  def thankYou(returnUrl: String): Action[AnyContent] = AuthorisedFor(SaRegimeWithoutRedirection).async {
     authContext => implicit request =>
-        Future(Ok(upgrade_printing_preferences_thank_you()))
+        Future(Ok(upgrade_printing_preferences_thank_you(returnUrl)))
     }
 }
