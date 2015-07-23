@@ -28,11 +28,11 @@
     <p class="email-notifications__heading push">Get email notifications</p>
   </h1>
 
-  <p class="you-can-chose__p font-medium">You can choose to get email notifications about your Income Tax.</p>
+  <p class="email-notifications__p font-medium">You can choose to get email notifications about your Income Tax.</p>
 
-  <p class="font-small">Like the emails you get for Self Assessment, the notifications won't contain any personal or tax details and will we tell you if:</p>
+  <p class="email-notifications__list-heading font-small">Like the emails you get for Self Assessment, the notifications won't contain any personal or tax details and will we tell you if:</p>
 
-  <ul class="bullets">
+  <ul class="email-notifications__list bullets">
     <li class="font-small">your Income Tax estimate has changed</li>
     <li class="font-small">there's something you need to see or do</li>
   </ul>
@@ -41,7 +41,7 @@
       <p id="opted-in-email" class="font-small">We'll send emails to @emailAddress. You’ll be able to manage your message settings through 'Your tax account’.</p>
   }
 
-  <p class="panel-indent">You'll still continue to receive paper copies of important documents.</p>
+  <p class="email-notifications__indent panel-indent">You'll still continue to receive paper copies of important documents.</p>
 
   <div class="email-form-errors">
       @tandc.globalErrors.map { error => <label class="error-notification">@Messages(error.message)</label>}
@@ -49,11 +49,14 @@
 
   @form(action = controllers.sa.prefs.internal.routes.UpgradeRemindersController.upgrade(returnUrl)){
 
+  @*
       @singleCheckbox(
       tandc("accept-tc"),
            '_label -> Html(Messages("sa_printing_preference.tc.preLinkText", Link.toExternalPage(id = Some("terms-and-conditions"), url =  controllers.sa.prefs.internal.routes.BizTaxPrefsController.termsAndConditions.url, value = Some(Messages("sa_printing_preference.tc.linkText"))).toHtml)),
           '_labelClass -> "label--inline"
       )
+
+  *@
 
       <p><button id="confirm-upgrade" class="link" name="submitButton" type="submit" value="digital">Sign up for email notifications</button></p>
   
