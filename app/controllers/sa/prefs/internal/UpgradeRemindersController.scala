@@ -16,6 +16,7 @@ import uk.gov.hmrc.play.frontend.auth.Actions
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import views.html.sa.prefs.upgrade_printing_preferences
+import views.html.sa.prefs.upgrade_printing_preferences_thank_you
 
 import scala.concurrent.Future
 
@@ -88,4 +89,10 @@ trait UpgradeRemindersController extends FrontendController with Actions with Ap
         "journey" -> "GenericUpgrade",
         "digital" -> digital.toString,
         "cohort" -> "TES_MVP"))))
+
+
+  def thankYou(): Action[AnyContent] = AuthorisedFor(SaRegimeWithoutRedirection).async {
+    authContext => implicit request =>
+        Future(Ok(upgrade_printing_preferences_thank_you()))
+    }
 }
