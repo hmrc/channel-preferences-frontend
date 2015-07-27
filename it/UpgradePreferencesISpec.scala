@@ -1,5 +1,5 @@
 import connectors.PreferencesConnector
-import controllers.sa.prefs.internal.UpgradeRemindersController
+import controllers.sa.prefs.internal.{routes, UpgradeRemindersController}
 import org.scalatest.mock.MockitoSugar
 import play.api.libs.ws.{WS, WSResponse}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
@@ -9,17 +9,30 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
   "Upgrading preferences should" should {
 
-    "set upgraded terms and conditions and allow subsequent activation"  in new UpgradeTestCase  {
+    "set upgraded to paperless and allow subsequent activation"  in new UpgradeTestCase  {
 
       createOptedInVerifiedPreferenceWithNino()
 
       `/preferences/paye/individual/:nino/activations/paye`(nino,authHeader).put().futureValue.status should be (412)
 
-      val response = `/upgrade-email-reminders`.post(accept = true).futureValue
+      val response = `/upgrade-email-reminders`.post(submitButton = "digital").futureValue
+      response should have('status(303))
+      response.header("Location").get should be (routes.UpgradeRemindersController.thankYou(returnUrl).toString())
+
+      `/preferences/paye/individual/:nino/activations/paye`(nino, authHeader).put().futureValue.status should be (200)
+    }
+
+    "set not upgraded to paperless and don't allow subsequent activation"  in new UpgradeTestCase  {
+
+      createOptedInVerifiedPreferenceWithNino()
+
+      `/preferences/paye/individual/:nino/activations/paye`(nino,authHeader).put().futureValue.status should be (412)
+
+      val response = `/upgrade-email-reminders`.post(submitButton = "non-digital").futureValue
       response should have('status(303))
       response.header("Location") should contain (returnUrl)
 
-      `/preferences/paye/individual/:nino/activations/paye`(nino, authHeader).put().futureValue.status should be (200)
+      `/preferences/paye/individual/:nino/activations/paye`(nino, authHeader).put().futureValue.status should be (409)
     }
 
   }
@@ -39,9 +52,9 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
       val url = WS.url(resource("/account/account-details/sa/upgrade-email-reminders")).withQueryString(("returnUrl" -> returnUrl))
 
-      def post(accept: Boolean) = {
+      def post(submitButton: String) = {
         url.withHeaders(cookie,"Csrf-Token"->"nocheck").withFollowRedirects(false).post(
-          Map("submitButton" -> Seq("digital"), "accept-tc" -> Seq(accept.toString))
+          Map("submitButton" -> Seq(submitButton))
         )
       }
 

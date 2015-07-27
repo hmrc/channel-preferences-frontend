@@ -1,6 +1,4 @@
-@(utr: uk.gov.hmrc.domain.SaUtr,
-  nino: Option[uk.gov.hmrc.domain.Nino],
-  emailAddress: Option[uk.gov.hmrc.emailaddress.ObfuscatedEmailAddress],
+@(emailAddress: Option[String],
   returnUrl: String,
   tandc: Form[_],
   appConfig: controllers.sa.prefs.config.AppConfig = controllers.sa.prefs.config.YtaConfig
@@ -59,7 +57,6 @@
       )
 
   *@
-
       <p><button id="confirm-upgrade" class="link" name="submitButton" type="submit" value="digital">Sign up for email notifications</button></p>
   
       <button id="cancel-upgrade" class="link button--link-style" name="submitButton" type="submit" value="non-digital">No, I don't want to sign up for email notifications</button>

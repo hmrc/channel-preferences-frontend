@@ -59,41 +59,31 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
 
   }
 
-  "the validate upgrade form" should {
-    "redirect to supplied url if terms and conditions are checked and digital button pressed " in new UpgradeTestCase {
+  "the posting upgrade form" should {
+    "redirect to thank you page with supplied redirect url if digital button is pressed " in new UpgradeTestCase {
 
       when(controller.preferencesConnector.upgradeTermsAndConditions(is(utr), is(true))(any())).thenReturn(Future.successful(true))
 
-      val result = await(controller.validateUpgradeForm("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("submitButton" -> "digital", "accept-tc" -> "true")))
+      val result = await(controller.upgradePreferences("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("submitButton" -> "digital")))
 
       status(result) shouldBe 303
-      header("Location", result).get should include("someUrl")
-    }
-
-    "return bad request if terms and conditions are not checked and digital button pressed" in new UpgradeTestCase {
-
-      when(controller.preferencesConnector.getPreferences(is(utr), is(Some(nino)))(any())).thenReturn(Future.successful(Some(SaPreference(true, Some(email)))))
-
-      val result = await(controller.validateUpgradeForm("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("submitButton" -> "digital")))
-
-      status(result) shouldBe 200
-      bodyOf(result) should include(Messages("sa_printing_preference.accept_tc_required"))
+      header("Location", result).get should be(routes.UpgradeRemindersController.thankYou("someUrl").toString())
     }
 
     "redirect to supplied url if non-digital button pressed " in new UpgradeTestCase {
 
       when(controller.preferencesConnector.upgradeTermsAndConditions(is(utr), is(false))(any())).thenReturn(Future.successful(true))
 
-      val result = await(controller.validateUpgradeForm("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("submitButton" -> "non-digital")))
+      val result = await(controller.upgradePreferences("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("submitButton" -> "non-digital")))
 
       status(result) shouldBe 303
-      header("Location", result).get should include("someUrl")
+      header("Location", result).get should be("someUrl")
     }
 
     "redirect to supplied url when no preference found" in new UpgradeTestCase {
       when(controller.preferencesConnector.getPreferences(is(utr), is(Some(nino)))(any())).thenReturn(Future.successful(None))
 
-      val result = await(controller.validateUpgradeForm("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("submitButton" -> "digital")))
+      val result = await(controller.upgradePreferences("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("submitButton" -> "digital")))
 
       status(result) shouldBe 303
       header("Location", result).get should include("someUrl")
@@ -134,7 +124,7 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
 
     def upgradeAndCaptureAuditEvent(digital: Boolean):ArgumentCaptor[ExtendedDataEvent] = {
       when(controller.preferencesConnector.upgradeTermsAndConditions(is(utr), is(digital))(any())).thenReturn(Future.successful(true))
-      await(controller.upgradeTermsAndConditions(utr, Some(nino), digital))
+      await(controller.upgradePaperless(utr, Some(nino), digital))
       val eventArg : ArgumentCaptor[ExtendedDataEvent] = ArgumentCaptor.forClass(classOf[ExtendedDataEvent])
       verify(controller.auditConnector).sendEvent(eventArg.capture())(any(), any())
       return  eventArg

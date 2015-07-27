@@ -14,16 +14,13 @@ class UpgradePrintingPreferencesViewSpec extends UnitSpec with PreferencesContro
 
   "preference upgrade printing preferences template" should {
     "render the correct content" in {
-      val emailAddress = new ObfuscatedEmailAddress {
-        override val value: String = "test@test.com"
-      }
-      val utr = new SaUtr("testUtr")
-      val nino = new Nino("CE123457D")
+      val emailAddress = "test@test.com"
+      val returnUrl = "someReturnUrl"
+      val upgradeUrl = routes.UpgradeRemindersController.upgrade(returnUrl).toString()
 
-      val document = Jsoup.parse(upgrade_printing_preferences(utr, Some(nino), Some(emailAddress), "someReturnUrl", upgradeRemindersForm)(FakeRequest("GET", "/")).toString())
+      val document = Jsoup.parse(upgrade_printing_preferences(Some(emailAddress), returnUrl, upgradeRemindersForm)(FakeRequest("GET", "/")).toString())
       document.getElementById("opted-in-email").text() should include (emailAddress)
-      document.getElementById("opted-in-utr").text() should include (utr.utr)
-      document.getElementById("opted-in-nino").text() should include (nino.nino)
+      document.getElementsByTag("form").attr("action") should be (upgradeUrl)
     }
   }
 
