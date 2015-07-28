@@ -31,8 +31,9 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
     event.detail \ "client" shouldBe JsString("PAYETAI")
     event.detail \ "nino" shouldBe JsString(nino.value)
     event.detail \ "utr" shouldBe JsString(utr.utr)
-    event.detail \ "TandCsScope" shouldBe JsString("Paye")
-    event.detail \ "journey" shouldBe JsString("PayeUpgrade")
+    event.detail \ "TandCsScope" shouldBe JsString("P2")
+    event.detail \ "userConfirmedReadTandCs" shouldBe JsString("true")
+    event.detail \ "journey" shouldBe JsString("P2Upgrade")
     event.detail \ "digital" shouldBe JsString("true")
     event.detail \ "cohort" shouldBe JsString("TES_MVP")
 
@@ -48,8 +49,9 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
     event.detail \ "client" shouldBe JsString("PAYETAI")
     event.detail \ "nino" shouldBe JsString(nino.value)
     event.detail \ "utr" shouldBe JsString(utr.utr)
-    event.detail \ "TandCsScope" shouldBe JsString("Paye")
-    event.detail \ "journey" shouldBe JsString("PayeUpgrade")
+    event.detail \ "TandCsScope" shouldBe JsString("P2")
+    event.detail \ "userConfirmedReadTandCs" shouldBe JsString("true")
+    event.detail \ "journey" shouldBe JsString("P2Upgrade")
     event.detail \ "digital" shouldBe JsString("false")
     event.detail \ "cohort" shouldBe JsString("TES_MVP")
 

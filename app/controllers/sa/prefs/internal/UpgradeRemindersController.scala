@@ -51,7 +51,6 @@ trait UpgradeRemindersController extends FrontendController with Actions with Ap
   }
 
   private[controllers] def upgradePreferences(returnUrl:String, utr: SaUtr, maybeNino: Option[Nino])(implicit request: Request[AnyContent]): Future[Result] = {
-
     if (upgradeRemindersForm.bindFromRequest()(request).get.isDigitalButtonSelected) {
       upgradePaperless(utr, maybeNino, true).map {
         case true => Redirect(routes.UpgradeRemindersController.thankYou(returnUrl))
@@ -86,8 +85,9 @@ trait UpgradeRemindersController extends FrontendController with Actions with Ap
         "client" -> "PAYETAI",
         "nino" -> nino.map(_.nino).getOrElse("N/A"),
         "utr" -> utr.toString,
-        "TandCsScope" -> "Paye",
-        "journey" -> "PayeUpgrade",
+        "TandCsScope" -> "P2",
+        "userConfirmedReadTandCs" -> "true",
+        "journey" -> "P2Upgrade",
         "digital" -> digital.toString,
         "cohort" -> "TES_MVP"))))
 

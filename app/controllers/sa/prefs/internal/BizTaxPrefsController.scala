@@ -163,6 +163,7 @@ trait BizTaxPrefsController
       auditType = EventTypes.Succeeded,
       tags = hc.toAuditTags("Set Print Preference", request.path),
       detail = Json.toJson(hc.toAuditDetails(
+        "client" -> "YTA",
         "utr" -> utr.toString,
         "journey" -> journey.toString,
         "digital" -> digital.toString,

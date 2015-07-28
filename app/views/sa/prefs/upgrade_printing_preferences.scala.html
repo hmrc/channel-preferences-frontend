@@ -49,16 +49,8 @@
 
   @form(action = controllers.sa.prefs.internal.routes.UpgradeRemindersController.upgrade(returnUrl)){
 
-  @*
-      @singleCheckbox(
-      tandc("accept-tc"),
-           '_label -> Html(Messages("sa_printing_preference.tc.preLinkText", Link.toExternalPage(id = Some("terms-and-conditions"), url =  controllers.sa.prefs.internal.routes.BizTaxPrefsController.termsAndConditions.url, value = Some(Messages("sa_printing_preference.tc.linkText"))).toHtml)),
-          '_labelClass -> "label--inline"
-      )
+      <p><button id="confirm-upgrade" class="disabledOnSubmit link" name="submitButton" type="submit" value="digital">Sign up for email notifications</button></p>
 
-  *@
-      <p><button id="confirm-upgrade" class="link" name="submitButton" type="submit" value="digital">Sign up for email notifications</button></p>
-  
       <button id="cancel-upgrade" class="link button--link-style" name="submitButton" type="submit" value="non-digital">No, I don't want to sign up for email notifications</button>
   }
 
