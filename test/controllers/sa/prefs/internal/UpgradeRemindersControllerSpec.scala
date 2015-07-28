@@ -31,10 +31,8 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
     event.detail \ "client" shouldBe JsString("PAYETAI")
     event.detail \ "nino" shouldBe JsString(nino.value)
     event.detail \ "utr" shouldBe JsString(utr.utr)
-    event.detail \ "TandCsScope" shouldBe JsString("Generic")
-    event.detail \ "TandCsVersion" shouldBe JsString("V1")
-    event.detail \ "userConfirmedReadTandCs" shouldBe JsString("true")
-    event.detail \ "journey" shouldBe JsString("GenericUpgrade")
+    event.detail \ "TandCsScope" shouldBe JsString("Paye")
+    event.detail \ "journey" shouldBe JsString("PayeUpgrade")
     event.detail \ "digital" shouldBe JsString("true")
     event.detail \ "cohort" shouldBe JsString("TES_MVP")
 
@@ -50,10 +48,8 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
     event.detail \ "client" shouldBe JsString("PAYETAI")
     event.detail \ "nino" shouldBe JsString(nino.value)
     event.detail \ "utr" shouldBe JsString(utr.utr)
-    event.detail \ "TandCsScope" shouldBe JsString("Generic")
-    event.detail \ "TandCsVersion" shouldBe JsString("V1")
-    event.detail \ "userConfirmedReadTandCs" shouldBe JsString("true")
-    event.detail \ "journey" shouldBe JsString("GenericUpgrade")
+    event.detail \ "TandCsScope" shouldBe JsString("Paye")
+    event.detail \ "journey" shouldBe JsString("PayeUpgrade")
     event.detail \ "digital" shouldBe JsString("false")
     event.detail \ "cohort" shouldBe JsString("TES_MVP")
 
@@ -80,10 +76,19 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
       header("Location", result).get should be("someUrl")
     }
 
-    "redirect to supplied url when no preference found" in new UpgradeTestCase {
-      when(controller.preferencesConnector.getPreferences(is(utr), is(Some(nino)))(any())).thenReturn(Future.successful(None))
+    "redirect to supplied url when digital true and no preference found" in new UpgradeTestCase {
+      when(controller.preferencesConnector.upgradeTermsAndConditions(is(utr), is(true))(any())).thenReturn(Future.successful(false))
 
       val result = await(controller.upgradePreferences("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("submitButton" -> "digital")))
+
+      status(result) shouldBe 303
+      header("Location", result).get should include("someUrl")
+    }
+
+    "redirect to supplied url when digital false and no preference found" in new UpgradeTestCase {
+      when(controller.preferencesConnector.upgradeTermsAndConditions(is(utr), is(false))(any())).thenReturn(Future.successful(false))
+
+      val result = await(controller.upgradePreferences("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("submitButton" -> "non-digital")))
 
       status(result) shouldBe 303
       header("Location", result).get should include("someUrl")

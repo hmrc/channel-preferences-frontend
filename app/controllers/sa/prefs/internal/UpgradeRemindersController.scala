@@ -7,7 +7,6 @@ import play.api.data.Form
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, Request, Result}
 import uk.gov.hmrc.domain.{Nino, SaUtr}
-import uk.gov.hmrc.emailaddress.ObfuscatedEmailAddress
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.{EventTypes, ExtendedDataEvent}
@@ -15,8 +14,7 @@ import uk.gov.hmrc.play.config.AppName
 import uk.gov.hmrc.play.frontend.auth.Actions
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 import uk.gov.hmrc.play.frontend.controller.FrontendController
-import views.html.sa.prefs.upgrade_printing_preferences
-import views.html.sa.prefs.upgrade_printing_preferences_thank_you
+import views.html.sa.prefs.{upgrade_printing_preferences, upgrade_printing_preferences_thank_you}
 
 import scala.concurrent.Future
 
@@ -55,7 +53,10 @@ trait UpgradeRemindersController extends FrontendController with Actions with Ap
   private[controllers] def upgradePreferences(returnUrl:String, utr: SaUtr, maybeNino: Option[Nino])(implicit request: Request[AnyContent]): Future[Result] = {
 
     if (upgradeRemindersForm.bindFromRequest()(request).get.isDigitalButtonSelected) {
-      upgradePaperless(utr, maybeNino, true).map(resp => Redirect(routes.UpgradeRemindersController.thankYou(returnUrl)))
+      upgradePaperless(utr, maybeNino, true).map {
+        case true => Redirect(routes.UpgradeRemindersController.thankYou(returnUrl))
+        case false => Redirect(returnUrl)
+      }
     }
     else {
       upgradePaperless(utr, maybeNino, false).map(resp => Redirect(returnUrl))
@@ -70,12 +71,13 @@ trait UpgradeRemindersController extends FrontendController with Actions with Ap
     }
   }
 
-  private[controllers] def upgradePaperless(utr: SaUtr, nino: Option[Nino], digital: Boolean)(implicit request: Request[AnyContent], hc: HeaderCarrier) =
-    preferencesConnector.upgradeTermsAndConditions(utr, digital).map {
-      case true => auditChoice(utr, nino, true, digital)
+  private[controllers] def upgradePaperless(utr: SaUtr, nino: Option[Nino], digital: Boolean)(implicit request: Request[AnyContent], hc: HeaderCarrier) : Future[Boolean] =
+    preferencesConnector.upgradeTermsAndConditions(utr, digital).map { success =>
+      if (success) auditChoice(utr, nino, digital)
+      success
     }
 
-  private def auditChoice(utr: SaUtr, nino: Option[Nino], acceptedTAndCs:Boolean, digital: Boolean)(implicit request: Request[_], hc: HeaderCarrier) =
+  private def auditChoice(utr: SaUtr, nino: Option[Nino], digital: Boolean)(implicit request: Request[_], hc: HeaderCarrier) =
     auditConnector.sendEvent(ExtendedDataEvent(
       auditSource = appName,
       auditType = EventTypes.Succeeded,
@@ -84,10 +86,8 @@ trait UpgradeRemindersController extends FrontendController with Actions with Ap
         "client" -> "PAYETAI",
         "nino" -> nino.map(_.nino).getOrElse("N/A"),
         "utr" -> utr.toString,
-        "TandCsScope" -> "Generic",
-        "TandCsVersion" -> "V1",
-        "userConfirmedReadTandCs" -> acceptedTAndCs.toString,
-        "journey" -> "GenericUpgrade",
+        "TandCsScope" -> "Paye",
+        "journey" -> "PayeUpgrade",
         "digital" -> digital.toString,
         "cohort" -> "TES_MVP"))))
 
