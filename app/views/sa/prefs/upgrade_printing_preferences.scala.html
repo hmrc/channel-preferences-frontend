@@ -49,9 +49,9 @@
 
   @form(action = controllers.sa.prefs.internal.routes.UpgradeRemindersController.upgrade(returnUrl)){
 
-      <p><button id="confirm-upgrade" class="disabledOnSubmit link" name="submitButton" type="submit" value="digital">Sign up for email notifications</button></p>
+      <p><button id="confirm-upgrade" data-ignore-double-submit="true" class="disabledOnSubmit link" name="submitButton" type="submit" value="digital">Sign up for email notifications</button></p>
 
-      <button id="cancel-upgrade" class="link button--link-style" name="submitButton" type="submit" value="non-digital">No, I don't want to sign up for email notifications</button>
+      <button id="cancel-upgrade" data-ignore-double-submit="true" class="link button--link-style" name="submitButton" type="submit" value="non-digital">No, I don't want to sign up for email notifications</button>
   }
 
 }
