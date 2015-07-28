@@ -38,14 +38,15 @@
   </ul>
 
   @emailAddress.map { emailAddress =>
-      <p id="opted-in-email" class="font-small">We'll send emails to @emailAddress. You’ll be able to manage your message settings through 'Your tax account’.</p>
+    <p id="opted-in-email" class="font-small">We'll email notifications to @emailAddress.</p>
   }
 
-  <p class="email-notifications__indent panel-indent">You'll still continue to receive paper copies of important documents.</p>
+    <p class="email-notifications__indent panel-indent">You’ll be able to manage your message settings through 'Your tax account’.</p>
 
-  <div class="email-form-errors">
-      @tandc.globalErrors.map { error => <label class="error-notification">@Messages(error.message)</label>}
-  </div>
+    <p class="email-notifications__indent panel-indent">There won't be any messages or notifications about your Income tax in your online secure inbox..</p>
+
+    <p class="email-notifications__indent panel-indent">You'll still continue to receive paper copies of important documents.</p>
+
 
   @form(action = controllers.sa.prefs.internal.routes.UpgradeRemindersController.upgrade(returnUrl)){
 
