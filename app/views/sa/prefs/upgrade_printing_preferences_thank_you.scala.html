@@ -7,10 +7,6 @@
 @import uk.gov.hmrc.play.views.html.helpers._
 @import uk.gov.hmrc.play.views.html.{layouts => uiLayouts}
 
-@signoutLink = {
-  <li><a id="logOutNavHref" href="@appConfig.taiSignOutUrl" data-journey-click="primary-navigation:Click:Sign out">Sign out</a></li>
-}
-
 @betaBanner = {
     @uiLayouts.betaBanner(
       userLoggedIn = true,
@@ -19,7 +15,7 @@
       showFeedbackLinkInBetaBanner = true)
 }
 
-@main(title = "", navTitle = "", navLinks = signoutLink, betaBanner = betaBanner) {
+@main(title = "You've updated your preferences", navTitle = "", navLinks = HtmlFormat.empty, betaBanner = betaBanner) {
 
 	<h1 class="email-notifications__heading">You've updated your preferences</h1>
 

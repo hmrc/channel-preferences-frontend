@@ -7,12 +7,12 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.emailaddress.ObfuscatedEmailAddress
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
-import views.html.sa.prefs.upgrade_printing_preferences
+import views.html.sa.prefs.{upgrade_printing_preferences_thank_you, upgrade_printing_preferences}
 
 class UpgradePrintingPreferencesViewSpec extends UnitSpec with PreferencesControllerHelper with WithFakeApplication {
   override lazy val fakeApplication = ConfigHelper.fakeApp
 
-  "preference upgrade printing preferences template" should {
+  "upgrade printing preferences template" should {
     "render the correct content" in {
       val emailAddress = "test@test.com"
       val returnUrl = "someReturnUrl"
@@ -24,8 +24,13 @@ class UpgradePrintingPreferencesViewSpec extends UnitSpec with PreferencesContro
     }
   }
 
-  "submit the opt-in form" should {
+  "upgrade printing preferences thank you template" should {
+    "render the correct content" in {
+      val returnUrl = "anyOldUrl"
 
+      val document = Jsoup.parse(upgrade_printing_preferences_thank_you(returnUrl)(FakeRequest("GET", "/")).toString())
+      document.getElementsByClass("button").attr("href") should be(returnUrl)
+    }
   }
 
 }

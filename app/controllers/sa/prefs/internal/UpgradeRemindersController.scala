@@ -60,7 +60,6 @@ trait UpgradeRemindersController extends FrontendController with Actions with Ap
     else {
       upgradePaperless(utr, maybeNino, false).map(resp => Redirect(returnUrl))
     }
-
   }
 
   private def decideRoutingFromPreference(utr: SaUtr, maybeNino: Option[Nino], returnUrl:String, tandcForm:Form[UpgradeRemindersTandC])(implicit request: Request[AnyContent]) = {
@@ -94,6 +93,6 @@ trait UpgradeRemindersController extends FrontendController with Actions with Ap
 
   def thankYou(returnUrl: String): Action[AnyContent] = AuthorisedFor(SaRegimeWithoutRedirection).async {
     authContext => implicit request =>
-        Future(Ok(upgrade_printing_preferences_thank_you(returnUrl))) //request.body.asFormUrlEncoded.get
+        Future(Ok(upgrade_printing_preferences_thank_you(returnUrl)))
     }
 }
