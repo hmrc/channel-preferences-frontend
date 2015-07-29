@@ -28,7 +28,7 @@
 
   <p class="email-notifications__list-heading font-small">Like the notifications you get for Self Assessment, they won't contain any personal or tax details and will we tell you if:</p>
 
-  <ul class="email-notifications__list bullets">
+  <ul class="email-notifications__list bullets push--bottom">
     <li class="font-small">your Income Tax estimate has changed</li>
     <li class="font-small">there's something you need to see or do</li>
   </ul>
@@ -37,12 +37,11 @@
     <p id="opted-in-email" class="font-small">We'll email notifications to @emailAddress.</p>
   }
 
-    <div class="panel-indent email-notifications__indent">
+  <div class="email-notifications__indent panel-indent">
       <p>You’ll be able to manage your message settings through 'Your tax account’.</p>
       <p>There won't be any messages or notifications about your Income tax in your online secure inbox.</p>
       <p>You'll still continue to receive paper copies of important documents.</p>
-    </div>
-
+  </div>
 
   @form(action = controllers.sa.prefs.internal.routes.UpgradeRemindersController.upgrade(returnUrl)){
 
