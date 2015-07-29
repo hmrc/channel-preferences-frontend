@@ -9,10 +9,6 @@
 @import uk.gov.hmrc.play.views.html.helpers._
 @import uk.gov.hmrc.play.views.html.{layouts => uiLayouts}
 
-@signoutLink = {
-  <li><a id="logOutNavHref" href="@appConfig.taiSignOutUrl" data-journey-click="primary-navigation:Click:Sign out">Sign out</a></li>
-}
-
 @betaBanner = {
     @uiLayouts.betaBanner(
       userLoggedIn = true,
@@ -21,7 +17,7 @@
       showFeedbackLinkInBetaBanner = true)
 }
 
-@main(title = "Get email notifications", navTitle = "", navLinks = signoutLink, betaBanner = betaBanner) {
+@main(title = "Get email notifications", navTitle = "", betaBanner = betaBanner) {
 
   <h1 class="email-notifications__heading">
     <span class="email-notifications__subheading-text">Before you check your Income Tax</span>
@@ -30,7 +26,7 @@
 
   <p class="email-notifications__p font-medium">You can choose to get email notifications about your Income Tax.</p>
 
-  <p class="email-notifications__list-heading font-small">Like the emails you get for Self Assessment, the notifications won't contain any personal or tax details and will we tell you if:</p>
+  <p class="email-notifications__list-heading font-small">Like the notifications you get for Self Assessment, they won't contain any personal or tax details and will we tell you if:</p>
 
   <ul class="email-notifications__list bullets">
     <li class="font-small">your Income Tax estimate has changed</li>
@@ -41,11 +37,11 @@
     <p id="opted-in-email" class="font-small">We'll email notifications to @emailAddress.</p>
   }
 
-    <p class="email-notifications__indent panel-indent">You’ll be able to manage your message settings through 'Your tax account’.</p>
-
-    <p class="email-notifications__indent panel-indent">There won't be any messages or notifications about your Income tax in your online secure inbox..</p>
-
-    <p class="email-notifications__indent panel-indent">You'll still continue to receive paper copies of important documents.</p>
+    <div class="panel-indent email-notifications__indent">
+      <p>You’ll be able to manage your message settings through 'Your tax account’.</p>
+      <p>There won't be any messages or notifications about your Income tax in your online secure inbox..</p>
+      <p>You'll still continue to receive paper copies of important documents.</p>
+    </div>
 
 
   @form(action = controllers.sa.prefs.internal.routes.UpgradeRemindersController.upgrade(returnUrl)){
