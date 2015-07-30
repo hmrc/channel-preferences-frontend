@@ -189,26 +189,26 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
   "The upgradeTermsAndConditions method" should {
     trait PayloadCheck {
       def status: Int = 200
-      def expectedPayload: TermsAndConditionsUpdate
-      def postedPayload(payload: TermsAndConditionsUpdate) = payload should be (expectedPayload)
+      def expectedPayload: IncomeTaxEstimateTermsAndConditionsUpdate
+      def postedPayload(payload: IncomeTaxEstimateTermsAndConditionsUpdate) = payload should be (expectedPayload)
 
       val connector = preferencesConnector(returnFromDoPost = checkPayloadAndReturn)
 
       def checkPayloadAndReturn(url: String, requestBody: Any): Future[HttpResponse] = {
-        postedPayload(requestBody.asInstanceOf[TermsAndConditionsUpdate])
+        postedPayload(requestBody.asInstanceOf[IncomeTaxEstimateTermsAndConditionsUpdate])
         Future.successful(HttpResponse(status))
       }
 
     }
 
     "send accepted true and return true if terms and conditions are accepted and updated" in new PayloadCheck {
-      override val expectedPayload = TermsAndConditionsUpdate(GenericTermsAndConditionsUpdate(true))
+      override val expectedPayload = IncomeTaxEstimateTermsAndConditionsUpdate(TermsAndConditionsUpdate(true))
 
       connector.upgradeTermsAndConditions(SaUtr("testing"), true).futureValue should be (true)
     }
 
     "send accepted false and return true if terms and conditions are not accepted and updated" in new PayloadCheck {
-      override val expectedPayload = TermsAndConditionsUpdate(GenericTermsAndConditionsUpdate(false))
+      override val expectedPayload = IncomeTaxEstimateTermsAndConditionsUpdate(TermsAndConditionsUpdate(false))
 
       connector.upgradeTermsAndConditions(SaUtr("testing"), false).futureValue should be (true)
     }
@@ -216,7 +216,7 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
 
     "return false if any problems" in new PayloadCheck {
       override val status = 401
-      override val expectedPayload = TermsAndConditionsUpdate(GenericTermsAndConditionsUpdate(true))
+      override val expectedPayload = IncomeTaxEstimateTermsAndConditionsUpdate(TermsAndConditionsUpdate(true))
 
       connector.upgradeTermsAndConditions(SaUtr("testing"), true).futureValue should be (false)
     }
