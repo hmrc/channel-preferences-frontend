@@ -1,6 +1,7 @@
 package controllers.sa.prefs.internal
 
 import connectors.{PreferencesConnector, SaEmailPreference, SaPreference}
+import controllers.sa.prefs.Encrypted
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{any, eq => is}
 import org.mockito.Mockito._
@@ -65,7 +66,7 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
       val result = await(controller.upgradePreferences("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("submitButton" -> "digital")))
 
       status(result) shouldBe 303
-      header("Location", result).get should be(routes.UpgradeRemindersController.thankYou("someUrl").toString())
+      header("Location", result).get should be(routes.UpgradeRemindersController.thankYou(Encrypted[String]("someUrl")).url)
     }
 
     "redirect to supplied url if non-digital button pressed " in new UpgradeTestCase {
@@ -102,7 +103,7 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
     "redirect to supplied url when no preference found" in new UpgradeTestCase {
       when(controller.preferencesConnector.getPreferences(is(utr), is(Some(nino)))(any())).thenReturn(Future.successful(None))
 
-      val result = await(controller.renderUpgradePageIfPreferencesAvailable(utr, Some(nino))( testRequestwithRedirectUrl ) )
+      val result = await(controller.renderUpgradePageIfPreferencesAvailable(utr, Some(nino), Encrypted("someUrl"))(testRequest))
 
       status(result) shouldBe 303
       header("Location", result).get should include("someUrl")
@@ -115,7 +116,6 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
     implicit val request = mock[Request[AnyContent]]
 
     val testRequest = FakeRequest()
-    val testRequestwithRedirectUrl = FakeRequest(GET, "/anything?returnUrl=someUrl")
 
     val utr = SaUtr("testUtr")
     val nino = Nino("CE123456A")

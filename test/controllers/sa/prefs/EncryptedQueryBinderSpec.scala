@@ -1,6 +1,5 @@
 package controllers.sa.prefs
 
-import controllers.sa.{Encrypted, EncryptedEmailBinder}
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
@@ -10,7 +9,7 @@ import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.test.UnitSpec
 
 
-class EncryptedEmailQueryBinderSpec extends UnitSpec with MockitoSugar {
+class EncryptedQueryBinderSpec extends UnitSpec with MockitoSugar {
   
   var decryptedEmail: Option[String] = None
   
@@ -49,7 +48,7 @@ class EncryptedEmailQueryBinderSpec extends UnitSpec with MockitoSugar {
 
       override def decryptAsBytes(reversiblyEncrypted: Crypted): PlainBytes = ???
     }
-    val binder = new EncryptedEmailBinder(crypto, stringBinder)
+    val binder = new EncryptedQueryBinder[EmailAddress](crypto, EmailAddress.apply, _.value)(stringBinder)
     val encryptedData: String = "encrypted Data"
   }
 }

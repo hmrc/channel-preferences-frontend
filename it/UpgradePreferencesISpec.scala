@@ -1,7 +1,9 @@
 import connectors.PreferencesConnector
+import controllers.sa.prefs.Encrypted
 import controllers.sa.prefs.internal.{routes, UpgradeRemindersController}
 import org.scalatest.mock.MockitoSugar
 import play.api.libs.ws.{WS, WSResponse}
+import uk.gov.hmrc.crypto.{PlainText, ApplicationCrypto}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 
@@ -17,7 +19,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
       val response = `/upgrade-email-reminders`.post(submitButton = "digital").futureValue
       response should have('status(303))
-      response.header("Location").get should be (routes.UpgradeRemindersController.thankYou(returnUrl).toString())
+      response.header("Location").get should be (routes.UpgradeRemindersController.thankYou(Encrypted(returnUrl)).toString())
 
       `/preferences/paye/individual/:nino/activations/paye`(nino, authHeader).put().futureValue.status should be (200)
     }
@@ -50,7 +52,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
     val `/upgrade-email-reminders` = new {
 
-      val url = WS.url(resource("/account/account-details/sa/upgrade-email-reminders")).withQueryString(("returnUrl" -> returnUrl))
+      val url = WS.url(resource("/account/account-details/sa/upgrade-email-reminders")).withQueryString("returnUrl" -> ApplicationCrypto.QueryParameterCrypto.encrypt(PlainText(returnUrl)).value)
 
       def post(submitButton: String) = {
         url.withHeaders(cookie,"Csrf-Token"->"nocheck").withFollowRedirects(false).post(

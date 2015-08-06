@@ -17,6 +17,6 @@ GET         /terms-and-conditions                        controllers.sa.prefs.in
 
 GET         /email-reminders-status                      controllers.sa.prefs.partial.accountdetails.ReminderStatusPartialController.emailRemindersStatus
 
-GET         /upgrade-email-reminders                     controllers.sa.prefs.internal.UpgradeRemindersController.display
-POST        /upgrade-email-reminders                     controllers.sa.prefs.internal.UpgradeRemindersController.upgrade(returnUrl: String)
-GET         /upgrade-email-reminders-thank-you           controllers.sa.prefs.internal.UpgradeRemindersController.thankYou(returnUrl: String)
+GET         /upgrade-email-reminders                     controllers.sa.prefs.internal.UpgradeRemindersController.display(returnUrl: controllers.sa.prefs.Encrypted[String])
+POST        /upgrade-email-reminders                     controllers.sa.prefs.internal.UpgradeRemindersController.upgrade(returnUrl: controllers.sa.prefs.Encrypted[String])
+GET         /upgrade-email-reminders-thank-you           controllers.sa.prefs.internal.UpgradeRemindersController.thankYou(returnUrl: controllers.sa.prefs.Encrypted[String])

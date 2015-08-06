@@ -1,7 +1,7 @@
 package controllers.sa.prefs.internal
 
 import connectors.{EmailConnector, PreferencesConnector, SaEmailPreference, SaPreference}
-import controllers.sa.Encrypted
+import controllers.sa.prefs.Encrypted
 import controllers.sa.prefs.AuthorityUtils._
 import helpers.ConfigHelper
 import org.jsoup.Jsoup

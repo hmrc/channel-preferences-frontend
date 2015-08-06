@@ -1,6 +1,7 @@
 package views.sa.prefs
 
 import _root_.helpers.ConfigHelper
+import controllers.sa.prefs.Encrypted
 import controllers.sa.prefs.internal._
 import org.jsoup.Jsoup
 import play.api.test.FakeRequest
@@ -15,7 +16,7 @@ class UpgradePrintingPreferencesViewSpec extends UnitSpec with PreferencesContro
   "upgrade printing preferences template" should {
     "render the correct content" in {
       val emailAddress = "test@test.com"
-      val returnUrl = "someReturnUrl"
+      val returnUrl = Encrypted("someReturnUrl")
       val upgradeUrl = routes.UpgradeRemindersController.upgrade(returnUrl).toString()
 
       val document = Jsoup.parse(upgrade_printing_preferences(Some(emailAddress), returnUrl, upgradeRemindersForm)(FakeRequest("GET", "/")).toString())

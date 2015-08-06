@@ -6,7 +6,7 @@ import com.netaporter.uri.config.UriConfig
 import com.netaporter.uri.dsl._
 import com.netaporter.uri.encoding._
 import connectors.PreferencesConnector
-import controllers.sa.Encrypted
+import controllers.sa.prefs.Encrypted
 import play.api.Play
 import play.api.Play.current
 import play.api.mvc._
@@ -18,7 +18,7 @@ import scala.collection.JavaConversions._
 
 class FilingInterceptController(whiteList: Set[String], preferencesConnector: PreferencesConnector) extends FrontendController {
 
-  implicit val wl = whiteList
+  implicit val wl: Set[String] = whiteList
   implicit val config = UriConfig(encoder = percentEncode)
 
   def this() = this(FilingInterceptController.redirectDomainWhiteList, PreferencesConnector)

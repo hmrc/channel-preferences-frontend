@@ -1,11 +1,13 @@
 package controllers.sa.prefs.internal
 
 import connectors.PreferencesConnector
+import controllers.sa.prefs.Encrypted
 import controllers.sa.prefs.config.Global
 import controllers.sa.prefs.{SaRegimeWithoutRedirection, UpgradeRemindersTandC}
 import play.api.data.Form
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, Request, Result}
+import uk.gov.hmrc.crypto.{PlainText, ApplicationCrypto}
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
@@ -33,27 +35,24 @@ trait UpgradeRemindersController extends FrontendController with Actions with Ap
 
   def auditConnector: AuditConnector
 
-  def display(): Action[AnyContent] = AuthorisedFor(SaRegimeWithoutRedirection).async {
+  def display(encryptedReturnUrl: Encrypted[String]): Action[AnyContent] = AuthorisedFor(SaRegimeWithoutRedirection).async {
     authContext => implicit request =>
-      renderUpgradePageIfPreferencesAvailable(authContext.principal.accounts.sa.get.utr, authContext.principal.accounts.paye.map(_.nino))
+      renderUpgradePageIfPreferencesAvailable(authContext.principal.accounts.sa.get.utr, authContext.principal.accounts.paye.map(_.nino), encryptedReturnUrl)
   }
 
-  private[controllers] def renderUpgradePageIfPreferencesAvailable(utr: SaUtr, maybeNino: Option[Nino])(implicit request: Request[AnyContent]): Future[Result] = {
-    request.getQueryString("returnUrl") match {
-      case Some(returnUrl) => decideRoutingFromPreference(utr,maybeNino, returnUrl, upgradeRemindersForm)
-      case _ => Future.successful(BadRequest("returnUrl parameter missing"))
-    }
+  private[controllers] def renderUpgradePageIfPreferencesAvailable(utr: SaUtr, maybeNino: Option[Nino], encryptedReturnUrl: Encrypted[String])(implicit request: Request[AnyContent]): Future[Result] = {
+    decideRoutingFromPreference(utr,maybeNino, encryptedReturnUrl, upgradeRemindersForm)
   }
 
-  def upgrade(returnUrl: String) = AuthorisedFor(SaRegimeWithoutRedirection).async {
+  def upgrade(returnUrl: Encrypted[String]) = AuthorisedFor(SaRegimeWithoutRedirection).async {
     authContext => implicit request =>
-      upgradePreferences(returnUrl, authContext.principal.accounts.sa.get.utr, authContext.principal.accounts.paye.map(_.nino)).map(response => response)
+      upgradePreferences(returnUrl.decryptedValue, authContext.principal.accounts.sa.get.utr, authContext.principal.accounts.paye.map(_.nino)).map(response => response)
   }
 
   private[controllers] def upgradePreferences(returnUrl:String, utr: SaUtr, maybeNino: Option[Nino])(implicit request: Request[AnyContent]): Future[Result] = {
     if (upgradeRemindersForm.bindFromRequest()(request).get.isDigitalButtonSelected) {
       upgradePaperless(utr, maybeNino, true).map {
-        case true => Redirect(routes.UpgradeRemindersController.thankYou(returnUrl))
+        case true => Redirect(routes.UpgradeRemindersController.thankYou(Encrypted(returnUrl)))
         case false => Redirect(returnUrl)
       }
     }
@@ -62,10 +61,10 @@ trait UpgradeRemindersController extends FrontendController with Actions with Ap
     }
   }
 
-  private def decideRoutingFromPreference(utr: SaUtr, maybeNino: Option[Nino], returnUrl:String, tandcForm:Form[UpgradeRemindersTandC])(implicit request: Request[AnyContent]) = {
+  private def decideRoutingFromPreference(utr: SaUtr, maybeNino: Option[Nino], encryptedReturnUrl: Encrypted[String], tandcForm:Form[UpgradeRemindersTandC])(implicit request: Request[AnyContent]) = {
     preferencesConnector.getPreferences(utr, maybeNino).map {
-      case Some(prefs) => Ok(upgrade_printing_preferences(prefs.email.map(e => e.email), returnUrl, tandcForm))
-      case None => Redirect(returnUrl)
+      case Some(prefs) => Ok(upgrade_printing_preferences(prefs.email.map(e => e.email), encryptedReturnUrl, tandcForm))
+      case None => Redirect(encryptedReturnUrl.decryptedValue)
     }
   }
 
@@ -91,8 +90,8 @@ trait UpgradeRemindersController extends FrontendController with Actions with Ap
         "cohort" -> "TES_MVP"))))
 
 
-  def thankYou(returnUrl: String): Action[AnyContent] = AuthorisedFor(SaRegimeWithoutRedirection).async {
+  def thankYou(returnUrl: Encrypted[String]): Action[AnyContent] = AuthorisedFor(SaRegimeWithoutRedirection).async {
     authContext => implicit request =>
-        Future(Ok(upgrade_printing_preferences_thank_you(returnUrl)))
+        Future(Ok(upgrade_printing_preferences_thank_you(returnUrl.decryptedValue)))
     }
 }
