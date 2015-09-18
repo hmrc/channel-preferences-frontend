@@ -59,8 +59,8 @@ trait PreferencesConnector extends Status {
   }
 
   def upgradeTermsAndConditions(utr: SaUtr, accepted: Boolean)(implicit hc: HeaderCarrier) : Future[Boolean] = {
-    implicit val f = IncomeTaxEstimateTermsAndConditionsUpdate.format
-    http.POST(url(s"/preferences/sa/individual/$utr/terms-and-conditions"), IncomeTaxEstimateTermsAndConditionsUpdate(TermsAndConditionsUpdate(accepted))).map(_ => true).recover {
+    implicit val f = GenericTermsAndConditionsUpdate.format
+    http.POST(url(s"/preferences/sa/individual/$utr/terms-and-conditions"), GenericTermsAndConditionsUpdate(TermsAndConditionsUpdate(accepted))).map(_ => true).recover {
       case e =>
         Logger.error("Unable to save upgraded terms and conditions", e)
         false
@@ -80,5 +80,5 @@ trait PreferencesConnector extends Status {
 object TermsAndConditionsUpdate {  implicit val format = Json.format[TermsAndConditionsUpdate] }
 case class TermsAndConditionsUpdate(accepted: Boolean)
 
-object IncomeTaxEstimateTermsAndConditionsUpdate { implicit val format = Json.format[IncomeTaxEstimateTermsAndConditionsUpdate] }
-case class IncomeTaxEstimateTermsAndConditionsUpdate(incomeTaxEstimate: TermsAndConditionsUpdate)
+object GenericTermsAndConditionsUpdate { implicit val format = Json.format[GenericTermsAndConditionsUpdate] }
+case class GenericTermsAndConditionsUpdate(generic: TermsAndConditionsUpdate)

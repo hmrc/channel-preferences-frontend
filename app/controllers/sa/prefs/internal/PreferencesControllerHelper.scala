@@ -57,7 +57,7 @@ trait PreferencesControllerHelper {
     )
 
   protected val upgradeRemindersForm = Form[UpgradeRemindersTandC](mapping(
-    "submitButton" -> text
+    "opt-in" -> text
   )(UpgradeRemindersTandC.apply)(UpgradeRemindersTandC.unapply))
 
   def getSubmitPreferencesView(savePrefsCall: Call, cohort: OptInCohort)(implicit request: Request[AnyRef], withBanner: Boolean = false): Form[_] => HtmlFormat.Appendable = {
