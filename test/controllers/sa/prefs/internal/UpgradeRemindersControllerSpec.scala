@@ -63,7 +63,7 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
 
       when(controller.preferencesConnector.upgradeTermsAndConditions(is(utr), is(true))(any())).thenReturn(Future.successful(true))
 
-      val result = await(controller.upgradePreferences("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("submitButton" -> "digital")))
+      val result = await(controller.upgradePreferences("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("opt-in" -> "true")))
 
       status(result) shouldBe 303
       header("Location", result).get should be(routes.UpgradeRemindersController.thankYou(Encrypted[String]("someUrl")).url)
@@ -73,7 +73,7 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
 
       when(controller.preferencesConnector.upgradeTermsAndConditions(is(utr), is(false))(any())).thenReturn(Future.successful(true))
 
-      val result = await(controller.upgradePreferences("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("submitButton" -> "non-digital")))
+      val result = await(controller.upgradePreferences("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("opt-in" -> "false")))
 
       status(result) shouldBe 303
       header("Location", result).get should be("someUrl")
@@ -82,7 +82,7 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
     "redirect to supplied url when digital true and no preference found" in new UpgradeTestCase {
       when(controller.preferencesConnector.upgradeTermsAndConditions(is(utr), is(true))(any())).thenReturn(Future.successful(false))
 
-      val result = await(controller.upgradePreferences("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("submitButton" -> "digital")))
+      val result = await(controller.upgradePreferences("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("opt-in" -> "true")))
 
       status(result) shouldBe 303
       header("Location", result).get should include("someUrl")
@@ -91,7 +91,7 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
     "redirect to supplied url when digital false and no preference found" in new UpgradeTestCase {
       when(controller.preferencesConnector.upgradeTermsAndConditions(is(utr), is(false))(any())).thenReturn(Future.successful(false))
 
-      val result = await(controller.upgradePreferences("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("submitButton" -> "non-digital")))
+      val result = await(controller.upgradePreferences("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("opt-in" -> "false")))
 
       status(result) shouldBe 303
       header("Location", result).get should include("someUrl")

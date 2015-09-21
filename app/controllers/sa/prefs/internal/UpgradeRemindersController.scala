@@ -46,7 +46,7 @@ trait UpgradeRemindersController extends FrontendController with Actions with Ap
 
   def upgrade(returnUrl: Encrypted[String]) = AuthorisedFor(SaRegimeWithoutRedirection).async {
     authContext => implicit request =>
-      upgradePreferences(returnUrl.decryptedValue, authContext.principal.accounts.sa.get.utr, authContext.principal.accounts.paye.map(_.nino)).map(response => response)
+      upgradePreferences(returnUrl.decryptedValue, authContext.principal.accounts.sa.get.utr, authContext.principal.accounts.paye.map(_.nino))
   }
 
   private[controllers] def upgradePreferences(returnUrl:String, utr: SaUtr, maybeNino: Option[Nino])(implicit request: Request[AnyContent]): Future[Result] = {

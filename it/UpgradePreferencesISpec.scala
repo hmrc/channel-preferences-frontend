@@ -17,7 +17,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
       `/preferences/paye/individual/:nino/activations/paye`(nino,authHeader).put().futureValue.status should be (412)
 
-      val response = `/upgrade-email-reminders`.post(submitButton = "digital").futureValue
+      val response = `/upgrade-email-reminders`.post(optIn = true).futureValue
       response should have('status(303))
       response.header("Location").get should be (routes.UpgradeRemindersController.thankYou(Encrypted(returnUrl)).toString())
 
@@ -30,7 +30,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
       `/preferences/paye/individual/:nino/activations/paye`(nino,authHeader).put().futureValue.status should be (412)
 
-      val response = `/upgrade-email-reminders`.post(submitButton = "non-digital").futureValue
+      val response = `/upgrade-email-reminders`.post(optIn = false).futureValue
       response should have('status(303))
       response.header("Location") should contain (returnUrl)
 
@@ -54,9 +54,9 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
       val url = WS.url(resource("/account/account-details/sa/upgrade-email-reminders")).withQueryString("returnUrl" -> ApplicationCrypto.QueryParameterCrypto.encrypt(PlainText(returnUrl)).value)
 
-      def post(submitButton: String) = {
+      def post(optIn: Boolean) = {
         url.withHeaders(cookie,"Csrf-Token"->"nocheck").withFollowRedirects(false).post(
-          Map("submitButton" -> Seq(submitButton))
+          Map("opt-in" -> Seq(optIn.toString))
         )
       }
 
