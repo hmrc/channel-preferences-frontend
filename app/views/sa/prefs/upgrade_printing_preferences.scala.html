@@ -24,7 +24,7 @@
     </header>
 
     <h2>We're expanding our electronic communications</h2>
-    <p> You are already receiving electronic communications instead of paper for your Self Assessment. We are now expanding this service to include other areas of your tax affairs. You now need to accept the updated terms and conditions.</p>
+    <p>You are already receiving electronic communications instead of paper for some HMRC services. We are now expanding this service to include other areas of your tax affairs. You now need to accept the updated terms and conditions.</p>
 
     @form(action = controllers.sa.prefs.internal.routes.UpgradeRemindersController.upgrade(returnUrl), 'id -> "form-submit-email-address") {
         <label class="selectable">
@@ -39,12 +39,6 @@
             Yes, I want to continue to receive electronic communications.
         </label>
         <fieldset class="connected">
-            @singleCheckbox(
-                tandc("accept-tc"),
-                '_label -> Html(Messages("sa_printing_preference.tc.preLinkText", Link.toExternalPage(id = Some("terms-and-conditions"), url =  controllers.sa.prefs.internal.routes.BizTaxPrefsController.termsAndConditions.url, value = Some(Messages("sa_printing_preference.tc.linkText"))).toHtml)),
-                '_labelClass -> "label--inline"
-            )
-
             @emailAddress.map { emailAddress =>
                 <p id="opted-in-email" class="form-hint font-small">Email address:  @emailAddress.</p>
             }
@@ -52,8 +46,10 @@
             <p>You gave us this email address to receive reminders about your message.<br>
             You can change this by going to Manage Account in Your Tax Account.</p>
             <p>By signing up, you confirm that you:</p>
-            <p class="form-hint">I wish to continue to receive statutory notices, decisions, estimates and reminders electronically in connection with your tax affairs</p>
-            <p class="form-hint">I will keep your message preferences and email address up to date using "Your tax account" to make sure you get your email notifications</p>
+            <ul class="bullets">
+            <li>wish to continue to receive statutory notices, decisions, estimates and reminders electronically in connection with your tax affairs.</li>
+            <li>will keep my contact details up to date using "Your tax account" to make sure I receive email notifications.</li>
+            </ul>
         </fieldset>
         <label class="selectable">
             <input
