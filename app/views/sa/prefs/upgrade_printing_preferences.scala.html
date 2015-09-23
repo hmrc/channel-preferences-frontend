@@ -26,7 +26,8 @@
     <h2>We're expanding our electronic communications</h2>
     <p> You are already receiving electronic communications instead of paper for your Self Assessment. We are now expanding this service to include other areas of your tax affairs. You now need to accept the updated terms and conditions.</p>
 
-    @form(action = controllers.sa.prefs.internal.routes.UpgradeRemindersController.upgrade(returnUrl), 'id -> "form-submit-email-address") {
+    @form(action = controllers.sa.prefs.internal.routes.UpgradeRemindersController.upgrade(returnUrl), 'id -> "form-submit-email-address",
+    'class -> "form") {
         <label class="selectable">
             <input
             id="opt-in-in"
@@ -49,8 +50,7 @@
                 <p id="opted-in-email" class="form-hint font-small">Email address:  @emailAddress.</p>
             }
 
-            <p class="flush--bottom no-wrap">You gave us this email address to receive reminders about your message.</p>
-            <p class="flush--top no-wrap">You can change this by going to Manage Account in Your Tax Account.</p>
+            <p>You gave us this email address to receive reminders about your message. You can change this by going to Manage Account in Your Tax Account.</p>
             <p>By signing up, you confirm that you:</p>
             <p class="form-hint">I wish to continue to receive statutory notices, decisions, estimates and reminders electronically in connection with your tax affairs</p>
             <p class="form-hint">I will keep your message preferences and email address up to date using "Your tax account" to make sure you get your email notifications</p>
