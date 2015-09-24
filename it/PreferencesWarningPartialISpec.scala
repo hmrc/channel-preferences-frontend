@@ -20,17 +20,6 @@ class PreferencesWarningPartialISpec
       response should have(status(404))
     }
 
-    "be not found if the user has preferences but the nino doesn't match" in new TestCaseWithFrontEndAuthentication {
-      override val utr = "1097172564"
-      val email = uniqueEmail
-      val nino = Nino("CE123457B")
-      `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
-      `/preferences-admin/sa/individual`.verifyEmailFor(utr).futureValue.status shouldBe 204
-      `/preferences-admin/sa/process-nino-determination`.post().futureValue.status shouldBe 200
-
-      `/account/preferences/warnings`.withHeaders(cookieWithNino(nino)).get() should have(status(404))
-    }
-
     "be not found if the user is de-enrolled" in new TestCaseWithFrontEndAuthentication {
       val email = uniqueEmail
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
@@ -61,21 +50,6 @@ class PreferencesWarningPartialISpec
       `/preferences-admin/sa/individual`.verifyEmailFor(utr) should have(status(204))
 
       val response =`/account/preferences/warnings`.withHeaders(cookie).get()
-
-      response should have(status(200))
-      response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("true"))
-      response.futureValue.body should be("")
-    }
-
-    "have no warning if user is opted in and verified and comes from verify" in new TestCaseWithFrontEndAuthentication {
-      override val utr = "1097172564"
-      val email = uniqueEmail
-      val nino = Nino("CE123457D")
-      `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
-      `/preferences-admin/sa/individual`.verifyEmailFor(utr).futureValue.status shouldBe 204
-      `/preferences-admin/sa/process-nino-determination`.post().futureValue.status shouldBe 200
-
-      val response = `/account/preferences/warnings`.withHeaders(cookieWithNino(nino)).get()
 
       response should have(status(200))
       response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("true"))
