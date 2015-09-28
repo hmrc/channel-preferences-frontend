@@ -11,7 +11,7 @@ import uk.gov.hmrc.play.it.{ExternalService, MicroServiceEmbeddedServer, Service
 import uk.gov.hmrc.test.it.{BearerTokenHelper, FrontendCookieHelper}
 import uk.gov.hmrc.time.DateTimeUtils
 import views.sa.prefs.helpers.DateFormat
-
+import scala.concurrent.duration._
 trait TestUser {
   def userId = "SA0055"
 
@@ -36,6 +36,8 @@ trait PreferencesFrontEndServer extends ServiceSpec {
       "email",
       "cid",
       "datastream").map(ExternalService.runFromJar(_))
+
+    override protected def startTimeout: Duration = 300.seconds
   }
 
   class TestCase extends TestUser {

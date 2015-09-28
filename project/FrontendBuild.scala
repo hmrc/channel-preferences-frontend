@@ -47,13 +47,13 @@ private object Dependencies {
     "org.scalatest"  %% "scalatest"   % scalatestVersion % "test",
     "org.pegdown"    %  "pegdown"     % pegdownVersion   % "test",
     "org.mockito"    %  "mockito-all" % mockitoVersion   % "test",
-    "uk.gov.hmrc"    %% "hmrctest"    % "0.4.0"          % "test",
+    "uk.gov.hmrc"    %% "hmrctest"    % "1.3.0"          % "test",
     "uk.gov.hmrc"    %% "auth-test"   % "0.8.0"          % "test",
 
     "org.scalatest"  %% "scalatest"   % scalatestVersion % "it",
     "org.pegdown"    %  "pegdown"     % pegdownVersion   % "it",
     "org.jsoup"      %  "jsoup"       % jsoupVersion     % "it",
-    "uk.gov.hmrc"    %% "hmrctest"    % "0.4.0"          % "it",
+    "uk.gov.hmrc"    %% "hmrctest"    % "1.3.0"          % "it",
     "uk.gov.hmrc"    %% "auth-test"   % "0.8.0"          % "it"
   )
 }
