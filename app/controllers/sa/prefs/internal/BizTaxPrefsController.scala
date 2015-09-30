@@ -121,7 +121,7 @@ trait BizTaxPrefsController
       implicit val headerCarrier = hc
       for {
         _ <- preferencesConnector.saveCohort(utr, calculateCohort(authContext))
-        _ <- preferencesConnector.newUserTermsAndConditions(utr, digital, email.map(Email(_)))
+        _ <- preferencesConnector.newUserTermsAndConditions(utr, digital, email)
       } yield {
         auditChoice(utr, journey, cohort, digital, email,acceptedTAndCs)
         digital match {

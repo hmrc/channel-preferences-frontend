@@ -230,7 +230,7 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
       def status: Int = 200
       def expectedPayload: GenericTermsAndConditionsNewUser
       def postedPayload(payload: GenericTermsAndConditionsNewUser) = payload should be (expectedPayload)
-      val email = Email("test@test.com")
+      val email = "test@test.com"
 
       val connector = preferencesConnector(returnFromDoPost = checkPayloadAndReturn)
 

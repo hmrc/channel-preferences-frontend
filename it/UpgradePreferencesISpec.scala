@@ -1,11 +1,13 @@
-import controllers.sa.prefs.Encrypted
+import controllers.sa.prefs.{EmailPreference, Encrypted}
 import controllers.sa.prefs.internal.routes
 import org.scalatest.mock.MockitoSugar
+import play.api.data.Forms._
 import play.api.libs.json.Json
 import play.api.libs.ws.{WS, WSResponse}
 import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
 
 import scala.concurrent.Future
+import scala.text
 import scala.util.Random
 
 class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSupport with MockitoSugar {
@@ -37,17 +39,18 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
     }
   }
 
-  "New User preferences" should {
+  "New user preferences" should {
     "set generic terms and conditions as true including email address" in new NewUserTestCase {
-      val response = post(true, Some(email)).futureValue
-      response.status should be (201)
+      val response = post(true, Some(email), true).futureValue
+      response.status should be (200)
     }
 
     "set generic terms and conditions as false without email address" in new NewUserTestCase {
-      val response = post(false, None).futureValue
-      response.status should be (201)
+      val response = post(false, None, false).futureValue
+      response.status should be (200)
     }
   }
+
 
   trait NewUserTestCase extends TestCaseWithFrontEndAuthentication {
     import play.api.Play.current
@@ -58,20 +61,18 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
     val email = "a@b.com"
     val returnUrl = "/test/return/url"
     val authHeader = bearerTokenHeader()
-    val url = WS.url(server.externalResource("preferences", s"/preferences/sa/individual/$utr/terms-and-conditions"))
+    val url = WS.url(resource("/account/account-details/sa/login-opt-in-email-reminders"))
+        .withQueryString("returnUrl" -> ApplicationCrypto.QueryParameterCrypto.encrypt(PlainText(returnUrl)).value)
 
-    def post(accepted:Boolean, email: Option[String]): Future[WSResponse] = {
-      val emailString = if (email.isDefined) s""", "email": "${email.get}" """ else ""
+    def post(optIn:Boolean, email: Option[String], acceptTAndC: Boolean): Future[WSResponse] = {
 
-      val json = Json.parse(
-        s"""{
-           |"generic": {
-           |  "accepted" : $accepted
-            |}
-            |$emailString
-            |}""".stripMargin)
+      val params = Map("opt-in" -> Seq(optIn.toString), "accept-tc" -> Seq(acceptTAndC.toString))
+      val paramsWithEmail = email match {
+        case None => params
+        case Some(emailValue) => params + ("email.main" -> Seq(emailValue), "email.confirm" -> Seq(emailValue), "emailVerified" -> Seq(true.toString))
+      }
 
-      url.withHeaders(authHeader).post(json)
+      url.withHeaders(cookie,"Csrf-Token"->"nocheck", authHeader).post(paramsWithEmail)
     }
   }
 

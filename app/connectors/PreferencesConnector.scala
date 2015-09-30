@@ -67,8 +67,9 @@ trait PreferencesConnector extends Status {
     }
   }
 
-  def newUserTermsAndConditions(utr: SaUtr, accepted: Boolean, email: Option[Email]) (implicit hc: HeaderCarrier): Future[Boolean] = {
+  def newUserTermsAndConditions(utr: SaUtr, accepted: Boolean, email: Option[String]) (implicit hc: HeaderCarrier): Future[Boolean] = {
     implicit val f = GenericTermsAndConditionsNewUser.format
+    val x = Json.toJson(GenericTermsAndConditionsNewUser(TermsAndConditionsNewUser(accepted), email))
     http.POST(url(s"/preferences/sa/individual/$utr/terms-and-conditions"), GenericTermsAndConditionsNewUser(TermsAndConditionsNewUser(accepted), email)).map(_ => true).recover {
       case e =>
         Logger.error("Unable to save new user terms and conditions", e)
@@ -104,7 +105,7 @@ object GenericTermsAndConditionsUpdate { implicit val format = Json.format[Gener
 case class TermsAndConditionsNewUser(accepted: Boolean)
 object TermsAndConditionsNewUser { implicit val format = Json.format[TermsAndConditionsNewUser]}
 
-case class GenericTermsAndConditionsNewUser(generic: TermsAndConditionsNewUser, email: Option[Email])
+case class GenericTermsAndConditionsNewUser(generic: TermsAndConditionsNewUser, email: Option[String])
 object GenericTermsAndConditionsNewUser {
   implicit val format = Json.format[GenericTermsAndConditionsNewUser]
 }
