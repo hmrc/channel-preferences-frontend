@@ -1,11 +1,12 @@
-import connectors.PreferencesConnector
 import controllers.sa.prefs.Encrypted
-import controllers.sa.prefs.internal.{routes, UpgradeRemindersController}
+import controllers.sa.prefs.internal.routes
 import org.scalatest.mock.MockitoSugar
+import play.api.libs.json.Json
 import play.api.libs.ws.{WS, WSResponse}
-import uk.gov.hmrc.crypto.{PlainText, ApplicationCrypto}
-import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
+import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
+
+import scala.concurrent.Future
+import scala.util.Random
 
 class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSupport with MockitoSugar {
 
@@ -35,6 +36,46 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
       response.header("Location") should contain (returnUrl)
 
       `/preferences/paye/individual/:nino/activations/paye`(nino, authHeader).put().futureValue.status should be (409)
+    }
+
+  }
+
+  "New User preferences" should {
+    "set generic terms and conditions as true including email address" in new NewUserTestCase {
+      val response = post(true, Some(email)).futureValue
+      response.status should be (201)
+    }
+
+    "set generic terms and conditions as false without email address" in new NewUserTestCase {
+      val response = post(false, None).futureValue
+      response.status should be (201)
+    }
+  }
+
+  trait NewUserTestCase extends TestCaseWithFrontEndAuthentication {
+    import play.api.Play.current
+    val email = "a@b.com"
+    override val gatewayId: String = "UpgradePreferencesISpec"
+    val returnUrl = "/test/return/url"
+    override val utr : String = Math.abs(Random.nextInt()).toString.substring(0, 6)
+    val authHeader = bearerTokenHeader()
+
+    val url = WS.url(server.externalResource("preferences", s"/preferences/sa/individual/$utr/terms-and-conditions"))
+
+
+    def post(accepted:Boolean, email: Option[String]): Future[WSResponse] = {
+      val emailString = if (email.isDefined) s""", "email": "${email.get}" """ else ""
+
+      val json = Json.parse(
+        s"""{
+           |"generic": {
+           |  "accepted" : $accepted
+            |}
+            |$emailString
+            |}""".stripMargin)
+
+      url.withHeaders(authHeader).post(json)
+
     }
 
   }
@@ -71,12 +112,5 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
       await(`/preferences-admin/sa/process-nino-determination`.post())
     }
 
-    val controller = new UpgradeRemindersController {
-      override def preferencesConnector: PreferencesConnector = mock[PreferencesConnector]
-
-      override def authConnector: AuthConnector = mock[AuthConnector]
-
-      override def auditConnector: AuditConnector = mock[AuditConnector]
-    }
   }
 }

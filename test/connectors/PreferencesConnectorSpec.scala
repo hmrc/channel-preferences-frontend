@@ -220,5 +220,36 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
 
       connector.upgradeTermsAndConditions(SaUtr("testing"), true).futureValue should be (false)
     }
+
+  }
+
+  "New user" should {
+    trait NewUserPayloadCheck {
+      def status: Int = 200
+      def expectedPayload: GenericTermsAndConditionsNewUser
+      def postedPayload(payload: GenericTermsAndConditionsNewUser) = payload should be (expectedPayload)
+
+      val connector = preferencesConnector(returnFromDoPost = checkPayloadAndReturn)
+
+      def checkPayloadAndReturn(url: String, requestBody: Any): Future[HttpResponse] = {
+        postedPayload(requestBody.asInstanceOf[GenericTermsAndConditionsNewUser])
+        Future.successful(HttpResponse(status))
+      }
+    }
+
+    "send accepted true with email" in new NewUserPayloadCheck {
+      val email = Email("test@test.com")
+      override def expectedPayload: GenericTermsAndConditionsNewUser =
+        GenericTermsAndConditionsNewUser(TermsAndConditionsNewUser(true), Some(email))
+
+      connector.newUserTermsAndConditions(SaUtr("test"), true, Some(email)).futureValue should be (true)
+    }
+
+    "send accepted false with no email" in new NewUserPayloadCheck {
+      override def expectedPayload: GenericTermsAndConditionsNewUser =
+        GenericTermsAndConditionsNewUser(TermsAndConditionsNewUser(false), None)
+
+      connector.newUserTermsAndConditions(SaUtr("test"), false, None).futureValue should be (true)
+    }
   }
 }
