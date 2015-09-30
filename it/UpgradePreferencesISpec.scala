@@ -13,7 +13,6 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
   "Upgrading preferences should" should {
 
     "set upgraded to paperless and allow subsequent activation"  in new UpgradeTestCase  {
-
       createOptedInVerifiedPreferenceWithNino()
 
       `/preferences/paye/individual/:nino/activations/paye`(nino,authHeader).put().futureValue.status should be (412)
@@ -26,7 +25,6 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
     }
 
     "set not upgraded to paperless and don't allow subsequent activation"  in new UpgradeTestCase  {
-
       createOptedInVerifiedPreferenceWithNino()
 
       `/preferences/paye/individual/:nino/activations/paye`(nino,authHeader).put().futureValue.status should be (412)
@@ -37,7 +35,6 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
       `/preferences/paye/individual/:nino/activations/paye`(nino, authHeader).put().futureValue.status should be (409)
     }
-
   }
 
   "New User preferences" should {
@@ -54,14 +51,14 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
   trait NewUserTestCase extends TestCaseWithFrontEndAuthentication {
     import play.api.Play.current
-    val email = "a@b.com"
+
     override val gatewayId: String = "UpgradePreferencesISpec"
-    val returnUrl = "/test/return/url"
     override val utr : String = Math.abs(Random.nextInt()).toString.substring(0, 6)
+
+    val email = "a@b.com"
+    val returnUrl = "/test/return/url"
     val authHeader = bearerTokenHeader()
-
     val url = WS.url(server.externalResource("preferences", s"/preferences/sa/individual/$utr/terms-and-conditions"))
-
 
     def post(accepted:Boolean, email: Option[String]): Future[WSResponse] = {
       val emailString = if (email.isDefined) s""", "email": "${email.get}" """ else ""
@@ -75,9 +72,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
             |}""".stripMargin)
 
       url.withHeaders(authHeader).post(json)
-
     }
-
   }
 
   trait UpgradeTestCase extends TestCaseWithFrontEndAuthentication {
@@ -111,6 +106,5 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
       `/preferences-admin/sa/individual`.verifyEmailFor(utr)
       await(`/preferences-admin/sa/process-nino-determination`.post())
     }
-
   }
 }

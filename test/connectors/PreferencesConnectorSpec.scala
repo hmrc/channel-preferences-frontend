@@ -17,7 +17,6 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
 
   implicit val hc = new HeaderCarrier
 
-
   private def defaultGetHandler: (String) => Future[AnyRef with HttpResponse] = {
     _ => Future.successful(HttpResponse(200))
   }
@@ -204,7 +203,6 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
         postedPayload(requestBody.asInstanceOf[GenericTermsAndConditionsUpdate])
         Future.successful(HttpResponse(status))
       }
-
     }
 
     "send accepted true and return true if terms and conditions are accepted and updated" in new PayloadCheck {
@@ -219,14 +217,12 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
       connector.upgradeTermsAndConditions(SaUtr("testing"), false).futureValue should be (true)
     }
 
-
     "return false if any problems" in new PayloadCheck {
       override val status = 401
       override val expectedPayload = GenericTermsAndConditionsUpdate(TermsAndConditionsUpdate(true))
 
       connector.upgradeTermsAndConditions(SaUtr("testing"), true).futureValue should be (false)
     }
-
   }
 
   "New user" should {
@@ -266,18 +262,15 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
 
       connector.newUserTermsAndConditions(SaUtr("test"), true, Some(email)).futureValue should be (false)
     }
-
   }
+
   "Activate new user" should {
     trait ActivateUserPayloadCheck {
       def status: Int = 200
-
       def expectedPayload: ActivationStatus = ActivationStatus(true)
-
       def putPayload(payload: ActivationStatus) = payload should be(expectedPayload)
 
       val connector = preferencesConnector(returnFromDoPut = checkPayloadAndReturn)
-
       val returnUrl = "/any/old/url"
 
       def checkPayloadAndReturn(url: String, requestBody: Any): Future[HttpResponse] = {
@@ -285,6 +278,7 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
         Future.successful(HttpResponse(status))
       }
     }
+
     "activate user when preferences working" in new ActivateUserPayloadCheck {
       connector.activateUser(SaUtr("test"), returnUrl).futureValue should be(true)
     }
