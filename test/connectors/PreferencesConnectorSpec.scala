@@ -234,6 +234,7 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
       def status: Int = 200
       def expectedPayload: GenericTermsAndConditionsNewUser
       def postedPayload(payload: GenericTermsAndConditionsNewUser) = payload should be (expectedPayload)
+      val email = Email("test@test.com")
 
       val connector = preferencesConnector(returnFromDoPost = checkPayloadAndReturn)
 
@@ -244,7 +245,6 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
     }
 
     "send accepted true with email" in new NewUserPayloadCheck {
-      val email = Email("test@test.com")
       override def expectedPayload: GenericTermsAndConditionsNewUser =
         GenericTermsAndConditionsNewUser(TermsAndConditionsNewUser(true), Some(email))
 
@@ -256,6 +256,15 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
         GenericTermsAndConditionsNewUser(TermsAndConditionsNewUser(false), None)
 
       connector.newUserTermsAndConditions(SaUtr("test"), false, None).futureValue should be (true)
+    }
+
+    "try and send accepted true with email where preferences not working" in new NewUserPayloadCheck {
+      override def expectedPayload: GenericTermsAndConditionsNewUser =
+        GenericTermsAndConditionsNewUser(TermsAndConditionsNewUser(true), Some(email))
+
+      override def status: Int = 401
+
+      connector.newUserTermsAndConditions(SaUtr("test"), true, Some(email)).futureValue should be (false)
     }
 
   }
