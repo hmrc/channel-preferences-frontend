@@ -1,7 +1,7 @@
 package controllers.sa.prefs.internal
 
 import authentication.ValidSessionCredentialsProvider
-import connectors.{EmailConnector, PreferencesConnector}
+import connectors.{Email, EmailConnector, PreferencesConnector}
 import controllers.sa.prefs.Encrypted
 import controllers.sa.prefs.ExternalUrls.businessTaxHome
 import controllers.sa.prefs._
@@ -121,7 +121,7 @@ trait BizTaxPrefsController
       implicit val headerCarrier = hc
       for {
         _ <- preferencesConnector.saveCohort(utr, calculateCohort(authContext))
-        _ <- preferencesConnector.savePreferences(utr, digital, email)
+        _ <- preferencesConnector.newUserTermsAndConditions(utr, digital, email.map(Email(_)))
       } yield {
         auditChoice(utr, journey, cohort, digital, email,acceptedTAndCs)
         digital match {
