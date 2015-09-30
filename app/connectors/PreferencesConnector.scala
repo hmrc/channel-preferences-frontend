@@ -76,6 +76,15 @@ trait PreferencesConnector extends Status {
     }
   }
 
+  def activateUser(utr: SaUtr, returnUrl: String) (implicit hc: HeaderCarrier): Future[Boolean] = {
+    implicit val f = ActivationStatus.format
+    http.PUT(url(s"/preferences/sa/individual/$utr/activations"), ActivationStatus(true)).map(_ => true).recover {
+      case e =>
+        Logger.error("Unable to activate new user", e)
+        false
+    }
+  }
+
   private[connectors] def responseToEmailVerificationLinkStatus(response: Future[HttpResponse])(implicit hc: HeaderCarrier) = {
     response.map(_ => EmailVerificationLinkResponse.Ok)
       .recover {
@@ -86,11 +95,11 @@ trait PreferencesConnector extends Status {
   }
 }
 
-object TermsAndConditionsUpdate {  implicit val format = Json.format[TermsAndConditionsUpdate] }
 case class TermsAndConditionsUpdate(accepted: Boolean)
+object TermsAndConditionsUpdate {  implicit val format = Json.format[TermsAndConditionsUpdate] }
 
-object GenericTermsAndConditionsUpdate { implicit val format = Json.format[GenericTermsAndConditionsUpdate] }
 case class GenericTermsAndConditionsUpdate(generic: TermsAndConditionsUpdate)
+object GenericTermsAndConditionsUpdate { implicit val format = Json.format[GenericTermsAndConditionsUpdate] }
 
 case class TermsAndConditionsNewUser(accepted: Boolean)
 object TermsAndConditionsNewUser { implicit val format = Json.format[TermsAndConditionsNewUser]}
@@ -99,3 +108,6 @@ case class GenericTermsAndConditionsNewUser(generic: TermsAndConditionsNewUser, 
 object GenericTermsAndConditionsNewUser {
   implicit val format = Json.format[GenericTermsAndConditionsNewUser]
 }
+
+case class ActivationStatus(active: Boolean)
+object ActivationStatus { implicit val format = Json.format[ActivationStatus]}

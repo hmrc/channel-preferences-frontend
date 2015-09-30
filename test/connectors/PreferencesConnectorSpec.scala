@@ -26,6 +26,10 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
     (a, b) => Future.successful(HttpResponse(200))
   }
 
+  private def defaultPutHandler: (String, Any) => Future[AnyRef with HttpResponse] = {
+    (a, b) => Future.successful(HttpResponse(200))
+  }
+
   class TestPreferencesConnector extends PreferencesConnector {
 
     override def serviceUrl: String = "http://preferences.service/"
@@ -33,7 +37,9 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
     override def http: HttpGet with HttpPost with HttpPut = ???
   }
 
-  def preferencesConnector(returnFromDoGet: String => Future[HttpResponse] = defaultGetHandler, returnFromDoPost: (String, Any) => Future[HttpResponse] = defaultPostHandler) = new TestPreferencesConnector {
+  def preferencesConnector(returnFromDoGet: String => Future[HttpResponse] = defaultGetHandler,
+                           returnFromDoPost: (String, Any) => Future[HttpResponse] = defaultPostHandler,
+                           returnFromDoPut: (String, Any) => Future[HttpResponse] = defaultPutHandler) = new TestPreferencesConnector {
     override def http = new HttpGet with HttpPost with HttpPut with AppName {
       override protected def doGet(url: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = returnFromDoGet(url)
 
@@ -45,7 +51,7 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
 
       override protected def doEmptyPost[A](url: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = ???
 
-      override protected def doPut[A](url: String, body: A)(implicit rds: Writes[A], hc: HeaderCarrier): Future[HttpResponse] = ???
+      override protected def doPut[A](url: String, body: A)(implicit rds: Writes[A], hc: HeaderCarrier): Future[HttpResponse] = returnFromDoPut(url, body)
 
       override def auditConnector: AuditConnector = ???
     }
@@ -250,6 +256,33 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
         GenericTermsAndConditionsNewUser(TermsAndConditionsNewUser(false), None)
 
       connector.newUserTermsAndConditions(SaUtr("test"), false, None).futureValue should be (true)
+    }
+
+  }
+  "Activate new user" should {
+    trait ActivateUserPayloadCheck {
+      def status: Int = 200
+
+      def expectedPayload: ActivationStatus = ActivationStatus(true)
+
+      def putPayload(payload: ActivationStatus) = payload should be(expectedPayload)
+
+      val connector = preferencesConnector(returnFromDoPut = checkPayloadAndReturn)
+
+      val returnUrl = "/any/old/url"
+
+      def checkPayloadAndReturn(url: String, requestBody: Any): Future[HttpResponse] = {
+        putPayload(requestBody.asInstanceOf[ActivationStatus])
+        Future.successful(HttpResponse(status))
+      }
+    }
+    "activate user when preferences working" in new ActivateUserPayloadCheck {
+      connector.activateUser(SaUtr("test"), returnUrl).futureValue should be(true)
+    }
+
+    "try and activate user when preferences not working" in new ActivateUserPayloadCheck {
+      override def status: Int = 401
+      connector.activateUser(SaUtr("test"), returnUrl).futureValue should be(false)
     }
   }
 }
