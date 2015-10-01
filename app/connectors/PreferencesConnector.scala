@@ -69,7 +69,6 @@ trait PreferencesConnector extends Status {
 
   def newUserTermsAndConditions(utr: SaUtr, accepted: Boolean, email: Option[String]) (implicit hc: HeaderCarrier): Future[Boolean] = {
     implicit val f = GenericTermsAndConditionsNewUser.format
-    val x = Json.toJson(GenericTermsAndConditionsNewUser(TermsAndConditionsNewUser(accepted), email))
     http.POST(url(s"/preferences/sa/individual/$utr/terms-and-conditions"), GenericTermsAndConditionsNewUser(TermsAndConditionsNewUser(accepted), email)).map(_ => true).recover {
       case e =>
         Logger.error("Unable to save new user terms and conditions", e)
@@ -77,7 +76,7 @@ trait PreferencesConnector extends Status {
     }
   }
 
-  def activateUser(utr: SaUtr, returnUrl: String) (implicit hc: HeaderCarrier): Future[Boolean] = {
+  def activateUser(utr: SaUtr) (implicit hc: HeaderCarrier): Future[Boolean] = {
     implicit val f = ActivationStatus.format
     http.PUT(url(s"/preferences/sa/individual/$utr/activations"), ActivationStatus(true)).map(_ => true).recover {
       case e =>

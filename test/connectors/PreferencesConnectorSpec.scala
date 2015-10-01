@@ -271,7 +271,6 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
       def putPayload(payload: ActivationStatus) = payload should be(expectedPayload)
 
       val connector = preferencesConnector(returnFromDoPut = checkPayloadAndReturn)
-      val returnUrl = "/any/old/url"
 
       def checkPayloadAndReturn(url: String, requestBody: Any): Future[HttpResponse] = {
         putPayload(requestBody.asInstanceOf[ActivationStatus])
@@ -280,12 +279,12 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
     }
 
     "activate user when preferences working" in new ActivateUserPayloadCheck {
-      connector.activateUser(SaUtr("test"), returnUrl).futureValue should be(true)
+      connector.activateUser(SaUtr("test")).futureValue should be(true)
     }
 
     "try and activate user when preferences not working" in new ActivateUserPayloadCheck {
       override def status: Int = 401
-      connector.activateUser(SaUtr("test"), returnUrl).futureValue should be(false)
+      connector.activateUser(SaUtr("test")).futureValue should be(false)
     }
   }
 }

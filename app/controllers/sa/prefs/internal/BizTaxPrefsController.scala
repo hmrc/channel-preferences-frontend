@@ -117,13 +117,19 @@ trait BizTaxPrefsController
 
   private[prefs] def submitPrefsFormAction(journey: Journey)(implicit authContext: AuthContext, request: Request[AnyRef], withBanner: Boolean = false) = {
     val cohort = calculateCohort(authContext)
+    def maybeActivateUser(utr: SaUtr, userCreated: Boolean): Future[Boolean] = userCreated match {
+      case true => preferencesConnector.activateUser(utr)
+      case false => Future.successful(false)
+    }
+
     def saveAndAuditPreferences(utr:SaUtr, digital: Boolean, email: Option[String], acceptedTAndCs:Boolean, hc: HeaderCarrier):Future[Result] = {
       implicit val headerCarrier = hc
       for {
         _ <- preferencesConnector.saveCohort(utr, calculateCohort(authContext))
-        _ <- preferencesConnector.newUserTermsAndConditions(utr, digital, email)
+        userCreated <- preferencesConnector.newUserTermsAndConditions(utr, digital, email)
+        _ <- maybeActivateUser(utr, userCreated)
       } yield {
-        auditChoice(utr, journey, cohort, digital, email,acceptedTAndCs)
+        auditChoice(utr, journey, cohort, digital, email,acceptedTAndCs, userCreated)
         digital match {
           case true =>
             Redirect(routes.BizTaxPrefsController.thankYou(email map (emailAddress => Encrypted(EmailAddress(emailAddress)))))
@@ -157,10 +163,10 @@ trait BizTaxPrefsController
         "journey" -> journey.toString,
         "cohort" -> cohort.toString))))
 
-  private def auditChoice(utr: SaUtr, journey: Journey, cohort: OptInCohort, digital: Boolean, emailOption: Option[String], acceptedTAndCs:Boolean)(implicit request: Request[_], hc: HeaderCarrier) =
+  private def auditChoice(utr: SaUtr, journey: Journey, cohort: OptInCohort, digital: Boolean, emailOption: Option[String], acceptedTAndCs:Boolean, userCreated: Boolean)(implicit request: Request[_], hc: HeaderCarrier) =
     auditConnector.sendEvent(ExtendedDataEvent(
       auditSource = appName,
-      auditType = EventTypes.Succeeded,
+      auditType = if (userCreated) EventTypes.Succeeded else EventTypes.Failed,
       tags = hc.toAuditTags("Set Print Preference", request.path),
       detail = Json.toJson(hc.toAuditDetails(
         "client" -> "YTA",

@@ -46,6 +46,8 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
       val body = preferencesResponse.futureValue.body
       body should include(""""digital":true""")
       body should include(s""""email":"$email""")
+      body should include("""saClientNonStatutory""")
+      body should include ("""saClientStatutory""")
     }
 
     "set generic terms and conditions as false without email address" in new NewUserTestCase {
@@ -57,6 +59,8 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
       val body = preferencesResponse.futureValue.body
       body should include(""""digital":false""")
       body should not include(s""""email":"$email""")
+      body should not include("""saClientNonStatutory""")
+      body should not include("""saClientStatutory""")
     }
   }
 
