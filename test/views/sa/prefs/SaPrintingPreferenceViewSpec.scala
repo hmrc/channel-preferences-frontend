@@ -12,8 +12,8 @@ class SaPrintingPreferenceViewSpec extends UnitSpec with PreferencesControllerHe
   override lazy val fakeApplication = ConfigHelper.fakeApp
 
   "preference print template" should {
-    "render the correct content for the FPage cohort " in {
-      val document = Jsoup.parse(sa_printing_preference(true, emailForm, Call("GET", "/"), FPage)(FakeRequest("GET", "/")).toString())
+    "render the correct content for the IPage cohort " in {
+      val document = Jsoup.parse(sa_printing_preference(true, emailForm, Call("GET", "/"), IPage)(FakeRequest("GET", "/")).toString())
       document.getElementById("opt-in-in").hasAttr("checked") shouldBe true
     }
   }

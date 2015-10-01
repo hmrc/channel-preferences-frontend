@@ -25,7 +25,7 @@ import scala.concurrent.Future
 
 
 abstract class BizTaxPrefsControllerSetup extends WithApplication(ConfigHelper.fakeApp) with MockitoSugar {
-  def assignedCohort: OptInCohort = FPage
+  def assignedCohort: OptInCohort = IPage
 
   val mockAuditConnector = mock[AuditConnector]
   val mockPreferencesConnector = mock[PreferencesConnector]
@@ -125,8 +125,8 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       document.getElementById("terms-and-conditions").attr("href") should endWith("terms-and-conditions")
     }
 
-    "audit the cohort information for FPage" in new BizTaxPrefsControllerSetup {
-      override def assignedCohort = FPage
+    "audit the cohort information for IPage" in new BizTaxPrefsControllerSetup {
+      override def assignedCohort = IPage
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(None)
 
       val page = controller.displayInterstitialPrefsFormAction(user, request, Some(assignedCohort))
@@ -139,7 +139,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       value.auditSource  shouldBe "preferences-frontend"
       value.auditType shouldBe EventTypes.Succeeded
       value.tags should contain ("transactionName" -> "Show Print Preference Option")
-      value.detail \ "cohort" shouldBe JsString("FPage")
+      value.detail \ "cohort" shouldBe JsString("IPage")
       value.detail \ "journey" shouldBe JsString("Interstitial")
       value.detail \ "utr" shouldBe JsString(validUtr.value)
     }
@@ -280,7 +280,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
     }
 
     "show an error when opting-in if the T&C's are not accepted" in new BizTaxPrefsControllerSetup {
-      override def assignedCohort = FPage
+      override def assignedCohort = IPage
 
       val emailAddress = "someone@email.com"
       val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user,
@@ -294,7 +294,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
     }
 
     "show an error when opting-in if the T&C's accepted flag is not present" in new BizTaxPrefsControllerSetup {
-      override def assignedCohort = FPage
+      override def assignedCohort = IPage
 
       val emailAddress = "someone@email.com"
       val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user,
@@ -348,7 +348,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       val emailAddress = "someone@email.com"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(true)
       when(mockPreferencesConnector.newUserTermsAndConditions(is(validUtr), is(true), is(Some(emailAddress)))(any())).thenReturn(Future.successful(true))
-      when(mockPreferencesConnector.activateUser(is(validUtr))(any())).thenReturn(Future.successful(true))
+      when(mockPreferencesConnector.activateUser(is(validUtr), anyString)(any())).thenReturn(Future.successful(true))
 
       val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress),("email.confirm", emailAddress), "accept-tc" -> "true")))
 
@@ -357,7 +357,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
 
       verify(mockPreferencesConnector).saveCohort(is(validUtr), is(assignedCohort))(any())
       verify(mockPreferencesConnector).newUserTermsAndConditions(is(validUtr), is(true), is(Some(emailAddress)))(any())
-      verify(mockPreferencesConnector).activateUser(is(validUtr))(any())
+      verify(mockPreferencesConnector).activateUser(is(validUtr), anyString)(any())
       verify(mockEmailConnector).isValid(is(emailAddress))(any())
 
       verifyNoMoreInteractions(mockPreferencesConnector, mockEmailConnector)
@@ -375,7 +375,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
 
       verify(mockPreferencesConnector).saveCohort(is(validUtr), is(assignedCohort))(any())
       verify(mockPreferencesConnector).newUserTermsAndConditions(is(validUtr), is(true), is(Some(emailAddress)))(any())
-      verify(mockPreferencesConnector, times(0)).activateUser(is(validUtr))(any())
+      verify(mockPreferencesConnector, times(0)).activateUser(is(validUtr), anyString)(any())
       verify(mockEmailConnector).isValid(is(emailAddress))(any())
 
       verifyNoMoreInteractions(mockPreferencesConnector, mockEmailConnector)
@@ -383,7 +383,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
 
     "when opting-out, save the preference and redirect to the thank you page" in new BizTaxPrefsControllerSetup {
       when(mockPreferencesConnector.newUserTermsAndConditions(is(validUtr), is(false), is(None))(any())).thenReturn(Future.successful(true))
-      when(mockPreferencesConnector.activateUser(is(validUtr))(any())).thenReturn(Future.successful(true))
+      when(mockPreferencesConnector.activateUser(is(validUtr), anyString)(any())).thenReturn(Future.successful(true))
       val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "false")))
 
       status(page) shouldBe 303
@@ -391,7 +391,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
 
       verify(mockPreferencesConnector).saveCohort(is(validUtr), is(assignedCohort))(any())
       verify(mockPreferencesConnector).newUserTermsAndConditions(is(validUtr), is(false), is(None))(any())
-      verify(mockPreferencesConnector).activateUser(is(validUtr))(any())
+      verify(mockPreferencesConnector).activateUser(is(validUtr), anyString)(any())
 
       verifyNoMoreInteractions(mockPreferencesConnector, mockEmailConnector)
     }
@@ -402,7 +402,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
     "if the verified flag is true, save the preference and redirect to the thank you page without verifying the email address again" in new BizTaxPrefsControllerSetup {
       val emailAddress = "someone@email.com"
       when(mockPreferencesConnector.newUserTermsAndConditions(is(validUtr), is(true), is(Some(emailAddress)))(any())).thenReturn(Future.successful(true))
-      when(mockPreferencesConnector.activateUser(is(validUtr))(any())).thenReturn(Future.successful(true))
+      when(mockPreferencesConnector.activateUser(is(validUtr), anyString)(any())).thenReturn(Future.successful(true))
 
       val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "true"), "accept-tc" -> "true")))
 
@@ -411,7 +411,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
 
       verify(mockPreferencesConnector).saveCohort(is(validUtr), is(assignedCohort))(any())
       verify(mockPreferencesConnector).newUserTermsAndConditions(is(validUtr), is(true), is(Some(emailAddress)))(any())
-      verify(mockPreferencesConnector).activateUser(is(validUtr))(any())
+      verify(mockPreferencesConnector).activateUser(is(validUtr), anyString)(any())
 
       verifyNoMoreInteractions(mockPreferencesConnector, mockEmailConnector)
     }
@@ -448,13 +448,13 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
   }
 
   "An audit event" should {
-    "be created when submitting a print preference from FPage" in new BizTaxPrefsControllerSetup {
+    "be created when submitting a print preference from IPage" in new BizTaxPrefsControllerSetup {
 
-      override def assignedCohort = FPage
+      override def assignedCohort = IPage
       val emailAddress = "someone@email.com"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(true)
       when(mockPreferencesConnector.newUserTermsAndConditions(is(validUtr), is(true), is(Some(emailAddress)))(any())).thenReturn(Future.successful(true))
-      when(mockPreferencesConnector.activateUser(is(validUtr))(any())).thenReturn(Future.successful(true))
+      when(mockPreferencesConnector.activateUser(is(validUtr), anyString)(any())).thenReturn(Future.successful(true))
 
       val page = Future.successful(controller.submitPrefsFormAction(Interstitial)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress),("email.confirm", emailAddress), "accept-tc" -> "true")))
 
@@ -467,7 +467,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       value.auditSource  shouldBe "preferences-frontend"
       value.auditType shouldBe EventTypes.Succeeded
       value.tags should contain ("transactionName" -> "Set Print Preference")
-      value.detail \ "cohort" shouldBe JsString("FPage")
+      value.detail \ "cohort" shouldBe JsString("IPage")
       value.detail \ "journey" shouldBe JsString("Interstitial")
       value.detail \ "utr" shouldBe JsString(validUtr.value)
       value.detail \ "email" shouldBe JsString("someone@email.com")
@@ -477,9 +477,9 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       value.detail \ "userActivated" shouldBe JsString("true")
     }
 
-    "not created when submitting a print preference from FPage" in new BizTaxPrefsControllerSetup {
+    "not created when submitting a print preference from IPage" in new BizTaxPrefsControllerSetup {
 
-      override def assignedCohort = FPage
+      override def assignedCohort = IPage
       val emailAddress = "someone@email.com"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(true)
       when(mockPreferencesConnector.newUserTermsAndConditions(is(validUtr), is(true), is(Some(emailAddress)))(any())).thenReturn(Future.successful(false))
@@ -495,7 +495,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       value.auditSource  shouldBe "preferences-frontend"
       value.auditType shouldBe EventTypes.Failed
       value.tags should contain ("transactionName" -> "Set Print Preference")
-      value.detail \ "cohort" shouldBe JsString("FPage")
+      value.detail \ "cohort" shouldBe JsString("IPage")
       value.detail \ "journey" shouldBe JsString("Interstitial")
       value.detail \ "utr" shouldBe JsString(validUtr.value)
       value.detail \ "email" shouldBe JsString("someone@email.com")
@@ -505,13 +505,13 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       value.detail \ "userActivated" shouldBe JsString("false")
     }
 
-    "be created but failed to be activated when submitting a print preference from FPage" in new BizTaxPrefsControllerSetup {
+    "be created but failed to be activated when submitting a print preference from IPage" in new BizTaxPrefsControllerSetup {
 
-      override def assignedCohort = FPage
+      override def assignedCohort = IPage
       val emailAddress = "someone@email.com"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(true)
       when(mockPreferencesConnector.newUserTermsAndConditions(is(validUtr), is(true), is(Some(emailAddress)))(any())).thenReturn(Future.successful(true))
-      when(mockPreferencesConnector.activateUser(is(validUtr))(any())).thenReturn(Future.successful(false))
+      when(mockPreferencesConnector.activateUser(is(validUtr), anyString)(any())).thenReturn(Future.successful(false))
 
       val page = Future.successful(controller.submitPrefsFormAction(Interstitial)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress),("email.confirm", emailAddress), "accept-tc" -> "true")))
 
@@ -524,7 +524,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       value.auditSource  shouldBe "preferences-frontend"
       value.auditType shouldBe EventTypes.Failed
       value.tags should contain ("transactionName" -> "Set Print Preference")
-      value.detail \ "cohort" shouldBe JsString("FPage")
+      value.detail \ "cohort" shouldBe JsString("IPage")
       value.detail \ "journey" shouldBe JsString("Interstitial")
       value.detail \ "utr" shouldBe JsString(validUtr.value)
       value.detail \ "email" shouldBe JsString("someone@email.com")
@@ -534,14 +534,14 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       value.detail \ "userActivated" shouldBe JsString("false")
     }
 
-    "be created when choosing to not accept email reminders from FPage" in new BizTaxPrefsControllerSetup {
+    "be created when choosing to not accept email reminders from IPage" in new BizTaxPrefsControllerSetup {
 
-      override def assignedCohort = FPage
+      override def assignedCohort = IPage
       when(mockPreferencesConnector.newUserTermsAndConditions(
         is(validUtr),
         is(false),
         is(None))(any())).thenReturn(Future.successful(true))
-      when(mockPreferencesConnector.activateUser(is(validUtr))(any())).thenReturn(Future.successful(true))
+      when(mockPreferencesConnector.activateUser(is(validUtr), anyString)(any())).thenReturn(Future.successful(true))
 
       val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "false")))
 
@@ -554,7 +554,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       value.auditSource  shouldBe "preferences-frontend"
       value.auditType shouldBe EventTypes.Succeeded
       value.tags should contain ("transactionName" -> "Set Print Preference")
-      value.detail \ "cohort" shouldBe JsString("FPage")
+      value.detail \ "cohort" shouldBe JsString("IPage")
       value.detail \ "journey" shouldBe JsString("AccountDetails")
       value.detail \ "utr" shouldBe JsString(validUtr.value)
       value.detail \ "email" shouldBe JsString("")
