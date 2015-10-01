@@ -157,6 +157,7 @@ trait BizTaxPrefsController
         "journey" -> journey.toString,
         "cohort" -> cohort.toString))))
 
+  // TODO this should replace `digital: Boolean` with `terms: (TermsType, TermsAccepted)`
   private def auditChoice(utr: SaUtr, journey: Journey, cohort: OptInCohort, digital: Boolean, emailOption: Option[String], acceptedTAndCs:Boolean)(implicit request: Request[_], hc: HeaderCarrier) =
     auditConnector.sendEvent(ExtendedDataEvent(
       auditSource = appName,

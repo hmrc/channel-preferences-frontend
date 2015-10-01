@@ -58,9 +58,9 @@ trait PreferencesConnector extends Status {
     responseToEmailVerificationLinkStatus(http.POST(url("/preferences/sa/verify-email"), ValidateEmail(token)))
   }
 
-  def upgradeTermsAndConditions(utr: SaUtr, accepted: Boolean)(implicit hc: HeaderCarrier) : Future[Boolean] = {
-    implicit val f = GenericTermsAndConditionsUpdate.format
-    http.POST(url(s"/preferences/sa/individual/$utr/terms-and-conditions"), GenericTermsAndConditionsUpdate(TermsAndConditionsUpdate(accepted))).map(_ => true).recover {
+  def upgradeTermsAndConditions(utr: SaUtr, termsAccepted: (TermsType, TermsAccepted))(implicit hc: HeaderCarrier) : Future[Boolean] = {
+    implicit val termsFormat = TermsAndConditionsUpdate.format
+    http.POST(url(s"/preferences/sa/individual/$utr/terms-and-conditions"), TermsAndConditionsUpdate.from(termsAccepted)).map(_ => true).recover {
       case e =>
         Logger.error("Unable to save upgraded terms and conditions", e)
         false
@@ -77,8 +77,20 @@ trait PreferencesConnector extends Status {
   }
 }
 
-object TermsAndConditionsUpdate {  implicit val format = Json.format[TermsAndConditionsUpdate] }
-case class TermsAndConditionsUpdate(accepted: Boolean)
+sealed trait TermsType
+case object Generic extends TermsType
 
-object GenericTermsAndConditionsUpdate { implicit val format = Json.format[GenericTermsAndConditionsUpdate] }
-case class GenericTermsAndConditionsUpdate(generic: TermsAndConditionsUpdate)
+case class TermsAccepted(accepted: Boolean)
+object TermsAccepted {
+  implicit val format = Json.format[TermsAccepted]
+}
+
+case class TermsAndConditionsUpdate(generic: TermsAccepted)
+object TermsAndConditionsUpdate {
+  implicit val format = Json.format[TermsAndConditionsUpdate]
+
+  def from(terms: (TermsType, TermsAccepted)): TermsAndConditionsUpdate = terms match {
+    case (Generic, accepted: TermsAccepted) => TermsAndConditionsUpdate(generic = accepted)
+    case (termsType, _) => throw new IllegalArgumentException(s"Could not work with termsType=$termsType")
+  }
+}

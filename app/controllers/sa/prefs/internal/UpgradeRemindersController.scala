@@ -1,6 +1,6 @@
 package controllers.sa.prefs.internal
 
-import connectors.PreferencesConnector
+import connectors._
 import controllers.sa.prefs.Encrypted
 import controllers.sa.prefs.config.Global
 import controllers.sa.prefs.{SaRegimeWithoutRedirection, UpgradeRemindersTandC}
@@ -44,20 +44,23 @@ trait UpgradeRemindersController extends FrontendController with Actions with Ap
     decideRoutingFromPreference(utr,maybeNino, encryptedReturnUrl, upgradeRemindersForm)
   }
 
-  def upgrade(returnUrl: Encrypted[String]) = AuthorisedFor(SaRegimeWithoutRedirection).async {
-    authContext => implicit request =>
-      upgradePreferences(returnUrl.decryptedValue, authContext.principal.accounts.sa.get.utr, authContext.principal.accounts.paye.map(_.nino))
+  def upgrade(returnUrl: Encrypted[String]) = AuthorisedFor(SaRegimeWithoutRedirection).async { authContext => implicit request =>
+    upgradePreferences(
+      returnUrl = returnUrl.decryptedValue,
+      utr = authContext.principal.accounts.sa.get.utr,
+      maybeNino = authContext.principal.accounts.paye.map(_.nino)
+    )
   }
 
   private[controllers] def upgradePreferences(returnUrl:String, utr: SaUtr, maybeNino: Option[Nino])(implicit request: Request[AnyContent]): Future[Result] = {
     if (upgradeRemindersForm.bindFromRequest()(request).get.isDigitalButtonSelected) {
-      upgradePaperless(utr, maybeNino, true).map {
+      upgradePaperless(utr, maybeNino, Generic -> TermsAccepted(true)).map {
         case true => Redirect(routes.UpgradeRemindersController.thankYou(Encrypted(returnUrl)))
         case false => Redirect(returnUrl)
       }
     }
     else {
-      upgradePaperless(utr, maybeNino, false).map(resp => Redirect(returnUrl))
+      upgradePaperless(utr, maybeNino, Generic -> TermsAccepted(false)).map(resp => Redirect(returnUrl))
     }
   }
 
@@ -68,13 +71,13 @@ trait UpgradeRemindersController extends FrontendController with Actions with Ap
     }
   }
 
-  private[controllers] def upgradePaperless(utr: SaUtr, nino: Option[Nino], digital: Boolean)(implicit request: Request[AnyContent], hc: HeaderCarrier) : Future[Boolean] =
-    preferencesConnector.upgradeTermsAndConditions(utr, digital).map { success =>
-      if (success) auditChoice(utr, nino, digital)
+  private[controllers] def upgradePaperless(utr: SaUtr, nino: Option[Nino], termsAccepted: (TermsType, TermsAccepted))(implicit request: Request[AnyContent], hc: HeaderCarrier) : Future[Boolean] =
+    preferencesConnector.upgradeTermsAndConditions(utr, termsAccepted).map { success =>
+      if (success) auditChoice(utr, nino, termsAccepted)
       success
     }
 
-  private def auditChoice(utr: SaUtr, nino: Option[Nino], digital: Boolean)(implicit request: Request[_], hc: HeaderCarrier) =
+  private def auditChoice(utr: SaUtr, nino: Option[Nino], termsAccepted: (TermsType, TermsAccepted))(implicit request: Request[_], hc: HeaderCarrier) =
     auditConnector.sendEvent(ExtendedDataEvent(
       auditSource = appName,
       auditType = EventTypes.Succeeded,
@@ -83,11 +86,12 @@ trait UpgradeRemindersController extends FrontendController with Actions with Ap
         "client" -> "PAYETAI",
         "nino" -> nino.map(_.nino).getOrElse("N/A"),
         "utr" -> utr.toString,
-        "TandCsScope" -> "P2",
+        "TandCsScope" -> termsAccepted._1.toString.toLowerCase,
         "userConfirmedReadTandCs" -> "true",
-        "journey" -> "P2Upgrade",
-        "digital" -> digital.toString,
-        "cohort" -> "TES_MVP"))))
+        "journey" -> "",
+        "digital" -> termsAccepted._2.accepted.toString,
+        "cohort" -> ""
+      ))))
 
 
   def thankYou(returnUrl: Encrypted[String]): Action[AnyContent] = AuthorisedFor(SaRegimeWithoutRedirection).async {
