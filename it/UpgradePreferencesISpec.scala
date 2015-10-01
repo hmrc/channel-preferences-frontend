@@ -1,13 +1,10 @@
-import controllers.sa.prefs.{EmailPreference, Encrypted}
+import controllers.sa.prefs.Encrypted
 import controllers.sa.prefs.internal.routes
 import org.scalatest.mock.MockitoSugar
-import play.api.data.Forms._
-import play.api.libs.json.Json
 import play.api.libs.ws.{WS, WSResponse}
 import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
 
 import scala.concurrent.Future
-import scala.text
 import scala.util.Random
 
 class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSupport with MockitoSugar {
@@ -43,11 +40,23 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
     "set generic terms and conditions as true including email address" in new NewUserTestCase {
       val response = post(true, Some(email), true).futureValue
       response.status should be (200)
+
+      val preferencesResponse =  `/portal/preferences/sa/individual`.get(utr)
+      preferencesResponse should have(status(200))
+      val body = preferencesResponse.futureValue.body
+      body should include(""""digital":true""")
+      body should include(s""""email":"$email""")
     }
 
     "set generic terms and conditions as false without email address" in new NewUserTestCase {
       val response = post(false, None, false).futureValue
-      response.status should be (200)
+      response.status should be (303)
+
+      val preferencesResponse =  `/portal/preferences/sa/individual`.get(utr)
+      preferencesResponse should have(status(200))
+      val body = preferencesResponse.futureValue.body
+      body should include(""""digital":false""")
+      body should not include(s""""email":"$email""")
     }
   }
 
@@ -72,7 +81,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
         case Some(emailValue) => params + ("email.main" -> Seq(emailValue), "email.confirm" -> Seq(emailValue), "emailVerified" -> Seq(true.toString))
       }
 
-      url.withHeaders(cookie,"Csrf-Token"->"nocheck", authHeader).post(paramsWithEmail)
+      url.withHeaders(cookie,"Csrf-Token"->"nocheck", authHeader).withFollowRedirects(optIn).post(paramsWithEmail)
     }
   }
 
