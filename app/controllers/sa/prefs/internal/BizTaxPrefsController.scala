@@ -127,9 +127,9 @@ trait BizTaxPrefsController
       for {
         _ <- preferencesConnector.saveCohort(utr, calculateCohort(authContext))
         userCreated <- preferencesConnector.newUserTermsAndConditions(utr, digital, email)
-        _ <- maybeActivateUser(utr, userCreated)
+        userActivated <- maybeActivateUser(utr, userCreated)
       } yield {
-        auditChoice(utr, journey, cohort, digital, email,acceptedTAndCs, userCreated)
+        auditChoice(utr, journey, cohort, digital, email,acceptedTAndCs, userCreated, userActivated)
         digital match {
           case true =>
             Redirect(routes.BizTaxPrefsController.thankYou(email map (emailAddress => Encrypted(EmailAddress(emailAddress)))))
@@ -163,10 +163,10 @@ trait BizTaxPrefsController
         "journey" -> journey.toString,
         "cohort" -> cohort.toString))))
 
-  private def auditChoice(utr: SaUtr, journey: Journey, cohort: OptInCohort, digital: Boolean, emailOption: Option[String], acceptedTAndCs:Boolean, userCreated: Boolean)(implicit request: Request[_], hc: HeaderCarrier) =
+  private def auditChoice(utr: SaUtr, journey: Journey, cohort: OptInCohort, digital: Boolean, emailOption: Option[String], acceptedTAndCs:Boolean, userCreated: Boolean, userActivated: Boolean)(implicit request: Request[_], hc: HeaderCarrier) =
     auditConnector.sendEvent(ExtendedDataEvent(
       auditSource = appName,
-      auditType = if (userCreated) EventTypes.Succeeded else EventTypes.Failed,
+      auditType = if (userCreated && userActivated) EventTypes.Succeeded else EventTypes.Failed,
       tags = hc.toAuditTags("Set Print Preference", request.path),
       detail = Json.toJson(hc.toAuditDetails(
         "client" -> "YTA",
@@ -175,7 +175,9 @@ trait BizTaxPrefsController
         "digital" -> digital.toString,
         "cohort" -> cohort.toString,
         "userConfirmedReadTandCs" -> acceptedTAndCs.toString,
-        "email" -> emailOption.getOrElse("")))))
+        "email" -> emailOption.getOrElse(""),
+        "userCreated" -> userCreated.toString,
+        "userActivated" -> userActivated.toString))))
 
   private def redirectToInterstitialPageWithCohort(authContext: AuthContext) =
     Redirect(routes.BizTaxPrefsController.displayInterstitialPrefsFormForCohort(Some(calculateCohort(authContext))))

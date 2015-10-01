@@ -24,17 +24,18 @@ trait PreferencesFrontEndServer extends ServiceSpec {
   protected val server = new PreferencesFrontendIntegrationServer("AccountDetailPartialISpec")
 
   class PreferencesFrontendIntegrationServer(override val testName: String) extends MicroServiceEmbeddedServer {
-    override protected val externalServices: Seq[ExternalService] = (Seq(
+    override protected val externalServices: Seq[ExternalService] = Seq(
       "external-government-gateway",
       "government-gateway",
       "auth",
       "message",
+      "preferences",
       "mailgun",
       "hmrc-deskpro",
       "ca-frontend",
       "email",
       "cid",
-      "datastream").map(ExternalService.runFromJar(_))).+: (ExternalService.runFromSource("preferences"))
+      "datastream").map(ExternalService.runFromJar(_))
 
     override protected def startTimeout: Duration = 300.seconds
   }

@@ -76,9 +76,9 @@ trait PreferencesConnector extends Status {
     }
   }
 
-  def activateUser(utr: SaUtr, returnUrl: String) (implicit hc: HeaderCarrier): Future[Boolean] = {
+  def activateUser(utr: SaUtr, returnUrl: String = "") (implicit hc: HeaderCarrier): Future[Boolean] = {
     implicit val f = ActivationStatus.format
-    http.PUT(url(s"/preferences/sa/individual/$utr/activations"), ActivationStatus(true)).map(_ => true).recover {
+    http.PUT(url(s"/preferences/sa/individual/$utr/activations?returnUrl=$returnUrl"), ActivationStatus(true)).map(_ => true).recover {
       case e =>
         Logger.error("Unable to activate new user", e)
         false
