@@ -118,7 +118,7 @@ trait BizTaxPrefsController
   private[prefs] def submitPrefsFormAction(journey: Journey)(implicit authContext: AuthContext, request: Request[AnyRef], withBanner: Boolean = false) = {
     val cohort = calculateCohort(authContext)
     def maybeActivateUser(utr: SaUtr, userCreated: Boolean): Future[Boolean] = userCreated match {
-      case true => preferencesConnector.activateUser(utr)
+      case true => preferencesConnector.activateUser(utr, "")
       case false => Future.successful(false)
     }
 
