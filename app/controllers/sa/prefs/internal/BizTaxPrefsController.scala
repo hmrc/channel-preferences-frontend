@@ -1,7 +1,7 @@
 package controllers.sa.prefs.internal
 
 import authentication.ValidSessionCredentialsProvider
-import connectors.{Email, EmailConnector, PreferencesConnector}
+import connectors._
 import controllers.sa.prefs.Encrypted
 import controllers.sa.prefs.ExternalUrls.businessTaxHome
 import controllers.sa.prefs._
@@ -126,7 +126,7 @@ trait BizTaxPrefsController
       implicit val headerCarrier = hc
       for {
         _ <- preferencesConnector.saveCohort(utr, calculateCohort(authContext))
-        userCreated <- preferencesConnector.newUserTermsAndConditions(utr, digital, email)
+        userCreated <- preferencesConnector.addTermsAndConditions(utr, Generic -> TermsAccepted(digital), email)
         userActivated <- maybeActivateUser(utr, userCreated)
       } yield {
         auditChoice(utr, journey, cohort, digital, email,acceptedTAndCs, userCreated, userActivated)
@@ -163,6 +163,7 @@ trait BizTaxPrefsController
         "journey" -> journey.toString,
         "cohort" -> cohort.toString))))
 
+  // TODO this should replace `digital: Boolean` with `terms: (TermsType, TermsAccepted)`
   private def auditChoice(utr: SaUtr, journey: Journey, cohort: OptInCohort, digital: Boolean, emailOption: Option[String], acceptedTAndCs:Boolean, userCreated: Boolean, userActivated: Boolean)(implicit request: Request[_], hc: HeaderCarrier) =
     auditConnector.sendEvent(ExtendedDataEvent(
       auditSource = appName,

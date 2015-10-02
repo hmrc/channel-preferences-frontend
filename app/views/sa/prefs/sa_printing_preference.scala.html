@@ -3,5 +3,7 @@
 @import views.html.sa.prefs.cohorts._
     @import controllers.sa.prefs.internal._
 
-@{ i_page(showBanner, emailForm, submitPrefsFormAction) }
-
+@{cohort match {
+        case IPage => i_page(showBanner, emailForm, submitPrefsFormAction)
+    }
+}

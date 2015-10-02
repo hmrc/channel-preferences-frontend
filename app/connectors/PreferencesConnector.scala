@@ -13,16 +13,37 @@ import uk.gov.hmrc.play.http.{NotFoundException, _}
 
 import scala.concurrent.Future
 
+case class Email(email: String)
+
+object Email {
+  implicit val readsEmail = Json.reads[Email]
+}
+
+sealed trait TermsType
+case object Generic extends TermsType
+
+case class TermsAccepted(accepted: Boolean)
+object TermsAccepted {
+  implicit val format = Json.format[TermsAccepted]
+}
+
 object PreferencesConnector extends PreferencesConnector with ServicesConfig {
   override val serviceUrl = baseUrl("preferences")
 
   override def http = HttpVerbs
-}
 
-case class Email(email: String)
+  protected[connectors] case class ActivationStatus(active: Boolean)
+  protected[connectors] object ActivationStatus { implicit val format = Json.format[ActivationStatus]}
 
-object Email {
-  implicit val readsEmail = Json.format[Email]
+  protected[connectors] case class TermsAndConditionsUpdate(generic: TermsAccepted, email: Option[String])
+  protected[connectors] object TermsAndConditionsUpdate {
+    implicit val format = Json.format[TermsAndConditionsUpdate]
+
+    def from(terms: (TermsType, TermsAccepted), email: Option[String]): TermsAndConditionsUpdate = terms match {
+      case (Generic, accepted: TermsAccepted) => TermsAndConditionsUpdate(generic = accepted, email = email)
+      case (termsType, _) => throw new IllegalArgumentException(s"Could not work with termsType=$termsType")
+    }
+  }
 }
 
 trait PreferencesConnector extends Status {
@@ -58,27 +79,16 @@ trait PreferencesConnector extends Status {
     responseToEmailVerificationLinkStatus(http.POST(url("/preferences/sa/verify-email"), ValidateEmail(token)))
   }
 
-  def upgradeTermsAndConditions(utr: SaUtr, accepted: Boolean)(implicit hc: HeaderCarrier) : Future[Boolean] = {
-    implicit val f = GenericTermsAndConditionsUpdate.format
-    http.POST(url(s"/preferences/sa/individual/$utr/terms-and-conditions"), GenericTermsAndConditionsUpdate(TermsAndConditionsUpdate(accepted))).map(_ => true).recover {
+  def addTermsAndConditions(utr: SaUtr, termsAccepted: (TermsType, TermsAccepted), email: Option[String]) (implicit hc: HeaderCarrier): Future[Boolean] = {
+    http.POST(url(s"/preferences/sa/individual/$utr/terms-and-conditions"), PreferencesConnector.TermsAndConditionsUpdate.from(termsAccepted, email)).map(_ => true).recover {
       case e =>
         Logger.error("Unable to save upgraded terms and conditions", e)
         false
     }
   }
 
-  def newUserTermsAndConditions(utr: SaUtr, accepted: Boolean, email: Option[String]) (implicit hc: HeaderCarrier): Future[Boolean] = {
-    implicit val f = GenericTermsAndConditionsNewUser.format
-    http.POST(url(s"/preferences/sa/individual/$utr/terms-and-conditions"), GenericTermsAndConditionsNewUser(TermsAndConditionsNewUser(accepted), email)).map(_ => true).recover {
-      case e =>
-        Logger.error("Unable to save new user terms and conditions", e)
-        false
-    }
-  }
-
   def activateUser(utr: SaUtr, returnUrl: String = "") (implicit hc: HeaderCarrier): Future[Boolean] = {
-    implicit val f = ActivationStatus.format
-    http.PUT(url(s"/preferences/sa/individual/$utr/activations?returnUrl=$returnUrl"), ActivationStatus(true)).map(_ => true).recover {
+    http.PUT(url(s"/preferences/sa/individual/$utr/activations?returnUrl=$returnUrl"), PreferencesConnector.ActivationStatus(true)).map(_ => true).recover {
       case e =>
         Logger.error("Unable to activate new user", e)
         false
@@ -94,20 +104,3 @@ trait PreferencesConnector extends Status {
     }
   }
 }
-
-case class TermsAndConditionsUpdate(accepted: Boolean)
-object TermsAndConditionsUpdate {  implicit val format = Json.format[TermsAndConditionsUpdate] }
-
-case class GenericTermsAndConditionsUpdate(generic: TermsAndConditionsUpdate)
-object GenericTermsAndConditionsUpdate { implicit val format = Json.format[GenericTermsAndConditionsUpdate] }
-
-case class TermsAndConditionsNewUser(accepted: Boolean)
-object TermsAndConditionsNewUser { implicit val format = Json.format[TermsAndConditionsNewUser]}
-
-case class GenericTermsAndConditionsNewUser(generic: TermsAndConditionsNewUser, email: Option[String])
-object GenericTermsAndConditionsNewUser {
-  implicit val format = Json.format[GenericTermsAndConditionsNewUser]
-}
-
-case class ActivationStatus(active: Boolean)
-object ActivationStatus { implicit val format = Json.format[ActivationStatus]}

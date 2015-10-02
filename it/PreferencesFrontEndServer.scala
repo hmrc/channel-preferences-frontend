@@ -24,7 +24,7 @@ trait PreferencesFrontEndServer extends ServiceSpec {
   protected val server = new PreferencesFrontendIntegrationServer("AccountDetailPartialISpec")
 
   class PreferencesFrontendIntegrationServer(override val testName: String) extends MicroServiceEmbeddedServer {
-    override protected val externalServices: Seq[ExternalService] = (Seq(
+    override protected val externalServices: Seq[ExternalService] = Seq(
       "external-government-gateway",
       "government-gateway",
       "auth",
@@ -34,7 +34,9 @@ trait PreferencesFrontEndServer extends ServiceSpec {
       "ca-frontend",
       "email",
       "cid",
-      "datastream").map(ExternalService.runFromJar(_))).+: (ExternalService.runFromSource("preferences"))
+      "datastream",
+      "preferences"
+    ).map(ExternalService.runFromJar(_))
 
     override protected def startTimeout: Duration = 300.seconds
   }
@@ -58,10 +60,6 @@ trait PreferencesFrontEndServer extends ServiceSpec {
         .put(payeFormTypeBody)
 
       val resource = WS.url(server.externalResource("preferences", s"/preferences/paye/individual/$nino/activations/paye"))
-    }
-
-    def `/preferences/sa/individual/:utr/print-suppression`(utr: String) = new {
-      s"/preferences/sa/individual/$utr/print-suppression"
     }
 
     val `/portal/preferences/sa/individual` = new {
