@@ -77,7 +77,7 @@ trait UpgradeRemindersController extends FrontendController with Actions with Ap
       success
     }
 
-  private def auditChoice(utr: SaUtr, nino: Option[Nino], termsAccepted: (TermsType, TermsAccepted))(implicit request: Request[_], hc: HeaderCarrier) =
+  private def auditChoice(utr: SaUtr, nino: Option[Nino], terms: (TermsType, TermsAccepted))(implicit request: Request[_], hc: HeaderCarrier) =
     auditConnector.sendEvent(ExtendedDataEvent(
       auditSource = appName,
       auditType = EventTypes.Succeeded,
@@ -86,10 +86,10 @@ trait UpgradeRemindersController extends FrontendController with Actions with Ap
         "client" -> "PAYETAI",
         "nino" -> nino.map(_.nino).getOrElse("N/A"),
         "utr" -> utr.toString,
-        "TandCsScope" -> termsAccepted._1.toString.toLowerCase,
-        "userConfirmedReadTandCs" -> "true",
+        "TandCsScope" -> terms._1.toString.toLowerCase,
+        "userConfirmedReadTandCs" -> terms._2.accepted.toString,
         "journey" -> "",
-        "digital" -> termsAccepted._2.accepted.toString,
+        "digital" -> terms._2.accepted.toString,
         "cohort" -> ""
       ))))
 

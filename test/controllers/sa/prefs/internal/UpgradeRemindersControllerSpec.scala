@@ -48,7 +48,7 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
     event.detail \ "nino" shouldBe JsString(nino.value)
     event.detail \ "utr" shouldBe JsString(utr.utr)
     event.detail \ "TandCsScope" shouldBe JsString("generic")
-    event.detail \ "userConfirmedReadTandCs" shouldBe JsString("true")
+    event.detail \ "userConfirmedReadTandCs" shouldBe JsString("false")
     event.detail \ "journey" shouldBe JsString("")
     event.detail \ "digital" shouldBe JsString("false")
     event.detail \ "cohort" shouldBe JsString("")

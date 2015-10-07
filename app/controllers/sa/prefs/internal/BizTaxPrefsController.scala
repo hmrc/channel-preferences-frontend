@@ -124,12 +124,13 @@ trait BizTaxPrefsController
 
     def saveAndAuditPreferences(utr:SaUtr, digital: Boolean, email: Option[String], acceptedTAndCs:Boolean, hc: HeaderCarrier):Future[Result] = {
       implicit val headerCarrier = hc
+      val terms = Generic -> TermsAccepted(digital)
       for {
         _ <- preferencesConnector.saveCohort(utr, calculateCohort(authContext))
-        userCreated <- preferencesConnector.addTermsAndConditions(utr, Generic -> TermsAccepted(digital), email)
+        userCreated <- preferencesConnector.addTermsAndConditions(utr, terms, email)
         userActivated <- maybeActivateUser(utr, userCreated)
       } yield {
-        auditChoice(utr, journey, cohort, digital, email,acceptedTAndCs, userCreated, userActivated)
+        auditChoice(utr, journey, cohort, terms, email, acceptedTAndCs, userCreated, userActivated)
         digital match {
           case true =>
             Redirect(routes.BizTaxPrefsController.thankYou(email map (emailAddress => Encrypted(EmailAddress(emailAddress)))))
@@ -163,8 +164,7 @@ trait BizTaxPrefsController
         "journey" -> journey.toString,
         "cohort" -> cohort.toString))))
 
-  // TODO this should replace `digital: Boolean` with `terms: (TermsType, TermsAccepted)`
-  private def auditChoice(utr: SaUtr, journey: Journey, cohort: OptInCohort, digital: Boolean, emailOption: Option[String], acceptedTAndCs:Boolean, userCreated: Boolean, userActivated: Boolean)(implicit request: Request[_], hc: HeaderCarrier) =
+  private def auditChoice(utr: SaUtr, journey: Journey, cohort: OptInCohort, terms: (TermsType, TermsAccepted), emailOption: Option[String], acceptedTAndCs:Boolean, userCreated: Boolean, userActivated: Boolean)(implicit request: Request[_], hc: HeaderCarrier) =
     auditConnector.sendEvent(ExtendedDataEvent(
       auditSource = appName,
       auditType = if (userCreated && userActivated) EventTypes.Succeeded else EventTypes.Failed,
@@ -173,8 +173,9 @@ trait BizTaxPrefsController
         "client" -> "YTA",
         "utr" -> utr.toString,
         "journey" -> journey.toString,
-        "digital" -> digital.toString,
+        "digital" -> terms._2.accepted.toString,
         "cohort" -> cohort.toString,
+        "TandCsScope" -> terms._1.toString.toLowerCase,
         "userConfirmedReadTandCs" -> acceptedTAndCs.toString,
         "email" -> emailOption.getOrElse(""),
         "userCreated" -> userCreated.toString,
