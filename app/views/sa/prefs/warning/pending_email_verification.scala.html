@@ -4,7 +4,7 @@
 @import uk.gov.hmrc.urls.Link
 
 <details id="sa-prefs-status">
-    <summary>Verify your Self Assessment email address <span class="flag flag--urgent">Now</span></summary>
+    <summary>Verify your email address for paperless notifications<span class="flag flag--urgent">Now</span></summary>
     <div class="panel-indent">
         <p>An email was sent to @emailPreference.email on @longDateFormat(emailPreference.linkSent). Click on the link in the email to verify your email address with HMRC.</p>
         <p>If you can’t find it you can get a new email sent to you from
@@ -12,6 +12,6 @@
             id = Some("remindersProblem"),
             url = controllers.sa.prefs.ExternalUrls.accountDetails,
             value = Some("Manage account")
-            ).toHtml.</p>
+            ).toHtml </p>
     </div>
 </details>

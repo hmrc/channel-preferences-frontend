@@ -41,7 +41,7 @@ class PreferencesWarningPartialISpec
 
       response should have(status(200))
       response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("true"))
-      response.futureValue.body should include(s"Verify your Self Assessment email address")
+      response.futureValue.body should include(s"Verify your email address for paperless notifications")
     }
 
     "have no warning if user then verifies email" in new TestCaseWithFrontEndAuthentication {
@@ -77,7 +77,7 @@ class PreferencesWarningPartialISpec
 
       response should have(status(200))
       response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("true"))
-      response.futureValue.body should include("Verify your Self Assessment email address")
+      response.futureValue.body should include("Verify your email address for paperless notifications")
     }
 
     "be not found if user is then de-enrolled" in new TestCaseWithFrontEndAuthentication {
@@ -126,7 +126,7 @@ class PreferencesWarningPartialISpec
 
       response should have(status(200))
       response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("true"))
-      response.futureValue.body should include("Verify your Self Assessment email address")
+      response.futureValue.body should include("Verify your email address for paperless notifications")
     }
 
     "have verification warning if user then changes email" in new TestCaseWithFrontEndAuthentication {
@@ -139,7 +139,7 @@ class PreferencesWarningPartialISpec
 
       response should have(status(200))
       response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("true"))
-      response.futureValue.body should include("Verify your Self Assessment email address")
+      response.futureValue.body should include("Verify your email address for paperless notifications")
     }
 
     "be not found if user is then de-enrolled" in new TestCaseWithFrontEndAuthentication {
