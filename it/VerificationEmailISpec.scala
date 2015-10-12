@@ -83,7 +83,7 @@ class VerificationEmailISpec
       withReceivedEmails(1) { case List(mail) =>
         mail should have(
           'to(Some(email)),
-          'subject("Self Assessment reminders: verify your email address"))
+          'subject("HMRC paperless notifications: verify your email address"))
       }
 
       `/portal/preferences/sa/individual`.postOptOut(utr) should have(status(200))
@@ -244,7 +244,7 @@ class VerificationEmailISpec
       withReceivedEmails(1) { case List(mail) =>
         mail should have(
           'to(Some(email)),
-          'subject("Self Assessment reminders: verify your email address")
+          'subject("HMRC paperless notifications: verify your email address")
         )
       }
     }
