@@ -391,7 +391,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
 
       verify(mockPreferencesConnector).saveCohort(is(validUtr), is(assignedCohort))(any())
       verify(mockPreferencesConnector).addTermsAndConditions(is(validUtr), is(Generic -> TermsAccepted(false)), is(None))(any())
-      verify(mockPreferencesConnector).activateUser(is(validUtr), anyString)(any())
+      verify(mockPreferencesConnector, times(0)).activateUser(is(validUtr), anyString)(any())
 
       verifyNoMoreInteractions(mockPreferencesConnector, mockEmailConnector)
     }
@@ -448,7 +448,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
   }
 
   "An audit event" should {
-    "be created when submitting a print preference from IPage" in new BizTaxPrefsControllerSetup {
+    "be created as EventTypes.Succeeded when the user is successfully opted in and activated on submitting a print preference from IPage" in new BizTaxPrefsControllerSetup {
 
       override def assignedCohort = IPage
       val emailAddress = "someone@email.com"
@@ -477,35 +477,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       value.detail \ "userActivated" shouldBe JsString("true")
     }
 
-    "not created when submitting a print preference from IPage" in new BizTaxPrefsControllerSetup {
-
-      override def assignedCohort = IPage
-      val emailAddress = "someone@email.com"
-      when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(true)
-      when(mockPreferencesConnector.addTermsAndConditions(is(validUtr), is(Generic -> TermsAccepted(true)), is(Some(emailAddress)))(any())).thenReturn(Future.successful(false))
-
-      val page = Future.successful(controller.submitPrefsFormAction(Interstitial)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress),("email.confirm", emailAddress), "accept-tc" -> "true")))
-
-      status(page) shouldBe 303
-
-      val eventArg : ArgumentCaptor[ExtendedDataEvent] = ArgumentCaptor.forClass(classOf[ExtendedDataEvent])
-      verify(mockAuditConnector).sendEvent(eventArg.capture())(any(), any())
-
-      private val value: ExtendedDataEvent = eventArg.getValue
-      value.auditSource  shouldBe "preferences-frontend"
-      value.auditType shouldBe EventTypes.Failed
-      value.tags should contain ("transactionName" -> "Set Print Preference")
-      value.detail \ "cohort" shouldBe JsString("IPage")
-      value.detail \ "journey" shouldBe JsString("Interstitial")
-      value.detail \ "utr" shouldBe JsString(validUtr.value)
-      value.detail \ "email" shouldBe JsString("someone@email.com")
-      value.detail \ "digital" shouldBe JsString("true")
-      value.detail \ "userConfirmedReadTandCs" shouldBe JsString("true")
-      value.detail \ "userCreated" shouldBe JsString("false")
-      value.detail \ "userActivated" shouldBe JsString("false")
-    }
-
-    "be created but failed to be activated when submitting a print preference from IPage" in new BizTaxPrefsControllerSetup {
+    "be created as EventTypes.Failed when the user is failed to be activated on submitting a print preference from IPage" in new BizTaxPrefsControllerSetup {
 
       override def assignedCohort = IPage
       val emailAddress = "someone@email.com"
@@ -534,14 +506,13 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       value.detail \ "userActivated" shouldBe JsString("false")
     }
 
-    "be created when choosing to not accept email reminders from IPage" in new BizTaxPrefsControllerSetup {
+    "be created as EventTypes.Succeeded when choosing to not opt out" in new BizTaxPrefsControllerSetup {
 
       override def assignedCohort = IPage
       when(mockPreferencesConnector.addTermsAndConditions(
         is(validUtr),
         is(Generic -> TermsAccepted(false)),
         is(None))(any())).thenReturn(Future.successful(true))
-      when(mockPreferencesConnector.activateUser(is(validUtr), anyString)(any())).thenReturn(Future.successful(true))
 
       val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "false")))
 
@@ -561,7 +532,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       value.detail \ "digital" shouldBe JsString("false")
       value.detail \ "userConfirmedReadTandCs" shouldBe JsString("false")
       value.detail \ "userCreated" shouldBe JsString("true")
-      value.detail \ "userActivated" shouldBe JsString("true")
+      value.detail \ "userActivated" shouldBe JsString("false")
     }
   }
 }

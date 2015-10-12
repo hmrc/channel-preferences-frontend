@@ -117,7 +117,7 @@ trait BizTaxPrefsController
 
   private[prefs] def submitPrefsFormAction(journey: Journey)(implicit authContext: AuthContext, request: Request[AnyRef], withBanner: Boolean = false) = {
     val cohort = calculateCohort(authContext)
-    def maybeActivateUser(utr: SaUtr, userCreated: Boolean): Future[Boolean] = userCreated match {
+    def maybeActivateUser(utr: SaUtr, needsActivation: Boolean): Future[Boolean] = needsActivation match {
       case true => preferencesConnector.activateUser(utr, "")
       case false => Future.successful(false)
     }
@@ -128,7 +128,7 @@ trait BizTaxPrefsController
       for {
         _ <- preferencesConnector.saveCohort(utr, calculateCohort(authContext))
         userCreated <- preferencesConnector.addTermsAndConditions(utr, terms, email)
-        userActivated <- maybeActivateUser(utr, userCreated)
+        userActivated <- maybeActivateUser(utr, userCreated && digital)
       } yield {
         auditChoice(utr, journey, cohort, terms, email, acceptedTAndCs, userCreated, userActivated)
         digital match {
@@ -167,7 +167,7 @@ trait BizTaxPrefsController
   private def auditChoice(utr: SaUtr, journey: Journey, cohort: OptInCohort, terms: (TermsType, TermsAccepted), emailOption: Option[String], acceptedTAndCs:Boolean, userCreated: Boolean, userActivated: Boolean)(implicit request: Request[_], hc: HeaderCarrier) =
     auditConnector.sendEvent(ExtendedDataEvent(
       auditSource = appName,
-      auditType = if (userCreated && userActivated) EventTypes.Succeeded else EventTypes.Failed,
+      auditType = if (!userCreated || (terms._2.accepted && !userActivated)) EventTypes.Failed else EventTypes.Succeeded,
       tags = hc.toAuditTags("Set Print Preference", request.path),
       detail = Json.toJson(hc.toAuditDetails(
         "client" -> "YTA",
