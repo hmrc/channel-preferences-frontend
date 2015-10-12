@@ -506,7 +506,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       value.detail \ "userActivated" shouldBe JsString("false")
     }
 
-    "be created as EventTypes.Failed when choosing to not opt out" in new BizTaxPrefsControllerSetup {
+    "be created as EventTypes.Succeeded when choosing to not opt out" in new BizTaxPrefsControllerSetup {
 
       override def assignedCohort = IPage
       when(mockPreferencesConnector.addTermsAndConditions(
@@ -523,7 +523,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
 
       private val value: ExtendedDataEvent = eventArg.getValue
       value.auditSource  shouldBe "preferences-frontend"
-      value.auditType shouldBe EventTypes.Failed
+      value.auditType shouldBe EventTypes.Succeeded
       value.tags should contain ("transactionName" -> "Set Print Preference")
       value.detail \ "cohort" shouldBe JsString("IPage")
       value.detail \ "journey" shouldBe JsString("AccountDetails")
