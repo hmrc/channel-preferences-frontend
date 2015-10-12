@@ -17,12 +17,12 @@ sa_printing_preference.tc.8.2.2=. Where this is the case you will be asked to pr
 sa_printing_preference.tc.8.3.1=8.3 If you give the consent referred to in paragraph
 sa_printing_preference.tc.8.3.2=you may also be asked to register a telephone number with HMRC. When a statutory notice or reminder is issued to you HMRC may also send a text message to this telephone number, or to a daytime telephone number that you have already provided to HMRC, to inform you of this. You should keep the details of your registered telephone number up-to-date and notify HMRC of any changes.
 
-sa_printing_preference.title=Sign up for Self Assessment email reminders
+sa_printing_preference.title=Sign up for paperless notifications
 sa_printing_preference.c_page.title=Self Assessment email reminders from HMRC
 sa_printing_preference.de_page.title=Self Assessment email reminders from HMRC - go paperless
 sa_printing_preference.fg_page.title=HMRC online is changing
 
-sa_printing_preference.heading=Sign up for Self Assessment email reminders
+sa_printing_preference.heading=Sign up for paperless notifications
 sa_printing_preference.c_page.heading=Self Assessment email reminders from HMRC
 sa_printing_preference.d_page.heading=Self Assessment email reminders from HMRC - go paperless
 sa_printing_preference.e_page.heading=Get paperless services first
@@ -41,8 +41,8 @@ sa_printing_preference.list.1.item.3=Self Assessment penalties are due
 sa_printing_preference.list.1.item.4=new Self Assessment tax statements are online
 
 sa_printing_preference.heading.2=What you need to know
-sa_printing_preference.fg_page.heading.2=Get Self Assessment email reminders
-sa_printing_preference.h_page.heading.2=Self Assessment email reminders
+sa_printing_preference.fg_page.heading.2=Get paperless email notifications
+sa_printing_preference.h_page.heading.2=Email for paperless notifications
 
 sa_printing_preference.paragraph.2=Your Self Assessment letters will stop and get replaced by emails.
 sa_printing_preference.cde_page.paragraph.2=Email reminders will tell you to check the messages in your online account. For example, when a tax return or payment is due. You may already have used similar services from your bank, mobile phone company or utility provider.
@@ -93,7 +93,7 @@ sa_printing_preference_confirm.linkText=Continue to your tax account
 sa_printing_preference.verification.heading=Email address verified
 sa_printing_preference.verification.heading.already=Email address already verified
 sa_printing_preference.verification.heading.expired=This link has expired
-sa_printing_preference.verification.paragraph.1=You’re now signed up for Self Assessment email reminders.
+sa_printing_preference.verification.paragraph.1=You’ve changed your email address for paperless notifications.
 sa_printing_preference.verification.already.paragraph.1=Your email address has already been verified.
 sa_printing_preference.verification.action=Sign into your HMRC online account
 
@@ -101,5 +101,5 @@ sa_printing_preference.verification.heading.wrong_token=You''ve used a link that
 sa_printing_preference.verification.wrong_token.paragraph.1=It may have been sent to an old or alternative email address. Please use the link in the latest verification email sent to your specified email address.
 
 bt.account.yourdetails=Manage account
-bt.account.stopreminders=Stop your email reminders
+bt.account.stopreminders=Stop paperless notifications
 

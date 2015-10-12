@@ -52,7 +52,7 @@ class RemindersStatusPartialHtmlSpec extends UnitSpec with WithHeaderCarrier wit
       val partialHtml = new PartialHtml(Some(saPreference)).detailsStatus(SaUtr(utr)).futureValue
 
       partialHtml.body should (
-        include("Reminders are sent to") and
+        include("Emails are sent to") and
           include(EmailAddress(emailPreferences.email).obfuscated) and
           include("/account/account-details/sa/update-email-address") and
           include("/account/account-details/sa/opt-out-email-reminders") and
@@ -96,7 +96,7 @@ class RemindersStatusPartialHtmlSpec extends UnitSpec with WithHeaderCarrier wit
       val partialHtml = new PartialHtml(Some(saPreference)).detailsStatus(SaUtr(utr)).futureValue
 
       partialHtml.body should (
-        include("Replace the letters you get about Self Assessment with emails") and
+        include("Replace the letters you get about taxes with emails.") and
           include("/account/account-details/sa/opt-in-email-reminders") and
           not include "/account/account-details/sa/resend-validation-email"
         )
@@ -106,7 +106,7 @@ class RemindersStatusPartialHtmlSpec extends UnitSpec with WithHeaderCarrier wit
       val partialHtml = new PartialHtml(None).detailsStatus(SaUtr(utr)).futureValue
 
       partialHtml.body should (
-        include("Replace the letters you get about Self Assessment with emails") and
+        include("Replace the letters you get about taxes with emails.") and
           include("/account/account-details/sa/opt-in-email-reminders") and
           not include "/account/account-details/sa/resend-validation-email"
         )
