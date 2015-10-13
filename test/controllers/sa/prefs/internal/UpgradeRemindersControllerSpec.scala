@@ -28,7 +28,7 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
     event.auditSource  shouldBe "preferences-frontend"
     event.auditType shouldBe EventTypes.Succeeded
     event.tags should contain ("transactionName" -> "Set Print Preference")
-    event.detail \ "client" shouldBe JsString("PAYETAI")
+    event.detail \ "client" shouldBe JsString("")
     event.detail \ "nino" shouldBe JsString(nino.value)
     event.detail \ "utr" shouldBe JsString(utr.utr)
     event.detail \ "TandCsScope" shouldBe JsString("generic")
@@ -44,7 +44,7 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
     event.auditSource  shouldBe "preferences-frontend"
     event.auditType shouldBe EventTypes.Succeeded
     event.tags should contain ("transactionName" -> "Set Print Preference")
-    event.detail \ "client" shouldBe JsString("PAYETAI")
+    event.detail \ "client" shouldBe JsString("")
     event.detail \ "nino" shouldBe JsString(nino.value)
     event.detail \ "utr" shouldBe JsString(utr.utr)
     event.detail \ "TandCsScope" shouldBe JsString("generic")
