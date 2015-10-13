@@ -19,7 +19,7 @@ class AccountDetailPartialISpec
       val response = request.get()
       response should have(status(200))
       response.futureValue.body should (
-        include("Self Assessment email reminders") and
+        include("Sign up for paperless notifications") and
           not include "You need to verify"
         )
     }
@@ -54,7 +54,7 @@ class AccountDetailPartialISpec
       response should have(status(200))
       response.futureValue.body should (
         not include email and
-          include(s"Sign up for Self Assessment email reminders"))
+          include(s"Sign up for paperless notifications"))
     }
   }
 
@@ -80,7 +80,7 @@ class AccountDetailPartialISpec
       response should have(status(200))
       response.futureValue.body should (
         not include email and
-          include(s"Sign up for Self Assessment email reminders"))
+          include(s"Sign up for paperless notifications"))
     }
   }
 
@@ -106,7 +106,7 @@ class AccountDetailPartialISpec
       response should have(status(200))
       response.futureValue.body should (
         not include email and
-          include(s"Sign up for Self Assessment email reminders"))
+          include(s"Sign up for paperless notifications"))
     }
 
   }
@@ -118,7 +118,7 @@ class AccountDetailPartialISpec
 
   def checkForChangedEmailDetailsInResponse(response: String, oldEmail: String, newEmail: String, currentFormattedDate: String) = {
     response should (
-      include(s"You need to verify your email address with HMRC") and
+      include(s"You need to verify your email address.") and
         include(newEmail) and
         not include oldEmail and
         include(s"on $currentFormattedDate. Click on the link in the email to verify your email address."))
