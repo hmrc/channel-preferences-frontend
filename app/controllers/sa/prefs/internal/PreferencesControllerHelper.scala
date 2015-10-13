@@ -103,7 +103,7 @@ trait PreferencesControllerHelper {
                                       emailWarningView: (String) => HtmlFormat.Appendable,
                                       emailConnector: EmailConnector,
                                       saUtr: SaUtr,
-                                      savePreferences: (SaUtr, Boolean, Option[String], Boolean, HeaderCarrier) => Future[Result])
+                                      savePreferences: (SaUtr, Boolean, Option[String], HeaderCarrier) => Future[Result])
                                      (implicit request: Request[AnyRef]): Future[Result] = {
 
     implicit def hc: HeaderCarrier = HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)
@@ -111,7 +111,7 @@ trait PreferencesControllerHelper {
     optInOrOutForm.bindFromRequest.fold(
       sadForm => Future.successful(BadRequest(errorsView(sadForm))),
       happyForm => {
-        if (happyForm.optedIn.contains(false)) savePreferences(saUtr, false, None, false, hc)
+        if (happyForm.optedIn.contains(false)) savePreferences(saUtr, false, None, hc)
         else {
           optInDetailsForm.bindFromRequest.fold(
             errors => Future.successful(BadRequest(errorsView(errors))),
@@ -122,7 +122,7 @@ trait PreferencesControllerHelper {
                   else emailConnector.isValid(emailAddress)
 
                 emailVerificationStatus.flatMap {
-                  case true => savePreferences(saUtr, true, Some(emailAddress), emailForm.acceptedTCs.contains(true), hc)
+                  case true => savePreferences(saUtr, true, Some(emailAddress), hc)
                   case false => Future.successful(Ok(emailWarningView(emailAddress)))
                 }
               case _ =>

@@ -83,7 +83,7 @@ trait UpgradeRemindersController extends FrontendController with Actions with Ap
       auditType = EventTypes.Succeeded,
       tags = hc.toAuditTags("Set Print Preference", request.path),
       detail = Json.toJson(hc.toAuditDetails(
-        "client" -> "PAYETAI",
+        "client" -> "",
         "nino" -> nino.map(_.nino).getOrElse("N/A"),
         "utr" -> utr.toString,
         "TandCsScope" -> terms._1.toString.toLowerCase,

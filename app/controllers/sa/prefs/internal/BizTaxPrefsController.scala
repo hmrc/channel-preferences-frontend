@@ -122,7 +122,7 @@ trait BizTaxPrefsController
       case false => Future.successful(false)
     }
 
-    def saveAndAuditPreferences(utr:SaUtr, digital: Boolean, email: Option[String], acceptedTAndCs:Boolean, hc: HeaderCarrier):Future[Result] = {
+    def saveAndAuditPreferences(utr:SaUtr, digital: Boolean, email: Option[String], hc: HeaderCarrier):Future[Result] = {
       implicit val headerCarrier = hc
       val terms = Generic -> TermsAccepted(digital)
       for {
@@ -130,7 +130,7 @@ trait BizTaxPrefsController
         userCreated <- preferencesConnector.addTermsAndConditions(utr, terms, email)
         userActivated <- maybeActivateUser(utr, userCreated && digital)
       } yield {
-        auditChoice(utr, journey, cohort, terms, email, acceptedTAndCs, userCreated, userActivated)
+        auditChoice(utr, journey, cohort, terms, email, userCreated, userActivated)
         digital match {
           case true =>
             Redirect(routes.BizTaxPrefsController.thankYou(email map (emailAddress => Encrypted(EmailAddress(emailAddress)))))
@@ -164,7 +164,7 @@ trait BizTaxPrefsController
         "journey" -> journey.toString,
         "cohort" -> cohort.toString))))
 
-  private def auditChoice(utr: SaUtr, journey: Journey, cohort: OptInCohort, terms: (TermsType, TermsAccepted), emailOption: Option[String], acceptedTAndCs:Boolean, userCreated: Boolean, userActivated: Boolean)(implicit request: Request[_], hc: HeaderCarrier) =
+  private def auditChoice(utr: SaUtr, journey: Journey, cohort: OptInCohort, terms: (TermsType, TermsAccepted), emailOption: Option[String], userCreated: Boolean, userActivated: Boolean)(implicit request: Request[_], hc: HeaderCarrier) =
     auditConnector.sendEvent(ExtendedDataEvent(
       auditSource = appName,
       auditType = if (!userCreated || (terms._2.accepted && !userActivated)) EventTypes.Failed else EventTypes.Succeeded,
@@ -176,7 +176,7 @@ trait BizTaxPrefsController
         "digital" -> terms._2.accepted.toString,
         "cohort" -> cohort.toString,
         "TandCsScope" -> terms._1.toString.toLowerCase,
-        "userConfirmedReadTandCs" -> acceptedTAndCs.toString,
+        "userConfirmedReadTandCs" -> terms._2.accepted.toString,
         "email" -> emailOption.getOrElse(""),
         "userCreated" -> userCreated.toString,
         "userActivated" -> userActivated.toString))))
