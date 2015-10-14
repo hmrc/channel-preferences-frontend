@@ -34,7 +34,7 @@ class VerificationEmailISpec
 
       response should (have(status(200)) and
         have(bodyWith("Email address verified")) and
-        have(bodyWith("You’re now signed up for Self Assessment email reminders.")) and
+        have(bodyWith("You&#x27;ve now signed up for paperless notifications.")) and
         have(bodyWith("Sign into your HMRC online account")) and
         have(bodyWith( """href="https://online.hmrc.gov.uk"""")))
     }

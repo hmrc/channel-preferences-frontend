@@ -155,7 +155,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
       status(page) shouldBe 400
 
       val document = Jsoup.parse(contentAsString(page))
-      document.select("#form-submit-email-address .error-notification").text shouldBe "Check your email addresses - they don’t match."
+      document.select("#form-submit-email-address .error-notification").text shouldBe "Check your email addresses - they don't match."
     }
 
     "show error if the email address is not syntactically valid" in new Setup {
@@ -195,7 +195,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
       status(page) shouldBe 400
 
       val document = Jsoup.parse(contentAsString(page))
-      document.select("#form-submit-email-address .error-notification").text shouldBe "Check your email addresses - they don’t match."
+      document.select("#form-submit-email-address .error-notification").text shouldBe "Check your email addresses - they don't match."
     }
 
     "show a warning page if the email has a valid structure but does not pass validation by the email micro service" in new Setup {
@@ -299,9 +299,9 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
       val page = Jsoup.parse(contentAsString(result))
 
       page.getElementById("confirm-opt-out") shouldNot be(null)
-      page.getElementById("confirm-opt-out").text shouldBe "Stop your email reminders"
+      page.getElementById("confirm-opt-out").text shouldBe "Stop paperless notifications"
       page.getElementById("cancel-opt-out-link") shouldNot be(null)
-      page.getElementById("cancel-opt-out-link").text shouldBe "Don’t stop your email reminders"
+      page.getElementById("cancel-opt-out-link").text shouldBe "Don't stop paperless notifications"
       page.text() should not include "test@test.com"
     }
 

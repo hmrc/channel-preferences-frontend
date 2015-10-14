@@ -100,7 +100,7 @@ class PreferencesWarningPartialISpec
 
       response should have(status(200))
       response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("true"))
-      response.futureValue.body should include("There’s a problem with your Self Assessment email reminders")
+      response.futureValue.body should include("There's a problem with your paperless notification emails")
     }
 
     "have no warning if user then opts out" in new TestCaseWithFrontEndAuthentication {
@@ -218,7 +218,7 @@ class PreferencesWarningPartialISpec
 
       response should have(status(200))
       response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("true"))
-      response.futureValue.body should include(s"There’s a problem with your Self Assessment email reminders")
+      response.futureValue.body should include("There's a problem with your paperless notification emails")
     }
   }
 

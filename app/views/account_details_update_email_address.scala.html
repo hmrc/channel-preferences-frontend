@@ -7,9 +7,9 @@
     <header class="page-header">
         <h1>@Messages("bt.account.yourdetails")</h1>
 
-        <h2>Change  your email address</h2>
+        <h2>Change your email address</h2>
     </header>
-   <p>Reminders are sent to <span id="current-email-address">@{currentEmail}.</span></p>
+   <p>Emails are sent to <span id="current-email-address">@{currentEmail}.</span></p>
 
     @form(action = controllers.sa.prefs.internal.routes.AccountDetailsController.submitEmailAddress, 'id -> "form-submit-email-address") {
         <fieldset>
@@ -31,7 +31,7 @@
         </fieldset>
 
         <div class="form-field">
-            <button id="submit-email-button" class="button" type="submit">Confirm new email address</button>
+            <button id="submit-email-button" class="button" type="submit">Change email address</button>
         </div>
 
     }

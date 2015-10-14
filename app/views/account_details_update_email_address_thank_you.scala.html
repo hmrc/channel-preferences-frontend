@@ -9,9 +9,9 @@
     </header>
     <h2>Verify your new email address</h2>
 
-    <p>You need to verify <span id="updated-email-address">@emailAddress</span></p>
-    <p id="verification-mail-message">You’ve been sent an email telling you how to do this.</p>
-    <p>Until you do this, reminders will go to your old email address.</p>
+    <p>An email has been sent to <span id="updated-email-address">@emailAddress</span></p>
+    <p id="verification-mail-message">You've been sent an email telling you how to do this.</p>
+    <p>Until you do this, emails will continue to go to your old address.</p>
         <ul class="action-list">
             <li>@Link.toInternalPage(id = Some("return-to-dashboard-button"), url = controllers.sa.prefs.ExternalUrls.businessTaxHome, value = Some("Go to your tax account")).toHtml</li>
             <li>@Link.toInternalPage(id = Some("return-to-details-link"), url = controllers.sa.prefs.ExternalUrls.accountDetails, value = Some("Go to Manage account")).toHtml</li>
