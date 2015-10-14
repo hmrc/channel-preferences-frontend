@@ -326,7 +326,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       status(page) shouldBe 400
 
       val document = Jsoup.parse(contentAsString(page))
-      document.select("#form-submit-email-address .error-notification").text shouldBe "Check your email addresses - they don’t match."
+      document.select("#form-submit-email-address .error-notification").text shouldBe "Check your email addresses - they don't match."
       verifyZeroInteractions(mockPreferencesConnector, mockEmailConnector)
     }
 

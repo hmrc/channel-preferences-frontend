@@ -21,7 +21,7 @@
             <p id="pending-status-message">An email was sent to <strong id="email-address">@{email.email}</strong> on @longDateFormat(email.linkSent). Click on the link in the email to verify your email address.</p>
         </div>
         @form(action = play.api.mvc.Call("POST", resendValidationUrl)){
-                <p> If you can’t find it, we can <button id="resend-email-button" class="button--link-style" type="submit" data-journey-click="self-assessment-preferences-page:Click:Send a new verification email">send a new verification email</button></p>
+                <p> If you can't find it, we can <button id="resend-email-button" class="button--link-style" type="submit" data-journey-click="self-assessment-preferences-page:Click:Send a new verification email">send a new verification email</button></p>
         }
     }
 
@@ -33,10 +33,10 @@
         <p id="bouncing-status-message">You need to verify <span id="email-address">@{email.email}</span></p>
 
         @if(email.mailboxFull) {
-            <p id="bounce-reason">The email telling you how to do this can’t be sent because your inbox is full.</p>
+            <p id="bounce-reason">The email telling you how to do this can't be sent because your inbox is full.</p>
             <p id="bounce-reason-more">Clear your inbox or use a different email address.</p>
         } else {
-            <p id="bounce-reason">The email telling you how to do this can’t be delivered.</p>
+            <p id="bounce-reason">The email telling you how to do this can't be delivered.</p>
             <p>Use a different email address</p>
         }
     }

@@ -1,12 +1,12 @@
 error.email=Enter a valid email address.
 error.email.optIn=As you would like to opt in, please enter an email address.
-email.confirmation.emails.unequal=Check your email addresses - they don’t match.
+email.confirmation.emails.unequal=Check your email addresses - they don''t match.
 
 sa_printing_preference.tc.heading=Self Assessment terms and conditions
 sa_printing_preference.tc.secure_mailbox=Secure mailbox
 sa_printing_preference.tc.statutory_notices=Statutory notices, reminders and certificates
 sa_printing_preference.tc.extract.1=The following extract of
-sa_printing_preference.tc.extract.2=HMRC's terms and conditions
+sa_printing_preference.tc.extract.2=HMRC''s terms and conditions
 sa_printing_preference.tc.extract.3=covers Self Assessment users.
 sa_printing_preference.tc.7.1=7.1 When you register for the first time, a secure online mailbox will be set up for you on the Government Gateway. Some online services may make use of the secure mailbox to send you communications and replies to email questions. For these services, you can view the contents of your secure mailbox on the HMRC website.
 sa_printing_preference.tc.7.2=7.2 You should regularly check your mailbox and delete old messages. Read messages that have been on the system for up to three months from delivery will be archived and removed from your mailbox. Unread messages that have been on the system for up to 12 months from delivery will be archived and removed from your mailbox.
@@ -54,16 +54,16 @@ sa_printing_preference.h_page.paragraph.2=These messages replace the Self Assess
 sa_printing_preference.paragraph.3=The emails will ask you to sign in to your HMRC online account and check for updates.
 sa_printing_preference.cdefg_page.paragraph.3=The service is secure and only used for Self Assessment.
 
-sa_printing_preference.paragraph.4=They’re secure and will never include any information about your personal tax affairs.
+sa_printing_preference.paragraph.4=They''re secure and will never include any information about your personal tax affairs.
 sa_printing_preference.cdefg_page.paragraph.4=Personal and tax details are never shown in the email reminder.
 
 sa_printing_preference.h_page.reminders_list.1=Messages are kept permanently for your records
 sa_printing_preference.h_page.reminders_list.2=The service is secure and only used for Self Assessment
 sa_printing_preference.h_page.reminders_list.3=The emails you receive do not contain personal information for security reasons
 
-sa_printing_preference.option.yes=Yes, I want them by email, don’t send them by post
+sa_printing_preference.option.yes=Yes, I want them by email, don''t send them by post
 sa_printing_preference.cde_page.option.yes=Yes, send my reminders by email
-sa_printing_preference.option.no=No, I don’t want them by email, continue sending them by post
+sa_printing_preference.option.no=No, I don''t want them by email, continue sending them by post
 sa_printing_preference.cde_page.option.no=No, continue sending letters by post only
 
 sa_printing_preference.heading.3=Do you want to get Self Assessment reminders by email?
@@ -93,7 +93,7 @@ sa_printing_preference_confirm.linkText=Continue to your tax account
 sa_printing_preference.verification.heading=Email address verified
 sa_printing_preference.verification.heading.already=Email address already verified
 sa_printing_preference.verification.heading.expired=This link has expired
-sa_printing_preference.verification.paragraph.1=You’ve changed your email address for paperless notifications.
+sa_printing_preference.verification.paragraph.1=You''ve now signed up for paperless notifications.
 sa_printing_preference.verification.already.paragraph.1=Your email address has already been verified.
 sa_printing_preference.verification.action=Sign into your HMRC online account
 

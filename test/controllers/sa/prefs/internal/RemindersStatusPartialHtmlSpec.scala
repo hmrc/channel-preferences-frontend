@@ -83,7 +83,7 @@ class RemindersStatusPartialHtmlSpec extends UnitSpec with WithHeaderCarrier wit
       partialHtml.body should (
         include("You need to verify") and
           include(emailPreferences.email) and
-          include("can’t be delivered") and
+          include("can't be delivered") and
           include("/account/account-details/sa/update-email-address") and
           include("/account/account-details/sa/opt-out-email-reminders") and
           not include "your inbox is full" and
