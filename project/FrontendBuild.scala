@@ -54,6 +54,6 @@ private object Dependencies {
     "org.pegdown"    %  "pegdown"     % pegdownVersion   % "it",
     "org.jsoup"      %  "jsoup"       % jsoupVersion     % "it",
     "uk.gov.hmrc"    %% "hmrctest"    % "1.3.0"          % "it",
-    "uk.gov.hmrc"    %% "auth-test"   % "0.8.0"          % "it"
+    "uk.gov.hmrc"    %% "auth-test"   % "0.9.0"          % "it"
   )
 }
