@@ -3,19 +3,19 @@ import java.util.UUID
 
 import org.scalatest.BeforeAndAfterEach
 
-class AccountDetailPartialISpec
+class ManagePaperlessPartialISpec
   extends PreferencesFrontEndServer
   with BeforeAndAfterEach
   with EmailSupport {
 
-  "Account detail partial" should {
+  "Manage Paperless partial" should {
 
     "return not authorised when no credentials supplied" in new TestCase {
-      `/email-reminders-status`.get should have(status(401))
+      `/preferences/paperless/manage`.get should have(status(401))
     }
 
     "return opted out details when no preference is set" in new TestCaseWithFrontEndAuthentication {
-      private val request = `/email-reminders-status`.withHeaders(cookie)
+      private val request = `/preferences/paperless/manage`.withHeaders(cookie)
       val response = request.get()
       response should have(status(200))
       response.futureValue.body should (
@@ -23,15 +23,26 @@ class AccountDetailPartialISpec
           not include "You need to verify"
         )
     }
+
+    // FIXME remove when YTA no longer use these endpoints
+    "be supported on the deprecated URL" in new TestCaseWithFrontEndAuthentication {
+      private val request = `/account/account-details/sa/email-reminders-status`.withHeaders(cookie)
+      val response = request.get()
+      response should have(status(200))
+      response.futureValue.body should (
+        include("Sign up for paperless notifications") and
+        not include "You need to verify"
+      )
+    }
   }
 
-  "Account detail partial for pending verification" should {
+  "Manage Paperless partial for pending verification" should {
 
     "contain pending email verification details" in new TestCaseWithFrontEndAuthentication {
       val email = s"${UUID.randomUUID().toString}@email.com"
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
 
-      val response = `/email-reminders-status`.withHeaders(cookie).get()
+      val response = `/preferences/paperless/manage`.withHeaders(cookie).get()
       response should have(status(200))
       response.futureValue.body should include(s"You need to verify")
     }
@@ -41,7 +52,7 @@ class AccountDetailPartialISpec
       val newEmail = s"${UUID.randomUUID().toString}@email.com"
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(200))
-      val response = `/email-reminders-status`.withHeaders(cookie).get()
+      val response = `/preferences/paperless/manage`.withHeaders(cookie).get()
       response should have(status(200))
       checkForChangedEmailDetailsInResponse(response.futureValue.body, email, newEmail, todayDate)
     }
@@ -50,7 +61,7 @@ class AccountDetailPartialISpec
       val email = s"${UUID.randomUUID().toString}@email.com"
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/portal/preferences/sa/individual`.postOptOut(utr) should have(status(200))
-      val response = `/email-reminders-status`.withHeaders(cookie).get()
+      val response = `/preferences/paperless/manage`.withHeaders(cookie).get()
       response should have(status(200))
       response.futureValue.body should (
         not include email and
@@ -58,7 +69,7 @@ class AccountDetailPartialISpec
     }
   }
 
-  "Account detail partial for verified user" should {
+  "Manage Paperless partial for verified user" should {
 
     "contain new email details for a subsequent change email" in new TestCaseWithFrontEndAuthentication {
       val email = s"${UUID.randomUUID().toString}@email.com"
@@ -66,7 +77,7 @@ class AccountDetailPartialISpec
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/preferences-admin/sa/individual`.verifyEmailFor(utr) should have(status(204))
       `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(200))
-      val response = `/email-reminders-status`.withHeaders(cookie).get()
+      val response = `/preferences/paperless/manage`.withHeaders(cookie).get()
       response should have(status(200))
       checkForChangedEmailDetailsInResponse(response.futureValue.body, email, newEmail, todayDate)
     }
@@ -76,7 +87,7 @@ class AccountDetailPartialISpec
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/preferences-admin/sa/individual`.verifyEmailFor(utr) should have(status(204))
       `/portal/preferences/sa/individual`.postOptOut(utr) should have(status(200))
-      val response = `/email-reminders-status`.withHeaders(cookie).get()
+      val response = `/preferences/paperless/manage`.withHeaders(cookie).get()
       response should have(status(200))
       response.futureValue.body should (
         not include email and
@@ -84,7 +95,7 @@ class AccountDetailPartialISpec
     }
   }
 
-  "Account detail partial for a bounced verification email" should {
+  "Manage Paperless partial for a bounced verification email" should {
 
     "contain new email details for a subsequent change email" in new TestCaseWithFrontEndAuthentication {
       val email = s"${UUID.randomUUID().toString}@email.com"
@@ -92,7 +103,7 @@ class AccountDetailPartialISpec
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/preferences-admin/sa/bounce-email`.post(email) should have(status(204))
       `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(200))
-      val response = `/email-reminders-status`.withHeaders(cookie).get()
+      val response = `/preferences/paperless/manage`.withHeaders(cookie).get()
       response should have(status(200))
       checkForChangedEmailDetailsInResponse(response.futureValue.body, email, newEmail, todayDate)
     }
@@ -102,7 +113,7 @@ class AccountDetailPartialISpec
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/preferences-admin/sa/bounce-email`.post(email) should have(status(204))
       `/portal/preferences/sa/individual`.postOptOut(utr) should have(status(200))
-      val response = `/email-reminders-status`.withHeaders(cookie).get()
+      val response = `/preferences/paperless/manage`.withHeaders(cookie).get()
       response should have(status(200))
       response.futureValue.body should (
         not include email and
@@ -123,5 +134,4 @@ class AccountDetailPartialISpec
         not include oldEmail and
         include(s"on $currentFormattedDate. Click on the link in the email to verify your email address."))
   }
-
 }

@@ -16,6 +16,13 @@ object PaperlessPartialController extends PaperlessPartialController {
   lazy val preferencesConnector = PreferencesConnector
 }
 
+// FIXME remove when YTA no longer use these endpoints
+object PaperlessPartialsForDeprecatedYTAEndpointsController extends PaperlessPartialController {
+  lazy val auditConnector = Global.auditConnector
+  lazy val authConnector = Global.authConnector
+  lazy val preferencesConnector = PreferencesConnector
+}
+
 trait PaperlessPartialController
   extends FrontendController
   with Actions
@@ -28,7 +35,6 @@ trait PaperlessPartialController
       Ok(ManagePaperlessPartial(pref))
     }
   }
-  val deprecatedDisplayManagePaperlessPartial = displayManagePaperlessPartial
 
   val displayPaperlessWarningsPartial = AuthorisedFor(taxRegime = SaRegimeWithoutRedirection, redirectToOrigin = false).async { implicit authContext => implicit request =>
     def pendingEmailVerification(utr: SaUtr, nino: Option[Nino])(implicit hc: HeaderCarrier) = preferencesConnector.getPreferences(utr, nino).map {
