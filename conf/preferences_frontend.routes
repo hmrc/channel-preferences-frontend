@@ -15,16 +15,19 @@ POST        /account/account-details/sa/opt-in-email-reminders                  
 GET         /account/account-details/sa/opt-in-email-reminders-thank-you            controllers.sa.prefs.internal.BizTaxPrefsController.thankYou(email: Option[controllers.sa.prefs.EncryptedEmail])
 GET         /account/account-details/sa/terms-and-conditions                        controllers.sa.prefs.internal.BizTaxPrefsController.termsAndConditions
 
-GET         /account/account-details/sa/email-reminders-status                      controllers.sa.prefs.partial.accountdetails.ReminderStatusPartialController.emailRemindersStatus
 
 GET         /account/account-details/sa/upgrade-email-reminders                     controllers.sa.prefs.internal.UpgradeRemindersController.display(returnUrl: controllers.sa.prefs.Encrypted[String])
 POST        /account/account-details/sa/upgrade-email-reminders                     controllers.sa.prefs.internal.UpgradeRemindersController.upgrade(returnUrl: controllers.sa.prefs.Encrypted[String])
 GET         /account/account-details/sa/upgrade-email-reminders-thank-you           controllers.sa.prefs.internal.UpgradeRemindersController.thankYou(returnUrl: controllers.sa.prefs.Encrypted[String])
 
-GET         /account/preferences/warnings                                           controllers.sa.prefs.partial.homepage.ReminderWarningPartialController.preferencesWarning()
 
 GET         /sa/print-preferences/:token                                            @controllers.sa.prefs.filing.FilingInterceptController.redirectWithEmailAddress(token: String, return_url: String, emailAddress: Option[controllers.sa.prefs.EncryptedEmail])
 GET         /sa/print-preferences/verification/:token                               @controllers.sa.prefs.external.EmailValidationController.verify(token: String)
 
 # Serves up the test gif that is used to determine if the service is up
 GET         /sa/print-preferences/assets/*file                                      controllers.sa.prefs.Assets.at(path="/public", file)
+
+# Partials
+GET         /preferences/paperless/manage                                           controllers.sa.prefs.partial.PaperlessPartialController.displayManagePaperlessPartial
+GET         /account/account-details/sa/email-reminders-status                      controllers.sa.prefs.partial.PaperlessPartialController.deprecatedDisplayManagePaperlessPartial
+GET         /account/preferences/warnings                                           controllers.sa.prefs.partial.PaperlessPartialController.displayPaperlessWarningsPartial

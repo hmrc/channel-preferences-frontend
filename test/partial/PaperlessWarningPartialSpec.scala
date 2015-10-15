@@ -1,30 +1,27 @@
-package controllers.sa.prefs.partial
+package partial
 
 import connectors.{SaEmailPreference, SaPreference}
-import controllers.sa.prefs.partial.homepage.RenderViewForPreferences
 import helpers.ConfigHelper
 import org.joda.time.LocalDate
 import play.api.mvc.Results
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
-class RenderViewForPreferencesSpec extends UnitSpec with Results with WithFakeApplication {
+class PaperlessWarningPartialSpec extends UnitSpec with Results with WithFakeApplication {
   override lazy val fakeApplication = ConfigHelper.fakeApp
-  val preferencesWarningView = new RenderViewForPreferences {}
-
   "rendering of preferences warnings" should {
     "have no content when opted out " in {
-      preferencesWarningView.renderPrefs(SaPreference(digital = false)).body should be("")
+      PaperlessWarningPartial.apply(SaPreference(digital = false)).body should be("")
     }
 
     "have no content when verified" in {
-      preferencesWarningView.renderPrefs(SaPreference(digital = true, email = Some(SaEmailPreference(
+      PaperlessWarningPartial.apply(SaPreference(digital = true, email = Some(SaEmailPreference(
         email = "test@test.com",
         status = SaEmailPreference.Status.verified))
       )).body should be("")
     }
 
     "have pending verification warning if email not verified" in {
-      val result = preferencesWarningView.renderPrefs(SaPreference(
+      val result = PaperlessWarningPartial.apply(SaPreference(
         digital = true, email = Some(SaEmailPreference(
           email = "test@test.com",
           status = SaEmailPreference.Status.pending,
@@ -35,7 +32,7 @@ class RenderViewForPreferencesSpec extends UnitSpec with Results with WithFakeAp
     }
 
     "have mail box full warning if email bounces due to mail box being full" in {
-      val result = preferencesWarningView.renderPrefs(SaPreference(
+      val result = PaperlessWarningPartial.apply(SaPreference(
         digital = true, email = Some(SaEmailPreference(
           email = "test@test.com",
           status = SaEmailPreference.Status.bounced,
@@ -46,7 +43,7 @@ class RenderViewForPreferencesSpec extends UnitSpec with Results with WithFakeAp
     }
 
     "have problem warning if email bounces due to some other reason than mail box being full" in {
-      val result = preferencesWarningView.renderPrefs(SaPreference(
+      val result = PaperlessWarningPartial.apply(SaPreference(
         digital = true, email = Some(SaEmailPreference(
           email = "test@test.com",
           status = SaEmailPreference.Status.bounced,
