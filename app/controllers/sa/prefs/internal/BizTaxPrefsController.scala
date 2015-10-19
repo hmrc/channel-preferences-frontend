@@ -85,8 +85,8 @@ trait BizTaxPrefsController
 
   private[prefs] def redirectToBTAOrInterstitialPageAction(implicit authContext: AuthContext, request: Request[AnyRef]) =
     preferencesConnector.getPreferences(authContext.principal.accounts.sa.get.utr)(HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)).map {
-        case Some(saPreference) => Redirect(businessTaxHome)
-      case None => redirectToInterstitialPageWithCohort(authContext)
+      case Some(saPreference) if saPreference.digital == true => Redirect(businessTaxHome)
+      case _ => redirectToInterstitialPageWithCohort(authContext)
     }
 
 
@@ -94,8 +94,8 @@ trait BizTaxPrefsController
     implicit val hc = HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)
     val saUtr = authContext.principal.accounts.sa.get.utr
     preferencesConnector.getPreferences(saUtr).flatMap {
-      case Some(saPreference) => Future.successful(Redirect(businessTaxHome))
-      case None =>
+      case Some(saPreference) if saPreference.digital == true => Future.successful(Redirect(businessTaxHome))
+      case _ =>
         possibleCohort.fold(ifEmpty = Future.successful(redirectToInterstitialPageWithCohort(authContext))) { cohort =>
           preferencesConnector.saveCohort(saUtr, calculateCohort(authContext)).map { case _ =>
             auditPageShown(saUtr, Interstitial, cohort)

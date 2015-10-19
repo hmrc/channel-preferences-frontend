@@ -7,6 +7,7 @@ import controllers.sa.prefs.ExternalUrls
 import controllers.sa.prefs.internal.EmailOptInJourney._
 import helpers.ConfigHelper
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers._
 import org.mockito.Mockito._
@@ -78,6 +79,16 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       header("Location", page).get should include(routes.BizTaxPrefsController.displayInterstitialPrefsFormForCohort(Some(assignedCohort)).url)
     }
 
+    "redirect to interstitial page for the matching cohort if they are currently opted out" in new BizTaxPrefsControllerSetup {
+      val preferencesAlreadyCreated = SaPreference(false, None)
+      when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Some(preferencesAlreadyCreated))
+
+      val page = controller.redirectToBTAOrInterstitialPageAction(user, request)
+
+      status(page) shouldBe 303
+      header("Location", page).get should include(routes.BizTaxPrefsController.displayInterstitialPrefsFormForCohort(Some(assignedCohort)).url)
+    }
+
   }
 
   "The preferences interstitial page" should {
@@ -108,21 +119,17 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
 
       status(page) shouldBe 200
 
-      val document = Jsoup.parse(contentAsString(page))
+      allGoPaperlessFormElementsArePresent(Jsoup.parse(contentAsString(page)))
+    }
 
-      document.getElementById("email.main") shouldNot be(null)
-      document.getElementById("email.main").attr("value") shouldBe ""
+    "render the form in the correct initial state when user is currently opted out" in new BizTaxPrefsControllerSetup {
+      when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Some(SaPreference(false, None)))
 
-      document.getElementById("email.confirm") shouldNot be(null)
-      document.getElementById("email.confirm").attr("value") shouldBe ""
+      val page = controller.displayInterstitialPrefsFormAction(user, request, Some(assignedCohort))
 
-      document.getElementById("opt-in-in") shouldNot be(null)
-      document.getElementById("opt-in-in").attr("checked") shouldBe "checked"
+      status(page) shouldBe 200
 
-      document.getElementById("opt-in-out") shouldNot be(null)
-      document.getElementById("opt-in-out").attr("checked") shouldBe ""
-
-      document.getElementById("terms-and-conditions").attr("href") should endWith("terms-and-conditions")
+      allGoPaperlessFormElementsArePresent(Jsoup.parse(contentAsString(page)))
     }
 
     "audit the cohort information for IPage" in new BizTaxPrefsControllerSetup {
@@ -143,6 +150,22 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       value.detail \ "journey" shouldBe JsString("Interstitial")
       value.detail \ "utr" shouldBe JsString(validUtr.value)
     }
+  }
+
+  def allGoPaperlessFormElementsArePresent(document: Document) {
+    document.getElementById("email.main") shouldNot be(null)
+    document.getElementById("email.main").attr("value") shouldBe ""
+
+    document.getElementById("email.confirm") shouldNot be(null)
+    document.getElementById("email.confirm").attr("value") shouldBe ""
+
+    document.getElementById("opt-in-in") shouldNot be(null)
+    document.getElementById("opt-in-in").attr("checked") shouldBe "checked"
+
+    document.getElementById("opt-in-out") shouldNot be(null)
+    document.getElementById("opt-in-out").attr("checked") shouldBe ""
+
+    document.getElementById("terms-and-conditions").attr("href") should endWith("terms-and-conditions")
   }
 
   "The terms and conditions page" should {
