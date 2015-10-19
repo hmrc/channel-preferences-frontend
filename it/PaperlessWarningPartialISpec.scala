@@ -9,13 +9,13 @@ class PaperlessWarningPartialISpec
 
   "Paperless warnings partial " should {
     "return not authorised when no credentials supplied" in new TestCase {
-      `/preferences/paperless/warnings`.get() should have(status(401))
+      `/paperless/warnings`.get() should have(status(401))
     }
 
     "be not found if the user has no preferences" in new TestCaseWithFrontEndAuthentication {
       `/preferences-admin/sa/individual`.delete(utr) should have(status(200))
 
-      val response = `/preferences/paperless/warnings`.withHeaders(cookie).get()
+      val response = `/paperless/warnings`.withHeaders(cookie).get()
 
       response should have(status(404))
     }
@@ -25,7 +25,7 @@ class PaperlessWarningPartialISpec
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/portal/preferences/sa/individual`.postDeEnrolling(utr) should have(status(200))
 
-      val response = `/preferences/paperless/warnings`.withHeaders(cookie).get()
+      val response = `/paperless/warnings`.withHeaders(cookie).get()
 
       response should have(status(404))
     }
@@ -49,7 +49,7 @@ class PaperlessWarningPartialISpec
       val email = uniqueEmail
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
 
-      val response =`/preferences/paperless/warnings`.withHeaders(cookie).get()
+      val response =`/paperless/warnings`.withHeaders(cookie).get()
 
       response should have(status(200))
       response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("true"))
@@ -61,7 +61,7 @@ class PaperlessWarningPartialISpec
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/preferences-admin/sa/individual`.verifyEmailFor(utr) should have(status(204))
 
-      val response =`/preferences/paperless/warnings`.withHeaders(cookie).get()
+      val response =`/paperless/warnings`.withHeaders(cookie).get()
 
       response should have(status(200))
       response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("true"))
@@ -73,7 +73,7 @@ class PaperlessWarningPartialISpec
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/portal/preferences/sa/individual`.postOptOut(utr) should have(status(200))
 
-      val response =`/preferences/paperless/warnings`.withHeaders(cookie).get()
+      val response =`/paperless/warnings`.withHeaders(cookie).get()
 
       response should have(status(200))
       response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("false"))
@@ -85,7 +85,7 @@ class PaperlessWarningPartialISpec
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/portal/preferences/sa/individual`.postPendingEmail(utr, changedUniqueEmail) should have(status(200))
 
-      val response =`/preferences/paperless/warnings`.withHeaders(cookie).get()
+      val response =`/paperless/warnings`.withHeaders(cookie).get()
 
       response should have(status(200))
       response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("true"))
@@ -97,7 +97,7 @@ class PaperlessWarningPartialISpec
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/portal/preferences/sa/individual`.postDeEnrolling(utr)
 
-      `/preferences/paperless/warnings`.withHeaders(cookie).get() should have(status(404))
+      `/paperless/warnings`.withHeaders(cookie).get() should have(status(404))
     }
   }
 
@@ -108,7 +108,7 @@ class PaperlessWarningPartialISpec
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/preferences-admin/sa/bounce-email`.post(email) should have(status(204))
 
-      val response =`/preferences/paperless/warnings`.withHeaders(cookie).get()
+      val response =`/paperless/warnings`.withHeaders(cookie).get()
 
       response should have(status(200))
       response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("true"))
@@ -121,7 +121,7 @@ class PaperlessWarningPartialISpec
       `/preferences-admin/sa/bounce-email`.post(email) should have(status(204))
       `/portal/preferences/sa/individual`.postOptOut(utr)
 
-      val response =`/preferences/paperless/warnings`.withHeaders(cookie).get()
+      val response =`/paperless/warnings`.withHeaders(cookie).get()
 
       response should have(status(200))
       response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("false"))
@@ -134,7 +134,7 @@ class PaperlessWarningPartialISpec
       `/preferences-admin/sa/bounce-email`.post(email) should have(status(204))
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(200))
 
-      val response =`/preferences/paperless/warnings`.withHeaders(cookie).get()
+      val response =`/paperless/warnings`.withHeaders(cookie).get()
 
       response should have(status(200))
       response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("true"))
@@ -147,7 +147,7 @@ class PaperlessWarningPartialISpec
       `/preferences-admin/sa/bounce-email`.post(email) should have(status(204))
       `/portal/preferences/sa/individual`.postPendingEmail(utr, changedUniqueEmail) should have(status(200))
 
-      val response =`/preferences/paperless/warnings`.withHeaders(cookie).get()
+      val response =`/paperless/warnings`.withHeaders(cookie).get()
 
       response should have(status(200))
       response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("true"))
@@ -160,7 +160,7 @@ class PaperlessWarningPartialISpec
       `/preferences-admin/sa/bounce-email`.post(email) should have(status(204))
       `/portal/preferences/sa/individual`.postDeEnrolling(utr) should have(status(200))
 
-      val response =`/preferences/paperless/warnings`.withHeaders(cookie).get()
+      val response =`/paperless/warnings`.withHeaders(cookie).get()
 
       response should have(status(404))
     }
@@ -172,7 +172,7 @@ class PaperlessWarningPartialISpec
       `/portal/preferences/sa/individual`.postDeEnrolling(utr) should have(status(200))
       `/portal/preferences/sa/individual`.postOptOut(utr) should have(status(200))
 
-      val response =`/preferences/paperless/warnings`.withHeaders(cookie).get()
+      val response =`/paperless/warnings`.withHeaders(cookie).get()
 
       response should have(status(200))
       response.futureValue.body should be("")
@@ -185,7 +185,7 @@ class PaperlessWarningPartialISpec
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(200))
       `/preferences-admin/sa/individual`.verifyEmailFor(utr) should have(status(204))
 
-      val response =`/preferences/paperless/warnings`.withHeaders(cookie).get()
+      val response =`/paperless/warnings`.withHeaders(cookie).get()
 
       response should have(status(200))
       response.futureValue.body should be("")
@@ -198,7 +198,7 @@ class PaperlessWarningPartialISpec
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(200))
       `/preferences-admin/sa/bounce-email-inbox-full`.post(email) should have(status(204))
 
-      val response =`/preferences/paperless/warnings`.withHeaders(cookie).get()
+      val response =`/paperless/warnings`.withHeaders(cookie).get()
 
       response should have(status(200))
       response.futureValue.body should include("Your inbox is full")
@@ -211,7 +211,7 @@ class PaperlessWarningPartialISpec
     "be empty" in new TestCaseWithFrontEndAuthentication {
       `/portal/preferences/sa/individual`.postOptOut(utr) should have(status(201))
 
-      val response = `/preferences/paperless/warnings`.withHeaders(cookie).get()
+      val response = `/paperless/warnings`.withHeaders(cookie).get()
 
       response should have(status(200))
       response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("false"))
@@ -226,7 +226,7 @@ class PaperlessWarningPartialISpec
       `/preferences-admin/sa/individual`.verifyEmailFor(utr) should have(status(204))
       `/preferences-admin/sa/bounce-email`.post(email) should have(status(204))
 
-      val response = `/preferences/paperless/warnings`.withHeaders(cookie).get()
+      val response = `/paperless/warnings`.withHeaders(cookie).get()
 
       response should have(status(200))
       response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("true"))

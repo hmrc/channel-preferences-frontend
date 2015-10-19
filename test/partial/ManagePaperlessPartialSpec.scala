@@ -30,7 +30,7 @@ class ManagePaperlessPartialSpec extends UnitSpec with WithHeaderCarrier with Wi
       ManagePaperlessPartial(Some(saPreference), sampleReturnUrl).body should (
         include(emailPreferences.email) and
         include("send a new verification email") and
-        include("/account/account-details/sa/resend-validation-email?returnUrl=" + URLEncoder.encode(sampleReturnUrl, "UTF-8")) and
+        include("/paperless/resend-validation-email?returnUrl=" + URLEncoder.encode(sampleReturnUrl, "UTF-8")) and
         include("/account/account-details/sa/opt-out-email-reminders") and
         include("/account/account-details/sa/update-email-address") and
         include("2 October 2014")
@@ -46,7 +46,7 @@ class ManagePaperlessPartialSpec extends UnitSpec with WithHeaderCarrier with Wi
         include(EmailAddress(emailPreferences.email).obfuscated) and
         include("/account/account-details/sa/update-email-address") and
         include("/account/account-details/sa/opt-out-email-reminders") and
-        not include "/account/account-details/sa/resend-validation-email"
+        not include "/paperless/resend-validation-email"
       )
     }
 
@@ -60,7 +60,7 @@ class ManagePaperlessPartialSpec extends UnitSpec with WithHeaderCarrier with Wi
         include("your inbox is full") and
         include("/account/account-details/sa/update-email-address") and
         include("/account/account-details/sa/opt-out-email-reminders") and
-        not include "/account/account-details/sa/resend-validation-email"
+        not include "/paperless/resend-validation-email"
       )
     }
 
@@ -75,7 +75,7 @@ class ManagePaperlessPartialSpec extends UnitSpec with WithHeaderCarrier with Wi
         include("/account/account-details/sa/update-email-address") and
         include("/account/account-details/sa/opt-out-email-reminders") and
         not include "your inbox is full" and
-        not include "/account/account-details/sa/resend-validation-email"
+        not include "/paperless/resend-validation-email"
       )
     }
 
@@ -85,7 +85,7 @@ class ManagePaperlessPartialSpec extends UnitSpec with WithHeaderCarrier with Wi
       ManagePaperlessPartial(Some(saPreference), sampleReturnUrl).body should (
         include("Replace the letters you get about taxes with emails.") and
         include("/account/account-details/sa/opt-in-email-reminders") and
-        not include "/account/account-details/sa/resend-validation-email"
+        not include "/paperless/resend-validation-email"
       )
     }
 
@@ -93,7 +93,7 @@ class ManagePaperlessPartialSpec extends UnitSpec with WithHeaderCarrier with Wi
       ManagePaperlessPartial(None, sampleReturnUrl).body should (
         include("Replace the letters you get about taxes with emails.") and
         include("/account/account-details/sa/opt-in-email-reminders") and
-        not include "/account/account-details/sa/resend-validation-email"
+        not include "/paperless/resend-validation-email"
       )
     }
   }

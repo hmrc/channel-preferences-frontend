@@ -61,8 +61,12 @@ trait AccountDetailsController
       Future(Ok(views.html.opted_back_into_paper_thank_you()))
   }
 
-  def resendValidationEmail(returnUrl: Option[String]) = AuthorisedFor(SaRegime).async {
-    authContext => request => resendValidationEmailAction(returnUrl.getOrElse(ExternalUrls.businessTaxHome))(authContext, request)
+  def resendValidationEmail(returnUrl: String) = AuthorisedFor(SaRegime).async {
+    authContext => request => resendValidationEmailAction(returnUrl)(authContext, request)
+  }
+
+  def resendValidationEmailDeprecated = AuthorisedFor(SaRegime).async {
+    authContext => request => resendValidationEmailAction(ExternalUrls.businessTaxHome)(authContext, request)
   }
 
   private[prefs] def confirmOptOutOfEmailRemindersPage(implicit authContext: AuthContext, request: Request[AnyRef]): Future[Result] = {

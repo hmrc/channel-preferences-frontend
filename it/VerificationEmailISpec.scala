@@ -15,7 +15,7 @@ class VerificationEmailISpec
       val email = uniqueEmail
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
 
-      val response = `/resend-validation-email`.withHeaders(cookie).post(emptyJsonValue)
+      val response = `/paperless/resend-validation-email`().withHeaders(cookie).post(emptyJsonValue)
       response should have(status(200))
       response.futureValue.body should include(s"A new email has been sent to $email")
     }
@@ -225,7 +225,7 @@ class VerificationEmailISpec
 
     val emptyJsonValue = Json.parse("{}")
 
-    def `/resend-validation-email` = WS.url(resource("/account/account-details/sa/resend-validation-email"))
+    def `/paperless/resend-validation-email`(returnUrl: String = "") = WS.url(resource(s"/paperless/resend-validation-email?returnUrl=$returnUrl"))
 
     val `/sa/print-preferences/verification` = new {
       def verify(token: String) = WS.url(resource(s"/sa/print-preferences/verification/$token")).get()

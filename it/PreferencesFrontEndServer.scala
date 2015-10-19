@@ -49,7 +49,7 @@ trait PreferencesFrontEndServer extends ServiceSpec {
 
     def changedUniqueEmail = uniqueEmail
 
-    def `/preferences/paperless/manage` = WS.url(resource("/preferences/paperless/manage"))
+    def `/paperless/manage`(returnUrl: String) = WS.url(resource(s"/paperless/manage?returnUrl=$returnUrl"))
     def `/account/account-details/sa/email-reminders-status` = WS.url(resource("/account/account-details/sa/email-reminders-status"))
 
     def `/preferences/paye/individual/:nino/activations/paye`(nino: String, headers: (String, String)) = new {
@@ -111,7 +111,7 @@ trait PreferencesFrontEndServer extends ServiceSpec {
              |}""".stripMargin))
     }
 
-    def `/preferences/paperless/warnings` = WS.url(resource("/preferences/paperless/warnings"))
+    def `/paperless/warnings` = WS.url(resource("/paperless/warnings"))
     def `/account/preferences/warnings` = WS.url(resource("/account/preferences/warnings"))
   }
 
