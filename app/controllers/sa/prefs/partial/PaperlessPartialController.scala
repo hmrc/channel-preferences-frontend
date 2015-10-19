@@ -1,10 +1,11 @@
 package controllers.sa.prefs.partial
 
 import connectors.PreferencesConnector
-import controllers.sa.prefs.SaRegimeWithoutRedirection
+import controllers.sa.prefs.{ExternalUrls, SaRegimeWithoutRedirection}
 import controllers.sa.prefs.config.Global
 import controllers.sa.prefs.internal.PreferencesControllerHelper
 import partial.{ManagePaperlessPartial, PaperlessWarningPartial}
+import play.api.mvc.{AnyContent, Action}
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
 import uk.gov.hmrc.play.frontend.auth.Actions
@@ -21,6 +22,8 @@ object PaperlessPartialsForDeprecatedYTAEndpointsController extends PaperlessPar
   lazy val auditConnector = Global.auditConnector
   lazy val authConnector = Global.authConnector
   lazy val preferencesConnector = PreferencesConnector
+
+  val displayManagePaperlessPartial: Action[AnyContent] = displayManagePaperlessPartial(ExternalUrls.businessTaxHome)
 }
 
 trait PaperlessPartialController
@@ -30,9 +33,9 @@ trait PaperlessPartialController
 
   def preferencesConnector: PreferencesConnector
 
-  val displayManagePaperlessPartial = AuthorisedFor(taxRegime = SaRegimeWithoutRedirection, redirectToOrigin = false).async { authContext => implicit request =>
+  def displayManagePaperlessPartial(returnUrl: String) = AuthorisedFor(taxRegime = SaRegimeWithoutRedirection, redirectToOrigin = false).async { authContext => implicit request =>
     preferencesConnector.getPreferences(utr = authContext.principal.accounts.sa.get.utr) map { pref =>
-      Ok(ManagePaperlessPartial(pref))
+      Ok(ManagePaperlessPartial(prefs = pref, returnUrl = returnUrl))
     }
   }
 

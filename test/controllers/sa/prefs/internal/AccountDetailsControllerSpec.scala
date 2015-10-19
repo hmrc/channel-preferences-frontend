@@ -95,14 +95,15 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
       when(mockPreferencesConnector.savePreferences(is(validUtr), is(true), is(Some("test@test.com")))(any())).thenReturn(Future.successful(()))
 
-      val page = Future.successful(controller.resendValidationEmailAction(user, FakeRequest()))
+      private val sampleReturnUrl = "/some/url"
+      val page = Future.successful(controller.resendValidationEmailAction(returnUrl = sampleReturnUrl)(user, FakeRequest()))
 
       status(page) shouldBe 200
       val document = Jsoup.parse(contentAsString(page))
       document.getElementById("verification-mail-message") should not be null
+      document.getElementById("return-to-dashboard-button").attr("href") should be (sampleReturnUrl)
 
       verify(mockPreferencesConnector).savePreferences(is(validUtr), is(true), is(Some("test@test.com")))(any())
-
     }
   }
 

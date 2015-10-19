@@ -21,14 +21,14 @@ object YtaConfig extends AppConfig with RunMode {
 
   private def loadConfig(key: String) = configuration.getString(key).getOrElse(throw new RuntimeException(s"Missing key: $key"))
 
-  override lazy val assetsPrefix = ExternalUrls.assets
-  override lazy val analyticsToken = loadConfig(s"govuk-tax.$env.google-analytics.token")
-  override lazy val analyticsHost = loadConfig(s"govuk-tax.$env.google-analytics.host")
-  override lazy val betaFeedbackUrl = s"${ExternalUrls.caUrlPrefix}/contact/beta-feedback"
-  override lazy val betaFeedbackUnauthenticatedUrl = s"${ExternalUrls.caUrlPrefix}/contact/beta-feedback-unauthenticated"
-  override lazy val homeUrl = ExternalUrls.businessTaxHome
-  override lazy val accountDetailsUrl = ExternalUrls.accountDetails
-  override lazy val helpUrl = s"${ExternalUrls.caUrlPrefix}/contact/contact-hmrc"
-  override lazy val signOutUrl = ExternalUrls.survey
-  override lazy val taiSignOutUrl = ExternalUrls.taiSignOutUrl
+  override lazy val assetsPrefix                   = ExternalUrls.assets
+  override lazy val analyticsToken                 = loadConfig(s"govuk-tax.$env.google-analytics.token")
+  override lazy val analyticsHost                  = loadConfig(s"govuk-tax.$env.google-analytics.host")
+  override lazy val betaFeedbackUrl                = ExternalUrls.betaFeedbackUrl
+  override lazy val betaFeedbackUnauthenticatedUrl = ExternalUrls.betaFeedbackUnauthenticatedUrl
+  override lazy val homeUrl                        = ExternalUrls.businessTaxHome
+  override lazy val accountDetailsUrl              = ExternalUrls.accountDetails
+  override lazy val helpUrl                        = ExternalUrls.helpUrl
+  override lazy val signOutUrl                     = ExternalUrls.survey
+  override lazy val taiSignOutUrl                  = ExternalUrls.taiSignOutUrl
 }

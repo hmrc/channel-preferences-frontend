@@ -4,7 +4,7 @@ import authentication.ValidSessionCredentialsProvider
 import connectors.{EmailConnector, PreferencesConnector, SaPreference}
 import controllers.sa.prefs.AuthContextAvailability._
 import controllers.sa.prefs.config.Global
-import controllers.sa.prefs.{Encrypted, EmailFormData, SaRegime}
+import controllers.sa.prefs.{ExternalUrls, Encrypted, EmailFormData, SaRegime}
 import play.api.mvc.{Request, Result}
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
@@ -61,8 +61,8 @@ trait AccountDetailsController
       Future(Ok(views.html.opted_back_into_paper_thank_you()))
   }
 
-  def resendValidationEmail() = AuthorisedFor(SaRegime).async {
-    authContext => request => resendValidationEmailAction(authContext, request)
+  def resendValidationEmail(returnUrl: Option[String]) = AuthorisedFor(SaRegime).async {
+    authContext => request => resendValidationEmailAction(returnUrl.getOrElse(ExternalUrls.businessTaxHome))(authContext, request)
   }
 
   private[prefs] def confirmOptOutOfEmailRemindersPage(implicit authContext: AuthContext, request: Request[AnyRef]): Future[Result] = {
@@ -74,11 +74,11 @@ trait AccountDetailsController
     }
   }
 
-  private[prefs] def resendValidationEmailAction(implicit authContext: AuthContext, request: Request[AnyRef]): Future[Result] = {
+  private[prefs] def resendValidationEmailAction(returnUrl: String)(implicit authContext: AuthContext, request: Request[AnyRef]): Future[Result] = {
     lookupCurrentEmail {
       email =>
         preferencesConnector.savePreferences(authContext.principal.accounts.sa.get.utr, true, Some(email)).map(_ =>
-          Ok(views.html.account_details_verification_email_resent_confirmation(email))
+          Ok(views.html.account_details_verification_email_resent_confirmation(email, returnUrl))
         )
     }
   }

@@ -1,9 +1,8 @@
-@(email: String)(implicit context: Option[uk.gov.hmrc.play.frontend.auth.AuthContext], request: Request[_])
+@(email: String, returnUrl: String)(implicit context: Option[uk.gov.hmrc.play.frontend.auth.AuthContext], request: Request[_])
 
 @import uk.gov.hmrc.urls.Link
 
 @main(title = "Manage account - Verification email sent") {
-
     <header class="page-header">
         <h1>@Messages("bt.account.yourdetails")</h1>
 
@@ -12,9 +11,6 @@
     <p id="verification-mail-message">A new email has been sent to @email. Click on the link in the email to verify your email address with HMRC.</p>
 
     <ul class="action-list">
-        <li>@Link.toInternalPage(id = Some("return-to-dashboard-button"), url = controllers.sa.prefs.ExternalUrls.businessTaxHome, value = Some("Go to your tax account")).toHtml</li>
+        <li>@Link.toInternalPage(id = Some("return-to-dashboard-button"), url = returnUrl, value = Some("Go to your tax account")).toHtml</li>
     </ul>
-
-
-
 }
