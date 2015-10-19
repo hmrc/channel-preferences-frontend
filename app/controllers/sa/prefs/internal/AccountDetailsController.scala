@@ -67,7 +67,7 @@ trait AccountDetailsController
   }
 
   def resendValidationEmailDeprecated = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
-    implicit val hostContext = HostContext(ExternalUrls.businessTaxHome)
+    implicit val hostContext = HostContext.defaultsForYta
     resendValidationEmailAction
   }
 

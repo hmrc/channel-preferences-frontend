@@ -49,7 +49,7 @@ trait PreferencesFrontEndServer extends ServiceSpec {
 
     def changedUniqueEmail = uniqueEmail
 
-    def `/paperless/manage`(returnUrl: String) = WS.url(resource(s"/paperless/manage?returnUrl=$returnUrl"))
+    def `/paperless/manage`(returnUrl: String, returnLinkText: String) = WS.url(resource(s"/paperless/manage?returnUrl=$returnUrl&returnLinkText=$returnLinkText"))
     def `/account/account-details/sa/email-reminders-status` = WS.url(resource("/account/account-details/sa/email-reminders-status"))
 
     def `/preferences/paye/individual/:nino/activations/paye`(nino: String, headers: (String, String)) = new {

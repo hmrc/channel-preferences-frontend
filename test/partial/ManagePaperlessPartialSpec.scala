@@ -4,7 +4,7 @@ import java.net.URLEncoder
 
 import connectors.SaEmailPreference.Status
 import connectors.{SaEmailPreference, SaPreference}
-import helpers.ConfigHelper
+import helpers.{TestFixtures, ConfigHelper}
 import hostcontext.HostContext
 import org.joda.time.LocalDate
 import org.scalatest.concurrent.ScalaFutures
@@ -16,7 +16,7 @@ import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 class ManagePaperlessPartialSpec extends UnitSpec with WithHeaderCarrier with WithFakeApplication with ScalaFutures {
   override lazy val fakeApplication = ConfigHelper.fakeApp
 
-  implicit val sampleReturnUrl = HostContext("https://host:3453/some/path")
+  implicit val sampleReturnUrl = TestFixtures.sampleHostContext
 
   "Manage Paperless partial" should {
     implicit val request = FakeRequest("GET", "/portal/sa/123456789")

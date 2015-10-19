@@ -1,7 +1,6 @@
 package controllers.sa
 
 
-import hostcontext.HostContext
 import play.api.mvc.QueryStringBindable
 import uk.gov.hmrc.crypto._
 import uk.gov.hmrc.emailaddress.EmailAddress

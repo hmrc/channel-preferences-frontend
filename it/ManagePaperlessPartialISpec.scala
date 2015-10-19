@@ -11,11 +11,11 @@ class ManagePaperlessPartialISpec
   "Manage Paperless partial" should {
 
     "return not authorised when no credentials supplied" in new TestCase {
-      `/paperless/manage`(returnUrl = "http://some/other/url").get should have(status(401))
+      `/paperless/manage`(returnUrl = "http://some/other/url", returnLinkText = "Continue").get should have(status(401))
     }
 
     "return opted out details when no preference is set" in new TestCaseWithFrontEndAuthentication {
-      private val request = `/paperless/manage`(returnUrl = "http://some/other/url").withHeaders(cookie)
+      private val request = `/paperless/manage`(returnUrl = "http://some/other/url", returnLinkText = "Continue").withHeaders(cookie)
       val response = request.get()
       response should have(status(200))
       response.futureValue.body should (
@@ -42,7 +42,7 @@ class ManagePaperlessPartialISpec
       val email = s"${UUID.randomUUID().toString}@email.com"
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
 
-      val response = `/paperless/manage`(returnUrl = "http://some/other/url").withHeaders(cookie).get()
+      val response = `/paperless/manage`(returnUrl = "http://some/other/url", returnLinkText = "Continue").withHeaders(cookie).get()
       response should have(status(200))
       response.futureValue.body should include(s"You need to verify")
     }
@@ -52,7 +52,7 @@ class ManagePaperlessPartialISpec
       val newEmail = s"${UUID.randomUUID().toString}@email.com"
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(200))
-      val response = `/paperless/manage`(returnUrl = "http://some/other/url").withHeaders(cookie).get()
+      val response = `/paperless/manage`(returnUrl = "http://some/other/url", returnLinkText = "Continue").withHeaders(cookie).get()
       response should have(status(200))
       checkForChangedEmailDetailsInResponse(response.futureValue.body, email, newEmail, todayDate)
     }
@@ -61,7 +61,7 @@ class ManagePaperlessPartialISpec
       val email = s"${UUID.randomUUID().toString}@email.com"
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/portal/preferences/sa/individual`.postOptOut(utr) should have(status(200))
-      val response = `/paperless/manage`(returnUrl = "http://some/other/url").withHeaders(cookie).get()
+      val response = `/paperless/manage`(returnUrl = "http://some/other/url", returnLinkText = "Continue").withHeaders(cookie).get()
       response should have(status(200))
       response.futureValue.body should (
         not include email and
@@ -78,7 +78,7 @@ class ManagePaperlessPartialISpec
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/preferences-admin/sa/individual`.verifyEmailFor(utr) should have(status(204))
       `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(200))
-      val response = `/paperless/manage`(returnUrl = "http://some/other/url").withHeaders(cookie).get()
+      val response = `/paperless/manage`(returnUrl = "http://some/other/url", returnLinkText = "Continue").withHeaders(cookie).get()
       response should have(status(200))
       checkForChangedEmailDetailsInResponse(response.futureValue.body, email, newEmail, todayDate)
     }
@@ -88,7 +88,7 @@ class ManagePaperlessPartialISpec
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/preferences-admin/sa/individual`.verifyEmailFor(utr) should have(status(204))
       `/portal/preferences/sa/individual`.postOptOut(utr) should have(status(200))
-      val response = `/paperless/manage`(returnUrl = "http://some/other/url").withHeaders(cookie).get()
+      val response = `/paperless/manage`(returnUrl = "http://some/other/url", returnLinkText = "Continue").withHeaders(cookie).get()
       response should have(status(200))
       response.futureValue.body should (
         not include email and
@@ -104,7 +104,7 @@ class ManagePaperlessPartialISpec
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/preferences-admin/sa/bounce-email`.post(email) should have(status(204))
       `/portal/preferences/sa/individual`.postPendingEmail(utr, newEmail) should have(status(200))
-      val response = `/paperless/manage`(returnUrl = "http://some/other/url").withHeaders(cookie).get()
+      val response = `/paperless/manage`(returnUrl = "http://some/other/url", returnLinkText = "Continue").withHeaders(cookie).get()
       response should have(status(200))
       checkForChangedEmailDetailsInResponse(response.futureValue.body, email, newEmail, todayDate)
     }
@@ -114,7 +114,7 @@ class ManagePaperlessPartialISpec
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/preferences-admin/sa/bounce-email`.post(email) should have(status(204))
       `/portal/preferences/sa/individual`.postOptOut(utr) should have(status(200))
-      val response = `/paperless/manage`(returnUrl = "http://some/other/url").withHeaders(cookie).get()
+      val response = `/paperless/manage`(returnUrl = "http://some/other/url", returnLinkText = "Continue").withHeaders(cookie).get()
       response should have(status(200))
       response.futureValue.body should (
         not include email and

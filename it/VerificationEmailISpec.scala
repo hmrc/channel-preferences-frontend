@@ -225,7 +225,7 @@ class VerificationEmailISpec
 
     val emptyJsonValue = Json.parse("{}")
 
-    def `/paperless/resend-validation-email`(returnUrl: String = "") = WS.url(resource(s"/paperless/resend-validation-email?returnUrl=$returnUrl"))
+    def `/paperless/resend-validation-email`(returnUrl: String = "", returnLinkText: String = "") = WS.url(resource(s"/paperless/resend-validation-email?returnUrl=$returnUrl&returnLinkText=$returnLinkText"))
 
     val `/sa/print-preferences/verification` = new {
       def verify(token: String) = WS.url(resource(s"/sa/print-preferences/verification/$token")).get()
