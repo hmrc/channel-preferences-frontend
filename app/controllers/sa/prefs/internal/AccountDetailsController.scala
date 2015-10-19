@@ -5,7 +5,7 @@ import connectors.{EmailConnector, PreferencesConnector, SaPreference}
 import controllers.sa.prefs.AuthContextAvailability._
 import controllers.sa.prefs.config.Global
 import controllers.sa.prefs.{ExternalUrls, Encrypted, EmailFormData, SaRegime}
-import hostcontext.ReturnUrl
+import hostcontext.HostContext
 import play.api.mvc.{Request, Result}
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
@@ -62,12 +62,12 @@ trait AccountDetailsController
       Future(Ok(views.html.opted_back_into_paper_thank_you()))
   }
 
-  def resendValidationEmail(implicit returnUrl: ReturnUrl) = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
+  def resendValidationEmail(implicit hostContext: HostContext) = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
     resendValidationEmailAction
   }
 
   def resendValidationEmailDeprecated = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
-    implicit val returnUrl = ReturnUrl(ExternalUrls.businessTaxHome)
+    implicit val hostContext = HostContext(ExternalUrls.businessTaxHome)
     resendValidationEmailAction
   }
 
@@ -80,7 +80,7 @@ trait AccountDetailsController
     }
   }
 
-  private[prefs] def resendValidationEmailAction(implicit authContext: AuthContext, request: Request[AnyRef], returnUrl: ReturnUrl): Future[Result] = {
+  private[prefs] def resendValidationEmailAction(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Future[Result] = {
     lookupCurrentEmail { email =>
       preferencesConnector.savePreferences(authContext.principal.accounts.sa.get.utr, true, Some(email)).map(_ =>
         Ok(views.html.account_details_verification_email_resent_confirmation(email))

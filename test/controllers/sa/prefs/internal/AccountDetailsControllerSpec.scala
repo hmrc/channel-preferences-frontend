@@ -4,7 +4,7 @@ import connectors.{EmailConnector, PreferencesConnector, SaEmailPreference, SaPr
 import controllers.sa.prefs.Encrypted
 import controllers.sa.prefs.AuthorityUtils._
 import helpers.ConfigHelper
-import hostcontext.ReturnUrl
+import hostcontext.HostContext
 import org.jsoup.Jsoup
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
@@ -96,13 +96,13 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
       when(mockPreferencesConnector.savePreferences(is(validUtr), is(true), is(Some("test@test.com")))(any())).thenReturn(Future.successful(()))
 
-      private val sampleReturnUrl = ReturnUrl("/some/url")
+      private val sampleReturnUrl = HostContext("/some/url")
       val page = Future.successful(controller.resendValidationEmailAction(user, FakeRequest(), sampleReturnUrl))
 
       status(page) shouldBe 200
       val document = Jsoup.parse(contentAsString(page))
       document.getElementById("verification-mail-message") should not be null
-      document.getElementById("return-to-dashboard-button").attr("href") should be (sampleReturnUrl.url)
+      document.getElementById("return-to-dashboard-button").attr("href") should be (sampleReturnUrl.returnUrl)
 
       verify(mockPreferencesConnector).savePreferences(is(validUtr), is(true), is(Some("test@test.com")))(any())
     }

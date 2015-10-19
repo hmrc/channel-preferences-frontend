@@ -2,13 +2,13 @@ package partial
 
 import connectors.SaEmailPreference.Status
 import connectors.{SaEmailPreference, SaPreference}
-import hostcontext.ReturnUrl
+import hostcontext.HostContext
 import play.api.mvc.Request
 import play.twirl.api.HtmlFormat
 import views.html.sa.prefs.warning.{bounced_email, pending_email_verification}
 
 object ManagePaperlessPartial {
-  def apply(prefs: Option[SaPreference])(implicit request: Request[_], returnUrl: ReturnUrl): HtmlFormat.Appendable = prefs match {
+  def apply(prefs: Option[SaPreference])(implicit request: Request[_], returnUrl: HostContext): HtmlFormat.Appendable = prefs match {
     case Some(SaPreference(true, Some(email))) => views.html.partial.managepaperless.digital_true(email)
     case _                                     => views.html.partial.managepaperless.digital_false()
   }

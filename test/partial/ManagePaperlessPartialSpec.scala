@@ -5,7 +5,7 @@ import java.net.URLEncoder
 import connectors.SaEmailPreference.Status
 import connectors.{SaEmailPreference, SaPreference}
 import helpers.ConfigHelper
-import hostcontext.ReturnUrl
+import hostcontext.HostContext
 import org.joda.time.LocalDate
 import org.scalatest.concurrent.ScalaFutures
 import play.api.test.FakeRequest
@@ -16,7 +16,7 @@ import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 class ManagePaperlessPartialSpec extends UnitSpec with WithHeaderCarrier with WithFakeApplication with ScalaFutures {
   override lazy val fakeApplication = ConfigHelper.fakeApp
 
-  implicit val sampleReturnUrl = ReturnUrl("https://host:3453/some/path")
+  implicit val sampleReturnUrl = HostContext("https://host:3453/some/path")
 
   "Manage Paperless partial" should {
     implicit val request = FakeRequest("GET", "/portal/sa/123456789")
@@ -31,7 +31,7 @@ class ManagePaperlessPartialSpec extends UnitSpec with WithHeaderCarrier with Wi
       ManagePaperlessPartial(Some(saPreference)).body should (
         include(emailPreferences.email) and
         include("send a new verification email") and
-        include("/paperless/resend-validation-email?returnUrl=" + URLEncoder.encode(sampleReturnUrl.url, "UTF-8")) and
+        include("/paperless/resend-validation-email?returnUrl=" + URLEncoder.encode(sampleReturnUrl.returnUrl, "UTF-8")) and
         include("/account/account-details/sa/opt-out-email-reminders") and
         include("/account/account-details/sa/update-email-address") and
         include("2 October 2014")

@@ -5,7 +5,7 @@ GET         /account/account-details/sa/opt-out-email-reminders                 
 POST        /account/account-details/sa/opt-out-email-reminders                     controllers.sa.prefs.internal.AccountDetailsController.confirmOptOutOfEmailReminders
 GET         /account/account-details/sa/opt-out-email-reminders-thank-you           controllers.sa.prefs.internal.AccountDetailsController.optedBackIntoPaperThankYou
 POST        /account/account-details/sa/resend-validation-email                     controllers.sa.prefs.internal.AccountDetailsController.resendValidationEmailDeprecated
-POST        /paperless/resend-validation-email                                      controllers.sa.prefs.internal.AccountDetailsController.resendValidationEmail(returnUrl: hostcontext.ReturnUrl)
+POST        /paperless/resend-validation-email                                      controllers.sa.prefs.internal.AccountDetailsController.resendValidationEmail(hostContext: hostcontext.HostContext)
 
 GET         /account/account-details/sa/login-opt-in-email-reminders                controllers.sa.prefs.internal.BizTaxPrefsController.redirectToBTAOrInterstitialPage
 GET         /account/account-details/sa/login-opt-in-email-reminders/:cohort        controllers.sa.prefs.internal.BizTaxPrefsController.displayInterstitialPrefsFormForCohort(cohort: Option[controllers.sa.prefs.internal.OptInCohort])
@@ -29,7 +29,7 @@ GET         /sa/print-preferences/verification/:token                           
 GET         /sa/print-preferences/assets/*file                                      controllers.sa.prefs.Assets.at(path="/public", file)
 
 # Partials
-GET         /paperless/manage                                                       controllers.sa.prefs.partial.PaperlessPartialController.displayManagePaperlessPartial(returnUrl: hostcontext.ReturnUrl)
+GET         /paperless/manage                                                       controllers.sa.prefs.partial.PaperlessPartialController.displayManagePaperlessPartial(hostContext: hostcontext.HostContext)
 GET         /paperless/warnings                                                     controllers.sa.prefs.partial.PaperlessPartialController.displayPaperlessWarningsPartial
 GET         /account/account-details/sa/email-reminders-status                      controllers.sa.prefs.partial.PaperlessPartialsForDeprecatedYTAEndpointsController.displayManagePaperlessPartial
 GET         /account/preferences/warnings                                           controllers.sa.prefs.partial.PaperlessPartialsForDeprecatedYTAEndpointsController.displayPaperlessWarningsPartial
