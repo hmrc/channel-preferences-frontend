@@ -1,6 +1,7 @@
 package controllers.sa
 
 
+import hostcontext.ReturnUrl
 import play.api.mvc.QueryStringBindable
 import uk.gov.hmrc.crypto._
 import uk.gov.hmrc.emailaddress.EmailAddress
@@ -16,4 +17,7 @@ package object prefs {
 
   implicit def encryptedStringToDecryptedString(implicit stringBinder: QueryStringBindable[String]): QueryStringBindable[Encrypted[String]] =
     new EncryptedQueryBinder[String](ApplicationCrypto.QueryParameterCrypto, s => s, s => s)
+
+  implicit def stringToReturnUrlBinder(implicit stringBinder: QueryStringBindable[String]): QueryStringBindable[ReturnUrl] =
+    stringBinder.transform(toB = ReturnUrl.apply, toA = _.url)
 }

@@ -1,4 +1,4 @@
-@(returnUrl: String)(implicit request: Request[_])
+@()(implicit returnUrl: hostcontext.ReturnUrl)
 @import uk.gov.hmrc.urls.Link
 
 <h2 id="saEmailRemindersHeader">Go paperless</h2>
@@ -7,9 +7,9 @@
 
 <p>
     @Link.toInternalPage(
-    id = Some("opt-in-to-digital-email-link"),
-    url = controllers.sa.prefs.ExternalUrls.displayPreferences,
-    value = Some("Sign up for paperless notifications"),
-    dataAttributes = Some(Map("journey-click" -> "self-assessment-preferences:Click:Sign up for paperless notifications"))
+        id = Some("opt-in-to-digital-email-link"),
+        url = controllers.sa.prefs.ExternalUrls.displayPreferences,
+        value = Some("Sign up for paperless notifications"),
+        dataAttributes = Some(Map("journey-click" -> "self-assessment-preferences:Click:Sign up for paperless notifications"))
     ).toHtml
 </p>

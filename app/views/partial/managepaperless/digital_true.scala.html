@@ -1,4 +1,4 @@
-@(email: connectors.SaEmailPreference, returnUrl: String)(implicit request: Request[_])
+@(email: connectors.SaEmailPreference)(implicit request: Request[_], returnUrl: hostcontext.ReturnUrl)
 @import connectors.SaEmailPreference
 @import uk.gov.hmrc.urls.Link
 @import uk.gov.hmrc.emailaddress.EmailAddress

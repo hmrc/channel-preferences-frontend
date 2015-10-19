@@ -5,6 +5,7 @@ import connectors.{EmailConnector, PreferencesConnector, SaPreference}
 import controllers.sa.prefs.AuthContextAvailability._
 import controllers.sa.prefs.config.Global
 import controllers.sa.prefs.{ExternalUrls, Encrypted, EmailFormData, SaRegime}
+import hostcontext.ReturnUrl
 import play.api.mvc.{Request, Result}
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
@@ -61,12 +62,13 @@ trait AccountDetailsController
       Future(Ok(views.html.opted_back_into_paper_thank_you()))
   }
 
-  def resendValidationEmail(returnUrl: String) = AuthorisedFor(SaRegime).async {
-    authContext => request => resendValidationEmailAction(returnUrl)(authContext, request)
+  def resendValidationEmail(implicit returnUrl: ReturnUrl) = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
+    resendValidationEmailAction
   }
 
-  def resendValidationEmailDeprecated = AuthorisedFor(SaRegime).async {
-    authContext => request => resendValidationEmailAction(ExternalUrls.businessTaxHome)(authContext, request)
+  def resendValidationEmailDeprecated = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
+    implicit val returnUrl = ReturnUrl(ExternalUrls.businessTaxHome)
+    resendValidationEmailAction
   }
 
   private[prefs] def confirmOptOutOfEmailRemindersPage(implicit authContext: AuthContext, request: Request[AnyRef]): Future[Result] = {
@@ -78,12 +80,11 @@ trait AccountDetailsController
     }
   }
 
-  private[prefs] def resendValidationEmailAction(returnUrl: String)(implicit authContext: AuthContext, request: Request[AnyRef]): Future[Result] = {
-    lookupCurrentEmail {
-      email =>
-        preferencesConnector.savePreferences(authContext.principal.accounts.sa.get.utr, true, Some(email)).map(_ =>
-          Ok(views.html.account_details_verification_email_resent_confirmation(email, returnUrl))
-        )
+  private[prefs] def resendValidationEmailAction(implicit authContext: AuthContext, request: Request[AnyRef], returnUrl: ReturnUrl): Future[Result] = {
+    lookupCurrentEmail { email =>
+      preferencesConnector.savePreferences(authContext.principal.accounts.sa.get.utr, true, Some(email)).map(_ =>
+        Ok(views.html.account_details_verification_email_resent_confirmation(email))
+      )
     }
   }
 

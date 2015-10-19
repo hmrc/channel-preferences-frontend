@@ -1,4 +1,4 @@
-@(email: String, returnUrl: String)(implicit context: Option[uk.gov.hmrc.play.frontend.auth.AuthContext], request: Request[_])
+@(email: String)(implicit context: Option[uk.gov.hmrc.play.frontend.auth.AuthContext], request: Request[_], returnUrl: hostcontext.ReturnUrl)
 
 @import uk.gov.hmrc.urls.Link
 
@@ -11,6 +11,6 @@
     <p id="verification-mail-message">A new email has been sent to @email. Click on the link in the email to verify your email address with HMRC.</p>
 
     <ul class="action-list">
-        <li>@Link.toInternalPage(id = Some("return-to-dashboard-button"), url = returnUrl, value = Some("Go to your tax account")).toHtml</li>
+        <li>@Link.toInternalPage(id = Some("return-to-dashboard-button"), url = returnUrl.url, value = Some("Go to your tax account")).toHtml</li>
     </ul>
 }
