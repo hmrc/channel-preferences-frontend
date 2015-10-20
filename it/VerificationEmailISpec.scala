@@ -17,7 +17,10 @@ class VerificationEmailISpec
 
       val response = `/paperless/resend-validation-email`().withHeaders(cookie).post(emptyJsonValue)
       response should have(status(200))
-      response.futureValue.body should include(s"A new email has been sent to $email")
+
+      val emailConfirmation = response.futureValue.body
+      emailConfirmation should include("Page title")
+      emailConfirmation should include(s"A new email has been sent to $email")
     }
   }
 

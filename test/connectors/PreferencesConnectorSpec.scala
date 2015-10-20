@@ -1,5 +1,6 @@
 package connectors
 
+import connectors.SaEmailPreference.Status
 import helpers.ConfigHelper
 import org.scalatest.concurrent.ScalaFutures
 import play.api.libs.json.{JsString, JsValue, Json, Writes}
@@ -83,7 +84,7 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
       preferences shouldBe Some(SaPreference(
         digital = true, email = Some(SaEmailPreference(
           email = "test@mail.com",
-          status = "verified"))
+          status = Status.Verified))
       ))
     }
 
@@ -108,7 +109,7 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
       preferences shouldBe Some(SaPreference(
         digital = true, email = Some(SaEmailPreference(
           email = "test@mail.com",
-          status = "verified"))
+          status = Status.Verified))
       ))
     }
 

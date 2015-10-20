@@ -42,7 +42,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
 
   "clicking on Change email address link in the account details page" should {
     "display update email address form when accessed from Account Details" in new Setup {
-      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.verified)))
+      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified)))
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
 
       val result = Future.successful(controller.changeEmailAddressPage(None)(user, request))
@@ -59,7 +59,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
 
 
     "display update email address form with the email input field pre-populated when coming back from the warning page" in new Setup {
-      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.verified)))
+      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified)))
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
 
       val existingEmailAddress = "existing@email.com"
@@ -90,7 +90,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
 
     "call preferences as if opting-in and send the email as a part of the process" in new Setup {
 
-      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.pending)))
+      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Pending)))
 
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
       when(mockPreferencesConnector.savePreferences(is(validUtr), is(true), is(Some("test@test.com")))(any())).thenReturn(Future.successful(()))
@@ -110,7 +110,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
 
     "display the confirmation page with the current email address obscured" in new Setup {
       val emailAddress = "someone@email.com"
-      val saPreferences = SaPreference(true, Some(SaEmailPreference(emailAddress, SaEmailPreference.Status.verified)))
+      val saPreferences = SaPreference(true, Some(SaEmailPreference(emailAddress, SaEmailPreference.Status.Verified)))
 
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
 
@@ -128,7 +128,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
 
     "validate the email address, update the address for SA user and redirect to confirmation page" in new Setup {
       val emailAddress = "someone@email.com"
-      val saPreferences = SaPreference(true, Some(SaEmailPreference("oldEmailAddress@test.com", SaEmailPreference.Status.verified)))
+      val saPreferences = SaPreference(true, Some(SaEmailPreference("oldEmailAddress@test.com", SaEmailPreference.Status.Verified)))
 
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(true)
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
@@ -146,7 +146,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
     }
 
     "show error if the 2 email address fields do not match" in new Setup {
-      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.verified)))
+      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified)))
 
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
 
@@ -160,7 +160,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
 
     "show error if the email address is not syntactically valid" in new Setup {
       val emailAddress = "invalid-email"
-      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.verified)))
+      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified)))
 
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
       val page = Future.successful(controller.submitEmailAddressPage(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress))))
@@ -172,7 +172,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
     }
 
     "show error if the email field is empty" in new Setup {
-      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.verified)))
+      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified)))
 
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
 
@@ -186,7 +186,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
 
     "show error if the two email fields are not equal" in new Setup {
       val emailAddress = "someone@email.com"
-      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.verified)))
+      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified)))
 
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
 
@@ -201,7 +201,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
     "show a warning page if the email has a valid structure but does not pass validation by the email micro service" in new Setup {
 
       val emailAddress = "someone@dodgy.domain"
-      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.verified)))
+      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified)))
 
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(false)
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
@@ -223,7 +223,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
 
     "if the verified flag is true, save the preference and redirect to the thank you page without verifying the email address again" in new Setup {
       val emailAddress = "someone@email.com"
-      val saPreferences = SaPreference(true, Some(SaEmailPreference("oldEmailAddress@test.com", SaEmailPreference.Status.verified)))
+      val saPreferences = SaPreference(true, Some(SaEmailPreference("oldEmailAddress@test.com", SaEmailPreference.Status.Verified)))
 
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
       when(mockPreferencesConnector.savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())).thenReturn(Future.successful(None))
@@ -242,7 +242,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
     "if the verified flag is false and the email does not pass validation by the email micro service, display the verify page" in new Setup {
 
       val emailAddress = "someone@dodgy.domain"
-      val saPreferences = SaPreference(true, Some(SaEmailPreference("oldEmailAddress@test.com", SaEmailPreference.Status.verified)))
+      val saPreferences = SaPreference(true, Some(SaEmailPreference("oldEmailAddress@test.com", SaEmailPreference.Status.Verified)))
 
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(false)
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
@@ -265,7 +265,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
     "if the verified flag is any value other than true, treat it as false" in new Setup {
 
       val emailAddress = "someone@dodgy.domain"
-      val saPreferences = SaPreference(true, Some(SaEmailPreference("oldEmailAddress@test.com", SaEmailPreference.Status.verified)))
+      val saPreferences = SaPreference(true, Some(SaEmailPreference("oldEmailAddress@test.com", SaEmailPreference.Status.Verified)))
 
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(false)
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
@@ -289,7 +289,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
   "clicking on opt-out of email reminders link in the account details page" should {
 
     "display the <are you sure> page" in new Setup {
-      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.verified)))
+      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified)))
 
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
 
@@ -318,7 +318,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
   "A post to confirm opt out of email reminders" should {
 
     "return a redirect to thank you page" in new Setup {
-      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.verified)))
+      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified)))
 
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
       when(mockPreferencesConnector.savePreferences(is(validUtr), is(false), is(None))(any())).thenReturn(Future.successful(()))

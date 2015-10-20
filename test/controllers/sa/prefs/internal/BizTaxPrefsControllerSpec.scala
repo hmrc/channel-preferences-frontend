@@ -60,7 +60,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
   "The preferences action on login" should {
 
     "redirect to BTA when preferences already exist" in new BizTaxPrefsControllerSetup {
-      val preferencesAlreadyCreated = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.verified)))
+      val preferencesAlreadyCreated = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified)))
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Some(preferencesAlreadyCreated))
 
       val page = Future.successful(controller.redirectToBTAOrInterstitialPageAction(user, request))
@@ -83,7 +83,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
   "The preferences interstitial page" should {
 
     "redirect to BTA when preferences already exist" in new BizTaxPrefsControllerSetup {
-      val preferencesAlreadyCreated = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.verified)))
+      val preferencesAlreadyCreated = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified)))
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Some(preferencesAlreadyCreated))
 
       val page = controller.displayInterstitialPrefsFormAction(user, request, Some(assignedCohort))

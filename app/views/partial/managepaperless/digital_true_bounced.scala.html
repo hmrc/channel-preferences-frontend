@@ -1,0 +1,24 @@
+@(email: connectors.SaEmailPreference)(implicit request: Request[_], hostContext: hostcontext.HostContext)
+@import connectors.SaEmailPreference
+@import uk.gov.hmrc.urls.Link
+@import uk.gov.hmrc.emailaddress.EmailAddress
+@import uk.gov.hmrc.play.views.html.helpers._
+@import controllers.sa.prefs.ExternalUrls._
+@import controllers.sa.prefs.ExternalUrlPrefixes._
+@import views.sa.prefs.helpers.DateFormat._
+
+<section class="divider--bottom">
+
+    <p id="bouncing-status-message">You need to verify <span id="email-address">@{email.email}</span></p>
+
+    @if(email.mailboxFull) {
+        <p id="bounce-reason">The email telling you how to do this can't be sent because your inbox is full.</p>
+        <p id="bounce-reason-more">Clear your inbox or use a different email address.</p>
+    } else {
+        <p id="bounce-reason">The email telling you how to do this can't be delivered.</p>
+        <p>Use a different email address</p>
+    }
+
+    @digital_true_links(email, "revalidate-email-link")
+</section>
+

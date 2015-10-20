@@ -117,7 +117,7 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
     val utr = SaUtr("testUtr")
     val nino = Nino("CE123456A")
     val emailAddress = "someone@something.com"
-    val email = SaEmailPreference(emailAddress, "STATUS", false, None, None)
+    val email = SaEmailPreference(emailAddress, SaEmailPreference.Status.Pending, false, None, None)
 
 
     val controller = new UpgradeRemindersController {

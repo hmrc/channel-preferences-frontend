@@ -1,7 +1,7 @@
 package connectors
 
 import org.joda.time.LocalDate
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json._
 
 import scala.language.implicitConversions
 
@@ -26,23 +26,31 @@ object UpdateEmail {
 
 object SaEmailPreference {
 
-  implicit val formats = Json.format[SaEmailPreference]
-
+  sealed trait Status
   object Status {
-    val pending = "pending"
-    val bounced = "bounced"
-    val verified = "verified"
+    case object Pending extends Status
+    case object Bounced extends Status
+    case object Verified extends Status
+
+    implicit val reads: Reads[Status] = new Reads[Status] {
+      override def reads(json: JsValue): JsResult[Status] = json match {
+        case JsString("pending") => JsSuccess(Pending)
+        case JsString("bounced") => JsSuccess(Bounced)
+        case JsString("verified") => JsSuccess(Verified)
+        case _ => JsError()
+      }
+    }
   }
 
+  implicit val reads = Json.reads[SaEmailPreference]
 }
 
-case class SaEmailPreference(email: String, status: String, mailboxFull: Boolean = false,
+case class SaEmailPreference(email: String, status: SaEmailPreference.Status, mailboxFull: Boolean = false,
                              message: Option[String] = None, linkSent: Option[LocalDate] = None)
 
 
 object SaPreference {
-  implicit def formats(implicit saEmailPreferenceFormat: Format[SaEmailPreference]): Format[SaPreference] =
-    Json.format[SaPreference]
+  implicit val reads = Json.reads[SaPreference]
 }
 
 case class SaPreference(digital: Boolean, email: Option[SaEmailPreference] = None)

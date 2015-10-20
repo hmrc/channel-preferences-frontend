@@ -1,0 +1,17 @@
+@(email: connectors.SaEmailPreference)(implicit request: Request[_], hostContext: hostcontext.HostContext)
+@import connectors.SaEmailPreference
+@import uk.gov.hmrc.urls.Link
+@import uk.gov.hmrc.emailaddress.EmailAddress
+@import uk.gov.hmrc.play.views.html.helpers._
+@import controllers.sa.prefs.ExternalUrls._
+@import controllers.sa.prefs.ExternalUrlPrefixes._
+@import views.sa.prefs.helpers.DateFormat._
+
+<section class="divider--bottom">
+
+    <h2 id="saEmailRemindersHeader">Email address for paperless notifications</h2>
+    <p>Emails are sent to: <span id="email-address">@{EmailAddress(email.email).obfuscated}</span></p>
+
+    @digital_true_links(email, "change-email-address-link")
+</section>
+

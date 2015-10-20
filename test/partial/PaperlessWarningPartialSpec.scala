@@ -16,7 +16,7 @@ class PaperlessWarningPartialSpec extends UnitSpec with Results with WithFakeApp
     "have no content when verified" in {
       PaperlessWarningPartial.apply(SaPreference(digital = true, email = Some(SaEmailPreference(
         email = "test@test.com",
-        status = SaEmailPreference.Status.verified))
+        status = SaEmailPreference.Status.Verified))
       )).body should be("")
     }
 
@@ -24,7 +24,7 @@ class PaperlessWarningPartialSpec extends UnitSpec with Results with WithFakeApp
       val result = PaperlessWarningPartial.apply(SaPreference(
         digital = true, email = Some(SaEmailPreference(
           email = "test@test.com",
-          status = SaEmailPreference.Status.pending,
+          status = SaEmailPreference.Status.Pending,
           linkSent = Some(LocalDate.parse("2014-12-05"))))
       )).body
       result should include ("test@test.com")
@@ -35,7 +35,7 @@ class PaperlessWarningPartialSpec extends UnitSpec with Results with WithFakeApp
       val result = PaperlessWarningPartial.apply(SaPreference(
         digital = true, email = Some(SaEmailPreference(
           email = "test@test.com",
-          status = SaEmailPreference.Status.bounced,
+          status = SaEmailPreference.Status.Bounced,
           linkSent = Some(LocalDate.parse("2014-12-05")),
           mailboxFull = true))
       )).body
@@ -46,7 +46,7 @@ class PaperlessWarningPartialSpec extends UnitSpec with Results with WithFakeApp
       val result = PaperlessWarningPartial.apply(SaPreference(
         digital = true, email = Some(SaEmailPreference(
           email = "test@test.com",
-          status = SaEmailPreference.Status.bounced,
+          status = SaEmailPreference.Status.Bounced,
           linkSent = Some(LocalDate.parse("2014-12-05")),
           mailboxFull = false))
       )).body

@@ -23,12 +23,13 @@ class ManagePaperlessPartialSpec extends UnitSpec with WithHeaderCarrier with Wi
 
     "contain pending email details in content when opted-in and unverified" in {
       val emailPreferences = SaEmailPreference(email = "test@test.com",
-        status = Status.pending,
+        status = Status.Pending,
         mailboxFull = false,
         linkSent = Some(new LocalDate(2014,10,2)))
       val saPreference = SaPreference(digital = true, Some(emailPreferences))
 
       ManagePaperlessPartial(Some(saPreference)).body should (
+        include("Email for paperless notifications") and
         include(emailPreferences.email) and
         include("send a new verification email") and
         include("/paperless/resend-validation-email?returnUrl=" + URLEncoder.encode(sampleReturnUrl.returnUrl, "UTF-8")) and
@@ -39,10 +40,11 @@ class ManagePaperlessPartialSpec extends UnitSpec with WithHeaderCarrier with Wi
     }
 
     "contain verified email details in content when opted-in and verified" in {
-      val emailPreferences: SaEmailPreference = SaEmailPreference("test@test.com", Status.verified, false)
+      val emailPreferences: SaEmailPreference = SaEmailPreference("test@test.com", Status.Verified, false)
       val saPreference = SaPreference(true, Some(emailPreferences))
 
       ManagePaperlessPartial(Some(saPreference)).body should (
+        include("Email address for paperless notifications") and
         include("Emails are sent to") and
         include(EmailAddress(emailPreferences.email).obfuscated) and
         include("/account/account-details/sa/update-email-address") and
@@ -52,7 +54,7 @@ class ManagePaperlessPartialSpec extends UnitSpec with WithHeaderCarrier with Wi
     }
 
     "contain bounced email with 'mailbox filled up' details in content when the 'current' email is bounced with full mailbox error" in {
-      val emailPreferences: SaEmailPreference = SaEmailPreference("test@test.com", Status.bounced, true)
+      val emailPreferences: SaEmailPreference = SaEmailPreference("test@test.com", Status.Bounced, mailboxFull = true)
       val saPreference = SaPreference(true, Some(emailPreferences))
 
       ManagePaperlessPartial(Some(saPreference)).body should (
@@ -65,8 +67,22 @@ class ManagePaperlessPartialSpec extends UnitSpec with WithHeaderCarrier with Wi
       )
     }
 
+    "contain bounced email with 'email can't be delivered' in content when the 'current' email is bounced with email can't be delivered error" in {
+      val emailPreferences: SaEmailPreference = SaEmailPreference("test@test.com", Status.Bounced, mailboxFull = false)
+      val saPreference = SaPreference(true, Some(emailPreferences))
+
+      ManagePaperlessPartial(Some(saPreference)).body should (
+        include("You need to verify") and
+        include(emailPreferences.email) and
+        include("The email telling you how to do this can't be delivered.") and
+        include("/account/account-details/sa/update-email-address") and
+        include("/account/account-details/sa/opt-out-email-reminders") and
+        not include "/paperless/resend-validation-email"
+      )
+    }
+
     "contain bounced email but no 'full mailbox' details in content when the 'current' email is bounced with other error" in {
-      val emailPreferences: SaEmailPreference = SaEmailPreference("test@test.com", Status.bounced, false)
+      val emailPreferences: SaEmailPreference = SaEmailPreference("test@test.com", Status.Bounced, false)
       val saPreference = SaPreference(true, Some(emailPreferences))
 
       ManagePaperlessPartial(Some(saPreference)).body should (
