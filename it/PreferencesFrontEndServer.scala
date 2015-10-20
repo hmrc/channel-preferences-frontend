@@ -34,9 +34,8 @@ trait PreferencesFrontEndServer extends ServiceSpec {
       "ca-frontend",
       "email",
       "cid",
-      "datastream",
-      "preferences"
-    ).map(ExternalService.runFromJar(_))
+      "datastream"
+    ).map(ExternalService.runFromJar(_)) ++ Seq(ExternalService.runFromSource("preferences"))
 
     override protected def startTimeout: Duration = 300.seconds
   }
@@ -52,15 +51,20 @@ trait PreferencesFrontEndServer extends ServiceSpec {
     def `/preferences/paperless/manage` = WS.url(resource("/preferences/paperless/manage"))
     def `/account/account-details/sa/email-reminders-status` = WS.url(resource("/account/account-details/sa/email-reminders-status"))
 
-    def `/preferences/paye/individual/:nino/activations/paye`(nino: String, headers: (String, String)) = new {
+    val payeFormTypeBody = Json.parse(s"""{"active":true}""")
 
-     val payeFormTypeBody = Json.parse(s"""{"active":true}""")
+    def `/preferences/paye/individual/:nino/activations/paye`(nino: String, headers: (String, String)) = new {
 
       def put() = WS.url(server.externalResource("preferences", s"/preferences/paye/individual/$nino/activations/paye")).withQueryString("returnUrl" -> "/some/return/url")
         .withHeaders(headers)
         .put(payeFormTypeBody)
 
       val resource = WS.url(server.externalResource("preferences", s"/preferences/paye/individual/$nino/activations/paye"))
+    }
+
+    def `/preferences/sa/individual/:utr/activations`(utr: String) = new {
+      def put() =
+        WS.url(server.externalResource("preferences", s"/preferences/sa/individual/$utr/activations")).withQueryString("returnUrl" -> "/some/return/url").put(payeFormTypeBody)
     }
 
     val `/portal/preferences/sa/individual` = new {

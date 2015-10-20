@@ -1,15 +1,18 @@
+import controllers.sa.prefs
 import controllers.sa.prefs.Encrypted
 import controllers.sa.prefs.internal.routes
 import org.scalatest.mock.MockitoSugar
+import play.api.libs.json.JsString
 import play.api.libs.ws.{WS, WSResponse}
 import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
+import uk.gov.hmrc.emailaddress.EmailAddress
 
 import scala.concurrent.Future
 import scala.util.Random
 
 class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSupport with MockitoSugar {
 
-  "Upgrading preferences should" should {
+  "Upgrading preferences for paye" should {
 
     "set upgraded to paperless and allow subsequent activation"  in new UpgradeTestCase  {
       createOptedInVerifiedPreferenceWithNino()
@@ -35,6 +38,97 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
       `/preferences/paye/individual/:nino/activations/paye`(nino, authHeader).put().futureValue.status should be (409)
     }
   }
+
+  "Upgrading preferences for legacy SA user" should {
+    val pendingEmail = "some@email.com"
+
+    "set upgraded to paperless and allow subsequent activation when legacy user is verified" in new UpgradeTestCase {
+      await(`/preferences-admin/sa/individual`.delete(utr))
+
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, pendingEmail).futureValue.status should be (201)
+      `/preferences-admin/sa/individual`.verifyEmailFor(utr).futureValue.status should be (204)
+
+      val activateResponse = `/preferences/sa/individual/:utr/activations`(utr).put().futureValue
+      activateResponse.status should be (412)
+
+      (activateResponse.json \ "redirectUserTo").as[JsString].value should include ("/account/account-details/sa/upgrade-email-reminders")
+
+      val upgradeResponse = `/upgrade-email-reminders`.get().futureValue
+      upgradeResponse.status should be (200)
+      upgradeResponse.body should include ("Go paperless with HMRC")
+
+      val response = `/upgrade-email-reminders`.post(optIn = true).futureValue
+      response should have('status(303))
+      response.header("Location").get should be (routes.UpgradeRemindersController.thankYou(Encrypted(returnUrl)).toString())
+
+      `/preferences/sa/individual/:utr/activations`(utr).put().futureValue.status should be (200)
+    }
+
+    "set upgraded to paperless and allow subsequent activation when legacy user is pending verification" in new UpgradeTestCase {
+      await(`/preferences-admin/sa/individual`.delete(utr))
+
+      `/portal/preferences/sa/individual`.postPendingEmail(utr, pendingEmail).futureValue.status should be (201)
+
+      val activateResponse = `/preferences/sa/individual/:utr/activations`(utr).put().futureValue
+      activateResponse.status should be (412)
+
+      (activateResponse.json \ "redirectUserTo").as[JsString].value should include ("/account/account-details/sa/upgrade-email-reminders")
+
+      val upgradeResponse = `/upgrade-email-reminders`.get().futureValue
+      upgradeResponse.status should be (200)
+      upgradeResponse.body should include ("Go paperless with HMRC")
+
+      val response = `/upgrade-email-reminders`.post(optIn = true).futureValue
+      response should have('status(303))
+      response.header("Location").get should be (routes.UpgradeRemindersController.thankYou(Encrypted(returnUrl)).toString())
+
+      `/preferences/sa/individual/:utr/activations`(utr).put().futureValue.status should be (200)
+    }
+
+    "show go paperless and allow subsequent activation when legacy user is opted out" in new NewUserTestCase  {
+      await(`/preferences-admin/sa/individual`.delete(utr))
+
+      `/portal/preferences/sa/individual`.postOptOut(utr).futureValue.status should be (201)
+
+      val activateResponse = `/preferences/sa/individual/:utr/activations`(utr).put().futureValue
+      activateResponse.status should be (412)
+
+      (activateResponse.json \ "redirectUserTo").as[JsString].value should include ("/account/account-details/sa/login-opt-in-email-reminders")
+
+      val upgradeResponse = `/account/account-details/sa/login-opt-in-email-reminders/:cohort`().get()
+      upgradeResponse.status should be (200)
+      upgradeResponse.body should include ("Go paperless with HMRC")
+
+      val postGoPaperless = post(optIn = true, Some(email), true).futureValue
+      postGoPaperless should have('status(200))
+      postGoPaperless.body should include ("Nearly done...")
+
+      `/preferences/sa/individual/:utr/activations`(utr).put().futureValue.status should be (200)
+    }
+
+    "show go paperless and allow subsequent activation when legacy user is de-enrolled" in new NewUserTestCase {
+      await(`/preferences-admin/sa/individual`.delete(utr))
+
+      val a = `/portal/preferences/sa/individual`
+      a.postPendingEmail(utr, pendingEmail).futureValue.status should be (201)
+      a.postDeEnrolling(utr).futureValue.status should be (200)
+
+      val activateResponse = `/preferences/sa/individual/:utr/activations`(utr).put().futureValue
+      activateResponse.status should be (412)
+
+      (activateResponse.json \ "redirectUserTo").as[JsString].value should include ("/account/account-details/sa/login-opt-in-email-reminders")
+
+      val goPaperlessResponse = `/account/account-details/sa/login-opt-in-email-reminders/:cohort`().get()
+      goPaperlessResponse.status should be (200)
+      goPaperlessResponse.body should include ("Go paperless with HMRC")
+
+      val postGoPaperless = post(optIn = true, Some(email), true).futureValue
+      postGoPaperless should have('status(200))
+      postGoPaperless.body should include ("Nearly done...")
+
+      `/preferences/sa/individual/:utr/activations`(utr).put().futureValue.status should be (200)
+    }
+   }
 
   "New user preferences" should {
     "set generic terms and conditions as true including email address" in new NewUserTestCase {
@@ -72,6 +166,14 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
     val authHeader = bearerTokenHeader()
     val url = WS.url(resource("/account/account-details/sa/login-opt-in-email-reminders"))
         .withQueryString("returnUrl" -> ApplicationCrypto.QueryParameterCrypto.encrypt(PlainText(returnUrl)).value)
+
+    def `/account/account-details/sa/login-opt-in-email-reminders/:cohort`(cohort: String = "8") = new {
+      val url = WS.url(resource(s"/account/account-details/sa/login-opt-in-email-reminders/$cohort")).withHeaders(cookie,"Csrf-Token"->"nocheck", authHeader).withFollowRedirects(false)
+
+      def get() = {
+        url.get().futureValue
+      }
+    }
 
     def post(optIn:Boolean, email: Option[String], acceptTAndC: Boolean): Future[WSResponse] = {
 
