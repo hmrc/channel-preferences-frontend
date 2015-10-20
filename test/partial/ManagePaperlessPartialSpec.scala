@@ -14,10 +14,12 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.twirl.api.Html
 import uk.gov.hmrc.emailaddress.EmailAddress
-import uk.gov.hmrc.play.http.test.WithHeaderCarrier
+import uk.gov.hmrc.play.audit.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
-class ManagePaperlessPartialSpec extends UnitSpec with WithHeaderCarrier with WithFakeApplication with ScalaFutures {
+class ManagePaperlessPartialSpec extends UnitSpec with WithFakeApplication with ScalaFutures {
+  implicit val hc = HeaderCarrier()
+
   override lazy val fakeApplication = ConfigHelper.fakeApp
 
   implicit val hostContext = TestFixtures.sampleHostContext
