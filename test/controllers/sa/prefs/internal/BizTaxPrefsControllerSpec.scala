@@ -286,7 +286,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       status(page) shouldBe 400
 
       val document = Jsoup.parse(contentAsString(page))
-      document.select(".error-notification").text shouldBe "Confirm if you want Self Assessment email reminders"
+      document.select(".error-notification").text shouldBe "Confirm if you want paperless notifications"
       verifyZeroInteractions(mockPreferencesConnector, mockEmailConnector)
     }
 
