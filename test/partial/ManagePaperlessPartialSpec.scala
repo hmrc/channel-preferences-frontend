@@ -4,11 +4,15 @@ import java.net.URLEncoder
 
 import connectors.SaEmailPreference.Status
 import connectors.{SaEmailPreference, SaPreference}
+import controllers.sa.prefs.ExternalUrlPrefixes
+import controllers.sa.prefs.internal.routes
 import helpers.{TestFixtures, ConfigHelper}
 import hostcontext.HostContext
 import org.joda.time.LocalDate
 import org.scalatest.concurrent.ScalaFutures
+import play.api.mvc.Call
 import play.api.test.FakeRequest
+import play.twirl.api.Html
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.http.test.WithHeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
@@ -16,7 +20,9 @@ import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 class ManagePaperlessPartialSpec extends UnitSpec with WithHeaderCarrier with WithFakeApplication with ScalaFutures {
   override lazy val fakeApplication = ConfigHelper.fakeApp
 
-  implicit val sampleReturnUrl = TestFixtures.sampleHostContext
+  implicit val hostContext = TestFixtures.sampleHostContext
+
+  def linkTo(s: Call) = ExternalUrlPrefixes.pfUrlPrefix + s.url.replaceAll("&", "&amp;")
 
   "Manage Paperless partial" should {
     implicit val request = FakeRequest("GET", "/portal/sa/123456789")
@@ -32,9 +38,9 @@ class ManagePaperlessPartialSpec extends UnitSpec with WithHeaderCarrier with Wi
         include("Email for paperless notifications") and
         include(emailPreferences.email) and
         include("send a new verification email") and
-        include("/paperless/resend-validation-email?returnUrl=" + URLEncoder.encode(sampleReturnUrl.returnUrl, "UTF-8")) and
-        include("/account/account-details/sa/opt-out-email-reminders") and
-        include("/account/account-details/sa/update-email-address") and
+        include(linkTo(routes.AccountDetailsController.resendValidationEmail(hostContext))) and
+        include(linkTo(routes.AccountDetailsController.optOutOfEmailReminders())) and
+        include(linkTo(routes.AccountDetailsController.changeEmailAddress(None))) and
         include("2 October 2014")
       )
     }
@@ -47,9 +53,9 @@ class ManagePaperlessPartialSpec extends UnitSpec with WithHeaderCarrier with Wi
         include("Email address for paperless notifications") and
         include("Emails are sent to") and
         include(EmailAddress(emailPreferences.email).obfuscated) and
-        include("/account/account-details/sa/update-email-address") and
-        include("/account/account-details/sa/opt-out-email-reminders") and
-        not include "/paperless/resend-validation-email"
+        include(linkTo(routes.AccountDetailsController.changeEmailAddress(None))) and
+        include(linkTo(routes.AccountDetailsController.optOutOfEmailReminders())) and
+        not include linkTo(routes.AccountDetailsController.resendValidationEmail(hostContext))
       )
     }
 
@@ -61,9 +67,9 @@ class ManagePaperlessPartialSpec extends UnitSpec with WithHeaderCarrier with Wi
         include("You need to verify") and
         include(emailPreferences.email) and
         include("your inbox is full") and
-        include("/account/account-details/sa/update-email-address") and
-        include("/account/account-details/sa/opt-out-email-reminders") and
-        not include "/paperless/resend-validation-email"
+        include(linkTo(routes.AccountDetailsController.changeEmailAddress(None))) and
+        include(linkTo(routes.AccountDetailsController.optOutOfEmailReminders())) and
+        not include linkTo(routes.AccountDetailsController.resendValidationEmail(hostContext))
       )
     }
 
@@ -75,9 +81,9 @@ class ManagePaperlessPartialSpec extends UnitSpec with WithHeaderCarrier with Wi
         include("You need to verify") and
         include(emailPreferences.email) and
         include("The email telling you how to do this can't be delivered.") and
-        include("/account/account-details/sa/update-email-address") and
-        include("/account/account-details/sa/opt-out-email-reminders") and
-        not include "/paperless/resend-validation-email"
+        include(linkTo(routes.AccountDetailsController.changeEmailAddress(None))) and
+        include(linkTo(routes.AccountDetailsController.optOutOfEmailReminders())) and
+        not include linkTo(routes.AccountDetailsController.resendValidationEmail(hostContext))
       )
     }
 
@@ -89,10 +95,10 @@ class ManagePaperlessPartialSpec extends UnitSpec with WithHeaderCarrier with Wi
         include("You need to verify") and
         include(emailPreferences.email) and
         include("can't be delivered") and
-        include("/account/account-details/sa/update-email-address") and
-        include("/account/account-details/sa/opt-out-email-reminders") and
+        include(linkTo(routes.AccountDetailsController.changeEmailAddress(None))) and
+        include(linkTo(routes.AccountDetailsController.optOutOfEmailReminders())) and
         not include "your inbox is full" and
-        not include "/paperless/resend-validation-email"
+        not include linkTo(routes.AccountDetailsController.resendValidationEmail(hostContext))
       )
     }
 
@@ -101,16 +107,16 @@ class ManagePaperlessPartialSpec extends UnitSpec with WithHeaderCarrier with Wi
 
       ManagePaperlessPartial(Some(saPreference)).body should (
         include("Replace the letters you get about taxes with emails.") and
-        include("/account/account-details/sa/opt-in-email-reminders") and
-        not include "/paperless/resend-validation-email"
+        include(linkTo(routes.BizTaxPrefsController.displayPrefsForm(None))) and
+        not include linkTo(routes.AccountDetailsController.resendValidationEmail(hostContext))
       )
     }
 
     "contain opted out details in content when user has no preference set" in {
       ManagePaperlessPartial(None).body should (
         include("Replace the letters you get about taxes with emails.") and
-        include("/account/account-details/sa/opt-in-email-reminders") and
-        not include "/paperless/resend-validation-email"
+        include(linkTo(routes.BizTaxPrefsController.displayPrefsForm(None))) and
+        not include linkTo(routes.AccountDetailsController.resendValidationEmail(hostContext))
       )
     }
   }
