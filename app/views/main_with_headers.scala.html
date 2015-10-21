@@ -1,0 +1,17 @@
+@(title: String,
+  betaBanner: Html = HtmlFormat.empty,
+  sidebarLinks: Option[Html] = None,
+  contentHeader: Option[Html] = None,
+  bodyClasses: Option[String] = None,
+  mainClass: Option[String] = None)(mainContent: Html)(implicit authContext: Option[uk.gov.hmrc.play.frontend.auth.AuthContext] = None, request : Request[_], hostContext: hostcontext.HostContext)
+
+@main(
+  title = title,
+  navTitle = hostContext.headers.navTitle,
+  navLinks = hostContext.headers.navLinks,
+  betaBanner = betaBanner,
+  sidebarLinks = sidebarLinks,
+  contentHeader = contentHeader,
+  bodyClasses = bodyClasses,
+  mainClass = mainClass
+)(mainContent = mainContent)
