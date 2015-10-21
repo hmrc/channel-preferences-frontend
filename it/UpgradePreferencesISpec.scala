@@ -1,11 +1,9 @@
-import controllers.sa.prefs
 import controllers.sa.prefs.Encrypted
 import controllers.sa.prefs.internal.routes
 import org.scalatest.mock.MockitoSugar
 import play.api.libs.json.JsString
 import play.api.libs.ws.{WS, WSResponse}
 import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
-import uk.gov.hmrc.emailaddress.EmailAddress
 
 import scala.concurrent.Future
 import scala.util.Random
@@ -36,6 +34,17 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
       response.header("Location") should contain (returnUrl)
 
       `/preferences/paye/individual/:nino/activations/paye`(nino, authHeader).put().futureValue.status should be (409)
+    }
+  }
+
+  "An existing user" should {
+    "not be redirected to go paperless if they have already opted-out of generic terms" in new NewUserTestCase {
+      await(`/preferences-admin/sa/individual`.delete(utr))
+
+      `/portal/preferences/sa/individual`.postOptOut(utr).futureValue.status should be (201)
+
+      val activateResponse = `/preferences/sa/individual/:utr/activations`(utr).put().futureValue
+      activateResponse.status should be (409)
     }
   }
 
@@ -88,7 +97,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
     "show go paperless and allow subsequent activation when legacy user is opted out" in new NewUserTestCase  {
       await(`/preferences-admin/sa/individual`.delete(utr))
 
-      `/portal/preferences/sa/individual`.postOptOut(utr).futureValue.status should be (201)
+      `/portal/preferences/sa/individual`.postLegacyOptOut(utr).futureValue.status should be (200)
 
       val activateResponse = `/preferences/sa/individual/:utr/activations`(utr).put().futureValue
       activateResponse.status should be (412)

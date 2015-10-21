@@ -9,14 +9,6 @@
 @import uk.gov.hmrc.play.views.html.helpers._
 @import uk.gov.hmrc.play.views.html.{layouts => uiLayouts}
 
-@betaBanner = {
-    @uiLayouts.betaBanner(
-      userLoggedIn = true,
-      betaFeedbackUrl = appConfig.betaFeedbackUrl,
-      betaFeedbackUnauthenticatedUrl = appConfig.betaFeedbackUnauthenticatedUrl,
-      showFeedbackLinkInBetaBanner = true)
-}
-
 @main(title = Messages(s"sa_printing_preference.fg_page.title"), navTitle = "", navLinks = Html("")) {
 
     <header class="page-header">
