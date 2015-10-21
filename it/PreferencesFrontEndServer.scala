@@ -1,3 +1,4 @@
+import java.net.URLEncoder
 import java.util.UUID
 
 import play.api.Play.current
@@ -5,6 +6,7 @@ import play.api.http.HeaderNames
 import play.api.libs.json.Json
 import play.api.libs.ws.WS
 import play.api.mvc.Results.EmptyContent
+import uk.gov.hmrc.crypto.{PlainText, ApplicationCrypto}
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
 import uk.gov.hmrc.play.it.{ExternalService, MicroServiceEmbeddedServer, ServiceSpec}
@@ -49,7 +51,15 @@ trait PreferencesFrontEndServer extends ServiceSpec {
 
     def changedUniqueEmail = uniqueEmail
 
-    def `/paperless/manage`(returnUrl: String, returnLinkText: String) = WS.url(resource(s"/paperless/manage?returnUrl=$returnUrl&returnLinkText=$returnLinkText"))
+    def encryptAndEncode(value: String) = URLEncoder.encode(ApplicationCrypto.QueryParameterCrypto.encrypt(PlainText(value)).value, "UTF-8")
+
+    def urlWithHostContext(url: String) = new {
+      def apply(returnUrl: String = "", returnLinkText: String = "") = WS.url(resource(s"$url?returnUrl=${encryptAndEncode(returnUrl)}&returnLinkText=${encryptAndEncode(returnLinkText)}"))
+    }
+
+    val `/paperless/resend-validation-email` = urlWithHostContext("/paperless/resend-validation-email")
+    val `/paperless/manage` = urlWithHostContext("/paperless/manage")
+
     def `/account/account-details/sa/email-reminders-status` = WS.url(resource("/account/account-details/sa/email-reminders-status"))
 
     def `/preferences/paye/individual/:nino/activations/paye`(nino: String, headers: (String, String)) = new {

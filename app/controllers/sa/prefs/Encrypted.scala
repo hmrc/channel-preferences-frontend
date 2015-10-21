@@ -17,11 +17,11 @@ class EncryptedQueryBinder[T](crypto: Encrypter with Decrypter, fromString: Stri
             Right(Encrypted(fromString(decrypted.value)))
           } catch {
             case e: IllegalArgumentException =>
-              Left("Not a valid email address")
+              Left(s"$key is not valid")
           }
         } catch {
           case e: Exception =>
-            Left("Could not decrypt value")
+            Left(s"Could not decrypt value for $key")
         }
       case Left(f) => Left(f)
     }

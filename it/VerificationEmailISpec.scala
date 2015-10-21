@@ -1,9 +1,12 @@
+import java.net.URLEncoder
+
 import EmailSupport.Email
 import org.scalatest.concurrent.Eventually
 import org.scalatest.matchers.{HavePropertyMatchResult, HavePropertyMatcher, Matcher}
 import play.api.Play.current
 import play.api.libs.json.Json
 import play.api.libs.ws.{WS, WSResponse}
+import uk.gov.hmrc.crypto.{PlainText, ApplicationCrypto}
 
 import scala.concurrent.Future
 
@@ -19,7 +22,7 @@ class VerificationEmailISpec
       response should have(status(200))
 
       val emailConfirmation = response.futureValue.body
-      emailConfirmation should include("Page title")
+      emailConfirmation should include("Verification email sent")
       emailConfirmation should include(s"A new email has been sent to $email")
     }
   }
@@ -227,8 +230,6 @@ class VerificationEmailISpec
     `/preferences-admin/sa/individual`.delete(utr) should have(status(200))
 
     val emptyJsonValue = Json.parse("{}")
-
-    def `/paperless/resend-validation-email`(returnUrl: String = "", returnLinkText: String = "") = WS.url(resource(s"/paperless/resend-validation-email?returnUrl=$returnUrl&returnLinkText=$returnLinkText"))
 
     val `/sa/print-preferences/verification` = new {
       def verify(token: String) = WS.url(resource(s"/sa/print-preferences/verification/$token")).get()
