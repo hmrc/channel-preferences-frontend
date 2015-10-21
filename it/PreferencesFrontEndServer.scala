@@ -34,8 +34,9 @@ trait PreferencesFrontEndServer extends ServiceSpec {
       "ca-frontend",
       "email",
       "cid",
-      "datastream"
-    ).map(ExternalService.runFromJar(_)) ++ Seq(ExternalService.runFromSource("preferences"))
+      "datastream",
+      "preferences"
+    ).map(ExternalService.runFromJar(_))
 
     override protected def startTimeout: Duration = 300.seconds
   }
