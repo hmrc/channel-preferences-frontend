@@ -18,7 +18,7 @@ sa_printing_preference.tc.8.3.1=8.3 If you give the consent referred to in parag
 sa_printing_preference.tc.8.3.2=you may also be asked to register a telephone number with HMRC. When a statutory notice or reminder is issued to you HMRC may also send a text message to this telephone number, or to a daytime telephone number that you have already provided to HMRC, to inform you of this. You should keep the details of your registered telephone number up-to-date and notify HMRC of any changes.
 
 sa_printing_preference.title=Sign up for paperless notifications
-sa_printing_preference.fg_page.title=HMRC online is changing
+sa_printing_preference.fg_page.title=Go paperless with HMRC
 
 sa_printing_preference.tc.preLinkText=I agree with the {0}
 sa_printing_preference.tc.linkText=terms and conditions
