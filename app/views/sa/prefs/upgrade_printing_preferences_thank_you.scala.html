@@ -7,27 +7,17 @@
 @import uk.gov.hmrc.play.views.html.helpers._
 @import uk.gov.hmrc.play.views.html.{layouts => uiLayouts}
 
-@betaBanner = {
-    @uiLayouts.betaBanner(
-      userLoggedIn = true,
-	  betaFeedbackUrl = appConfig.betaFeedbackUrl,
-      betaFeedbackUnauthenticatedUrl = appConfig.betaFeedbackUnauthenticatedUrl,
-      showFeedbackLinkInBetaBanner = true)
-}
+@main(title = "You're signed up", navTitle = "", navLinks = HtmlFormat.empty) {
 
-@main(title = "You've updated your preferences", navTitle = "", navLinks = HtmlFormat.empty, betaBanner = betaBanner) {
+    <h1 class="page-header">You're signed up</h1>
 
-	<h1 class="email-notifications__heading">You've updated your preferences</h1>
+    <p class="lede">Moving all our messages online is a big job and will take us a while. You’ll keep getting some messages by post in the meantime.</p>
 
-  	<p class="font-medium">You've signed up for email notifications for the 'Check your Income Tax' service.</p>
+    <p>You’ll get an email telling you to log in to your online HMRC account each time we send you a message. You will be receiving statutory notices, decisions, estimates and reminders electronically in connection with your tax affairs</p>
 
-  	<div class="email-notifications__indent panel-indent">
-  		<p>If you don't receive any notifications, check your spam or junk folder.</p>
-  		<p>Add noreply@@tax.service.gov.uk to your contact list to stop this from happening.</p>
-  	</div>
+    <p>You can change your details at any time using 'Manage Account'.</p>
 
-  	<p>You can manage your message settings and keep your email address up to date using 'Your tax account'.</p>
 
- 	<a href="@returnUrl" class="button">Check your Income Tax Estimate</a>
+    <a href="@returnUrl" class="button">Continue</a>
 
 }

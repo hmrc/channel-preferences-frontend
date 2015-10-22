@@ -18,57 +18,7 @@ sa_printing_preference.tc.8.3.1=8.3 If you give the consent referred to in parag
 sa_printing_preference.tc.8.3.2=you may also be asked to register a telephone number with HMRC. When a statutory notice or reminder is issued to you HMRC may also send a text message to this telephone number, or to a daytime telephone number that you have already provided to HMRC, to inform you of this. You should keep the details of your registered telephone number up-to-date and notify HMRC of any changes.
 
 sa_printing_preference.title=Sign up for paperless notifications
-sa_printing_preference.c_page.title=Self Assessment email reminders from HMRC
-sa_printing_preference.de_page.title=Self Assessment email reminders from HMRC - go paperless
-sa_printing_preference.fg_page.title=HMRC online is changing
-
-sa_printing_preference.heading=Sign up for paperless notifications
-sa_printing_preference.c_page.heading=Self Assessment email reminders from HMRC
-sa_printing_preference.d_page.heading=Self Assessment email reminders from HMRC - go paperless
-sa_printing_preference.e_page.heading=Get paperless services first
-sa_printing_preference.fg_page.heading=HMRC online is changing
-sa_printing_preference.h_page.heading=Welcome to the new HMRC tax account
-
-sa_printing_preference.paragraph.1=Get emails reminding you when:
-sa_printing_preference.c_page.paragraph.1=Replace the Self Assessment letters you get in the post with email messages in your online account. Thousands of SA taxpayers have already chosen to do this.
-sa_printing_preference.de_page.paragraph.1=Replace the Self Assessment letters you get in the post with email messages in your online account. Thousands of SA taxpayers have already chosen to go paperless.
-sa_printing_preference.fg_page.paragraph.1=The look and feel of HMRC online is changing in line with other government departments. You can now get email reminders for Self Assessment instead of letters. Thousands of taxpayers are already taking advantage of this.
-sa_printing_preference.h_page.paragraph.1=HMRC online is changing to make it easier to use. You can now get Self Assessment reminders by email when your tax returns or payments are due.
-
-sa_printing_preference.list.1.item.1=Self Assessment tax returns are due
-sa_printing_preference.list.1.item.2=Self Assessment payments are due
-sa_printing_preference.list.1.item.3=Self Assessment penalties are due
-sa_printing_preference.list.1.item.4=new Self Assessment tax statements are online
-
-sa_printing_preference.heading.2=What you need to know
-sa_printing_preference.fg_page.heading.2=Get paperless email notifications
-sa_printing_preference.h_page.heading.2=Email for paperless notifications
-
-sa_printing_preference.paragraph.2=Your Self Assessment letters will stop and get replaced by emails.
-sa_printing_preference.cde_page.paragraph.2=Email reminders will tell you to check the messages in your online account. For example, when a tax return or payment is due. You may already have used similar services from your bank, mobile phone company or utility provider.
-sa_printing_preference.f_page.paragraph.2=Email reminders will tell you to check the messages in your online account, for example when a tax return or payment is due. These messages replace the Self Assessment letters you get in the post.
-sa_printing_preference.g_page.paragraph.2=Email reminders will tell you to check the messages in your online account, for example when a tax return or payment is due. These messages replace the Self Assessment letters you get in the post. You may already use similar services from your bank, mobile phone company or utility provider.
-sa_printing_preference.h_page.paragraph.2=These messages replace the Self Assessment letters you get in the post and are made available to view in your online account.
-
-
-sa_printing_preference.paragraph.3=The emails will ask you to sign in to your HMRC online account and check for updates.
-sa_printing_preference.cdefg_page.paragraph.3=The service is secure and only used for Self Assessment.
-
-sa_printing_preference.paragraph.4=They''re secure and will never include any information about your personal tax affairs.
-sa_printing_preference.cdefg_page.paragraph.4=Personal and tax details are never shown in the email reminder.
-
-sa_printing_preference.h_page.reminders_list.1=Messages are kept permanently for your records
-sa_printing_preference.h_page.reminders_list.2=The service is secure and only used for Self Assessment
-sa_printing_preference.h_page.reminders_list.3=The emails you receive do not contain personal information for security reasons
-
-sa_printing_preference.option.yes=Yes, I want them by email, don''t send them by post
-sa_printing_preference.cde_page.option.yes=Yes, send my reminders by email
-sa_printing_preference.option.no=No, I don''t want them by email, continue sending them by post
-sa_printing_preference.cde_page.option.no=No, continue sending letters by post only
-
-sa_printing_preference.heading.3=Do you want to get Self Assessment reminders by email?
-sa_printing_preference.fg_page.heading.3=Would you like Self Assessment email reminders?
-sa_printing_preference.h_page.heading.3=Register for Self Assessment emails now
+sa_printing_preference.fg_page.title=Go paperless with HMRC
 
 sa_printing_preference.tc.preLinkText=I agree with the {0}
 sa_printing_preference.tc.linkText=terms and conditions
@@ -78,7 +28,7 @@ sa_printing_preference.tc.legal.3=Keep your email address up to date - you can d
 
 sa_printing_preference.submitButton=Continue
 sa_printing_preference.cancelButton=Continue to get letters
-sa_printing_preference.opt_in_choice_required=Confirm if you want Self Assessment email reminders
+sa_printing_preference.opt_in_choice_required=Confirm if you want paperless notifications
 sa_printing_preference.accept_tc_required=You must accept the terms and conditions
 sa_printing_preferences.confirm_correct_email.title=Check your email address
 sa_printing_preferences.confirm_correct_email.paragraph.1=Are you sure {0} is correct?
