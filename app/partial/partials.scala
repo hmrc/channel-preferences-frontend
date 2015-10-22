@@ -8,7 +8,7 @@ import play.twirl.api.HtmlFormat
 import views.html.sa.prefs.warning.{bounced_email, pending_email_verification}
 
 object ManagePaperlessPartial {
-  def apply(prefs: Option[SaPreference])(implicit request: Request[_], returnUrl: HostContext): HtmlFormat.Appendable = prefs match {
+  def apply(prefs: Option[SaPreference])(implicit request: Request[_], hostContext: HostContext): HtmlFormat.Appendable = prefs match {
     case Some(SaPreference(true, Some(email))) => email.status match {
       case Status.Pending  => views.html.partial.managepaperless.digital_true_pending(email)
       case Status.Verified => views.html.partial.managepaperless.digital_true_verified(email)

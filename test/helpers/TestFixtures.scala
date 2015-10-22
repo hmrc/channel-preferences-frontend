@@ -5,6 +5,7 @@ import hostcontext.HostContext
 object TestFixtures {
   val sampleHostContext = HostContext(
     returnUrl = "someReturnUrl",
-    returnLinkText = "someReturnLinkText"
+    returnLinkText = "someReturnLinkText",
+    headers = HostContext.Headers.Blank
   )
 }

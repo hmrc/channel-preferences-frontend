@@ -6,7 +6,7 @@ import play.twirl.api.{HtmlFormat, Html}
 
 import scala.runtime.TraitSetter
 
-case class HostContext(returnUrl: String, returnLinkText: String, headers: HostContext.Headers = HostContext.Headers.Blank)
+case class HostContext(returnUrl: String, returnLinkText: String, headers: HostContext.Headers)
 
 object HostContext {
   implicit def hostContextBinder(implicit stringBinder: QueryStringBindable[Encrypted[String]]) = new QueryStringBindable[HostContext] {
@@ -14,7 +14,7 @@ object HostContext {
       for {
         errorOrReturnUrl      <- stringBinder.bind("returnUrl", params)
         errorOrReturnLinkText <- stringBinder.bind("returnLinkText", params)
-        errorOrHeaders <- stringBinder.bind("headers", params)
+        errorOrHeaders        <- stringBinder.bind("headers", params) orElse Some(Right(Encrypted(Headers.Blank.name)))
       } yield (errorOrReturnUrl, errorOrReturnLinkText, errorOrHeaders) match {
         case (Right(returnUrl), Right(returnLinkText), Right(headersName)) =>
           Right(HostContext(returnUrl = returnUrl.decryptedValue, returnLinkText = returnLinkText.decryptedValue, headers = Headers(headersName.decryptedValue)))
@@ -24,6 +24,7 @@ object HostContext {
           someErrors._3.left.toOption
         ).mkString(", "))
       }
+
     override def unbind(key: String, value: HostContext): String =
       stringBinder.unbind("returnUrl",      Encrypted(value.returnUrl))      + "&" +
       stringBinder.unbind("returnLinkText", Encrypted(value.returnLinkText)) + "&" +
