@@ -293,7 +293,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
 
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
 
-      val result = controller.optOutOfEmailRemindersPage(user, request)
+      val result = controller.optOutOfEmailRemindersPage(user, request, TestFixtures.sampleHostContext)
 
       status(result) shouldBe 200
       val page = Jsoup.parse(contentAsString(result))
@@ -309,7 +309,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
       val saPreferences = SaPreference(false, None)
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
 
-      val result = controller.optOutOfEmailRemindersPage(user, request)
+      val result = controller.optOutOfEmailRemindersPage(user, request, TestFixtures.sampleHostContext)
 
       status(result) shouldBe 400
     }

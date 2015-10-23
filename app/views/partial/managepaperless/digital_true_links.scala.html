@@ -1,12 +1,11 @@
 @(email: connectors.SaEmailPreference, changeEmailAddressLinkId: String)(implicit request: Request[_], hostContext: hostcontext.HostContext)
 @import uk.gov.hmrc.urls.Link
-@import controllers.sa.prefs.ExternalUrls._
 @import controllers.sa.prefs.ExternalUrlPrefixes._
 
 <p>
     @Link.toInternalPage(
         id = Some(changeEmailAddressLinkId),
-        url = changeEmailAddress,
+        url = pfUrlPrefix + controllers.sa.prefs.internal.routes.AccountDetailsController.changeEmailAddress(None),
         value = Some("Change your email address"),
         dataAttributes = Some(Map("journey-click" -> "self-assessment-preferences:Click:Change your email address"))
     ).toHtml

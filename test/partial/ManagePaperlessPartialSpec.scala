@@ -39,7 +39,7 @@ class ManagePaperlessPartialSpec extends UnitSpec with WithHeaderCarrier with Wi
         include(emailPreferences.email) and
         include("send a new verification email") and
         include(linkTo(routes.AccountDetailsController.resendValidationEmail(hostContext))) and
-        include(linkTo(routes.AccountDetailsController.optOutOfEmailReminders())) and
+        include(linkTo(routes.AccountDetailsController.optOutOfEmailReminders(hostContext))) and
         include(linkTo(routes.AccountDetailsController.changeEmailAddress(None))) and
         include("2 October 2014")
       )
@@ -54,7 +54,7 @@ class ManagePaperlessPartialSpec extends UnitSpec with WithHeaderCarrier with Wi
         include("Emails are sent to") and
         include(EmailAddress(emailPreferences.email).obfuscated) and
         include(linkTo(routes.AccountDetailsController.changeEmailAddress(None))) and
-        include(linkTo(routes.AccountDetailsController.optOutOfEmailReminders())) and
+        include(linkTo(routes.AccountDetailsController.optOutOfEmailReminders(hostContext))) and
         not include linkTo(routes.AccountDetailsController.resendValidationEmail(hostContext))
       )
     }
@@ -68,7 +68,7 @@ class ManagePaperlessPartialSpec extends UnitSpec with WithHeaderCarrier with Wi
         include(emailPreferences.email) and
         include("your inbox is full") and
         include(linkTo(routes.AccountDetailsController.changeEmailAddress(None))) and
-        include(linkTo(routes.AccountDetailsController.optOutOfEmailReminders())) and
+        include(linkTo(routes.AccountDetailsController.optOutOfEmailReminders(hostContext))) and
         not include linkTo(routes.AccountDetailsController.resendValidationEmail(hostContext))
       )
     }
@@ -82,7 +82,7 @@ class ManagePaperlessPartialSpec extends UnitSpec with WithHeaderCarrier with Wi
         include(emailPreferences.email) and
         include("The email telling you how to do this can't be delivered.") and
         include(linkTo(routes.AccountDetailsController.changeEmailAddress(None))) and
-        include(linkTo(routes.AccountDetailsController.optOutOfEmailReminders())) and
+        include(linkTo(routes.AccountDetailsController.optOutOfEmailReminders(hostContext))) and
         not include linkTo(routes.AccountDetailsController.resendValidationEmail(hostContext))
       )
     }
@@ -96,7 +96,7 @@ class ManagePaperlessPartialSpec extends UnitSpec with WithHeaderCarrier with Wi
         include(emailPreferences.email) and
         include("can't be delivered") and
         include(linkTo(routes.AccountDetailsController.changeEmailAddress(None))) and
-        include(linkTo(routes.AccountDetailsController.optOutOfEmailReminders())) and
+        include(linkTo(routes.AccountDetailsController.optOutOfEmailReminders(hostContext))) and
         not include "your inbox is full" and
         not include linkTo(routes.AccountDetailsController.resendValidationEmail(hostContext))
       )
