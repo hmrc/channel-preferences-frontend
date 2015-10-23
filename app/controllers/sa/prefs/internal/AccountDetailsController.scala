@@ -49,8 +49,13 @@ trait AccountDetailsController
     authContext => request => emailAddressChangeThankYouPage(authContext, request)
   }
 
-  def optOutOfEmailReminders = AuthorisedFor(SaRegime).async {
-    authContext => request => optOutOfEmailRemindersPage(authContext, request)
+  def optOutOfEmailRemindersDeprecated = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
+    implicit val hostContext = HostContext.defaultsForYta
+    optOutOfEmailRemindersPage
+  }
+
+  def optOutOfEmailReminders(implicit hostContext: hostcontext.HostContext) = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
+    optOutOfEmailRemindersPage
   }
 
   def confirmOptOutOfEmailReminders = AuthorisedFor(SaRegime).async {
@@ -88,7 +93,7 @@ trait AccountDetailsController
     }
   }
 
-  private[prefs] def optOutOfEmailRemindersPage(implicit authContext: AuthContext, request: Request[AnyRef]) =
+  private[prefs] def optOutOfEmailRemindersPage(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: hostcontext.HostContext) =
     lookupCurrentEmail(email => Future.successful(Ok(views.html.confirm_opt_back_into_paper(email.obfuscated))))
 
   private[prefs] def changeEmailAddressPage(emailAddress: Option[Encrypted[EmailAddress]])(implicit authContext: AuthContext, request: Request[AnyRef]): Future[Result] =

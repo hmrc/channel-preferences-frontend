@@ -1,7 +1,8 @@
 GET         /account/account-details/sa/update-email-address                        controllers.sa.prefs.internal.AccountDetailsController.changeEmailAddress(email: Option[controllers.sa.prefs.EncryptedEmail])
 POST        /account/account-details/sa/update-email-address                        controllers.sa.prefs.internal.AccountDetailsController.submitEmailAddress
 GET         /account/account-details/sa/update-email-address-thank-you              controllers.sa.prefs.internal.AccountDetailsController.emailAddressChangeThankYou
-GET         /account/account-details/sa/opt-out-email-reminders                     controllers.sa.prefs.internal.AccountDetailsController.optOutOfEmailReminders
+GET         /account/account-details/sa/opt-out-email-reminders                     controllers.sa.prefs.internal.AccountDetailsController.optOutOfEmailRemindersDeprecated
+GET         /paperless/stop                                                         controllers.sa.prefs.internal.AccountDetailsController.optOutOfEmailReminders(hostContext: hostcontext.HostContext)
 POST        /account/account-details/sa/opt-out-email-reminders                     controllers.sa.prefs.internal.AccountDetailsController.confirmOptOutOfEmailReminders
 GET         /account/account-details/sa/opt-out-email-reminders-thank-you           controllers.sa.prefs.internal.AccountDetailsController.optedBackIntoPaperThankYou
 POST        /account/account-details/sa/resend-validation-email                     controllers.sa.prefs.internal.AccountDetailsController.resendValidationEmailDeprecated

@@ -20,7 +20,6 @@ object ExternalUrls extends RunMode {
   val helpUrl                        = s"$caUrlPrefix/contact/contact-hmrc"
 
   val changeEmailAddress             = s"$pfUrlPrefix/account/account-details/sa/update-email-address"
-  val optOutOfEmailReminders         = s"$pfUrlPrefix/account/account-details/sa/opt-out-email-reminders"
   val displayPreferences             = s"$pfUrlPrefix/account/account-details/sa/opt-in-email-reminders"
 
   val accountDetails                 = s"$ytaUrlPrefix/account/account-details"
