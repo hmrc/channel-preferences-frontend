@@ -323,10 +323,10 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
       when(mockPreferencesConnector.savePreferences(is(validUtr), is(false), is(None))(any())).thenReturn(Future.successful(()))
 
-      val result = Future.successful(controller.confirmOptOutOfEmailRemindersPage(user, request))
+      val result = Future.successful(controller.confirmOptOutOfEmailRemindersPage(user, request, TestFixtures.sampleHostContext))
 
       status(result) shouldBe 303
-      header("Location", result).get should include(routes.DeprecatedYTAAccountDetailsController.optedBackIntoPaperThankYou().url)
+      header("Location", result).get should include(routes.ManagePaperlessController.optedBackIntoPaperThankYou(TestFixtures.sampleHostContext).url)
       val page = Jsoup.parse(contentAsString(result))
 
       verify(mockPreferencesConnector).savePreferences(is(validUtr), is(false), is(None))(any())
@@ -336,7 +336,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
       val saPreferences = SaPreference(false, None)
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
 
-      val result = Future.successful(controller.confirmOptOutOfEmailRemindersPage(user, request))
+      val result = Future.successful(controller.confirmOptOutOfEmailRemindersPage(user, request, TestFixtures.sampleHostContext))
 
       status(result) shouldBe 400
       val page = Jsoup.parse(contentAsString(result))

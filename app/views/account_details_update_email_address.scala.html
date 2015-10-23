@@ -11,7 +11,7 @@
     </header>
    <p>Emails are sent to <span id="current-email-address">@{currentEmail}.</span></p>
 
-    @form(action = controllers.sa.prefs.internal.routes.AccountDetailsController.submitEmailAddress, 'id -> "form-submit-email-address") {
+    @form(action = controllers.sa.prefs.internal.routes.DeprecatedYTAAccountDetailsController.submitEmailAddress, 'id -> "form-submit-email-address") {
         <fieldset>
         @input(
             emailForm("email.main"),

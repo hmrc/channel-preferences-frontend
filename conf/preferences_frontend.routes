@@ -4,7 +4,9 @@ GET         /account/account-details/sa/update-email-address-thank-you          
 GET         /account/account-details/sa/opt-out-email-reminders                     controllers.sa.prefs.internal.DeprecatedYTAAccountDetailsController.optOutOfEmailRemindersDeprecated
 GET         /paperless/stop                                                         controllers.sa.prefs.internal.ManagePaperlessController.optOutOfEmailReminders(hostContext: hostcontext.HostContext)
 POST        /account/account-details/sa/opt-out-email-reminders                     controllers.sa.prefs.internal.DeprecatedYTAAccountDetailsController.confirmOptOutOfEmailReminders
+POST        /paperless/stop                                                         controllers.sa.prefs.internal.ManagePaperlessController.confirmOptOutOfEmailReminders(hostContext: hostcontext.HostContext)
 GET         /account/account-details/sa/opt-out-email-reminders-thank-you           controllers.sa.prefs.internal.DeprecatedYTAAccountDetailsController.optedBackIntoPaperThankYou
+GET         /paperless/stop/confirmed                                               controllers.sa.prefs.internal.ManagePaperlessController.optedBackIntoPaperThankYou(hostContext: hostcontext.HostContext)
 POST        /account/account-details/sa/resend-validation-email                     controllers.sa.prefs.internal.DeprecatedYTAAccountDetailsController.resendValidationEmailDeprecated
 POST        /paperless/resend-validation-email                                      controllers.sa.prefs.internal.ManagePaperlessController.resendValidationEmail(hostContext: hostcontext.HostContext)
 

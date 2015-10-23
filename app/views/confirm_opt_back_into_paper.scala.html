@@ -11,7 +11,7 @@
 
     <p>You'll get letters again, instead of emails.</p>
 
-    @form(action = controllers.sa.prefs.internal.routes.AccountDetailsController.confirmOptOutOfEmailReminders) {
+    @form(action = controllers.sa.prefs.internal.routes.ManagePaperlessController.confirmOptOutOfEmailReminders(hostContext)) {
         <div class="form-field">
             <button id="confirm-opt-out" class="button" type="submit">@Messages("bt.account.stopreminders")</button>
         </div>

@@ -4,7 +4,7 @@ import authentication.ValidSessionCredentialsProvider
 import connectors.{EmailConnector, PreferencesConnector, SaPreference}
 import controllers.sa.prefs.AuthContextAvailability._
 import controllers.sa.prefs.config.Global
-import controllers.sa.prefs.{ExternalUrls, Encrypted, EmailFormData, SaRegime}
+import controllers.sa.prefs.{EmailFormData, Encrypted, SaRegime}
 import hostcontext.HostContext
 import play.api.mvc.{Request, Result}
 import uk.gov.hmrc.domain.SaUtr
@@ -32,6 +32,14 @@ object ManagePaperlessController extends AccountDetailsController with ServicesC
 
   def resendValidationEmail(implicit hostContext: HostContext) = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
     resendValidationEmailAction
+  }
+
+  def optedBackIntoPaperThankYou(implicit hostContext: HostContext) = AuthenticatedBy(ValidSessionCredentialsProvider, redirectToOrigin = true) { implicit authContext => implicit request =>
+    optedBackIntoPaperAction
+  }
+
+  def confirmOptOutOfEmailReminders(implicit hostContext: HostContext) = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
+    confirmOptOutOfEmailRemindersPage
   }
 }
 
@@ -66,8 +74,9 @@ object DeprecatedYTAAccountDetailsController extends AccountDetailsController wi
   }
 
   def optedBackIntoPaperThankYou() = AuthenticatedBy(ValidSessionCredentialsProvider, redirectToOrigin = true) { implicit authContext => implicit request =>
-    Ok(views.html.opted_back_into_paper_thank_you())
+    optedBackIntoPaperAction
   }
+
 
   def resendValidationEmailDeprecated = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
     resendValidationEmailAction
@@ -75,20 +84,24 @@ object DeprecatedYTAAccountDetailsController extends AccountDetailsController wi
 }
 
 trait AccountDetailsController
-  extends FrontendController
-  with Actions
-  with PreferencesControllerHelper {
+extends FrontendController
+with Actions
+with PreferencesControllerHelper {
 
   val auditConnector: AuditConnector
   val authConnector: AuthConnector
   val emailConnector: EmailConnector
   val preferencesConnector: PreferencesConnector
 
-  private[prefs] def confirmOptOutOfEmailRemindersPage(implicit authContext: AuthContext, request: Request[AnyRef]): Future[Result] = {
+  private[prefs] def optedBackIntoPaperAction(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Result = {
+    Ok(views.html.opted_back_into_paper_thank_you())
+  }
+
+  private[prefs] def confirmOptOutOfEmailRemindersPage(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Future[Result] = {
     lookupCurrentEmail {
       email =>
         preferencesConnector.savePreferences(authContext.principal.accounts.sa.get.utr, false, None).map(_ =>
-          Redirect(routes.DeprecatedYTAAccountDetailsController.optedBackIntoPaperThankYou())
+          Redirect(routes.ManagePaperlessController.optedBackIntoPaperThankYou(hostContext))
         )
     }
   }

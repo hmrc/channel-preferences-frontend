@@ -15,7 +15,7 @@
     <p>Are you sure @emailAddress is correct?</p>
 
 
-    @form(action = controllers.sa.prefs.internal.routes.AccountDetailsController.submitEmailAddress) {
+    @form(action = controllers.sa.prefs.internal.routes.DeprecatedYTAAccountDetailsController.submitEmailAddress) {
         <div class="form-field">
             <p>
             <button id="emailIsCorrectLink" class="button" type="submit">This email address is correct</button>
@@ -26,5 +26,5 @@
         <input type="hidden" name="email.confirm" value="@emailAddress" />
         <input type="hidden" name="emailVerified" value="true" />
     }
-    <p>@Link.toInternalPage(id = Some("emailIsNotCorrectLink"), url = controllers.sa.prefs.internal.routes.AccountDetailsController.changeEmailAddress(Some(Encrypted(EmailAddress(emailAddress)))).url, value = Some("Change this email address")).toHtml</p>
+    <p>@Link.toInternalPage(id = Some("emailIsNotCorrectLink"), url = controllers.sa.prefs.internal.routes.DeprecatedYTAAccountDetailsController.changeEmailAddress(Some(Encrypted(EmailAddress(emailAddress)))).url, value = Some("Change this email address")).toHtml</p>
 }
