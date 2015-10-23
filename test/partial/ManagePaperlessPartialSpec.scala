@@ -38,9 +38,9 @@ class ManagePaperlessPartialSpec extends UnitSpec with WithHeaderCarrier with Wi
         include("Email for paperless notifications") and
         include(emailPreferences.email) and
         include("send a new verification email") and
-        include(linkTo(routes.AccountDetailsController.resendValidationEmail(hostContext))) and
-        include(linkTo(routes.AccountDetailsController.optOutOfEmailReminders(hostContext))) and
-        include(linkTo(routes.AccountDetailsController.changeEmailAddress(None))) and
+        include(linkTo(routes.ManagePaperlessController.resendValidationEmail(hostContext))) and
+        include(linkTo(routes.ManagePaperlessController.optOutOfEmailReminders(hostContext))) and
+        include(linkTo(routes.DeprecatedYTAAccountDetailsController.changeEmailAddress(None))) and
         include("2 October 2014")
       )
     }
@@ -53,9 +53,9 @@ class ManagePaperlessPartialSpec extends UnitSpec with WithHeaderCarrier with Wi
         include("Email address for paperless notifications") and
         include("Emails are sent to") and
         include(EmailAddress(emailPreferences.email).obfuscated) and
-        include(linkTo(routes.AccountDetailsController.changeEmailAddress(None))) and
-        include(linkTo(routes.AccountDetailsController.optOutOfEmailReminders(hostContext))) and
-        not include linkTo(routes.AccountDetailsController.resendValidationEmail(hostContext))
+        include(linkTo(routes.DeprecatedYTAAccountDetailsController.changeEmailAddress(None))) and
+        include(linkTo(routes.ManagePaperlessController.optOutOfEmailReminders(hostContext))) and
+        not include linkTo(routes.ManagePaperlessController.resendValidationEmail(hostContext))
       )
     }
 
@@ -67,9 +67,9 @@ class ManagePaperlessPartialSpec extends UnitSpec with WithHeaderCarrier with Wi
         include("You need to verify") and
         include(emailPreferences.email) and
         include("your inbox is full") and
-        include(linkTo(routes.AccountDetailsController.changeEmailAddress(None))) and
-        include(linkTo(routes.AccountDetailsController.optOutOfEmailReminders(hostContext))) and
-        not include linkTo(routes.AccountDetailsController.resendValidationEmail(hostContext))
+        include(linkTo(routes.DeprecatedYTAAccountDetailsController.changeEmailAddress(None))) and
+        include(linkTo(routes.ManagePaperlessController.optOutOfEmailReminders(hostContext))) and
+        not include linkTo(routes.ManagePaperlessController.resendValidationEmail(hostContext))
       )
     }
 
@@ -81,9 +81,9 @@ class ManagePaperlessPartialSpec extends UnitSpec with WithHeaderCarrier with Wi
         include("You need to verify") and
         include(emailPreferences.email) and
         include("The email telling you how to do this can't be delivered.") and
-        include(linkTo(routes.AccountDetailsController.changeEmailAddress(None))) and
-        include(linkTo(routes.AccountDetailsController.optOutOfEmailReminders(hostContext))) and
-        not include linkTo(routes.AccountDetailsController.resendValidationEmail(hostContext))
+        include(linkTo(routes.DeprecatedYTAAccountDetailsController.changeEmailAddress(None))) and
+        include(linkTo(routes.ManagePaperlessController.optOutOfEmailReminders(hostContext))) and
+        not include linkTo(routes.ManagePaperlessController.resendValidationEmail(hostContext))
       )
     }
 
@@ -95,10 +95,10 @@ class ManagePaperlessPartialSpec extends UnitSpec with WithHeaderCarrier with Wi
         include("You need to verify") and
         include(emailPreferences.email) and
         include("can't be delivered") and
-        include(linkTo(routes.AccountDetailsController.changeEmailAddress(None))) and
-        include(linkTo(routes.AccountDetailsController.optOutOfEmailReminders(hostContext))) and
+        include(linkTo(routes.DeprecatedYTAAccountDetailsController.changeEmailAddress(None))) and
+        include(linkTo(routes.ManagePaperlessController.optOutOfEmailReminders(hostContext))) and
         not include "your inbox is full" and
-        not include linkTo(routes.AccountDetailsController.resendValidationEmail(hostContext))
+        not include linkTo(routes.ManagePaperlessController.resendValidationEmail(hostContext))
       )
     }
 
@@ -108,7 +108,7 @@ class ManagePaperlessPartialSpec extends UnitSpec with WithHeaderCarrier with Wi
       ManagePaperlessPartial(Some(saPreference)).body should (
         include("Replace the letters you get about taxes with emails.") and
         include(linkTo(routes.BizTaxPrefsController.displayPrefsForm(None))) and
-        not include linkTo(routes.AccountDetailsController.resendValidationEmail(hostContext))
+        not include linkTo(routes.ManagePaperlessController.resendValidationEmail(hostContext))
       )
     }
 
@@ -116,7 +116,7 @@ class ManagePaperlessPartialSpec extends UnitSpec with WithHeaderCarrier with Wi
       ManagePaperlessPartial(None).body should (
         include("Replace the letters you get about taxes with emails.") and
         include(linkTo(routes.BizTaxPrefsController.displayPrefsForm(None))) and
-        not include linkTo(routes.AccountDetailsController.resendValidationEmail(hostContext))
+        not include linkTo(routes.ManagePaperlessController.resendValidationEmail(hostContext))
       )
     }
   }

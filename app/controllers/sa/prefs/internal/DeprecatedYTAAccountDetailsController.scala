@@ -18,13 +18,60 @@ import uk.gov.hmrc.play.frontend.controller.FrontendController
 
 import scala.concurrent.Future
 
-object AccountDetailsController extends AccountDetailsController with ServicesConfig {
+object ManagePaperlessController extends AccountDetailsController with ServicesConfig {
   lazy val auditConnector = Global.auditConnector
 
   val authConnector = Global.authConnector
 
   lazy val emailConnector = EmailConnector
   lazy val preferencesConnector = PreferencesConnector
+
+  def optOutOfEmailReminders(implicit hostContext: HostContext) = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
+    optOutOfEmailRemindersPage
+  }
+
+  def resendValidationEmail(implicit hostContext: HostContext) = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
+    resendValidationEmailAction
+  }
+}
+
+object DeprecatedYTAAccountDetailsController extends AccountDetailsController with ServicesConfig {
+  lazy val auditConnector = Global.auditConnector
+
+  val authConnector = Global.authConnector
+
+  lazy val emailConnector = EmailConnector
+  lazy val preferencesConnector = PreferencesConnector
+
+  implicit val hostContext = HostContext.defaultsForYta
+
+  def changeEmailAddress(emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
+    changeEmailAddressPage(emailAddress)
+  }
+
+  def submitEmailAddress = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
+    submitEmailAddressPage
+  }
+
+  def emailAddressChangeThankYou() = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
+    emailAddressChangeThankYouPage
+  }
+
+  def optOutOfEmailRemindersDeprecated = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
+    optOutOfEmailRemindersPage
+  }
+
+  def confirmOptOutOfEmailReminders = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
+    confirmOptOutOfEmailRemindersPage
+  }
+
+  def optedBackIntoPaperThankYou() = AuthenticatedBy(ValidSessionCredentialsProvider, redirectToOrigin = true) { implicit authContext => implicit request =>
+    Ok(views.html.opted_back_into_paper_thank_you())
+  }
+
+  def resendValidationEmailDeprecated = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
+    resendValidationEmailAction
+  }
 }
 
 trait AccountDetailsController
@@ -37,50 +84,11 @@ trait AccountDetailsController
   val emailConnector: EmailConnector
   val preferencesConnector: PreferencesConnector
 
-  def changeEmailAddress(emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(SaRegime).async {
-    authContext => request => changeEmailAddressPage(emailAddress)(authContext, request)
-  }
-
-  def submitEmailAddress = AuthorisedFor(SaRegime).async {
-    authContext => request => submitEmailAddressPage(authContext, request)
-  }
-
-  def emailAddressChangeThankYou() = AuthorisedFor(SaRegime).async {
-    authContext => request => emailAddressChangeThankYouPage(authContext, request)
-  }
-
-  def optOutOfEmailRemindersDeprecated = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
-    implicit val hostContext = HostContext.defaultsForYta
-    optOutOfEmailRemindersPage
-  }
-
-  def optOutOfEmailReminders(implicit hostContext: hostcontext.HostContext) = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
-    optOutOfEmailRemindersPage
-  }
-
-  def confirmOptOutOfEmailReminders = AuthorisedFor(SaRegime).async {
-    authContext => request => confirmOptOutOfEmailRemindersPage(authContext, request)
-  }
-
-  def optedBackIntoPaperThankYou() = AuthenticatedBy(ValidSessionCredentialsProvider, redirectToOrigin = true).async {
-    implicit authContext => implicit request =>
-      Future(Ok(views.html.opted_back_into_paper_thank_you()))
-  }
-
-  def resendValidationEmail(implicit hostContext: HostContext) = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
-    resendValidationEmailAction
-  }
-
-  def resendValidationEmailDeprecated = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
-    implicit val hostContext = HostContext.defaultsForYta
-    resendValidationEmailAction
-  }
-
   private[prefs] def confirmOptOutOfEmailRemindersPage(implicit authContext: AuthContext, request: Request[AnyRef]): Future[Result] = {
     lookupCurrentEmail {
       email =>
         preferencesConnector.savePreferences(authContext.principal.accounts.sa.get.utr, false, None).map(_ =>
-          Redirect(routes.AccountDetailsController.optedBackIntoPaperThankYou())
+          Redirect(routes.DeprecatedYTAAccountDetailsController.optedBackIntoPaperThankYou())
         )
     }
   }
@@ -112,7 +120,7 @@ trait AccountDetailsController
         submitEmailForm(
           views.html.account_details_update_email_address(email, _),
           (enteredEmail) => views.html.account_details_update_email_address_verify_email(enteredEmail),
-          routes.AccountDetailsController.emailAddressChangeThankYou(),
+          routes.DeprecatedYTAAccountDetailsController.emailAddressChangeThankYou(),
           emailConnector,
           authContext.principal.accounts.sa.get.utr,
           savePreferences

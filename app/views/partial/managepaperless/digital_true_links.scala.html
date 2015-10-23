@@ -5,7 +5,7 @@
 <p>
     @Link.toInternalPage(
         id = Some(changeEmailAddressLinkId),
-        url = pfUrlPrefix + controllers.sa.prefs.internal.routes.AccountDetailsController.changeEmailAddress(None),
+        url = pfUrlPrefix + controllers.sa.prefs.internal.routes.DeprecatedYTAAccountDetailsController.changeEmailAddress(None),
         value = Some("Change your email address"),
         dataAttributes = Some(Map("journey-click" -> "self-assessment-preferences:Click:Change your email address"))
     ).toHtml
@@ -13,7 +13,7 @@
 <p>
     @Link.toInternalPage(
         id = Some("opt-out-of-email-link"),
-        url = pfUrlPrefix + controllers.sa.prefs.internal.routes.AccountDetailsController.optOutOfEmailReminders(hostContext),
+        url = pfUrlPrefix + controllers.sa.prefs.internal.routes.ManagePaperlessController.optOutOfEmailReminders(hostContext),
         value = Some("Stop paperless notifications"),
         dataAttributes = Some(Map("journey-click" -> "self-assessment-preferences:Click:Stop paperless notifications"))
     ).toHtml

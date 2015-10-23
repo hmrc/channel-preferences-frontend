@@ -137,7 +137,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
       val page = Future.successful(controller.submitEmailAddressPage(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress),("email.confirm", emailAddress))))
 
       status(page) shouldBe 303
-      header("Location", page).get should include(routes.AccountDetailsController.emailAddressChangeThankYou().toString())
+      header("Location", page).get should include(routes.DeprecatedYTAAccountDetailsController.emailAddressChangeThankYou().toString())
 
       verify(mockPreferencesConnector).savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())
       verify(mockEmailConnector).isValid(is(emailAddress))(any())
@@ -232,7 +232,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
         (("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "true"))))
 
       status(page) shouldBe 303
-      header("Location", page).get should include(routes.AccountDetailsController.emailAddressChangeThankYou().toString())
+      header("Location", page).get should include(routes.DeprecatedYTAAccountDetailsController.emailAddressChangeThankYou().toString())
 
       verify(mockPreferencesConnector).savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())
       verify(mockPreferencesConnector).getPreferences(is(validUtr), any())(any())
@@ -326,7 +326,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
       val result = Future.successful(controller.confirmOptOutOfEmailRemindersPage(user, request))
 
       status(result) shouldBe 303
-      header("Location", result).get should include(routes.AccountDetailsController.optedBackIntoPaperThankYou().url)
+      header("Location", result).get should include(routes.DeprecatedYTAAccountDetailsController.optedBackIntoPaperThankYou().url)
       val page = Jsoup.parse(contentAsString(result))
 
       verify(mockPreferencesConnector).savePreferences(is(validUtr), is(false), is(None))(any())
