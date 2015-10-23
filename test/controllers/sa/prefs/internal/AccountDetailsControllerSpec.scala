@@ -45,7 +45,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
       val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified)))
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
 
-      val result = Future.successful(controller.changeEmailAddressPage(None)(user, request))
+      val result = Future.successful(controller.changeEmailAddressPage(None)(user, request, TestFixtures.sampleHostContext))
 
       status(result) shouldBe 200
       val page = Jsoup.parse(contentAsString(result))
@@ -63,7 +63,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
 
       val existingEmailAddress = "existing@email.com"
-      val result = Future.successful(controller.changeEmailAddressPage(Some(Encrypted(EmailAddress(existingEmailAddress))))(user, request))
+      val result = Future.successful(controller.changeEmailAddressPage(Some(Encrypted(EmailAddress(existingEmailAddress))))(user, request, TestFixtures.sampleHostContext))
 
       status(result) shouldBe 200
       val page = Jsoup.parse(contentAsString(result))
@@ -80,7 +80,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
       val saPreferences = SaPreference(false, None)
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
 
-      val result = Future.successful(controller.changeEmailAddressPage(None)(user, request))
+      val result = Future.successful(controller.changeEmailAddressPage(None)(user, request, TestFixtures.sampleHostContext))
 
       status(result) shouldBe 400
     }
@@ -114,7 +114,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
 
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
 
-      val page = controller.emailAddressChangeThankYouPage(user, FakeRequest())
+      val page = controller.emailAddressChangeThankYouPage(user, FakeRequest(), TestFixtures.sampleHostContext)
 
       status(page) shouldBe 200
 
@@ -134,10 +134,10 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
       when(mockPreferencesConnector.savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())).thenReturn(Future.successful(None))
 
-      val page = Future.successful(controller.submitEmailAddressPage(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress),("email.confirm", emailAddress))))
+      val page = Future.successful(controller.submitEmailAddressPage(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress),("email.confirm", emailAddress)), TestFixtures.sampleHostContext))
 
       status(page) shouldBe 303
-      header("Location", page).get should include(routes.DeprecatedYTAAccountDetailsController.emailAddressChangeThankYou().toString())
+      header("Location", page).get should include(routes.ManagePaperlessController.emailAddressChangeThankYou(TestFixtures.sampleHostContext).toString())
 
       verify(mockPreferencesConnector).savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())
       verify(mockEmailConnector).isValid(is(emailAddress))(any())
@@ -150,7 +150,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
 
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
 
-      val page = Future.successful(controller.submitEmailAddressPage(user, FakeRequest().withFormUrlEncodedBody("email.main" -> "a@a.com", "email.confirm" -> "b@b.com")))
+      val page = Future.successful(controller.submitEmailAddressPage(user, FakeRequest().withFormUrlEncodedBody("email.main" -> "a@a.com", "email.confirm" -> "b@b.com"), TestFixtures.sampleHostContext))
 
       status(page) shouldBe 400
 
@@ -163,7 +163,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
       val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified)))
 
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
-      val page = Future.successful(controller.submitEmailAddressPage(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress))))
+      val page = Future.successful(controller.submitEmailAddressPage(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress)), TestFixtures.sampleHostContext))
 
       status(page) shouldBe 400
 
@@ -176,7 +176,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
 
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
 
-      val page = Future.successful(controller.submitEmailAddressPage(user, FakeRequest().withFormUrlEncodedBody(("email.main", ""))))
+      val page = Future.successful(controller.submitEmailAddressPage(user, FakeRequest().withFormUrlEncodedBody(("email.main", "")), TestFixtures.sampleHostContext))
 
       status(page) shouldBe 400
 
@@ -190,7 +190,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
 
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
 
-      val page = Future.successful(controller.submitEmailAddressPage(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress),("email.confirm", "other"))))
+      val page = Future.successful(controller.submitEmailAddressPage(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress),("email.confirm", "other")), TestFixtures.sampleHostContext))
 
       status(page) shouldBe 400
 
@@ -206,7 +206,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(false)
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
 
-      val page = Future.successful(controller.submitEmailAddressPage(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress),("email.confirm", emailAddress))))
+      val page = Future.successful(controller.submitEmailAddressPage(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress),("email.confirm", emailAddress)), TestFixtures.sampleHostContext))
 
       status(page) shouldBe 200
 
@@ -229,10 +229,10 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
       when(mockPreferencesConnector.savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())).thenReturn(Future.successful(None))
 
       val page = Future.successful(controller.submitEmailAddressPage(user, FakeRequest().withFormUrlEncodedBody
-        (("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "true"))))
+        (("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "true")), TestFixtures.sampleHostContext))
 
       status(page) shouldBe 303
-      header("Location", page).get should include(routes.DeprecatedYTAAccountDetailsController.emailAddressChangeThankYou().toString())
+      header("Location", page).get should include(routes.ManagePaperlessController.emailAddressChangeThankYou(TestFixtures.sampleHostContext).toString())
 
       verify(mockPreferencesConnector).savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())
       verify(mockPreferencesConnector).getPreferences(is(validUtr), any())(any())
@@ -249,7 +249,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
 
 
       val page = Future.successful(controller.submitEmailAddressPage(user, FakeRequest().withFormUrlEncodedBody
-        (("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "false"))))
+        (("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "false")), TestFixtures.sampleHostContext))
 
       status(page) shouldBe 200
 
@@ -272,7 +272,7 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
 
 
       val page = Future.successful(controller.submitEmailAddressPage(user, FakeRequest().withFormUrlEncodedBody
-        (("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "hjgjhghjghjgj"))))
+        (("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "hjgjhghjghjgj")), TestFixtures.sampleHostContext))
 
       status(page) shouldBe 200
 

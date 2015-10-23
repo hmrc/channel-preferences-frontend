@@ -5,7 +5,7 @@
 <p>
     @Link.toInternalPage(
         id = Some(changeEmailAddressLinkId),
-        url = pfUrlPrefix + controllers.sa.prefs.internal.routes.DeprecatedYTAAccountDetailsController.changeEmailAddress(None),
+        url = pfUrlPrefix + controllers.sa.prefs.internal.routes.ManagePaperlessController.changeEmailAddress(None, hostContext),
         value = Some("Change your email address"),
         dataAttributes = Some(Map("journey-click" -> "self-assessment-preferences:Click:Change your email address"))
     ).toHtml
