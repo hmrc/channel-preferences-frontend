@@ -1,6 +1,7 @@
 import java.net.URLEncoder
 
 import EmailSupport.Email
+import org.jsoup.Jsoup
 import org.scalatest.concurrent.Eventually
 import org.scalatest.matchers.{HavePropertyMatchResult, HavePropertyMatcher, Matcher}
 import play.api.Play.current
@@ -21,6 +22,9 @@ class VerificationEmailISpec
       val response = `/paperless/resend-validation-email`().withHeaders(cookie).post(emptyJsonValue)
       response should have(status(200))
 
+      val page = Jsoup.parse(response.body)
+      val expectedTitle = s"${page.getElementsByTag("h1").first.text} - ${page.getElementsByTag("h2").first.text}"
+      page.getElementsByTag("title").first.text should include(expectedTitle)
       val emailConfirmation = response.futureValue.body
       emailConfirmation should include("Verification email sent")
       emailConfirmation should include(s"A new email has been sent to $email")
