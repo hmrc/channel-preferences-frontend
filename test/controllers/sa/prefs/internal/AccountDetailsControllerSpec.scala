@@ -184,20 +184,6 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
       document.select("#form-submit-email-address .error-notification").text shouldBe "Enter a valid email address."
     }
 
-    "show error if the two email fields are not equal" in new Setup {
-      val emailAddress = "someone@email.com"
-      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified)))
-
-      when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
-
-      val page = Future.successful(controller.submitEmailAddressPage(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress),("email.confirm", "other")), TestFixtures.sampleHostContext))
-
-      status(page) shouldBe 400
-
-      val document = Jsoup.parse(contentAsString(page))
-      document.select("#form-submit-email-address .error-notification").text shouldBe "Check your email addresses - they don't match."
-    }
-
     "show a warning page if the email has a valid structure but does not pass validation by the email micro service" in new Setup {
 
       val emailAddress = "someone@dodgy.domain"
@@ -330,16 +316,6 @@ class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
       val page = Jsoup.parse(contentAsString(result))
 
       verify(mockPreferencesConnector).savePreferences(is(validUtr), is(false), is(None))(any())
-    }
-
-    "return bad request if the user has not opted into digital" in new Setup {
-      val saPreferences = SaPreference(false, None)
-      when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
-
-      val result = Future.successful(controller.confirmOptOutOfEmailRemindersPage(user, request, TestFixtures.sampleHostContext))
-
-      status(result) shouldBe 400
-      val page = Jsoup.parse(contentAsString(result))
     }
   }
 

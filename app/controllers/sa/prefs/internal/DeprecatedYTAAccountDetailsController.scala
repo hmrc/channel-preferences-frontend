@@ -109,12 +109,9 @@ with PreferencesControllerHelper {
   }
 
   private[prefs] def confirmOptOutOfEmailRemindersPage(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Future[Result] = {
-    lookupCurrentEmail {
-      email =>
-        preferencesConnector.savePreferences(authContext.principal.accounts.sa.get.utr, false, None).map(_ =>
-          Redirect(routes.ManagePaperlessController.optedBackIntoPaperThankYou(hostContext))
-        )
-    }
+    preferencesConnector.savePreferences(authContext.principal.accounts.sa.get.utr, false, None).map(_ =>
+      Redirect(routes.ManagePaperlessController.optedBackIntoPaperThankYou(hostContext))
+    )
   }
 
   private[prefs] def resendValidationEmailAction(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Future[Result] = {
