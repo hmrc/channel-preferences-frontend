@@ -1,4 +1,4 @@
-@(emailAddress: String, cohort: controllers.sa.prefs.internal.OptInCohort)(implicit context: Option[uk.gov.hmrc.play.frontend.auth.AuthContext], request : Request[_])
+@(emailAddress: String, cohort: controllers.sa.prefs.internal.OptInCohort)(implicit context: uk.gov.hmrc.play.frontend.auth.AuthContext, request : Request[_])
 
 @import uk.gov.hmrc.urls.Link
 @import controllers.sa.prefs.Encrypted
@@ -15,7 +15,7 @@
     <p>@Html(Messages("sa_printing_preferences.confirm_correct_email.paragraph.1", s"<span id='emailAddress'>$emailAddress</span>"))</p>
 
 
-    @form(action = controllers.sa.prefs.internal.routes.BizTaxPrefsController.submitPrefsFormForInterstitial, 'id -> "form-submit-preferences-verify-email") {
+    @form(action = controllers.sa.prefs.internal.routes.DeprecatedYTABizTaxPrefsController.submitPrefsFormForInterstitial, 'id -> "form-submit-preferences-verify-email") {
         <div class="form-field">
             <p>
                 <button id="email-is-correct-link" class="button" type="submit">@Messages("sa_printing_preferences.confirm_correct_email.confirm")</button>
@@ -28,6 +28,6 @@
         <input type="hidden" name="accept-tc" value="true" />
     }
 
-    @Link.toInternalPage(id = Some("email-is-not-correct-link"), url = controllers.sa.prefs.internal.routes.BizTaxPrefsController.displayPrefsForm(Some(Encrypted(EmailAddress(emailAddress)))).url, value = Some("Change this email address")).toHtml
+    @Link.toInternalPage(id = Some("email-is-not-correct-link"), url = controllers.sa.prefs.internal.routes.DeprecatedYTABizTaxPrefsController.displayPrefsForm(Some(Encrypted(EmailAddress(emailAddress)))).url, value = Some("Change this email address")).toHtml
 
 }

@@ -6,10 +6,12 @@ import uk.gov.hmrc.play.test.WithFakeApplication
 
 class HostContextSpec extends WordSpec with Matchers with WithFakeApplication {
   "Binding a host context" should {
+
     val validReturnUrl = "returnUrl" -> Seq("9tNUeRTIYBD0RO+T5WRO7A]==")
     val validReturnLinkText = "returnLinkText" -> Seq("w/PwaxV+KgqutfsU0cyrJQ==")
     val validBlankHeaders = "headers" -> Seq("47pBbPf0Mz0gcFMRdx8qUQ==")
     val validYTAHeaders = "headers" -> Seq("+OwkJJim0p+X5aV+SV2Cew==")
+
     "read the returnURL and returnLinkText and Blank header if all present" in {
       HostContext.hostContextBinder.bind("anyValName", Map(validReturnUrl, validReturnLinkText, validBlankHeaders)) should contain (
         Right(HostContext(returnUrl = "foo", returnLinkText = "bar", headers = Blank))
@@ -20,16 +22,16 @@ class HostContextSpec extends WordSpec with Matchers with WithFakeApplication {
         Right(HostContext(returnUrl = "foo", returnLinkText = "bar", headers = YTA))
       )
     }
+    "read the returnURL and returnLinkText and infer Blank if the headers is not present" in {
+      HostContext.hostContextBinder.bind("anyValName", Map(validReturnUrl, validReturnLinkText)) should contain (
+        Right(HostContext(returnUrl = "foo", returnLinkText = "bar", headers = Blank))
+      )
+    }
     "fail if the returnURL is not present" in {
       HostContext.hostContextBinder.bind("anyValName", Map(validReturnLinkText, validBlankHeaders)) should be (None)
     }
     "fail if the returnLinkText is not present" in {
       HostContext.hostContextBinder.bind("anyValName", Map(validReturnUrl, validBlankHeaders)) should be (None)
-    }
-    "infer Blank if the headers is not present" in {
-      HostContext.hostContextBinder.bind("anyValName", Map(validReturnUrl, validReturnLinkText)) should contain (
-        Right(HostContext(returnUrl = "foo", returnLinkText = "bar", headers = Blank))
-      )
     }
   }
   "Unbinding a host context" should {

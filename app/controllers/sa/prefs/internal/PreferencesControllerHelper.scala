@@ -2,6 +2,7 @@ package controllers.sa.prefs.internal
 
 import connectors.EmailConnector
 import controllers.sa.prefs._
+import hostcontext.HostContext
 import play.api.data.Forms._
 import play.api.data._
 import play.api.mvc.Results._
@@ -60,11 +61,11 @@ trait PreferencesControllerHelper {
     "opt-in" -> text
   )(UpgradeRemindersTandC.apply)(UpgradeRemindersTandC.unapply))
 
-  def getSubmitPreferencesView(savePrefsCall: Call, cohort: OptInCohort)(implicit request: Request[AnyRef], withBanner: Boolean = false): Form[_] => HtmlFormat.Appendable = {
+  def getSubmitPreferencesView(savePrefsCall: Call, cohort: OptInCohort)(implicit request: Request[AnyRef], withBanner: Boolean = false, hostContext: HostContext): Form[_] => HtmlFormat.Appendable = {
     errors => views.html.sa.prefs.sa_printing_preference(withBanner, errors, savePrefsCall, cohort)
   }
 
-  def displayPreferencesFormAction(email: Option[EmailAddress], savePrefsCall: Call, withBanner: Boolean = false, cohort: OptInCohort)(implicit request: Request[AnyRef]) =
+  def displayPreferencesFormAction(email: Option[EmailAddress], savePrefsCall: Call, withBanner: Boolean = false, cohort: OptInCohort)(implicit request: Request[AnyRef], hostContext: HostContext) =
     Ok(
       views.html.sa.prefs.sa_printing_preference(
         withBanner,

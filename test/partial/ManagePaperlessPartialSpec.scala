@@ -107,7 +107,7 @@ class ManagePaperlessPartialSpec extends UnitSpec with WithHeaderCarrier with Wi
 
       ManagePaperlessPartial(Some(saPreference)).body should (
         include("Replace the letters you get about taxes with emails.") and
-        include(linkTo(routes.BizTaxPrefsController.displayPrefsForm(None))) and
+        include(linkTo(routes.BizTaxPrefsController.displayPrefsForm(None, hostContext))) and
         not include linkTo(routes.ManagePaperlessController.resendValidationEmail(hostContext))
       )
     }
@@ -115,7 +115,7 @@ class ManagePaperlessPartialSpec extends UnitSpec with WithHeaderCarrier with Wi
     "contain opted out details in content when user has no preference set" in {
       ManagePaperlessPartial(None).body should (
         include("Replace the letters you get about taxes with emails.") and
-        include(linkTo(routes.BizTaxPrefsController.displayPrefsForm(None))) and
+        include(linkTo(routes.BizTaxPrefsController.displayPrefsForm(None, hostContext))) and
         not include linkTo(routes.ManagePaperlessController.resendValidationEmail(hostContext))
       )
     }

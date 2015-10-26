@@ -9,7 +9,7 @@
 <p>
     @Link.toInternalPage(
         id = Some("opt-in-to-digital-email-link"),
-        url = pfUrlPrefix + controllers.sa.prefs.internal.routes.BizTaxPrefsController.displayPrefsForm(None),
+        url = pfUrlPrefix + controllers.sa.prefs.internal.routes.BizTaxPrefsController.displayPrefsForm(None, hostContext),
         value = Some("Sign up for paperless notifications"),
         dataAttributes = Some(Map("journey-click" -> "self-assessment-preferences:Click:Sign up for paperless notifications"))
     ).toHtml

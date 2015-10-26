@@ -1,6 +1,6 @@
 package views.sa.prefs
 
-import _root_.helpers.ConfigHelper
+import _root_.helpers.{TestFixtures, ConfigHelper}
 import controllers.sa.prefs.internal._
 import org.jsoup.Jsoup
 import play.api.mvc.Call
@@ -13,7 +13,7 @@ class SaPrintingPreferenceViewSpec extends UnitSpec with PreferencesControllerHe
 
   "preference print template" should {
     "render the correct content for the IPage cohort " in {
-      val document = Jsoup.parse(sa_printing_preference(true, emailForm, Call("GET", "/"), IPage)(FakeRequest("GET", "/")).toString())
+      val document = Jsoup.parse(sa_printing_preference(true, emailForm, Call("GET", "/"), IPage)(FakeRequest("GET", "/"), TestFixtures.sampleHostContext).toString())
       document.getElementById("opt-in-in").hasAttr("checked") shouldBe true
     }
   }
