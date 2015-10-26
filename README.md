@@ -20,7 +20,6 @@ For setting and changing preferences, whole pages are returned. Partial views ar
 | `/account/account-details/sa/opt-in-email-reminders`                | GET, POST         | Redirects to or submits a form for switching a customer to paperless    
 | `/account/account-details/sa/opt-in-email-reminders/:cohort`        | GET               | Displays a form for switching a customer to paperless        
 | `/account/account-details/sa/opt-in-email-reminders-thank-you`      | GET               | Confirms that a user has submitted their preference for paper or paperless    
-| `/account/account-details/sa/terms-and-conditions`                  | GET               | Displays the terms and conditions for paperless    
 | `/account/account-details/sa/upgrade-email-reminders`               | GET, POST         | Displays/submits a form for upgrading a customer to the latest terms and conditions for paperless
 | `/account/account-details/sa/upgrade-email-reminders-thank-you`     | GET               | Confirms that a user has submitted their acceptance or refusal of the latest terms and conditions for paperless
 | `/sa/print-preferences/:token`                                      | GET               | Redirects a user back to `return_url` with their current email address, if known    

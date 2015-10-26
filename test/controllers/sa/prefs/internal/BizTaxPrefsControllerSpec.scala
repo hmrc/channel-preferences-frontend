@@ -165,42 +165,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
     document.getElementById("opt-in-out") shouldNot be(null)
     document.getElementById("opt-in-out").attr("checked") shouldBe ""
 
-    document.getElementById("terms-and-conditions").attr("href") should endWith("terms-and-conditions")
-  }
-
-  "The terms and conditions page" should {
-
-    "contain correct content" in new BizTaxPrefsControllerSetup {
-      val page = controller.termsAndConditionsPage()(request, user)
-
-      status(page) shouldBe 200
-
-      val document = Jsoup.parse(contentAsString(page))
-
-      document.getElementById("success-heading").text() shouldBe "Self Assessment terms and conditions"
-
-      document.getElementById("secure-mailbox") shouldNot be(null)
-      document.getElementById("statutory") shouldNot be(null)
-    }
-
-    "contain correct contents navigation panel" in new BizTaxPrefsControllerSetup {
-      val page = controller.termsAndConditionsPage()(request, user)
-
-      status(page) shouldBe 200
-      val document = Jsoup.parse(contentAsString(page))
-
-      document.getElementById("secure-mailbox-link").attr("href") should be ("#secure-mailbox")
-      document.getElementById("statutory-link").attr("href") should be ("#statutory")
-    }
-
-    "link to full terms and conditions page" in new BizTaxPrefsControllerSetup {
-      val page = controller.termsAndConditionsPage()(request, user)
-
-      status(page) shouldBe 200
-      val document = Jsoup.parse(contentAsString(page))
-
-      document.getElementById("full-terms-link").attr("href") should be ("https://online.hmrc.gov.uk/information/terms")
-    }
+    document.getElementById("terms-and-conditions").attr("href") should endWith("www.tax.service.gov.uk/information/terms#secure")
   }
 
   "The preferences action on non interstitial page" should {
