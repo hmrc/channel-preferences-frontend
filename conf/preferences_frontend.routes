@@ -14,13 +14,10 @@ GET         /account/account-details/sa/opt-in-email-reminders                  
 GET         /account/account-details/sa/opt-in-email-reminders/:cohort              controllers.sa.prefs.internal.BizTaxPrefsController.displayPrefsFormForCohort(cohort: Option[controllers.sa.prefs.internal.OptInCohort], email: Option[controllers.sa.prefs.EncryptedEmail])
 POST        /account/account-details/sa/opt-in-email-reminders                      controllers.sa.prefs.internal.BizTaxPrefsController.submitPrefsFormForNonInterstitial
 GET         /account/account-details/sa/opt-in-email-reminders-thank-you            controllers.sa.prefs.internal.BizTaxPrefsController.thankYou(email: Option[controllers.sa.prefs.EncryptedEmail])
-GET         /account/account-details/sa/terms-and-conditions                        controllers.sa.prefs.internal.BizTaxPrefsController.termsAndConditions
-
 
 GET         /account/account-details/sa/upgrade-email-reminders                     controllers.sa.prefs.internal.UpgradeRemindersController.display(returnUrl: controllers.sa.prefs.Encrypted[String])
 POST        /account/account-details/sa/upgrade-email-reminders                     controllers.sa.prefs.internal.UpgradeRemindersController.upgrade(returnUrl: controllers.sa.prefs.Encrypted[String])
 GET         /account/account-details/sa/upgrade-email-reminders-thank-you           controllers.sa.prefs.internal.UpgradeRemindersController.thankYou(returnUrl: controllers.sa.prefs.Encrypted[String])
-
 
 GET         /sa/print-preferences/:token                                            @controllers.sa.prefs.filing.FilingInterceptController.redirectWithEmailAddress(token: String, return_url: String, emailAddress: Option[controllers.sa.prefs.EncryptedEmail])
 GET         /sa/print-preferences/verification/:token                               @controllers.sa.prefs.external.EmailValidationController.verify(token: String)

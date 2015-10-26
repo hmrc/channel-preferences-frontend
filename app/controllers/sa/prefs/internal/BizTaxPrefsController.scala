@@ -72,13 +72,6 @@ trait BizTaxPrefsController
       Ok(views.html.account_details_printing_preference_confirm(businessTaxHome, calculateCohort(authContext), emailAddress.map(_.decryptedValue)))
   }
 
-  def termsAndConditions() = AuthorisedFor(SaRegime).async {
-    implicit user => implicit request => termsAndConditionsPage()
-  }
-
-  def termsAndConditionsPage()(implicit request: Request[AnyRef], authContext: AuthContext) : Future[Result] =
-    Future.successful(Ok(views.html.sa.prefs.sa_terms_and_conditions()))
-
   val getSavePrefsFromInterstitialCall = controllers.sa.prefs.internal.routes.BizTaxPrefsController.submitPrefsFormForInterstitial()
   val getSavePrefsFromNonInterstitialPageCall = controllers.sa.prefs.internal.routes.BizTaxPrefsController.submitPrefsFormForNonInterstitial()
 
