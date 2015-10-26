@@ -1,24 +1,21 @@
-@(redirectUrl: String, cohort: controllers.sa.prefs.internal.OptInCohort, email: Option[uk.gov.hmrc.emailaddress.EmailAddress])(implicit request: Request[_])
+@(cohort: controllers.sa.prefs.internal.OptInCohort, email: Option[uk.gov.hmrc.emailaddress.EmailAddress])(implicit request: Request[_], hostContext: hostcontext.HostContext)
 
 @import uk.gov.hmrc.urls.Link
 
-@main(title = Messages("sa_printing_preference_confirm.title")){
+@main_with_headers(title = Messages("sa_printing_preference_confirm.title")){
+    <header class="page-header">
+        <h1>@Messages("sa_printing_preference_confirm.heading")</h1>
 
-<header class="page-header">
-    <h1>@Messages("sa_printing_preference_confirm.heading")</h1>
+        <h2>@Messages("sa_printing_preference_confirm.heading.2")</h2>
+    </header>
 
-    <h2>@Messages("sa_printing_preference_confirm.heading.2")</h2>
-</header>
+    <p>@Messages("sa_printing_preference_confirm.paragraph", email.getOrElse("your email address"))</p>
 
-<p>@Messages("sa_printing_preference_confirm.paragraph", email.getOrElse("your email address"))</p>
-
-<p>
-    @Link.toInternalPage(
-        id = Some("sa-home-link"),
-        url = redirectUrl,
-        value = Some(Messages("sa_printing_preference_confirm.linkText"))
-    ).toHtml
-</p>
-
-
+    <p>
+        @Link.toInternalPage(
+            id = Some("sa-home-link"),
+            url = hostContext.returnUrl,
+            value = Some(hostContext.returnLinkText)
+        ).toHtml
+    </p>
 }

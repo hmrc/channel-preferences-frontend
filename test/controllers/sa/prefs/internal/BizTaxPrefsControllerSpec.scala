@@ -376,7 +376,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress),("email.confirm", emailAddress), "accept-tc" -> "true"), hostContext = TestFixtures.sampleHostContext))
 
       status(page) shouldBe 303
-      header("Location", page).get should include(routes.DeprecatedYTABizTaxPrefsController.thankYou(Some(Encrypted(EmailAddress(emailAddress)))).toString())
+      header("Location", page).get should include(routes.BizTaxPrefsController.thankYou(Some(Encrypted(EmailAddress(emailAddress))), TestFixtures.sampleHostContext).toString())
 
       verify(mockPreferencesConnector).saveCohort(is(validUtr), is(assignedCohort))(any())
       verify(mockPreferencesConnector).addTermsAndConditions(is(validUtr), is(Generic -> TermsAccepted(true)), is(Some(emailAddress)))(any())
@@ -394,7 +394,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress),("email.confirm", emailAddress), "accept-tc" -> "true"), hostContext = TestFixtures.sampleHostContext))
 
       status(page) shouldBe 303
-      header("Location", page).get should include(routes.DeprecatedYTABizTaxPrefsController.thankYou(Some(Encrypted(EmailAddress(emailAddress)))).toString())
+      header("Location", page).get should include(routes.BizTaxPrefsController.thankYou(Some(Encrypted(EmailAddress(emailAddress))), TestFixtures.sampleHostContext).toString())
 
       verify(mockPreferencesConnector).saveCohort(is(validUtr), is(assignedCohort))(any())
       verify(mockPreferencesConnector).addTermsAndConditions(is(validUtr), is(Generic -> TermsAccepted(true)), is(Some(emailAddress)))(any())
@@ -410,7 +410,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "false"), hostContext = TestFixtures.sampleHostContext))
 
       status(page) shouldBe 303
-      header("Location", page).get should include(ExternalUrls.businessTaxHome)
+      header("Location", page).get should be (TestFixtures.sampleHostContext.returnUrl)
 
       verify(mockPreferencesConnector).saveCohort(is(validUtr), is(assignedCohort))(any())
       verify(mockPreferencesConnector).addTermsAndConditions(is(validUtr), is(Generic -> TermsAccepted(false)), is(None))(any())
@@ -430,7 +430,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "true"), "accept-tc" -> "true"), hostContext = TestFixtures.sampleHostContext))
 
       status(page) shouldBe 303
-      header("Location", page).get should include(routes.DeprecatedYTABizTaxPrefsController.thankYou(Some(Encrypted(EmailAddress(emailAddress)))).toString())
+      header("Location", page).get should include(routes.BizTaxPrefsController.thankYou(Some(Encrypted(EmailAddress(emailAddress))), TestFixtures.sampleHostContext).toString())
 
       verify(mockPreferencesConnector).saveCohort(is(validUtr), is(assignedCohort))(any())
       verify(mockPreferencesConnector).addTermsAndConditions(is(validUtr), is(Generic -> TermsAccepted(true)), is(Some(emailAddress)))(any())

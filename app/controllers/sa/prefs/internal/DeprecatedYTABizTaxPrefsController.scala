@@ -55,7 +55,7 @@ object DeprecatedYTABizTaxPrefsController extends BizTaxPrefsController with App
 
   def thankYou(emailAddress: Option[controllers.sa.prefs.EncryptedEmail]) = AuthorisedFor(SaRegime) {
     implicit authContext => implicit request =>
-      Ok(views.html.account_details_printing_preference_confirm(businessTaxHome, calculateCohort(authContext), emailAddress.map(_.decryptedValue)))
+      Ok(views.html.account_details_printing_preference_confirm(calculateCohort(authContext), emailAddress.map(_.decryptedValue)))
   }
 
   def termsAndConditions() = AuthorisedFor(SaRegime).async {
@@ -80,6 +80,10 @@ object BizTaxPrefsController extends BizTaxPrefsController with AppName with Opt
 
   def submitPrefsFormForNonInterstitial(implicit hostContext: HostContext) = AuthorisedFor(SaRegime).async { implicit user => implicit request =>
     submitPrefsFormAction(AccountDetails)(user, request, withBanner = true, hostContext)
+  }
+
+  def thankYou(implicit emailAddress: Option[controllers.sa.prefs.EncryptedEmail], hostContext: HostContext) = AuthorisedFor(SaRegime) { implicit authContext => implicit request =>
+    Ok(views.html.account_details_printing_preference_confirm(calculateCohort(authContext), emailAddress.map(_.decryptedValue)))
   }
 }
 
@@ -151,7 +155,7 @@ trait BizTaxPrefsController
       } yield {
         auditChoice(utr, journey, cohort, terms, email, userCreated, userActivated)
         digital match {
-          case true  => Redirect(routes.DeprecatedYTABizTaxPrefsController.thankYou(email map (emailAddress => Encrypted(EmailAddress(emailAddress)))))
+          case true  => Redirect(routes.BizTaxPrefsController.thankYou(email map (emailAddress => Encrypted(EmailAddress(emailAddress))), hostContext))
           case false => Redirect(hostContext.returnUrl)
         }
       }
