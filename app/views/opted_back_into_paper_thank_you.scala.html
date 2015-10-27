@@ -1,10 +1,9 @@
-@()(implicit context: Option[uk.gov.hmrc.play.frontend.auth.AuthContext], request: Request[_])
+@()(implicit context: Option[uk.gov.hmrc.play.frontend.auth.AuthContext], request: Request[_], hostContext: hostcontext.HostContext)
 
 @import uk.gov.hmrc.urls.Link
 
-@main(title = "Manage account - Paperless notifications have stopped") {
-
-<header class="page-header">
+@main_with_headers(title = "Paperless - Notifications have stopped") {
+    <header class="page-header">
         <h1>@Messages("bt.account.yourdetails")</h1>
         <h2>Paperless notifications have stopped</h2>
     </header>
@@ -12,7 +11,6 @@
     <p>You've been sent an email confirming this.</p>
     <p>You can go paperless again at any time.</p>
     <ul class="action-list">
-        <li>@Link.toInternalPage(id = Some("return-to-dashboard-button"), url = controllers.sa.prefs.ExternalUrls.businessTaxHome, value = Some("Go to your tax account")).toHtml</li>
+        <li>@Link.toInternalPage(id = Some("return-to-dashboard-button"), url = hostContext.returnUrl, value = Some(hostContext.returnLinkText)).toHtml</li>
     </ul>
-
 }

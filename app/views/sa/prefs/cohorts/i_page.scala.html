@@ -1,9 +1,9 @@
-@(showBanner:Boolean,emailForm: Form[_], submitPrefsFormAction: Call)(implicit request: Request[_])
+@(showBanner:Boolean,emailForm: Form[_], submitPrefsFormAction: Call)(implicit request: Request[_], hostContext: hostcontext.HostContext)
 
 @import uk.gov.hmrc.urls.Link
 @import uk.gov.hmrc.play.views.html.helpers._
 
-@main(title = Messages(s"sa_printing_preference.fg_page.title")) {
+@main_with_headers(title = Messages(s"sa_printing_preference.fg_page.title")) {
 
     <header class="page-header">
         <h1>@Messages(s"sa_printing_preference.fg_page.title")</h1>

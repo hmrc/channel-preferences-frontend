@@ -1,5 +1,6 @@
 @()(implicit hostContext: hostcontext.HostContext)
 @import uk.gov.hmrc.urls.Link
+@import controllers.sa.prefs.ExternalUrlPrefixes._
 
 <h2 id="saEmailRemindersHeader">Go paperless</h2>
 
@@ -8,7 +9,7 @@
 <p>
     @Link.toInternalPage(
         id = Some("opt-in-to-digital-email-link"),
-        url = controllers.sa.prefs.ExternalUrls.displayPreferences,
+        url = pfUrlPrefix + controllers.sa.prefs.internal.routes.BizTaxPrefsController.displayPrefsForm(None, hostContext),
         value = Some("Sign up for paperless notifications"),
         dataAttributes = Some(Map("journey-click" -> "self-assessment-preferences:Click:Sign up for paperless notifications"))
     ).toHtml

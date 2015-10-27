@@ -19,10 +19,6 @@ object ExternalUrls extends RunMode {
   val betaFeedbackUnauthenticatedUrl = s"$caUrlPrefix/contact/beta-feedback-unauthenticated"
   val helpUrl                        = s"$caUrlPrefix/contact/contact-hmrc"
 
-  val changeEmailAddress             = s"$pfUrlPrefix/account/account-details/sa/update-email-address"
-  val optOutOfEmailReminders         = s"$pfUrlPrefix/account/account-details/sa/opt-out-email-reminders"
-  val displayPreferences             = s"$pfUrlPrefix/account/account-details/sa/opt-in-email-reminders"
-
   val accountDetails                 = s"$ytaUrlPrefix/account/account-details"
   val businessTaxHome                = s"$ytaUrlPrefix/account"
   val survey                         = s"$businessTaxHome/survey"

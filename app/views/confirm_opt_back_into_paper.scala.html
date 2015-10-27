@@ -1,26 +1,25 @@
-@(emailAddress: uk.gov.hmrc.emailaddress.ObfuscatedEmailAddress)(implicit context: Option[uk.gov.hmrc.play.frontend.auth.AuthContext], request : Request[_])
+@(emailAddress: uk.gov.hmrc.emailaddress.ObfuscatedEmailAddress)(implicit context: Option[uk.gov.hmrc.play.frontend.auth.AuthContext], request : Request[_], hostContext: hostcontext.HostContext)
 
 @import uk.gov.hmrc.urls.Link
 @import uk.gov.hmrc.play.views.html.helpers._
 
-@main(title = "Manage account - Stop paperless notifications") {
-
-
-<header class="page-header">
+@main_with_headers(title = "Paperless - Stop notifications") {
+    <header class="page-header">
         <h1>@Messages("bt.account.yourdetails")</h1>
-        <h2>Stop paperless notifications</h2>
+        <h2>Stop notifications</h2>
     </header>
 
-<p>You'll get letters again, instead of emails.</p>
+    <p>You'll get letters again, instead of emails.</p>
 
-@form(action = controllers.sa.prefs.internal.routes.AccountDetailsController.confirmOptOutOfEmailReminders) {
-<div class="form-field">
-    <button id="confirm-opt-out" class="button" type="submit">@Messages("bt.account.stopreminders")</button>
-</div>
-}
-@form(action = play.api.mvc.Call("GET", controllers.sa.prefs.ExternalUrls.accountDetails)) {
-    <p class="form-field">
-        @Link.toInternalPage(id = Some("cancel-opt-out-link"), url = controllers.sa.prefs.ExternalUrls.accountDetails, value = Some("Don't stop paperless notifications")).toHtml
-    </p>
-}
+    @form(action = controllers.sa.prefs.internal.routes.ManagePaperlessController.confirmOptOutOfEmailReminders(hostContext)) {
+        <div class="form-field">
+            <button id="confirm-opt-out" class="button" type="submit">@Messages("bt.account.stopreminders")</button>
+        </div>
+    }
+
+    @form(action = play.api.mvc.Call("GET", controllers.sa.prefs.ExternalUrls.accountDetails)) {
+        <p class="form-field">
+            @Link.toInternalPage(id = Some("cancel-opt-out-link"), url = hostContext.returnUrl, value = Some("Don't stop paperless notifications")).toHtml
+        </p>
+    }
 }

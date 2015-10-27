@@ -1,19 +1,33 @@
-GET         /account/account-details/sa/update-email-address                        controllers.sa.prefs.internal.AccountDetailsController.changeEmailAddress(email: Option[controllers.sa.prefs.EncryptedEmail])
-POST        /account/account-details/sa/update-email-address                        controllers.sa.prefs.internal.AccountDetailsController.submitEmailAddress
-GET         /account/account-details/sa/update-email-address-thank-you              controllers.sa.prefs.internal.AccountDetailsController.emailAddressChangeThankYou
-GET         /account/account-details/sa/opt-out-email-reminders                     controllers.sa.prefs.internal.AccountDetailsController.optOutOfEmailReminders
-POST        /account/account-details/sa/opt-out-email-reminders                     controllers.sa.prefs.internal.AccountDetailsController.confirmOptOutOfEmailReminders
-GET         /account/account-details/sa/opt-out-email-reminders-thank-you           controllers.sa.prefs.internal.AccountDetailsController.optedBackIntoPaperThankYou
-POST        /account/account-details/sa/resend-validation-email                     controllers.sa.prefs.internal.AccountDetailsController.resendValidationEmailDeprecated
-POST        /paperless/resend-validation-email                                      controllers.sa.prefs.internal.AccountDetailsController.resendValidationEmail(hostContext: hostcontext.HostContext)
+GET         /account/account-details/sa/update-email-address                        controllers.sa.prefs.internal.DeprecatedYTAAccountDetailsController.changeEmailAddress(email: Option[controllers.sa.prefs.EncryptedEmail])
+POST        /account/account-details/sa/update-email-address                        controllers.sa.prefs.internal.DeprecatedYTAAccountDetailsController.submitEmailAddress
+GET         /account/account-details/sa/update-email-address-thank-you              controllers.sa.prefs.internal.DeprecatedYTAAccountDetailsController.emailAddressChangeThankYou
+GET         /paperless/email-address/change                                         controllers.sa.prefs.internal.ManagePaperlessController.changeEmailAddress(email: Option[controllers.sa.prefs.EncryptedEmail], hostContext: hostcontext.HostContext)
+POST        /paperless/email-address/change                                         controllers.sa.prefs.internal.ManagePaperlessController.submitEmailAddress(hostContext: hostcontext.HostContext)
+GET         /paperless/email-address/change/confirmed                               controllers.sa.prefs.internal.ManagePaperlessController.emailAddressChangeThankYou(hostContext: hostcontext.HostContext)
 
-GET         /account/account-details/sa/login-opt-in-email-reminders                controllers.sa.prefs.internal.BizTaxPrefsController.redirectToBTAOrInterstitialPage
-GET         /account/account-details/sa/login-opt-in-email-reminders/:cohort        controllers.sa.prefs.internal.BizTaxPrefsController.displayInterstitialPrefsFormForCohort(cohort: Option[controllers.sa.prefs.internal.OptInCohort])
-POST        /account/account-details/sa/login-opt-in-email-reminders                controllers.sa.prefs.internal.BizTaxPrefsController.submitPrefsFormForInterstitial
-GET         /account/account-details/sa/opt-in-email-reminders                      controllers.sa.prefs.internal.BizTaxPrefsController.displayPrefsForm(email: Option[controllers.sa.prefs.EncryptedEmail])
-GET         /account/account-details/sa/opt-in-email-reminders/:cohort              controllers.sa.prefs.internal.BizTaxPrefsController.displayPrefsFormForCohort(cohort: Option[controllers.sa.prefs.internal.OptInCohort], email: Option[controllers.sa.prefs.EncryptedEmail])
-POST        /account/account-details/sa/opt-in-email-reminders                      controllers.sa.prefs.internal.BizTaxPrefsController.submitPrefsFormForNonInterstitial
-GET         /account/account-details/sa/opt-in-email-reminders-thank-you            controllers.sa.prefs.internal.BizTaxPrefsController.thankYou(email: Option[controllers.sa.prefs.EncryptedEmail])
+GET         /account/account-details/sa/opt-out-email-reminders                     controllers.sa.prefs.internal.DeprecatedYTAAccountDetailsController.optOutOfEmailRemindersDeprecated
+POST        /account/account-details/sa/opt-out-email-reminders                     controllers.sa.prefs.internal.DeprecatedYTAAccountDetailsController.confirmOptOutOfEmailReminders
+GET         /paperless/stop                                                         controllers.sa.prefs.internal.ManagePaperlessController.optOutOfEmailReminders(hostContext: hostcontext.HostContext)
+POST        /paperless/stop                                                         controllers.sa.prefs.internal.ManagePaperlessController.confirmOptOutOfEmailReminders(hostContext: hostcontext.HostContext)
+
+GET         /account/account-details/sa/opt-out-email-reminders-thank-you           controllers.sa.prefs.internal.DeprecatedYTAAccountDetailsController.optedBackIntoPaperThankYou
+GET         /paperless/stop/confirmed                                               controllers.sa.prefs.internal.ManagePaperlessController.optedBackIntoPaperThankYou(hostContext: hostcontext.HostContext)
+
+POST        /account/account-details/sa/resend-validation-email                     controllers.sa.prefs.internal.DeprecatedYTAAccountDetailsController.resendValidationEmailDeprecated
+POST        /paperless/resend-validation-email                                      controllers.sa.prefs.internal.ManagePaperlessController.resendValidationEmail(hostContext: hostcontext.HostContext)
+
+GET         /account/account-details/sa/login-opt-in-email-reminders                controllers.sa.prefs.internal.DeprecatedYTABizTaxPrefsController.redirectToBTAOrInterstitialPage
+GET         /account/account-details/sa/login-opt-in-email-reminders/:cohort        controllers.sa.prefs.internal.DeprecatedYTABizTaxPrefsController.displayInterstitialPrefsFormForCohort(cohort: Option[controllers.sa.prefs.internal.OptInCohort])
+POST        /account/account-details/sa/login-opt-in-email-reminders                controllers.sa.prefs.internal.DeprecatedYTABizTaxPrefsController.submitPrefsFormForInterstitial
+
+GET         /account/account-details/sa/opt-in-email-reminders-thank-you            controllers.sa.prefs.internal.DeprecatedYTABizTaxPrefsController.thankYou(email: Option[controllers.sa.prefs.EncryptedEmail])
+GET         /account/account-details/sa/opt-in-email-reminders                      controllers.sa.prefs.internal.DeprecatedYTABizTaxPrefsController.displayPrefsForm(email: Option[controllers.sa.prefs.EncryptedEmail])
+GET         /account/account-details/sa/opt-in-email-reminders/:cohort              controllers.sa.prefs.internal.DeprecatedYTABizTaxPrefsController.displayPrefsFormForCohort(cohort: Option[controllers.sa.prefs.internal.OptInCohort], email: Option[controllers.sa.prefs.EncryptedEmail])
+POST        /account/account-details/sa/opt-in-email-reminders                      controllers.sa.prefs.internal.DeprecatedYTABizTaxPrefsController.submitPrefsFormForNonInterstitial
+GET         /paperless/choose/nearly-done                                           controllers.sa.prefs.internal.BizTaxPrefsController.thankYou(email: Option[controllers.sa.prefs.EncryptedEmail], hostContext: hostcontext.HostContext)
+GET         /paperless/choose                                                       controllers.sa.prefs.internal.BizTaxPrefsController.displayPrefsForm(email: Option[controllers.sa.prefs.EncryptedEmail], hostContext: hostcontext.HostContext)
+GET         /paperless/choose/:cohort                                               controllers.sa.prefs.internal.BizTaxPrefsController.displayPrefsFormForCohort(cohort: Option[controllers.sa.prefs.internal.OptInCohort], email: Option[controllers.sa.prefs.EncryptedEmail], hostContext: hostcontext.HostContext)
+POST        /paperless/choose                                                       controllers.sa.prefs.internal.BizTaxPrefsController.submitPrefsFormForNonInterstitial(hostContext: hostcontext.HostContext)
 
 GET         /account/account-details/sa/upgrade-email-reminders                     controllers.sa.prefs.internal.UpgradeRemindersController.display(returnUrl: controllers.sa.prefs.Encrypted[String])
 POST        /account/account-details/sa/upgrade-email-reminders                     controllers.sa.prefs.internal.UpgradeRemindersController.upgrade(returnUrl: controllers.sa.prefs.Encrypted[String])
