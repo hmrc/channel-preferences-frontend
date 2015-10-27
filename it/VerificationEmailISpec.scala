@@ -23,8 +23,6 @@ class VerificationEmailISpec
       response should have(status(200))
 
       val page = Jsoup.parse(response.body)
-      val expectedTitle = s"${page.getElementsByTag("h1").first.text} - ${page.getElementsByTag("h2").first.text}"
-      page.getElementsByTag("title").first.text should include(expectedTitle)
       val emailConfirmation = response.futureValue.body
       emailConfirmation should include("Verification email sent")
       emailConfirmation should include(s"A new email has been sent to $email")
