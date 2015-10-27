@@ -24,7 +24,7 @@ object PaperlessPartialsForDeprecatedYTAEndpointsController extends PaperlessPar
   lazy val authConnector = Global.authConnector
   lazy val preferencesConnector = PreferencesConnector
 
-  val displayManagePaperlessPartial: Action[AnyContent] = displayManagePaperlessPartial(HostContext.defaultsForYta)
+  val displayManagePaperlessPartial: Action[AnyContent] = displayManagePaperlessPartial(HostContext.defaultsForYtaManageAccount)
 }
 
 trait PaperlessPartialController

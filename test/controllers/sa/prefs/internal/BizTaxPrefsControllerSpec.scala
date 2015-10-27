@@ -76,7 +76,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       val page = controller.redirectToBTAOrInterstitialPageAction(user, request)
 
       status(page) shouldBe 303
-      header("Location", page).get should include(routes.DeprecatedYTABizTaxPrefsController.displayInterstitialPrefsFormForCohort(Some(assignedCohort)).url)
+      header("Location", page).get should include(routes.DeprecatedYTALoginInterstitialController.displayInterstitialPrefsFormForCohort(Some(assignedCohort)).url)
     }
 
     "redirect to interstitial page for the matching cohort if they are currently opted out" in new BizTaxPrefsControllerSetup {
@@ -86,7 +86,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       val page = controller.redirectToBTAOrInterstitialPageAction(user, request)
 
       status(page) shouldBe 303
-      header("Location", page).get should include(routes.DeprecatedYTABizTaxPrefsController.displayInterstitialPrefsFormForCohort(Some(assignedCohort)).url)
+      header("Location", page).get should include(routes.DeprecatedYTALoginInterstitialController.displayInterstitialPrefsFormForCohort(Some(assignedCohort)).url)
     }
 
   }
@@ -109,7 +109,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       val page = controller.displayInterstitialPrefsFormAction(user, request, possibleCohort = None, TestFixtures.sampleHostContext)
 
       status(page) shouldBe 303
-      header("Location", page).get should be (routes.DeprecatedYTABizTaxPrefsController.displayInterstitialPrefsFormForCohort(Some(assignedCohort)).url)
+      header("Location", page).get should be (routes.DeprecatedYTALoginInterstitialController.displayInterstitialPrefsFormForCohort(Some(assignedCohort)).url)
     }
 
     "render the form in the correct initial state when no preferences exist" in new BizTaxPrefsControllerSetup {

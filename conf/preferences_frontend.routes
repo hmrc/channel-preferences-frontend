@@ -16,9 +16,9 @@ GET         /paperless/stop/confirmed                                           
 POST        /account/account-details/sa/resend-validation-email                     controllers.sa.prefs.internal.DeprecatedYTAAccountDetailsController.resendValidationEmailDeprecated
 POST        /paperless/resend-validation-email                                      controllers.sa.prefs.internal.ManagePaperlessController.resendValidationEmail(hostContext: hostcontext.HostContext)
 
-GET         /account/account-details/sa/login-opt-in-email-reminders                controllers.sa.prefs.internal.DeprecatedYTABizTaxPrefsController.redirectToBTAOrInterstitialPage
-GET         /account/account-details/sa/login-opt-in-email-reminders/:cohort        controllers.sa.prefs.internal.DeprecatedYTABizTaxPrefsController.displayInterstitialPrefsFormForCohort(cohort: Option[controllers.sa.prefs.internal.OptInCohort])
-POST        /account/account-details/sa/login-opt-in-email-reminders                controllers.sa.prefs.internal.DeprecatedYTABizTaxPrefsController.submitPrefsFormForInterstitial
+GET         /account/account-details/sa/login-opt-in-email-reminders                controllers.sa.prefs.internal.DeprecatedYTALoginInterstitialController.redirectToBTAOrInterstitialPage
+GET         /account/account-details/sa/login-opt-in-email-reminders/:cohort        controllers.sa.prefs.internal.DeprecatedYTALoginInterstitialController.displayInterstitialPrefsFormForCohort(cohort: Option[controllers.sa.prefs.internal.OptInCohort])
+POST        /account/account-details/sa/login-opt-in-email-reminders                controllers.sa.prefs.internal.DeprecatedYTALoginInterstitialController.submitPrefsFormForInterstitial
 
 GET         /account/account-details/sa/opt-in-email-reminders-thank-you            controllers.sa.prefs.internal.DeprecatedYTABizTaxPrefsController.thankYou(email: Option[controllers.sa.prefs.EncryptedEmail])
 GET         /account/account-details/sa/opt-in-email-reminders                      controllers.sa.prefs.internal.DeprecatedYTABizTaxPrefsController.displayPrefsForm(email: Option[controllers.sa.prefs.EncryptedEmail])

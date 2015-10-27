@@ -63,7 +63,7 @@ object DeprecatedYTAAccountDetailsController extends AccountDetailsController wi
   lazy val emailConnector = EmailConnector
   lazy val preferencesConnector = PreferencesConnector
 
-  implicit val hostContext = HostContext.defaultsForYta
+  implicit val hostContext = HostContext.defaultsForYtaManageAccount
 
   def changeEmailAddress(emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
     changeEmailAddressPage(emailAddress)
