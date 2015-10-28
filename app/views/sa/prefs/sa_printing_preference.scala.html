@@ -1,9 +1,9 @@
-@(showBanner: Boolean, emailForm: Form[_], submitPrefsFormAction: Call, cohort: controllers.sa.prefs.internal.OptInCohort)(implicit request: Request[_], hostContext: hostcontext.HostContext)
+@(emailForm: Form[_], submitPrefsFormAction: Call, cohort: controllers.sa.prefs.internal.OptInCohort)(implicit request: Request[_], hostContext: hostcontext.HostContext)
 
 @import views.html.sa.prefs.cohorts._
     @import controllers.sa.prefs.internal._
 
 @{cohort match {
-        case IPage => i_page(showBanner, emailForm, submitPrefsFormAction)
+        case IPage => i_page(emailForm, submitPrefsFormAction)
     }
 }

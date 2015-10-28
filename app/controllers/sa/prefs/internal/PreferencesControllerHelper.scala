@@ -61,14 +61,13 @@ trait PreferencesControllerHelper {
     "opt-in" -> text
   )(UpgradeRemindersTandC.apply)(UpgradeRemindersTandC.unapply))
 
-  def getSubmitPreferencesView(savePrefsCall: Call, cohort: OptInCohort)(implicit request: Request[AnyRef], withBanner: Boolean = false, hostContext: HostContext): Form[_] => HtmlFormat.Appendable = {
-    errors => views.html.sa.prefs.sa_printing_preference(withBanner, errors, savePrefsCall, cohort)
+  def getSubmitPreferencesView(savePrefsCall: Call, cohort: OptInCohort)(implicit request: Request[AnyRef], hostContext: HostContext): Form[_] => HtmlFormat.Appendable = {
+    errors => views.html.sa.prefs.sa_printing_preference(errors, savePrefsCall, cohort)
   }
 
-  def displayPreferencesFormAction(email: Option[EmailAddress], savePrefsCall: Call, withBanner: Boolean = false, cohort: OptInCohort)(implicit request: Request[AnyRef], hostContext: HostContext) =
+  def displayPreferencesFormAction(email: Option[EmailAddress], savePrefsCall: Call, cohort: OptInCohort)(implicit request: Request[AnyRef], hostContext: HostContext) =
     Ok(
       views.html.sa.prefs.sa_printing_preference(
-        withBanner,
         emailForm = optInDetailsForm.fill(EmailFormDataWithPreference(email, email.map(_ => OptIn), Some(false))),
         submitPrefsFormAction = savePrefsCall,
         cohort

@@ -64,16 +64,16 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       val preferencesAlreadyCreated = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified)))
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Some(preferencesAlreadyCreated))
 
-      val page = Future.successful(controller.redirectToBTAOrInterstitialPageAction(user, request))
+      val page = Future.successful(controller.redirectToBTAOrInterstitialPageAction(user, request, TestFixtures.sampleHostContext))
 
       status(page) shouldBe 303
-      header("Location", page).get should include(ExternalUrls.businessTaxHome)
+      header("Location", page).get should include(TestFixtures.sampleHostContext.returnUrl)
     }
 
     "redirect to interstitial page for the matching cohort if they have no preference set" in new BizTaxPrefsControllerSetup {
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(None)
 
-      val page = controller.redirectToBTAOrInterstitialPageAction(user, request)
+      val page = controller.redirectToBTAOrInterstitialPageAction(user, request, TestFixtures.sampleHostContext)
 
       status(page) shouldBe 303
       header("Location", page).get should include(routes.DeprecatedYTALoginInterstitialController.displayInterstitialPrefsFormForCohort(Some(assignedCohort)).url)
@@ -83,7 +83,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       val preferencesAlreadyCreated = SaPreference(false, None)
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Some(preferencesAlreadyCreated))
 
-      val page = controller.redirectToBTAOrInterstitialPageAction(user, request)
+      val page = controller.redirectToBTAOrInterstitialPageAction(user, request, TestFixtures.sampleHostContext)
 
       status(page) shouldBe 303
       header("Location", page).get should include(routes.DeprecatedYTALoginInterstitialController.displayInterstitialPrefsFormForCohort(Some(assignedCohort)).url)
@@ -100,7 +100,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       val page = controller.displayInterstitialPrefsFormAction(user, request, Some(assignedCohort), TestFixtures.sampleHostContext)
 
       status(page) shouldBe 303
-      header("Location", page).get should include(ExternalUrls.businessTaxHome)
+      header("Location", page).get should be (TestFixtures.sampleHostContext.returnUrl)
     }
 
     "redirect to a re-calculated cohort when no cohort is supplied" in new BizTaxPrefsControllerSetup {
@@ -109,7 +109,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
       val page = controller.displayInterstitialPrefsFormAction(user, request, possibleCohort = None, TestFixtures.sampleHostContext)
 
       status(page) shouldBe 303
-      header("Location", page).get should be (routes.DeprecatedYTALoginInterstitialController.displayInterstitialPrefsFormForCohort(Some(assignedCohort)).url)
+      header("Location", page).get should be (routes.BizTaxPrefsController.displayPrefsFormForCohort(Some(assignedCohort), None, TestFixtures.sampleHostContext).url)
     }
 
     "render the form in the correct initial state when no preferences exist" in new BizTaxPrefsControllerSetup {
@@ -171,21 +171,21 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
   "The preferences action on non interstitial page" should {
     "show main banner" in new BizTaxPrefsControllerSetup {
 
-      val page = controller.displayPrefsFormAction(None, Some(assignedCohort))(user, request, TestFixtures.sampleHostContext)
+      val page = controller.displayPrefsFormAction(AccountDetails, None, Some(assignedCohort))(user, request, TestFixtures.sampleHostContext)
       status(page) shouldBe 200
       val document = Jsoup.parse(contentAsString(page))
       document.getElementsByTag("nav").attr("id") shouldBe "proposition-menu"
     }
 
     "have correct form action to save preferences" in new BizTaxPrefsControllerSetup {
-      val page = controller.displayPrefsFormAction(None, Some(assignedCohort))(user, request, TestFixtures.sampleHostContext)
+      val page = controller.displayPrefsFormAction(AccountDetails, None, Some(assignedCohort))(user, request, TestFixtures.sampleHostContext)
       status(page) shouldBe 200
       val document = Jsoup.parse(contentAsString(page))
       document.select("#form-submit-email-address").attr("action") should endWith(routes.BizTaxPrefsController.submitPrefsFormForNonInterstitial(TestFixtures.sampleHostContext).url)
     }
 
     "audit the cohort information for the account details page" in new BizTaxPrefsControllerSetup {
-      val page = controller.displayPrefsFormAction(None, Some(assignedCohort))(user, request, TestFixtures.sampleHostContext)
+      val page = controller.displayPrefsFormAction(AccountDetails, None, Some(assignedCohort))(user, request, TestFixtures.sampleHostContext)
       status(page) shouldBe 200
 
       val eventArg : ArgumentCaptor[ExtendedDataEvent] = ArgumentCaptor.forClass(classOf[ExtendedDataEvent])
@@ -203,7 +203,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
     "redirect to a re-calculated cohort when no cohort is supplied" in new BizTaxPrefsControllerSetup {
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(None)
 
-      val page = controller.displayPrefsFormAction(emailAddress = None, possibleCohort = None)(user, request, TestFixtures.sampleHostContext)
+      val page = controller.displayPrefsFormAction(AccountDetails, emailAddress = None, possibleCohort = None)(user, request, TestFixtures.sampleHostContext)
 
       status(page) shouldBe 303
       header("Location", page).get should be (routes.BizTaxPrefsController.displayPrefsFormForCohort(Some(assignedCohort), None, TestFixtures.sampleHostContext).url)
@@ -213,7 +213,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
   "The preferences form" should {
 
     "render an email input field with no value if no email address is supplied, and no option selected" in new BizTaxPrefsControllerSetup {
-      val page = controller.displayPrefsFormAction(None, Some(assignedCohort))(user, request, TestFixtures.sampleHostContext)
+      val page = controller.displayPrefsFormAction(AccountDetails, None, Some(assignedCohort))(user, request, TestFixtures.sampleHostContext)
 
       status(page) shouldBe 200
 
@@ -228,7 +228,7 @@ class BizTaxPrefsControllerSpec extends UnitSpec with MockitoSugar {
     "render an email input field populated with the supplied email address, and the Opt-in option selected" in new BizTaxPrefsControllerSetup {
       val emailAddress = "bob@bob.com"
 
-      val page = controller.displayPrefsFormAction(Some(Encrypted(EmailAddress(emailAddress))), Some(assignedCohort))(user, request, TestFixtures.sampleHostContext)
+      val page = controller.displayPrefsFormAction(AccountDetails, Some(Encrypted(EmailAddress(emailAddress))), Some(assignedCohort))(user, request, TestFixtures.sampleHostContext)
 
       status(page) shouldBe 200
 

@@ -13,7 +13,12 @@ class SaPrintingPreferenceViewSpec extends UnitSpec with PreferencesControllerHe
 
   "preference print template" should {
     "render the correct content for the IPage cohort " in {
-      val document = Jsoup.parse(sa_printing_preference(true, emailForm, Call("GET", "/"), IPage)(FakeRequest("GET", "/"), TestFixtures.sampleHostContext).toString())
+      val document = Jsoup.parse(sa_printing_preference(
+        emailForm = emailForm,
+        submitPrefsFormAction = Call("GET", "/"),
+        cohort = IPage
+      )(FakeRequest("GET", "/"), TestFixtures.sampleHostContext).toString())
+
       document.getElementById("opt-in-in").hasAttr("checked") shouldBe true
     }
   }
