@@ -20,7 +20,7 @@ import uk.gov.hmrc.play.frontend.controller.FrontendController
 
 import scala.concurrent.Future
 
-object DeprecatedYTABizTaxPrefsController extends BizTaxPrefsController with BizTaxPrefsControllerDependencies {
+object DeprecatedYTAManageAccountChoosePaperlessController extends ChoosePaperlessController with ChoosePaperlessControllerDependencies {
   implicit val hostContext = HostContext.defaultsForYtaManageAccount
 
   def displayPrefsForm(emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(SaRegime) { implicit authContext => implicit request =>
@@ -40,7 +40,7 @@ object DeprecatedYTABizTaxPrefsController extends BizTaxPrefsController with Biz
   }
 }
 
-object DeprecatedYTALoginInterstitialController extends BizTaxPrefsController with BizTaxPrefsControllerDependencies {
+object DeprecatedYTALoginChoosePaperlessController extends ChoosePaperlessController with ChoosePaperlessControllerDependencies {
   implicit val hostContext = HostContext.defaultsForYtaInterstitials
 
   def redirectToBTAOrInterstitialPage = AuthorisedFor(SaRegime).async { implicit user => implicit request =>
@@ -56,7 +56,7 @@ object DeprecatedYTALoginInterstitialController extends BizTaxPrefsController wi
   }
 }
 
-object BizTaxPrefsController extends BizTaxPrefsController with BizTaxPrefsControllerDependencies {
+object ChoosePaperlessController extends ChoosePaperlessController with ChoosePaperlessControllerDependencies {
 
   def displayPrefsForm(implicit emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = AuthorisedFor(SaRegime) { implicit authContext => implicit request =>
     redirectToPrefsFormWithCohort(emailAddress)
@@ -75,8 +75,8 @@ object BizTaxPrefsController extends BizTaxPrefsController with BizTaxPrefsContr
   }
 }
 
-trait BizTaxPrefsControllerDependencies extends AppName with OptInCohortCalculator {
-  this: BizTaxPrefsController =>
+trait ChoosePaperlessControllerDependencies extends AppName with OptInCohortCalculator {
+  this: ChoosePaperlessController =>
 
   override val auditConnector = Global.auditConnector
   override val preferencesConnector = PreferencesConnector
@@ -84,7 +84,7 @@ trait BizTaxPrefsControllerDependencies extends AppName with OptInCohortCalculat
   override protected implicit def authConnector: AuthConnector = Global.authConnector
 }
 
-trait BizTaxPrefsController
+trait ChoosePaperlessController
   extends FrontendController
   with Actions
   with PreferencesControllerHelper
@@ -96,8 +96,8 @@ trait BizTaxPrefsController
 
   def calculateCohort(authContext: AuthContext): OptInCohort
 
-  val getSavePrefsFromInterstitialCall = controllers.sa.prefs.internal.routes.DeprecatedYTALoginInterstitialController.submitPrefsFormForInterstitial()
-  def getSavePrefsFromNonInterstitialPageCall(implicit hostContext: HostContext) = controllers.sa.prefs.internal.routes.BizTaxPrefsController.submitPrefsFormForNonInterstitial(hostContext)
+  val getSavePrefsFromInterstitialCall = controllers.sa.prefs.internal.routes.DeprecatedYTALoginChoosePaperlessController.submitPrefsFormForInterstitial()
+  def getSavePrefsFromNonInterstitialPageCall(implicit hostContext: HostContext) = controllers.sa.prefs.internal.routes.ChoosePaperlessController.submitPrefsFormForNonInterstitial(hostContext)
 
   private def returnIf(cond: => Future[Boolean])(implicit hostContext: HostContext, headerCarrier: HeaderCarrier) = new {
     def otherwise(f: => Future[Result]) = {
@@ -115,11 +115,11 @@ trait BizTaxPrefsController
 
   private[prefs] def redirectToBTAOrInterstitialPageAction(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext) =
     returnIf(userAlreadyOptedIn) otherwise {
-      Future.successful(Redirect(routes.DeprecatedYTALoginInterstitialController.displayInterstitialPrefsFormForCohort(Some(calculateCohort(authContext)))))
+      Future.successful(Redirect(routes.DeprecatedYTALoginChoosePaperlessController.displayInterstitialPrefsFormForCohort(Some(calculateCohort(authContext)))))
     }
 
   protected def redirectToPrefsFormWithCohort(emailAddress: Option[Encrypted[EmailAddress]])(implicit authContext: AuthContext, hostContext: HostContext) =
-    Redirect(routes.BizTaxPrefsController.displayPrefsFormForCohort(Some(calculateCohort(authContext)), emailAddress, hostContext))
+    Redirect(routes.ChoosePaperlessController.displayPrefsFormForCohort(Some(calculateCohort(authContext)), emailAddress, hostContext))
 
   private[prefs] def displayInterstitialPrefsFormAction(implicit authContext: AuthContext, request: Request[AnyRef], possibleCohort: Option[OptInCohort], hostContext: HostContext) = {
     returnIf(userAlreadyOptedIn) otherwise displayPrefsFormAction(Interstitial, None, possibleCohort)
@@ -152,13 +152,13 @@ trait BizTaxPrefsController
       } yield {
         auditChoice(utr, journey, cohort, terms, email, userCreated, userActivated)
         digital match {
-          case true  => Redirect(routes.BizTaxPrefsController.thankYou(email map (emailAddress => Encrypted(EmailAddress(emailAddress))), hostContext))
+          case true  => Redirect(routes.ChoosePaperlessController.thankYou(email map (emailAddress => Encrypted(EmailAddress(emailAddress))), hostContext))
           case false => Redirect(hostContext.returnUrl)
         }
       }
     }
     submitPreferencesForm(
-      errorsView = getSubmitPreferencesView(routes.BizTaxPrefsController.submitPrefsFormForNonInterstitial(hostContext), cohort),
+      errorsView = getSubmitPreferencesView(routes.ChoosePaperlessController.submitPrefsFormForNonInterstitial(hostContext), cohort),
       emailWarningView = views.html.sa_printing_preference_verify_email(_, cohort),
       emailConnector = emailConnector,
       saUtr = authContext.principal.accounts.sa.get.utr,

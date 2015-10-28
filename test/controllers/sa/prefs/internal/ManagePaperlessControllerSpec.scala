@@ -24,7 +24,7 @@ abstract class Setup extends WithApplication(ConfigHelper.fakeApp) with MockitoS
   val mockPreferencesConnector = mock[PreferencesConnector]
   val mockEmailConnector = mock[EmailConnector]
 
-  val controller = new AccountDetailsController {
+  val controller = new ManagePaperlessController {
     implicit val authConnector = mockAuthConnector
     val preferencesConnector = mockPreferencesConnector
     val emailConnector = mockEmailConnector
@@ -34,7 +34,7 @@ abstract class Setup extends WithApplication(ConfigHelper.fakeApp) with MockitoS
   val request = FakeRequest()
 }
 
-class AccountDetailsControllerSpec extends UnitSpec with MockitoSugar  {
+class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar  {
   import org.mockito.Matchers.{any, eq => is}
 
   val validUtr = SaUtr("1234567890")

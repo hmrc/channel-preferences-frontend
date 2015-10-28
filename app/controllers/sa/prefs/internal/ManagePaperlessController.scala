@@ -18,7 +18,7 @@ import uk.gov.hmrc.play.frontend.controller.FrontendController
 
 import scala.concurrent.Future
 
-object ManagePaperlessController extends AccountDetailsController with ServicesConfig {
+object ManagePaperlessController extends ManagePaperlessController with ServicesConfig {
   lazy val auditConnector = Global.auditConnector
 
   val authConnector = Global.authConnector
@@ -55,7 +55,7 @@ object ManagePaperlessController extends AccountDetailsController with ServicesC
   }
 }
 
-object DeprecatedYTAAccountDetailsController extends AccountDetailsController with ServicesConfig {
+object DeprecatedYTAManagePaperlessController extends ManagePaperlessController with ServicesConfig {
   lazy val auditConnector = Global.auditConnector
 
   val authConnector = Global.authConnector
@@ -94,7 +94,7 @@ object DeprecatedYTAAccountDetailsController extends AccountDetailsController wi
   }
 }
 
-trait AccountDetailsController
+trait ManagePaperlessController
 extends FrontendController
 with Actions
 with PreferencesControllerHelper {
