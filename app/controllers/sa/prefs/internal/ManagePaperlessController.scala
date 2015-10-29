@@ -26,16 +26,16 @@ object ManagePaperlessController extends ManagePaperlessController with Services
   lazy val emailConnector = EmailConnector
   lazy val preferencesConnector = PreferencesConnector
 
-  def changeEmailAddress(implicit emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
-    changeEmailAddressPage(emailAddress)
+  def displayChangeEmailAddress(implicit emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
+    _displayChangeEmailAddress(emailAddress)
   }
 
-  def submitEmailAddress(implicit hostContext: HostContext) = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
-    submitEmailAddressPage
+  def submitChangeEmailAddress(implicit hostContext: HostContext) = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
+    _submitChangeEmailAddress
   }
 
-  def emailAddressChangeThankYou(implicit hostContext: HostContext) = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
-    emailAddressChangeThankYouPage
+  def displayChangeEmailAddressConfirmed(implicit hostContext: HostContext) = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
+    _displayChangeEmailAddressConfirmed
   }
 
   def optOutOfEmailReminders(implicit hostContext: HostContext) = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
@@ -65,16 +65,16 @@ object DeprecatedYTAManagePaperlessController extends ManagePaperlessController 
 
   implicit val hostContext = HostContext.defaultsForYtaManageAccount
 
-  def changeEmailAddress(emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
-    changeEmailAddressPage(emailAddress)
+  def displayChangeEmailAddress(emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
+    _displayChangeEmailAddress(emailAddress)
   }
 
-  def submitEmailAddress = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
-    submitEmailAddressPage
+  def submitChangeEmailAddress = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
+    _submitChangeEmailAddress
   }
 
-  def emailAddressChangeThankYou() = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
-    emailAddressChangeThankYouPage
+  def displayChangeEmailAddressConfirmed() = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
+    _displayChangeEmailAddressConfirmed
   }
 
   def optOutOfEmailRemindersDeprecated = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
@@ -125,7 +125,7 @@ with PreferencesControllerHelper {
   private[prefs] def optOutOfEmailRemindersPage(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: hostcontext.HostContext) =
     lookupCurrentEmail(email => Future.successful(Ok(views.html.confirm_opt_back_into_paper(email.obfuscated))))
 
-  private[prefs] def changeEmailAddressPage(emailAddress: Option[Encrypted[EmailAddress]])(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Future[Result] =
+  private[prefs] def _displayChangeEmailAddress(emailAddress: Option[Encrypted[EmailAddress]])(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Future[Result] =
     lookupCurrentEmail(email => Future.successful(Ok(views.html.account_details_update_email_address(email, emailForm.fill(EmailFormData(emailAddress.map(_.decryptedValue)))))))
 
   private def lookupCurrentEmail(func: (EmailAddress) => Future[Result])(implicit authContext: AuthContext, request: Request[AnyRef]): Future[Result] = {
@@ -135,13 +135,13 @@ with PreferencesControllerHelper {
     }
   }
 
-  private[prefs] def submitEmailAddressPage(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Future[Result] =
+  private[prefs] def _submitChangeEmailAddress(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Future[Result] =
     lookupCurrentEmail(
       email =>
         submitEmailForm(
           errorsView = views.html.account_details_update_email_address(email, _),
           emailWarningView = (enteredEmail) => views.html.account_details_update_email_address_verify_email(enteredEmail),
-          successRedirect = routes.ManagePaperlessController.emailAddressChangeThankYou(hostContext),
+          successRedirect = routes.ManagePaperlessController.displayChangeEmailAddressConfirmed(hostContext),
           emailConnector = emailConnector,
           saUtr = authContext.principal.accounts.sa.get.utr,
           savePreferences = savePreferences
@@ -151,7 +151,7 @@ with PreferencesControllerHelper {
   private def savePreferences(utr: SaUtr, digital: Boolean, email: Option[String] = None, hc: HeaderCarrier) =
     preferencesConnector.savePreferences(utr, digital, email)(hc)
 
-  private[prefs] def emailAddressChangeThankYouPage(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Future[Result] = {
+  private[prefs] def _displayChangeEmailAddressConfirmed(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Future[Result] = {
     lookupCurrentEmail(email => Future.successful(Ok(views.html.account_details_update_email_address_thank_you(email.obfuscated))))
   }
 }

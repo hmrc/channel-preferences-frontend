@@ -1,9 +1,9 @@
-GET         /account/account-details/sa/update-email-address                        controllers.sa.prefs.internal.DeprecatedYTAManagePaperlessController.changeEmailAddress(email: Option[controllers.sa.prefs.EncryptedEmail])
-POST        /account/account-details/sa/update-email-address                        controllers.sa.prefs.internal.DeprecatedYTAManagePaperlessController.submitEmailAddress
-GET         /account/account-details/sa/update-email-address-thank-you              controllers.sa.prefs.internal.DeprecatedYTAManagePaperlessController.emailAddressChangeThankYou
-GET         /paperless/email-address/change                                         controllers.sa.prefs.internal.ManagePaperlessController.changeEmailAddress(email: Option[controllers.sa.prefs.EncryptedEmail], hostContext: hostcontext.HostContext)
-POST        /paperless/email-address/change                                         controllers.sa.prefs.internal.ManagePaperlessController.submitEmailAddress(hostContext: hostcontext.HostContext)
-GET         /paperless/email-address/change/confirmed                               controllers.sa.prefs.internal.ManagePaperlessController.emailAddressChangeThankYou(hostContext: hostcontext.HostContext)
+GET         /account/account-details/sa/update-email-address                        controllers.sa.prefs.internal.DeprecatedYTAManagePaperlessController.displayChangeEmailAddress(email: Option[controllers.sa.prefs.EncryptedEmail])
+POST        /account/account-details/sa/update-email-address                        controllers.sa.prefs.internal.DeprecatedYTAManagePaperlessController.submitChangeEmailAddress
+GET         /account/account-details/sa/update-email-address-thank-you              controllers.sa.prefs.internal.DeprecatedYTAManagePaperlessController.displayChangeEmailAddressConfirmed
+GET         /paperless/email-address/change                                         controllers.sa.prefs.internal.ManagePaperlessController.displayChangeEmailAddress(email: Option[controllers.sa.prefs.EncryptedEmail], hostContext: hostcontext.HostContext)
+POST        /paperless/email-address/change                                         controllers.sa.prefs.internal.ManagePaperlessController.submitChangeEmailAddress(hostContext: hostcontext.HostContext)
+GET         /paperless/email-address/change/confirmed                               controllers.sa.prefs.internal.ManagePaperlessController.displayChangeEmailAddressConfirmed(hostContext: hostcontext.HostContext)
 
 GET         /account/account-details/sa/opt-out-email-reminders                     controllers.sa.prefs.internal.DeprecatedYTAManagePaperlessController.optOutOfEmailRemindersDeprecated
 POST        /account/account-details/sa/opt-out-email-reminders                     controllers.sa.prefs.internal.DeprecatedYTAManagePaperlessController.confirmOptOutOfEmailReminders
