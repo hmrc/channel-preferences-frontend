@@ -2,6 +2,7 @@ package controllers.sa.prefs.internal
 
 import connectors._
 import controllers.sa.prefs.Encrypted
+import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{any, eq => is}
 import org.mockito.Mockito._
@@ -56,14 +57,25 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
   }
 
   "the posting upgrade form" should {
-    "redirect to thank you page with supplied redirect url if digital button is pressed " in new UpgradeTestCase {
+    "redirect to thank you page with supplied redirect url if digital button is pressed and t&cs checked" in new UpgradeTestCase {
 
       when(controller.preferencesConnector.addTermsAndConditions(is(utr), is(Generic -> TermsAccepted(true)), email = is(None))(any())).thenReturn(Future.successful(true))
 
-      val result = await(controller.upgradePreferences("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("opt-in" -> "true")))
+      val result = await(controller.upgradePreferences("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("opt-in" -> "true", "accept-tc" -> "true")))
 
       status(result) shouldBe 303
       header("Location", result).get should be(routes.UpgradeRemindersController.thankYou(Encrypted[String]("someUrl")).url)
+    }
+
+    "return the page with an error if if digital button is pressed but t&cs unchecked" in new UpgradeTestCase {
+
+      when(controller.preferencesConnector.addTermsAndConditions(is(utr), is(Generic -> TermsAccepted(true)), email = is(None))(any())).thenReturn(Future.successful(true))
+
+      val result = await(controller.upgradePreferences("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("opt-in" -> "true", "accept-tc" -> "false")))
+
+      status(result) shouldBe 400
+      Jsoup.parse(contentAsString(result)).select(".error-notification").text shouldBe "You must accept the terms and conditions"
+      verifyZeroInteractions(controller.preferencesConnector)
     }
 
     "redirect to supplied url if non-digital button pressed " in new UpgradeTestCase {
@@ -79,7 +91,7 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
     "redirect to supplied url when digital true and no preference found" in new UpgradeTestCase {
       when(controller.preferencesConnector.addTermsAndConditions(is(utr), is(Generic -> TermsAccepted(true)), email = is(None))(any())).thenReturn(Future.successful(false))
 
-      val result = await(controller.upgradePreferences("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("opt-in" -> "true")))
+      val result = await(controller.upgradePreferences("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("opt-in" -> "true", "accept-tc" -> "true")))
 
       status(result) shouldBe 303
       header("Location", result).get should include("someUrl")

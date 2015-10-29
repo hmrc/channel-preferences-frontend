@@ -53,9 +53,9 @@
             )
 
             @singleCheckbox(
-            emailForm("accept-tc"),
-            '_label -> Html(Messages("sa_printing_preference.tc.preLinkText", Link.toExternalPage(id = Some("terms-and-conditions"), url = "https://www.tax.service.gov.uk/information/terms#secure", value = Some(Messages("sa_printing_preference.tc.linkText"))).toHtml)),
-            '_labelClass -> "label--inline"
+                emailForm("accept-tc"),
+                '_label -> Html(Messages("sa_printing_preference.tc.preLinkText", Link.toExternalPage(id = Some("terms-and-conditions"), url = "https://www.tax.service.gov.uk/information/terms#secure", value = Some(Messages("sa_printing_preference.tc.linkText"))).toHtml)),
+                '_labelClass -> "label--inline"
             )
             <p>By signing up, you confirm that you:</p>
             <ul class="bullets form-hint">
