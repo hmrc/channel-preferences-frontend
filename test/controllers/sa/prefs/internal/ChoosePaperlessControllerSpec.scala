@@ -64,7 +64,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
       val preferencesAlreadyCreated = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified)))
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Some(preferencesAlreadyCreated))
 
-      val page = Future.successful(controller.redirectToBTAOrInterstitialPageAction(user, request, TestFixtures.sampleHostContext))
+      val page = Future.successful(controller._redirectToDisplayFormWithCohortIfNotOptedIn(user, request, TestFixtures.sampleHostContext))
 
       status(page) shouldBe 303
       header("Location", page).get should include(TestFixtures.sampleHostContext.returnUrl)
@@ -73,20 +73,20 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
     "redirect to interstitial page for the matching cohort if they have no preference set" in new ChoosePaperlessControllerSetup {
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(None)
 
-      val page = controller.redirectToBTAOrInterstitialPageAction(user, request, TestFixtures.sampleHostContext)
+      val page = controller._redirectToDisplayFormWithCohortIfNotOptedIn(user, request, TestFixtures.sampleHostContext)
 
       status(page) shouldBe 303
-      header("Location", page).get should include(routes.DeprecatedYTALoginChoosePaperlessController.displayInterstitialPrefsFormForCohort(Some(assignedCohort)).url)
+      header("Location", page).get should include(routes.DeprecatedYTALoginChoosePaperlessController.displayFormIfNotOptedIn(Some(assignedCohort)).url)
     }
 
     "redirect to interstitial page for the matching cohort if they are currently opted out" in new ChoosePaperlessControllerSetup {
       val preferencesAlreadyCreated = SaPreference(false, None)
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Some(preferencesAlreadyCreated))
 
-      val page = controller.redirectToBTAOrInterstitialPageAction(user, request, TestFixtures.sampleHostContext)
+      val page = controller._redirectToDisplayFormWithCohortIfNotOptedIn(user, request, TestFixtures.sampleHostContext)
 
       status(page) shouldBe 303
-      header("Location", page).get should include(routes.DeprecatedYTALoginChoosePaperlessController.displayInterstitialPrefsFormForCohort(Some(assignedCohort)).url)
+      header("Location", page).get should include(routes.DeprecatedYTALoginChoosePaperlessController.displayFormIfNotOptedIn(Some(assignedCohort)).url)
     }
 
   }
@@ -97,7 +97,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
       val preferencesAlreadyCreated = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified)))
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Some(preferencesAlreadyCreated))
 
-      val page = controller.displayInterstitialPrefsFormAction(user, request, Some(assignedCohort), TestFixtures.sampleHostContext)
+      val page = controller._displayFormIfNotOptedIn(user, request, Some(assignedCohort), TestFixtures.sampleHostContext)
 
       status(page) shouldBe 303
       header("Location", page).get should be (TestFixtures.sampleHostContext.returnUrl)
@@ -106,16 +106,16 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
     "redirect to a re-calculated cohort when no cohort is supplied" in new ChoosePaperlessControllerSetup {
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(None)
 
-      val page = controller.displayInterstitialPrefsFormAction(user, request, possibleCohort = None, TestFixtures.sampleHostContext)
+      val page = controller._displayFormIfNotOptedIn(user, request, possibleCohort = None, TestFixtures.sampleHostContext)
 
       status(page) shouldBe 303
-      header("Location", page).get should be (routes.ChoosePaperlessController.displayPrefsFormForCohort(Some(assignedCohort), None, TestFixtures.sampleHostContext).url)
+      header("Location", page).get should be (routes.ChoosePaperlessController.displayForm(Some(assignedCohort), None, TestFixtures.sampleHostContext).url)
     }
 
     "render the form in the correct initial state when no preferences exist" in new ChoosePaperlessControllerSetup {
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(None)
 
-      val page = controller.displayInterstitialPrefsFormAction(user, request, Some(assignedCohort), TestFixtures.sampleHostContext)
+      val page = controller._displayFormIfNotOptedIn(user, request, Some(assignedCohort), TestFixtures.sampleHostContext)
 
       status(page) shouldBe 200
 
@@ -125,7 +125,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
     "render the form in the correct initial state when user is currently opted out" in new ChoosePaperlessControllerSetup {
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Some(SaPreference(false, None)))
 
-      val page = controller.displayInterstitialPrefsFormAction(user, request, Some(assignedCohort), TestFixtures.sampleHostContext)
+      val page = controller._displayFormIfNotOptedIn(user, request, Some(assignedCohort), TestFixtures.sampleHostContext)
 
       status(page) shouldBe 200
 
@@ -136,7 +136,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
       override def assignedCohort = IPage
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(None)
 
-      val page = controller.displayInterstitialPrefsFormAction(user, request, Some(assignedCohort), TestFixtures.sampleHostContext)
+      val page = controller._displayFormIfNotOptedIn(user, request, Some(assignedCohort), TestFixtures.sampleHostContext)
       status(page) shouldBe 200
 
       val eventArg : ArgumentCaptor[ExtendedDataEvent] = ArgumentCaptor.forClass(classOf[ExtendedDataEvent])
@@ -171,21 +171,21 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
   "The preferences action on non interstitial page" should {
     "show main banner" in new ChoosePaperlessControllerSetup {
 
-      val page = controller.displayPrefsFormAction(AccountDetails, None, Some(assignedCohort))(user, request, TestFixtures.sampleHostContext)
+      val page = controller._displayForm(AccountDetails, None, Some(assignedCohort))(user, request, TestFixtures.sampleHostContext)
       status(page) shouldBe 200
       val document = Jsoup.parse(contentAsString(page))
       document.getElementsByTag("nav").attr("id") shouldBe "proposition-menu"
     }
 
     "have correct form action to save preferences" in new ChoosePaperlessControllerSetup {
-      val page = controller.displayPrefsFormAction(AccountDetails, None, Some(assignedCohort))(user, request, TestFixtures.sampleHostContext)
+      val page = controller._displayForm(AccountDetails, None, Some(assignedCohort))(user, request, TestFixtures.sampleHostContext)
       status(page) shouldBe 200
       val document = Jsoup.parse(contentAsString(page))
-      document.select("#form-submit-email-address").attr("action") should endWith(routes.ChoosePaperlessController.submitPrefsFormForNonInterstitial(TestFixtures.sampleHostContext).url)
+      document.select("#form-submit-email-address").attr("action") should endWith(routes.ChoosePaperlessController.submitForm(TestFixtures.sampleHostContext).url)
     }
 
     "audit the cohort information for the account details page" in new ChoosePaperlessControllerSetup {
-      val page = controller.displayPrefsFormAction(AccountDetails, None, Some(assignedCohort))(user, request, TestFixtures.sampleHostContext)
+      val page = controller._displayForm(AccountDetails, None, Some(assignedCohort))(user, request, TestFixtures.sampleHostContext)
       status(page) shouldBe 200
 
       val eventArg : ArgumentCaptor[ExtendedDataEvent] = ArgumentCaptor.forClass(classOf[ExtendedDataEvent])
@@ -203,17 +203,17 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
     "redirect to a re-calculated cohort when no cohort is supplied" in new ChoosePaperlessControllerSetup {
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(None)
 
-      val page = controller.displayPrefsFormAction(AccountDetails, emailAddress = None, possibleCohort = None)(user, request, TestFixtures.sampleHostContext)
+      val page = controller._displayForm(AccountDetails, emailAddress = None, possibleCohort = None)(user, request, TestFixtures.sampleHostContext)
 
       status(page) shouldBe 303
-      header("Location", page).get should be (routes.ChoosePaperlessController.displayPrefsFormForCohort(Some(assignedCohort), None, TestFixtures.sampleHostContext).url)
+      header("Location", page).get should be (routes.ChoosePaperlessController.displayForm(Some(assignedCohort), None, TestFixtures.sampleHostContext).url)
     }
   }
 
   "The preferences form" should {
 
     "render an email input field with no value if no email address is supplied, and no option selected" in new ChoosePaperlessControllerSetup {
-      val page = controller.displayPrefsFormAction(AccountDetails, None, Some(assignedCohort))(user, request, TestFixtures.sampleHostContext)
+      val page = controller._displayForm(AccountDetails, None, Some(assignedCohort))(user, request, TestFixtures.sampleHostContext)
 
       status(page) shouldBe 200
 
@@ -228,7 +228,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
     "render an email input field populated with the supplied email address, and the Opt-in option selected" in new ChoosePaperlessControllerSetup {
       val emailAddress = "bob@bob.com"
 
-      val page = controller.displayPrefsFormAction(AccountDetails, Some(Encrypted(EmailAddress(emailAddress))), Some(assignedCohort))(user, request, TestFixtures.sampleHostContext)
+      val page = controller._displayForm(AccountDetails, Some(Encrypted(EmailAddress(emailAddress))), Some(assignedCohort))(user, request, TestFixtures.sampleHostContext)
 
       status(page) shouldBe 200
 
@@ -246,7 +246,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
   "A post to set preferences with no emailVerifiedFlag" should {
 
     "show an error if no opt-in preference has been chosen" in new ChoosePaperlessControllerSetup {
-      val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody(), hostContext = TestFixtures.sampleHostContext))
+      val page = Future.successful(controller._submitForm(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody(), hostContext = TestFixtures.sampleHostContext))
 
       status(page) shouldBe 400
 
@@ -258,7 +258,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
     "show an error when opting-in if the email is incorrectly formatted" in new ChoosePaperlessControllerSetup {
       val emailAddress = "invalid-email"
 
-      val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", "email.main" -> emailAddress), hostContext = TestFixtures.sampleHostContext))
+      val page = Future.successful(controller._submitForm(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", "email.main" -> emailAddress), hostContext = TestFixtures.sampleHostContext))
 
       status(page) shouldBe 400
 
@@ -271,7 +271,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
       override def assignedCohort = IPage
 
       val emailAddress = "someone@email.com"
-      val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user,
+      val page = Future.successful(controller._submitForm(AccountDetails)(user,
         FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", "email.main" -> emailAddress, "email.confirm" -> emailAddress, "accept-tc" -> "false"), hostContext = TestFixtures.sampleHostContext))
 
       status(page) shouldBe 400
@@ -285,7 +285,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
       override def assignedCohort = IPage
 
       val emailAddress = "someone@email.com"
-      val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user,
+      val page = Future.successful(controller._submitForm(AccountDetails)(user,
         FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", "email.main" -> emailAddress, "email.confirm" -> emailAddress), hostContext = TestFixtures.sampleHostContext))
 
       status(page) shouldBe 400
@@ -297,7 +297,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
 
     "show an error when opting-in if the email is not set" in new ChoosePaperlessControllerSetup {
 
-      val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", "email.main" -> "", "accept-tc" -> "true"), hostContext = TestFixtures.sampleHostContext))
+      val page = Future.successful(controller._submitForm(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", "email.main" -> "", "accept-tc" -> "true"), hostContext = TestFixtures.sampleHostContext))
 
       status(page) shouldBe 400
 
@@ -309,7 +309,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
     "show an error when opting-in if the two email fields are not equal" in new ChoosePaperlessControllerSetup {
       val emailAddress = "someone@email.com"
 
-      val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", "email.main" -> emailAddress, "email.confirm" -> "other", "accept-tc" -> "true"), hostContext = TestFixtures.sampleHostContext))
+      val page = Future.successful(controller._submitForm(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", "email.main" -> emailAddress, "email.confirm" -> "other", "accept-tc" -> "true"), hostContext = TestFixtures.sampleHostContext))
 
       status(page) shouldBe 400
 
@@ -323,7 +323,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
       val emailAddress = "someone@dodgy.domain"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(false)
 
-      val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress),("email.confirm", emailAddress), "accept-tc" -> "true"), hostContext = TestFixtures.sampleHostContext))
+      val page = Future.successful(controller._submitForm(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress),("email.confirm", emailAddress), "accept-tc" -> "true"), hostContext = TestFixtures.sampleHostContext))
 
       status(page) shouldBe 200
 
@@ -338,10 +338,10 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
       when(mockPreferencesConnector.addTermsAndConditions(is(validUtr), is(Generic -> TermsAccepted(true)), is(Some(emailAddress)))(any())).thenReturn(Future.successful(true))
       when(mockPreferencesConnector.activateUser(is(validUtr), anyString)(any())).thenReturn(Future.successful(true))
 
-      val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress),("email.confirm", emailAddress), "accept-tc" -> "true"), hostContext = TestFixtures.sampleHostContext))
+      val page = Future.successful(controller._submitForm(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress),("email.confirm", emailAddress), "accept-tc" -> "true"), hostContext = TestFixtures.sampleHostContext))
 
       status(page) shouldBe 303
-      header("Location", page).get should include(routes.ChoosePaperlessController.thankYou(Some(Encrypted(EmailAddress(emailAddress))), TestFixtures.sampleHostContext).toString())
+      header("Location", page).get should include(routes.ChoosePaperlessController.displayNearlyDone(Some(Encrypted(EmailAddress(emailAddress))), TestFixtures.sampleHostContext).toString())
 
       verify(mockPreferencesConnector).saveCohort(is(validUtr), is(assignedCohort))(any())
       verify(mockPreferencesConnector).addTermsAndConditions(is(validUtr), is(Generic -> TermsAccepted(true)), is(Some(emailAddress)))(any())
@@ -356,10 +356,10 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(true)
       when(mockPreferencesConnector.addTermsAndConditions(is(validUtr), is(Generic -> TermsAccepted(true)), is(Some(emailAddress)))(any())).thenReturn(Future.successful(false))
 
-      val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress),("email.confirm", emailAddress), "accept-tc" -> "true"), hostContext = TestFixtures.sampleHostContext))
+      val page = Future.successful(controller._submitForm(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress),("email.confirm", emailAddress), "accept-tc" -> "true"), hostContext = TestFixtures.sampleHostContext))
 
       status(page) shouldBe 303
-      header("Location", page).get should include(routes.ChoosePaperlessController.thankYou(Some(Encrypted(EmailAddress(emailAddress))), TestFixtures.sampleHostContext).toString())
+      header("Location", page).get should include(routes.ChoosePaperlessController.displayNearlyDone(Some(Encrypted(EmailAddress(emailAddress))), TestFixtures.sampleHostContext).toString())
 
       verify(mockPreferencesConnector).saveCohort(is(validUtr), is(assignedCohort))(any())
       verify(mockPreferencesConnector).addTermsAndConditions(is(validUtr), is(Generic -> TermsAccepted(true)), is(Some(emailAddress)))(any())
@@ -372,7 +372,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
     "when opting-out, save the preference and redirect to the thank you page" in new ChoosePaperlessControllerSetup {
       when(mockPreferencesConnector.addTermsAndConditions(is(validUtr), is(Generic -> TermsAccepted(false)), is(None))(any())).thenReturn(Future.successful(true))
       when(mockPreferencesConnector.activateUser(is(validUtr), anyString)(any())).thenReturn(Future.successful(true))
-      val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "false"), hostContext = TestFixtures.sampleHostContext))
+      val page = Future.successful(controller._submitForm(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "false"), hostContext = TestFixtures.sampleHostContext))
 
       status(page) shouldBe 303
       header("Location", page).get should be (TestFixtures.sampleHostContext.returnUrl)
@@ -392,10 +392,10 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
       when(mockPreferencesConnector.addTermsAndConditions(is(validUtr), is(Generic -> TermsAccepted(true)), is(Some(emailAddress)))(any())).thenReturn(Future.successful(true))
       when(mockPreferencesConnector.activateUser(is(validUtr), anyString)(any())).thenReturn(Future.successful(true))
 
-      val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "true"), "accept-tc" -> "true"), hostContext = TestFixtures.sampleHostContext))
+      val page = Future.successful(controller._submitForm(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "true"), "accept-tc" -> "true"), hostContext = TestFixtures.sampleHostContext))
 
       status(page) shouldBe 303
-      header("Location", page).get should include(routes.ChoosePaperlessController.thankYou(Some(Encrypted(EmailAddress(emailAddress))), TestFixtures.sampleHostContext).toString())
+      header("Location", page).get should include(routes.ChoosePaperlessController.displayNearlyDone(Some(Encrypted(EmailAddress(emailAddress))), TestFixtures.sampleHostContext).toString())
 
       verify(mockPreferencesConnector).saveCohort(is(validUtr), is(assignedCohort))(any())
       verify(mockPreferencesConnector).addTermsAndConditions(is(validUtr), is(Generic -> TermsAccepted(true)), is(Some(emailAddress)))(any())
@@ -409,7 +409,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
       val emailAddress = "someone@dodgy.domain"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(false)
 
-      val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "false"), "accept-tc" -> "true"), hostContext = TestFixtures.sampleHostContext))
+      val page = Future.successful(controller._submitForm(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "false"), "accept-tc" -> "true"), hostContext = TestFixtures.sampleHostContext))
 
       status(page) shouldBe 200
 
@@ -425,7 +425,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
       val emailAddress = "someone@dodgy.domain"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(false)
 
-      val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "hjgjhghjghjgj"), "accept-tc" -> "true"), hostContext = TestFixtures.sampleHostContext))
+      val page = Future.successful(controller._submitForm(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "hjgjhghjghjgj"), "accept-tc" -> "true"), hostContext = TestFixtures.sampleHostContext))
 
       status(page) shouldBe 200
 
@@ -444,7 +444,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
       when(mockPreferencesConnector.addTermsAndConditions(is(validUtr), is(Generic -> TermsAccepted(true)), is(Some(emailAddress)))(any())).thenReturn(Future.successful(true))
       when(mockPreferencesConnector.activateUser(is(validUtr), anyString)(any())).thenReturn(Future.successful(true))
 
-      val page = Future.successful(controller.submitPrefsFormAction(Interstitial)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress),("email.confirm", emailAddress), "accept-tc" -> "true"), hostContext = TestFixtures.sampleHostContext))
+      val page = Future.successful(controller._submitForm(Interstitial)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress),("email.confirm", emailAddress), "accept-tc" -> "true"), hostContext = TestFixtures.sampleHostContext))
 
       status(page) shouldBe 303
 
@@ -473,7 +473,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
       when(mockPreferencesConnector.addTermsAndConditions(is(validUtr), is(Generic -> TermsAccepted(true)), is(Some(emailAddress)))(any())).thenReturn(Future.successful(true))
       when(mockPreferencesConnector.activateUser(is(validUtr), anyString)(any())).thenReturn(Future.successful(false))
 
-      val page = Future.successful(controller.submitPrefsFormAction(Interstitial)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress),("email.confirm", emailAddress), "accept-tc" -> "true"), hostContext = TestFixtures.sampleHostContext))
+      val page = Future.successful(controller._submitForm(Interstitial)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress),("email.confirm", emailAddress), "accept-tc" -> "true"), hostContext = TestFixtures.sampleHostContext))
 
       status(page) shouldBe 303
 
@@ -502,7 +502,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
         is(Generic -> TermsAccepted(false)),
         is(None))(any())).thenReturn(Future.successful(true))
 
-      val page = Future.successful(controller.submitPrefsFormAction(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "false"), hostContext = TestFixtures.sampleHostContext))
+      val page = Future.successful(controller._submitForm(AccountDetails)(user, FakeRequest().withFormUrlEncodedBody("opt-in" -> "false"), hostContext = TestFixtures.sampleHostContext))
 
       status(page) shouldBe 303
 

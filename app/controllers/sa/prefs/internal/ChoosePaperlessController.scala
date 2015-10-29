@@ -23,55 +23,55 @@ import scala.concurrent.Future
 object DeprecatedYTAManageAccountChoosePaperlessController extends ChoosePaperlessController with ChoosePaperlessControllerDependencies {
   implicit val hostContext = HostContext.defaultsForYtaManageAccount
 
-  def displayPrefsForm(emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(SaRegime) { implicit authContext => implicit request =>
-    redirectToPrefsFormWithCohort(emailAddress)
+  def redirectToDisplayFormWithCohort(emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(SaRegime) { implicit authContext => implicit request =>
+    _redirectToDisplayFormWithCohort(emailAddress)
   }
 
-  def displayPrefsFormForCohort(cohort: Option[OptInCohort], emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(SaRegime).async { implicit user => implicit request =>
-    displayPrefsFormAction(AccountDetails, emailAddress, cohort)
+  def displayForm(cohort: Option[OptInCohort], emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(SaRegime).async { implicit user => implicit request =>
+    _displayForm(AccountDetails, emailAddress, cohort)
   }
 
-  def submitPrefsFormForNonInterstitial() = AuthorisedFor(SaRegime).async { implicit user => implicit request =>
-    submitPrefsFormAction(AccountDetails)
+  def submitForm() = AuthorisedFor(SaRegime).async { implicit user => implicit request =>
+    _submitForm(AccountDetails)
   }
 
-  def thankYou(emailAddress: Option[controllers.sa.prefs.EncryptedEmail]) = AuthorisedFor(SaRegime) { implicit authContext => implicit request =>
-    thankYouAction(emailAddress)
+  def displayNearlyDone(emailAddress: Option[controllers.sa.prefs.EncryptedEmail]) = AuthorisedFor(SaRegime) { implicit authContext => implicit request =>
+    _displayNearlyDone(emailAddress)
   }
 }
 
 object DeprecatedYTALoginChoosePaperlessController extends ChoosePaperlessController with ChoosePaperlessControllerDependencies {
   implicit val hostContext = HostContext.defaultsForYtaInterstitials
 
-  def redirectToBTAOrInterstitialPage = AuthorisedFor(SaRegime).async { implicit user => implicit request =>
-    redirectToBTAOrInterstitialPageAction
+  def redirectToDisplayFormWithCohortIfNotOptedIn = AuthorisedFor(SaRegime).async { implicit user => implicit request =>
+    _redirectToDisplayFormWithCohortIfNotOptedIn
   }
 
-  def displayInterstitialPrefsFormForCohort(implicit cohort: Option[OptInCohort]) = AuthorisedFor(SaRegime).async { implicit user => implicit request =>
-    displayInterstitialPrefsFormAction
+  def displayFormIfNotOptedIn(implicit cohort: Option[OptInCohort]) = AuthorisedFor(SaRegime).async { implicit user => implicit request =>
+    _displayFormIfNotOptedIn
   }
 
-  def submitPrefsFormForInterstitial() = AuthorisedFor(SaRegime).async { implicit user => implicit request =>
-    submitPrefsFormAction(Interstitial)
+  def submitForm() = AuthorisedFor(SaRegime).async { implicit user => implicit request =>
+    _submitForm(Interstitial)
   }
 }
 
 object ChoosePaperlessController extends ChoosePaperlessController with ChoosePaperlessControllerDependencies {
 
-  def displayPrefsForm(implicit emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = AuthorisedFor(SaRegime) { implicit authContext => implicit request =>
-    redirectToPrefsFormWithCohort(emailAddress)
+  def redirectToDisplayFormWithCohort(implicit emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = AuthorisedFor(SaRegime) { implicit authContext => implicit request =>
+    _redirectToDisplayFormWithCohort(emailAddress)
   }
 
-  def displayPrefsFormForCohort(implicit cohort: Option[OptInCohort], emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = AuthorisedFor(SaRegime).async { implicit user => implicit request =>
-    displayPrefsFormAction(AccountDetails, emailAddress, cohort)
+  def displayForm(implicit cohort: Option[OptInCohort], emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = AuthorisedFor(SaRegime).async { implicit user => implicit request =>
+    _displayForm(AccountDetails, emailAddress, cohort)
   }
 
-  def submitPrefsFormForNonInterstitial(implicit hostContext: HostContext) = AuthorisedFor(SaRegime).async { implicit user => implicit request =>
-    submitPrefsFormAction(AccountDetails)
+  def submitForm(implicit hostContext: HostContext) = AuthorisedFor(SaRegime).async { implicit user => implicit request =>
+    _submitForm(AccountDetails)
   }
 
-  def thankYou(implicit emailAddress: Option[controllers.sa.prefs.EncryptedEmail], hostContext: HostContext) = AuthorisedFor(SaRegime) { implicit authContext => implicit request =>
-    thankYouAction(emailAddress)
+  def displayNearlyDone(implicit emailAddress: Option[controllers.sa.prefs.EncryptedEmail], hostContext: HostContext) = AuthorisedFor(SaRegime) { implicit authContext => implicit request =>
+    _displayNearlyDone(emailAddress)
   }
 }
 
@@ -96,8 +96,8 @@ trait ChoosePaperlessController
 
   def calculateCohort(authContext: AuthContext): OptInCohort
 
-  val getSavePrefsFromInterstitialCall = controllers.sa.prefs.internal.routes.DeprecatedYTALoginChoosePaperlessController.submitPrefsFormForInterstitial()
-  def getSavePrefsFromNonInterstitialPageCall(implicit hostContext: HostContext) = controllers.sa.prefs.internal.routes.ChoosePaperlessController.submitPrefsFormForNonInterstitial(hostContext)
+  val getSavePrefsFromInterstitialCall = controllers.sa.prefs.internal.routes.DeprecatedYTALoginChoosePaperlessController.submitForm()
+  def getSavePrefsFromNonInterstitialPageCall(implicit hostContext: HostContext) = controllers.sa.prefs.internal.routes.ChoosePaperlessController.submitForm(hostContext)
 
   private def returnIf(cond: => Future[Boolean])(implicit hostContext: HostContext, headerCarrier: HeaderCarrier) = new {
     def otherwise(f: => Future[Result]) = {
@@ -113,21 +113,21 @@ trait ChoosePaperlessController
     case Some(_) | None     => false
   }
 
-  private[prefs] def redirectToBTAOrInterstitialPageAction(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext) =
+  private[prefs] def _redirectToDisplayFormWithCohortIfNotOptedIn(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext) =
     returnIf(userAlreadyOptedIn) otherwise {
-      Future.successful(Redirect(routes.DeprecatedYTALoginChoosePaperlessController.displayInterstitialPrefsFormForCohort(Some(calculateCohort(authContext)))))
+      Future.successful(Redirect(routes.DeprecatedYTALoginChoosePaperlessController.displayFormIfNotOptedIn(Some(calculateCohort(authContext)))))
     }
 
-  protected def redirectToPrefsFormWithCohort(emailAddress: Option[Encrypted[EmailAddress]])(implicit authContext: AuthContext, hostContext: HostContext) =
-    Redirect(routes.ChoosePaperlessController.displayPrefsFormForCohort(Some(calculateCohort(authContext)), emailAddress, hostContext))
+  protected def _redirectToDisplayFormWithCohort(emailAddress: Option[Encrypted[EmailAddress]])(implicit authContext: AuthContext, hostContext: HostContext) =
+    Redirect(routes.ChoosePaperlessController.displayForm(Some(calculateCohort(authContext)), emailAddress, hostContext))
 
-  private[prefs] def displayInterstitialPrefsFormAction(implicit authContext: AuthContext, request: Request[AnyRef], possibleCohort: Option[OptInCohort], hostContext: HostContext) = {
-    returnIf(userAlreadyOptedIn) otherwise displayPrefsFormAction(Interstitial, None, possibleCohort)
+  private[prefs] def _displayFormIfNotOptedIn(implicit authContext: AuthContext, request: Request[AnyRef], possibleCohort: Option[OptInCohort], hostContext: HostContext) = {
+    returnIf(userAlreadyOptedIn) otherwise _displayForm(Interstitial, None, possibleCohort)
   }
 
-  private[prefs] def displayPrefsFormAction(journey: Journey, emailAddress: Option[Encrypted[EmailAddress]], possibleCohort: Option[OptInCohort])(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext) = {
+  private[prefs] def _displayForm(journey: Journey, emailAddress: Option[Encrypted[EmailAddress]], possibleCohort: Option[OptInCohort])(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext) = {
     val saUtr = authContext.principal.accounts.sa.get.utr
-    possibleCohort.fold(ifEmpty = Future.successful(redirectToPrefsFormWithCohort(emailAddress))) { cohort =>
+    possibleCohort.fold(ifEmpty = Future.successful(_redirectToDisplayFormWithCohort(emailAddress))) { cohort =>
       preferencesConnector.saveCohort(saUtr, calculateCohort(authContext)).map { case _ =>
         auditPageShown(saUtr, journey, cohort)
         displayPreferencesFormAction(emailAddress.map(_.decryptedValue), getSavePrefsFromNonInterstitialPageCall, cohort)
@@ -135,7 +135,7 @@ trait ChoosePaperlessController
     }
   }
 
-  private[prefs] def submitPrefsFormAction(journey: Journey)(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext) = {
+  private[prefs] def _submitForm(journey: Journey)(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext) = {
     val cohort = calculateCohort(authContext)
     def maybeActivateUser(utr: SaUtr, needsActivation: Boolean): Future[Boolean] = needsActivation match {
       case true => preferencesConnector.activateUser(utr, "")
@@ -152,13 +152,13 @@ trait ChoosePaperlessController
       } yield {
         auditChoice(utr, journey, cohort, terms, email, userCreated, userActivated)
         digital match {
-          case true  => Redirect(routes.ChoosePaperlessController.thankYou(email map (emailAddress => Encrypted(EmailAddress(emailAddress))), hostContext))
+          case true  => Redirect(routes.ChoosePaperlessController.displayNearlyDone(email map (emailAddress => Encrypted(EmailAddress(emailAddress))), hostContext))
           case false => Redirect(hostContext.returnUrl)
         }
       }
     }
     submitPreferencesForm(
-      errorsView = getSubmitPreferencesView(routes.ChoosePaperlessController.submitPrefsFormForNonInterstitial(hostContext), cohort),
+      errorsView = getSubmitPreferencesView(routes.ChoosePaperlessController.submitForm(hostContext), cohort),
       emailWarningView = views.html.sa_printing_preference_verify_email(_, cohort),
       emailConnector = emailConnector,
       saUtr = authContext.principal.accounts.sa.get.utr,
@@ -193,7 +193,7 @@ trait ChoosePaperlessController
         "userCreated" -> userCreated.toString,
         "userActivated" -> userActivated.toString))))
 
-  protected def thankYouAction(emailAddress: Option[EncryptedEmail])(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): SimpleResult = {
+  protected def _displayNearlyDone(emailAddress: Option[EncryptedEmail])(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Result = {
     Ok(views.html.account_details_printing_preference_confirm(calculateCohort(authContext), emailAddress.map(_.decryptedValue)))
   }
 }
