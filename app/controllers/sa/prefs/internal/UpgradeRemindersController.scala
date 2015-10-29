@@ -53,15 +53,18 @@ trait UpgradeRemindersController extends FrontendController with Actions with Ap
   }
 
   private[controllers] def upgradePreferences(returnUrl:String, utr: SaUtr, maybeNino: Option[Nino])(implicit request: Request[AnyContent]): Future[Result] = {
-    if (upgradeRemindersForm.bindFromRequest()(request).get.isDigitalButtonSelected) {
-      upgradePaperless(utr, maybeNino, Generic -> TermsAccepted(true)).map {
-        case true => Redirect(routes.UpgradeRemindersController.thankYou(Encrypted(returnUrl)))
-        case false => Redirect(returnUrl)
+    val form = upgradeRemindersForm.bindFromRequest()
+    form.fold(
+      hasErrors = f => Future(BadRequest(upgrade_printing_preferences(None, Encrypted(returnUrl), f))),
+      success = {
+        case u @ UpgradeRemindersTandC(true, false) => Future(BadRequest(upgrade_printing_preferences(None, Encrypted(returnUrl), form.withError("accept-tc", "sa_printing_preference.accept_tc_required"))))
+        case UpgradeRemindersTandC(true, true) => upgradePaperless(utr, maybeNino, Generic -> TermsAccepted(true)).map {
+          case true => Redirect(routes.UpgradeRemindersController.thankYou(Encrypted(returnUrl)))
+          case false => Redirect(returnUrl)
+        }
+        case UpgradeRemindersTandC(false, _) => upgradePaperless(utr, maybeNino, Generic -> TermsAccepted(false)).map(resp => Redirect(returnUrl))
       }
-    }
-    else {
-      upgradePaperless(utr, maybeNino, Generic -> TermsAccepted(false)).map(resp => Redirect(returnUrl))
-    }
+    )
   }
 
   private def decideRoutingFromPreference(utr: SaUtr, maybeNino: Option[Nino], encryptedReturnUrl: Encrypted[String], tandcForm:Form[UpgradeRemindersTandC])(implicit request: Request[AnyContent]) = {

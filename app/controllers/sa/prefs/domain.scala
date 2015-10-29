@@ -40,8 +40,4 @@ object EmailFormDataWithPreference {
   }
 }
 
-case class UpgradeRemindersTandC(optIn: String) {
-  final val optedIn="true"
-
-  def isDigitalButtonSelected = optIn.equals(optedIn)
-}
+case class UpgradeRemindersTandC(optIn: Boolean, acceptTandC: Boolean)
