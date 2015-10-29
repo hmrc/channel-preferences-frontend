@@ -40,8 +40,8 @@ class ManagePaperlessPartialSpec extends UnitSpec with WithFakeApplication with 
         include("Email for paperless notifications") and
         include(emailPreferences.email) and
         include("send a new verification email") and
-        include(linkTo(routes.ManagePaperlessController.resendValidationEmail(hostContext))) and
-        include(linkTo(routes.ManagePaperlessController.optOutOfEmailReminders(hostContext))) and
+        include(linkTo(routes.ManagePaperlessController.resendVerificationEmail(hostContext))) and
+        include(linkTo(routes.ManagePaperlessController.displayStopPaperless(hostContext))) and
         include(linkTo(routes.ManagePaperlessController.displayChangeEmailAddress(None, hostContext))) and
         include("2 October 2014")
       )
@@ -56,8 +56,8 @@ class ManagePaperlessPartialSpec extends UnitSpec with WithFakeApplication with 
         include("Emails are sent to") and
         include(EmailAddress(emailPreferences.email).obfuscated) and
         include(linkTo(routes.ManagePaperlessController.displayChangeEmailAddress(None, hostContext))) and
-        include(linkTo(routes.ManagePaperlessController.optOutOfEmailReminders(hostContext))) and
-        not include linkTo(routes.ManagePaperlessController.resendValidationEmail(hostContext))
+        include(linkTo(routes.ManagePaperlessController.displayStopPaperless(hostContext))) and
+        not include linkTo(routes.ManagePaperlessController.resendVerificationEmail(hostContext))
       )
     }
 
@@ -70,8 +70,8 @@ class ManagePaperlessPartialSpec extends UnitSpec with WithFakeApplication with 
         include(emailPreferences.email) and
         include("your inbox is full") and
         include(linkTo(routes.ManagePaperlessController.displayChangeEmailAddress(None, hostContext))) and
-        include(linkTo(routes.ManagePaperlessController.optOutOfEmailReminders(hostContext))) and
-        not include linkTo(routes.ManagePaperlessController.resendValidationEmail(hostContext))
+        include(linkTo(routes.ManagePaperlessController.displayStopPaperless(hostContext))) and
+        not include linkTo(routes.ManagePaperlessController.resendVerificationEmail(hostContext))
       )
     }
 
@@ -84,8 +84,8 @@ class ManagePaperlessPartialSpec extends UnitSpec with WithFakeApplication with 
         include(emailPreferences.email) and
         include("The email telling you how to do this can't be delivered.") and
         include(linkTo(routes.ManagePaperlessController.displayChangeEmailAddress(None, hostContext))) and
-        include(linkTo(routes.ManagePaperlessController.optOutOfEmailReminders(hostContext))) and
-        not include linkTo(routes.ManagePaperlessController.resendValidationEmail(hostContext))
+        include(linkTo(routes.ManagePaperlessController.displayStopPaperless(hostContext))) and
+        not include linkTo(routes.ManagePaperlessController.resendVerificationEmail(hostContext))
       )
     }
 
@@ -98,9 +98,9 @@ class ManagePaperlessPartialSpec extends UnitSpec with WithFakeApplication with 
         include(emailPreferences.email) and
         include("can't be delivered") and
         include(linkTo(routes.ManagePaperlessController.displayChangeEmailAddress(None, hostContext))) and
-        include(linkTo(routes.ManagePaperlessController.optOutOfEmailReminders(hostContext))) and
+        include(linkTo(routes.ManagePaperlessController.displayStopPaperless(hostContext))) and
         not include "your inbox is full" and
-        not include linkTo(routes.ManagePaperlessController.resendValidationEmail(hostContext))
+        not include linkTo(routes.ManagePaperlessController.resendVerificationEmail(hostContext))
       )
     }
 
@@ -110,7 +110,7 @@ class ManagePaperlessPartialSpec extends UnitSpec with WithFakeApplication with 
       ManagePaperlessPartial(Some(saPreference)).body should (
         include("Replace the letters you get about taxes with emails.") and
         include(linkTo(routes.ChoosePaperlessController.displayPrefsForm(None, hostContext))) and
-        not include linkTo(routes.ManagePaperlessController.resendValidationEmail(hostContext))
+        not include linkTo(routes.ManagePaperlessController.resendVerificationEmail(hostContext))
       )
     }
 
@@ -118,7 +118,7 @@ class ManagePaperlessPartialSpec extends UnitSpec with WithFakeApplication with 
       ManagePaperlessPartial(None).body should (
         include("Replace the letters you get about taxes with emails.") and
         include(linkTo(routes.ChoosePaperlessController.displayPrefsForm(None, hostContext))) and
-        not include linkTo(routes.ManagePaperlessController.resendValidationEmail(hostContext))
+        not include linkTo(routes.ManagePaperlessController.resendVerificationEmail(hostContext))
       )
     }
   }

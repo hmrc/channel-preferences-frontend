@@ -38,20 +38,20 @@ object ManagePaperlessController extends ManagePaperlessController with Services
     _displayChangeEmailAddressConfirmed
   }
 
-  def optOutOfEmailReminders(implicit hostContext: HostContext) = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
-    optOutOfEmailRemindersPage
+  def displayStopPaperless(implicit hostContext: HostContext) = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
+    _displayStopPaperless
   }
 
-  def resendValidationEmail(implicit hostContext: HostContext) = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
-    resendValidationEmailAction
+  def submitStopPaperless(implicit hostContext: HostContext) = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
+    _submitStopPaperless
   }
 
-  def optedBackIntoPaperThankYou(implicit hostContext: HostContext) = AuthenticatedBy(ValidSessionCredentialsProvider, redirectToOrigin = true) { implicit authContext => implicit request =>
-    optedBackIntoPaperAction
+  def displayStopPaperlessConfirmed(implicit hostContext: HostContext) = AuthenticatedBy(ValidSessionCredentialsProvider, redirectToOrigin = true) { implicit authContext => implicit request =>
+    _displayStopPaperlessConfirmed
   }
 
-  def confirmOptOutOfEmailReminders(implicit hostContext: HostContext) = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
-    confirmOptOutOfEmailRemindersPage
+  def resendVerificationEmail(implicit hostContext: HostContext) = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
+    _resendVerificationEmail
   }
 }
 
@@ -77,20 +77,20 @@ object DeprecatedYTAManagePaperlessController extends ManagePaperlessController 
     _displayChangeEmailAddressConfirmed
   }
 
-  def optOutOfEmailRemindersDeprecated = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
-    optOutOfEmailRemindersPage
+  def displayStopPaperless = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
+    _displayStopPaperless
   }
 
-  def confirmOptOutOfEmailReminders = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
-    confirmOptOutOfEmailRemindersPage
+  def submitStopPaperless = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
+    _submitStopPaperless
   }
 
-  def optedBackIntoPaperThankYou() = AuthenticatedBy(ValidSessionCredentialsProvider, redirectToOrigin = true) { implicit authContext => implicit request =>
-    optedBackIntoPaperAction
+  def displayStopPaperlessConfirmed() = AuthenticatedBy(ValidSessionCredentialsProvider, redirectToOrigin = true) { implicit authContext => implicit request =>
+    _displayStopPaperlessConfirmed
   }
 
-  def resendValidationEmailDeprecated = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
-    resendValidationEmailAction
+  def resendVerificationEmail = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
+    _resendVerificationEmail
   }
 }
 
@@ -104,17 +104,17 @@ with PreferencesControllerHelper {
   val emailConnector: EmailConnector
   val preferencesConnector: PreferencesConnector
 
-  private[prefs] def optedBackIntoPaperAction(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Result = {
+  private[prefs] def _displayStopPaperlessConfirmed(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Result = {
     Ok(views.html.opted_back_into_paper_thank_you())
   }
 
-  private[prefs] def confirmOptOutOfEmailRemindersPage(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Future[Result] = {
+  private[prefs] def _submitStopPaperless(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Future[Result] = {
     preferencesConnector.savePreferences(authContext.principal.accounts.sa.get.utr, false, None).map(_ =>
-      Redirect(routes.ManagePaperlessController.optedBackIntoPaperThankYou(hostContext))
+      Redirect(routes.ManagePaperlessController.displayStopPaperlessConfirmed(hostContext))
     )
   }
 
-  private[prefs] def resendValidationEmailAction(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Future[Result] = {
+  private[prefs] def _resendVerificationEmail(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Future[Result] = {
     lookupCurrentEmail { email =>
       preferencesConnector.savePreferences(authContext.principal.accounts.sa.get.utr, true, Some(email)).map(_ =>
         Ok(views.html.account_details_verification_email_resent_confirmation(email))
@@ -122,7 +122,7 @@ with PreferencesControllerHelper {
     }
   }
 
-  private[prefs] def optOutOfEmailRemindersPage(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: hostcontext.HostContext) =
+  private[prefs] def _displayStopPaperless(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: hostcontext.HostContext) =
     lookupCurrentEmail(email => Future.successful(Ok(views.html.confirm_opt_back_into_paper(email.obfuscated))))
 
   private[prefs] def _displayChangeEmailAddress(emailAddress: Option[Encrypted[EmailAddress]])(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Future[Result] =

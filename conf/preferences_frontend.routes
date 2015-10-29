@@ -5,16 +5,15 @@ GET         /paperless/email-address/change                                     
 POST        /paperless/email-address/change                                         controllers.sa.prefs.internal.ManagePaperlessController.submitChangeEmailAddress(hostContext: hostcontext.HostContext)
 GET         /paperless/email-address/change/confirmed                               controllers.sa.prefs.internal.ManagePaperlessController.displayChangeEmailAddressConfirmed(hostContext: hostcontext.HostContext)
 
-GET         /account/account-details/sa/opt-out-email-reminders                     controllers.sa.prefs.internal.DeprecatedYTAManagePaperlessController.optOutOfEmailRemindersDeprecated
-POST        /account/account-details/sa/opt-out-email-reminders                     controllers.sa.prefs.internal.DeprecatedYTAManagePaperlessController.confirmOptOutOfEmailReminders
-GET         /paperless/stop                                                         controllers.sa.prefs.internal.ManagePaperlessController.optOutOfEmailReminders(hostContext: hostcontext.HostContext)
-POST        /paperless/stop                                                         controllers.sa.prefs.internal.ManagePaperlessController.confirmOptOutOfEmailReminders(hostContext: hostcontext.HostContext)
+GET         /account/account-details/sa/opt-out-email-reminders                     controllers.sa.prefs.internal.DeprecatedYTAManagePaperlessController.displayStopPaperless
+POST        /account/account-details/sa/opt-out-email-reminders                     controllers.sa.prefs.internal.DeprecatedYTAManagePaperlessController.submitStopPaperless
+GET         /account/account-details/sa/opt-out-email-reminders-thank-you           controllers.sa.prefs.internal.DeprecatedYTAManagePaperlessController.displayStopPaperlessConfirmed
+GET         /paperless/stop                                                         controllers.sa.prefs.internal.ManagePaperlessController.displayStopPaperless(hostContext: hostcontext.HostContext)
+POST        /paperless/stop                                                         controllers.sa.prefs.internal.ManagePaperlessController.submitStopPaperless(hostContext: hostcontext.HostContext)
+GET         /paperless/stop/confirmed                                               controllers.sa.prefs.internal.ManagePaperlessController.displayStopPaperlessConfirmed(hostContext: hostcontext.HostContext)
 
-GET         /account/account-details/sa/opt-out-email-reminders-thank-you           controllers.sa.prefs.internal.DeprecatedYTAManagePaperlessController.optedBackIntoPaperThankYou
-GET         /paperless/stop/confirmed                                               controllers.sa.prefs.internal.ManagePaperlessController.optedBackIntoPaperThankYou(hostContext: hostcontext.HostContext)
-
-POST        /account/account-details/sa/resend-validation-email                     controllers.sa.prefs.internal.DeprecatedYTAManagePaperlessController.resendValidationEmailDeprecated
-POST        /paperless/resend-validation-email                                      controllers.sa.prefs.internal.ManagePaperlessController.resendValidationEmail(hostContext: hostcontext.HostContext)
+POST        /account/account-details/sa/resend-validation-email                     controllers.sa.prefs.internal.DeprecatedYTAManagePaperlessController.resendVerificationEmail
+POST        /paperless/resend-verification-email                                    controllers.sa.prefs.internal.ManagePaperlessController.resendVerificationEmail(hostContext: hostcontext.HostContext)
 
 GET         /account/account-details/sa/login-opt-in-email-reminders                controllers.sa.prefs.internal.DeprecatedYTALoginChoosePaperlessController.redirectToBTAOrInterstitialPage
 GET         /account/account-details/sa/login-opt-in-email-reminders/:cohort        controllers.sa.prefs.internal.DeprecatedYTALoginChoosePaperlessController.displayInterstitialPrefsFormForCohort(cohort: Option[controllers.sa.prefs.internal.OptInCohort])

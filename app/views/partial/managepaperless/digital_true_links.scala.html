@@ -13,7 +13,7 @@
 <p>
     @Link.toInternalPage(
         id = Some("opt-out-of-email-link"),
-        url = pfUrlPrefix + controllers.sa.prefs.internal.routes.ManagePaperlessController.optOutOfEmailReminders(hostContext),
+        url = pfUrlPrefix + controllers.sa.prefs.internal.routes.ManagePaperlessController.displayStopPaperless(hostContext),
         value = Some("Stop paperless notifications"),
         dataAttributes = Some(Map("journey-click" -> "self-assessment-preferences:Click:Stop paperless notifications"))
     ).toHtml

@@ -19,7 +19,7 @@ class VerificationEmailISpec
       val email = uniqueEmail
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
 
-      val response = `/paperless/resend-validation-email`().withHeaders(cookie).post(emptyJsonValue)
+      val response = `/paperless/resend-verification-email`().withHeaders(cookie).post(emptyJsonValue)
       response should have(status(200))
 
       val page = Jsoup.parse(response.body)

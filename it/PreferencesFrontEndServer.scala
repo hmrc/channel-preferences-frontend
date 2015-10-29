@@ -56,7 +56,7 @@ trait PreferencesFrontEndServer extends ServiceSpec {
       def apply(returnUrl: String = "", returnLinkText: String = "") = WS.url(resource(s"$url?returnUrl=${encryptAndEncode(returnUrl)}&returnLinkText=${encryptAndEncode(returnLinkText)}"))
     }
 
-    val `/paperless/resend-validation-email` = urlWithHostContext("/paperless/resend-validation-email")
+    val `/paperless/resend-verification-email` = urlWithHostContext("/paperless/resend-verification-email")
     val `/paperless/manage` = urlWithHostContext("/paperless/manage")
 
     def `/account/account-details/sa/email-reminders-status` = WS.url(resource("/account/account-details/sa/email-reminders-status"))

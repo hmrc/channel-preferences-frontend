@@ -95,7 +95,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar  {
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
       when(mockPreferencesConnector.savePreferences(is(validUtr), is(true), is(Some("test@test.com")))(any())).thenReturn(Future.successful(()))
 
-      val page = Future.successful(controller.resendValidationEmailAction(user, FakeRequest(), TestFixtures.sampleHostContext))
+      val page = Future.successful(controller._resendVerificationEmail(user, FakeRequest(), TestFixtures.sampleHostContext))
 
       status(page) shouldBe 200
       val document = Jsoup.parse(contentAsString(page))
@@ -279,7 +279,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar  {
 
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
 
-      val result = controller.optOutOfEmailRemindersPage(user, request, TestFixtures.sampleHostContext)
+      val result = controller._displayStopPaperless(user, request, TestFixtures.sampleHostContext)
 
       status(result) shouldBe 200
       val page = Jsoup.parse(contentAsString(result))
@@ -295,7 +295,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar  {
       val saPreferences = SaPreference(false, None)
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
 
-      val result = controller.optOutOfEmailRemindersPage(user, request, TestFixtures.sampleHostContext)
+      val result = controller._displayStopPaperless(user, request, TestFixtures.sampleHostContext)
 
       status(result) shouldBe 400
     }
@@ -309,10 +309,10 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar  {
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
       when(mockPreferencesConnector.savePreferences(is(validUtr), is(false), is(None))(any())).thenReturn(Future.successful(()))
 
-      val result = Future.successful(controller.confirmOptOutOfEmailRemindersPage(user, request, TestFixtures.sampleHostContext))
+      val result = Future.successful(controller._submitStopPaperless(user, request, TestFixtures.sampleHostContext))
 
       status(result) shouldBe 303
-      header("Location", result).get should include(routes.ManagePaperlessController.optedBackIntoPaperThankYou(TestFixtures.sampleHostContext).url)
+      header("Location", result).get should include(routes.ManagePaperlessController.displayStopPaperlessConfirmed(TestFixtures.sampleHostContext).url)
       val page = Jsoup.parse(contentAsString(result))
 
       verify(mockPreferencesConnector).savePreferences(is(validUtr), is(false), is(None))(any())
