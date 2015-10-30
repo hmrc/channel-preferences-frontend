@@ -4,9 +4,12 @@ import authentication.ValidSessionCredentialsProvider
 import connectors.{EmailConnector, PreferencesConnector, SaPreference}
 import controllers.sa.prefs.AuthContextAvailability._
 import controllers.sa.prefs.config.Global
-import controllers.sa.prefs.{EmailFormData, Encrypted, SaRegime}
+import controllers.sa.prefs.{EmailFormData, Encrypted, SaRegime, UpgradeRemindersTandC}
 import hostcontext.HostContext
-import play.api.mvc.{Request, Result}
+import play.api.data.Form
+import play.api.data.Forms._
+import play.api.mvc.{Call, Request, Result}
+import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
@@ -16,6 +19,7 @@ import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 import uk.gov.hmrc.play.frontend.auth.{Actions, AuthContext}
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 
+import scala.Function._
 import scala.concurrent.Future
 
 object ManagePaperlessController extends ManagePaperlessController with ServicesConfig {
@@ -63,7 +67,7 @@ object DeprecatedYTAManagePaperlessController extends ManagePaperlessController 
   lazy val emailConnector = EmailConnector
   lazy val preferencesConnector = PreferencesConnector
 
-  implicit val hostContext = HostContext.defaultsForYtaManageAccount
+  implicit val hostContext = HostContext.defaultsForYtaManageAccountPages
 
   def displayChangeEmailAddress(emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
     _displayChangeEmailAddress(emailAddress)
@@ -96,8 +100,7 @@ object DeprecatedYTAManagePaperlessController extends ManagePaperlessController 
 
 trait ManagePaperlessController
 extends FrontendController
-with Actions
-with PreferencesControllerHelper {
+with Actions {
 
   val auditConnector: AuditConnector
   val authConnector: AuthConnector
@@ -126,30 +129,38 @@ with PreferencesControllerHelper {
     lookupCurrentEmail(email => Future.successful(Ok(views.html.confirm_opt_back_into_paper(email.obfuscated))))
 
   private[prefs] def _displayChangeEmailAddress(emailAddress: Option[Encrypted[EmailAddress]])(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Future[Result] =
-    lookupCurrentEmail(email => Future.successful(Ok(views.html.account_details_update_email_address(email, emailForm.fill(EmailFormData(emailAddress.map(_.decryptedValue)))))))
+    lookupCurrentEmail(email => Future.successful(Ok(views.html.account_details_update_email_address(email, EmailForm().fill(EmailFormData(emailAddress.map(_.decryptedValue)))))))
 
   private def lookupCurrentEmail(func: (EmailAddress) => Future[Result])(implicit authContext: AuthContext, request: Request[AnyRef]): Future[Result] = {
-    preferencesConnector.getPreferences(authContext.principal.accounts.sa.get.utr, None)(HeaderCarrier.fromSessionAndHeaders(request.session, request.headers)).flatMap {
+    preferencesConnector.getPreferences(authContext.principal.accounts.sa.get.utr, None).flatMap {
         case Some(SaPreference(true, Some(email))) => func(EmailAddress(email.email))
         case _ => Future.successful(BadRequest("Could not find existing preferences."))
     }
   }
 
-  private[prefs] def _submitChangeEmailAddress(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Future[Result] =
+  private[prefs] def _submitChangeEmailAddress(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Future[Result] = {
     lookupCurrentEmail(
-      email =>
-        submitEmailForm(
-          errorsView = views.html.account_details_update_email_address(email, _),
-          emailWarningView = (enteredEmail) => views.html.account_details_update_email_address_verify_email(enteredEmail),
-          successRedirect = routes.ManagePaperlessController.displayChangeEmailAddressConfirmed(hostContext),
-          emailConnector = emailConnector,
-          saUtr = authContext.principal.accounts.sa.get.utr,
-          savePreferences = savePreferences
-        )
-    )
+      email => {
+        EmailForm().bindFromRequest()(request).fold(
+          errors => Future.successful(BadRequest(views.html.account_details_update_email_address(email, errors))),
+          emailForm => {
+            val emailVerificationStatus =
+              if (emailForm.isEmailVerified) Future.successful(true)
+              else emailConnector.isValid(emailForm.mainEmail)
 
-  private def savePreferences(utr: SaUtr, digital: Boolean, email: Option[String] = None, hc: HeaderCarrier) =
-    preferencesConnector.savePreferences(utr, digital, email)(hc)
+            emailVerificationStatus.flatMap {
+              case true => preferencesConnector.savePreferences(
+                utr = authContext.principal.accounts.sa.get.utr,
+                digital = true,
+                email = Some(emailForm.mainEmail)
+              ).map(_ => Redirect(routes.ManagePaperlessController.displayChangeEmailAddressConfirmed(hostContext)))
+              case false => Future.successful(Ok(views.html.account_details_update_email_address_verify_email(emailForm.mainEmail)))
+            }
+          }
+        )
+      }
+    )
+  }
 
   private[prefs] def _displayChangeEmailAddressConfirmed(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Future[Result] = {
     lookupCurrentEmail(email => Future.successful(Ok(views.html.account_details_update_email_address_thank_you(email.obfuscated))))

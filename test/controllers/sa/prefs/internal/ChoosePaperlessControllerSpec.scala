@@ -70,7 +70,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
       header("Location", page).get should include(TestFixtures.sampleHostContext.returnUrl)
     }
 
-    "redirect to interstitial page for the matching cohort if they have no preference set" in new ChoosePaperlessControllerSetup {
+    "redirect to login version page for the matching cohort if they have no preference set" in new ChoosePaperlessControllerSetup {
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(None)
 
       val page = controller._redirectToDisplayFormWithCohortIfNotOptedIn(user, request, TestFixtures.sampleHostContext)
@@ -79,7 +79,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
       header("Location", page).get should include(routes.DeprecatedYTALoginChoosePaperlessController.displayFormIfNotOptedIn(Some(assignedCohort)).url)
     }
 
-    "redirect to interstitial page for the matching cohort if they are currently opted out" in new ChoosePaperlessControllerSetup {
+    "redirect to login version page for the matching cohort if they are currently opted out" in new ChoosePaperlessControllerSetup {
       val preferencesAlreadyCreated = SaPreference(false, None)
       when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Some(preferencesAlreadyCreated))
 
@@ -91,7 +91,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
 
   }
 
-  "The preferences interstitial page" should {
+  "The preferences login version page" should {
 
     "redirect to BTA when preferences already exist" in new ChoosePaperlessControllerSetup {
       val preferencesAlreadyCreated = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified)))
@@ -168,7 +168,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
     document.getElementById("terms-and-conditions").attr("href") should endWith("www.tax.service.gov.uk/information/terms#secure")
   }
 
-  "The preferences action on non interstitial page" should {
+  "The preferences action on non login version page" should {
     "show main banner" in new ChoosePaperlessControllerSetup {
 
       val page = controller._displayForm(AccountDetails, None, Some(assignedCohort))(user, request, TestFixtures.sampleHostContext)

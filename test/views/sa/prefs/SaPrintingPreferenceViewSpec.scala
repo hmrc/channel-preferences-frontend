@@ -8,13 +8,13 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.play.test.{WithFakeApplication, UnitSpec}
 import views.html.sa.prefs.sa_printing_preference
 
-class SaPrintingPreferenceViewSpec extends UnitSpec with PreferencesControllerHelper with WithFakeApplication {
+class SaPrintingPreferenceViewSpec extends UnitSpec with WithFakeApplication {
   override lazy val fakeApplication = ConfigHelper.fakeApp
 
   "preference print template" should {
     "render the correct content for the IPage cohort " in {
       val document = Jsoup.parse(sa_printing_preference(
-        emailForm = emailForm,
+        emailForm = EmailForm(),
         submitPrefsFormAction = Call("GET", "/"),
         cohort = IPage
       )(FakeRequest("GET", "/"), TestFixtures.sampleHostContext).toString())

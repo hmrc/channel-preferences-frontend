@@ -1,11 +1,12 @@
 package controllers.sa.prefs.internal
 
 import connectors._
-import controllers.sa.prefs.ExternalUrls.businessTaxHome
 import controllers.sa.prefs.config.Global
 import controllers.sa.prefs.internal.EmailOptInJourney._
 import controllers.sa.prefs.{Encrypted, _}
 import hostcontext.HostContext
+import play.api.data.Form
+import play.api.data.Forms._
 import play.api.libs.json.Json
 import play.api.mvc._
 import uk.gov.hmrc.domain.SaUtr
@@ -21,7 +22,7 @@ import uk.gov.hmrc.play.frontend.controller.FrontendController
 import scala.concurrent.Future
 
 object DeprecatedYTAManageAccountChoosePaperlessController extends ChoosePaperlessController with ChoosePaperlessControllerDependencies {
-  implicit val hostContext = HostContext.defaultsForYtaManageAccount
+  implicit val hostContext = HostContext.defaultsForYtaManageAccountPages
 
   def redirectToDisplayFormWithCohort(emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(SaRegime) { implicit authContext => implicit request =>
     _redirectToDisplayFormWithCohort(emailAddress)
@@ -41,7 +42,7 @@ object DeprecatedYTAManageAccountChoosePaperlessController extends ChoosePaperle
 }
 
 object DeprecatedYTALoginChoosePaperlessController extends ChoosePaperlessController with ChoosePaperlessControllerDependencies {
-  implicit val hostContext = HostContext.defaultsForYtaInterstitials
+  implicit val hostContext = HostContext.defaultsForYtaLoginPages
 
   def redirectToDisplayFormWithCohortIfNotOptedIn = AuthorisedFor(SaRegime).async { implicit user => implicit request =>
     _redirectToDisplayFormWithCohortIfNotOptedIn
@@ -87,7 +88,6 @@ trait ChoosePaperlessControllerDependencies extends AppName with OptInCohortCalc
 trait ChoosePaperlessController
   extends FrontendController
   with Actions
-  with PreferencesControllerHelper
   with AppName {
 
   def preferencesConnector: PreferencesConnector
@@ -95,9 +95,6 @@ trait ChoosePaperlessController
   def auditConnector: AuditConnector
 
   def calculateCohort(authContext: AuthContext): OptInCohort
-
-  val getSavePrefsFromInterstitialCall = controllers.sa.prefs.internal.routes.DeprecatedYTALoginChoosePaperlessController.submitForm()
-  def getSavePrefsFromNonInterstitialPageCall(implicit hostContext: HostContext) = controllers.sa.prefs.internal.routes.ChoosePaperlessController.submitForm(hostContext)
 
   private def returnIf(cond: => Future[Boolean])(implicit hostContext: HostContext, headerCarrier: HeaderCarrier) = new {
     def otherwise(f: => Future[Result]) = {
@@ -112,6 +109,31 @@ trait ChoosePaperlessController
     case Some(saPreference) => saPreference.digital
     case Some(_) | None     => false
   }
+
+
+  private val optInOrOutForm =
+    Form[PreferenceData](mapping(
+      "opt-in" -> optional(boolean).verifying("sa_printing_preference.opt_in_choice_required", _.isDefined)
+    )(PreferenceData.apply)(PreferenceData.unapply))
+
+  private val optInDetailsForm =
+    Form[EmailFormDataWithPreference](mapping(
+      "email" -> tuple(
+        "main" -> optional(EmailForm.emailWithLimitedLength),
+        "confirm" -> optional(text)
+      ),
+      "emailVerified" -> optional(text),
+      "opt-in" -> optional(boolean).verifying("sa_printing_preference.opt_in_choice_required", _.isDefined).transform(
+        _.map(EmailPreference.fromBoolean), (p: Option[EmailPreference]) => p.map(_.toBoolean)
+      ),
+      "accept-tc" -> optional(boolean).verifying("sa_printing_preference.accept_tc_required", _.contains(true))
+    )(EmailFormDataWithPreference.apply)(EmailFormDataWithPreference.unapply)
+      .verifying("error.email.optIn", _ match {
+      case EmailFormDataWithPreference((None, _), _, Some(OptIn), _) => false
+      case _ => true
+    })
+      .verifying("email.confirmation.emails.unequal", formData => formData.email._1 == formData.email._2)
+    )
 
   private[prefs] def _redirectToDisplayFormWithCohortIfNotOptedIn(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext) =
     returnIf(userAlreadyOptedIn) otherwise {
@@ -130,13 +152,23 @@ trait ChoosePaperlessController
     possibleCohort.fold(ifEmpty = Future.successful(_redirectToDisplayFormWithCohort(emailAddress))) { cohort =>
       preferencesConnector.saveCohort(saUtr, calculateCohort(authContext)).map { case _ =>
         auditPageShown(saUtr, journey, cohort)
-        displayPreferencesFormAction(emailAddress.map(_.decryptedValue), getSavePrefsFromNonInterstitialPageCall, cohort)
+        val email = emailAddress.map(_.decryptedValue)
+        Ok(
+          views.html.sa.prefs.sa_printing_preference(
+            emailForm = optInDetailsForm.fill(EmailFormDataWithPreference(emailAddress = email, preference = email.map(_ => OptIn), acceptedTcs = Some(false))),
+            submitPrefsFormAction = controllers.sa.prefs.internal.routes.ChoosePaperlessController.submitForm(hostContext),
+            cohort = cohort
+          )
+        )
       }
     }
   }
 
+
   private[prefs] def _submitForm(journey: Journey)(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext) = {
     val cohort = calculateCohort(authContext)
+    val saUtr = authContext.principal.accounts.sa.get.utr
+
     def maybeActivateUser(utr: SaUtr, needsActivation: Boolean): Future[Boolean] = needsActivation match {
       case true => preferencesConnector.activateUser(utr, "")
       case false => Future.successful(false)
@@ -157,12 +189,28 @@ trait ChoosePaperlessController
         }
       }
     }
-    submitPreferencesForm(
-      errorsView = getSubmitPreferencesView(routes.ChoosePaperlessController.submitForm(hostContext), cohort),
-      emailWarningView = views.html.sa_printing_preference_verify_email(_, cohort),
-      emailConnector = emailConnector,
-      saUtr = authContext.principal.accounts.sa.get.utr,
-      savePreferences = saveAndAuditPreferences
+
+    def returnToFormWithErrors(f: Form[_]) = Future.successful(BadRequest(views.html.sa.prefs.sa_printing_preference(f, routes.ChoosePaperlessController.submitForm(hostContext), cohort)))
+
+    optInOrOutForm.bindFromRequest.fold[Future[Result]](
+      hasErrors = returnToFormWithErrors,
+      happyForm =>
+        if (happyForm.optedIn.contains(false)) saveAndAuditPreferences(saUtr, false, None, hc)
+        else optInDetailsForm.bindFromRequest.fold[Future[Result]](
+          hasErrors = returnToFormWithErrors,
+          success = {
+            case emailForm@EmailFormDataWithPreference((Some(emailAddress), _), _, Some(OptIn), Some(true)) =>
+              val emailVerificationStatus =
+                if (emailForm.isEmailVerified) Future.successful(true)
+                else emailConnector.isValid(emailAddress)
+
+              emailVerificationStatus.flatMap {
+                case true => saveAndAuditPreferences(saUtr, true, Some(emailAddress), hc)
+                case false => Future.successful(Ok(views.html.sa_printing_preference_verify_email(emailAddress, cohort)))
+              }
+            case _ => returnToFormWithErrors(optInDetailsForm.bindFromRequest)
+          }
+        )
     )
   }
 
