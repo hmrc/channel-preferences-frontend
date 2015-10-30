@@ -1,4 +1,4 @@
-package controllers.sa.prefs
+package model
 
 import org.mockito.Matchers._
 import org.mockito.Mockito._

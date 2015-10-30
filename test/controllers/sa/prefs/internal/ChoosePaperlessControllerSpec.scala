@@ -1,11 +1,11 @@
 package controllers.sa.prefs.internal
 
 import connectors._
-import controllers.sa.prefs.Encrypted
 import controllers.sa.prefs.AuthorityUtils._
 import controllers.sa.prefs.ExternalUrls
 import controllers.sa.prefs.internal.EmailOptInJourney._
 import helpers.{TestFixtures, ConfigHelper}
+import model.Encrypted
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.mockito.ArgumentCaptor

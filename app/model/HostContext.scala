@@ -1,10 +1,8 @@
-package hostcontext
+package model
 
-import controllers.sa.prefs.{Encrypted, ExternalUrls}
+import controllers.sa.prefs.ExternalUrls
 import play.api.mvc.QueryStringBindable
-import play.twirl.api.{HtmlFormat, Html}
-
-import scala.runtime.TraitSetter
+import play.twirl.api.{Html, HtmlFormat}
 
 case class HostContext(returnUrl: String, returnLinkText: String, headers: HostContext.Headers)
 

@@ -3,8 +3,8 @@ package controllers.sa.prefs.filing
 import java.net.URLEncoder.{encode => urlEncode}
 
 import connectors.PreferencesConnector
-import controllers.sa.prefs.Encrypted
 import helpers.ConfigHelper
+import model.Encrypted
 import org.joda.time.{DateTime, DateTimeZone}
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._

@@ -1,5 +1,5 @@
 @(emailAddress: Option[String],
-  returnUrl: controllers.sa.prefs.Encrypted[String],
+  returnUrl: model.Encrypted[String],
   tandc: Form[_],
   appConfig: controllers.sa.prefs.config.AppConfig = controllers.sa.prefs.config.YtaConfig
 )(implicit request: Request[_])

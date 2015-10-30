@@ -1,11 +1,11 @@
 package controllers.sa.prefs.internal
 
-import authentication.ValidSessionCredentialsProvider
+import authentication.{SaRegime, ValidSessionCredentialsProvider}
 import connectors.{EmailConnector, PreferencesConnector, SaPreference}
 import controllers.sa.prefs.AuthContextAvailability._
 import controllers.sa.prefs.config.Global
-import controllers.sa.prefs.{EmailFormData, Encrypted, SaRegime, UpgradeRemindersTandC}
-import hostcontext.HostContext
+import controllers.sa.prefs.{EmailFormData, UpgradeRemindersTandC}
+import model.{HostContext, Encrypted}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.mvc.{Call, Request, Result}
@@ -125,7 +125,7 @@ with Actions {
     }
   }
 
-  private[prefs] def _displayStopPaperless(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: hostcontext.HostContext) =
+  private[prefs] def _displayStopPaperless(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext) =
     lookupCurrentEmail(email => Future.successful(Ok(views.html.confirm_opt_back_into_paper(email.obfuscated))))
 
   private[prefs] def _displayChangeEmailAddress(emailAddress: Option[Encrypted[EmailAddress]])(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Future[Result] =

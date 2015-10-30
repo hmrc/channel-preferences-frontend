@@ -1,10 +1,11 @@
 package controllers.sa.prefs.internal
 
+import authentication.SaRegime
 import connectors._
 import controllers.sa.prefs.config.Global
 import controllers.sa.prefs.internal.EmailOptInJourney._
-import controllers.sa.prefs.{Encrypted, _}
-import hostcontext.HostContext
+import controllers.sa.prefs.{_}
+import model.{HostContext, Encrypted}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
@@ -36,7 +37,7 @@ object DeprecatedYTAManageAccountChoosePaperlessController extends ChoosePaperle
     _submitForm(AccountDetails)
   }
 
-  def displayNearlyDone(emailAddress: Option[controllers.sa.prefs.EncryptedEmail]) = AuthorisedFor(SaRegime) { implicit authContext => implicit request =>
+  def displayNearlyDone(emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(SaRegime) { implicit authContext => implicit request =>
     _displayNearlyDone(emailAddress)
   }
 }
@@ -71,7 +72,7 @@ object ChoosePaperlessController extends ChoosePaperlessController with ChoosePa
     _submitForm(AccountDetails)
   }
 
-  def displayNearlyDone(implicit emailAddress: Option[controllers.sa.prefs.EncryptedEmail], hostContext: HostContext) = AuthorisedFor(SaRegime) { implicit authContext => implicit request =>
+  def displayNearlyDone(implicit emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = AuthorisedFor(SaRegime) { implicit authContext => implicit request =>
     _displayNearlyDone(emailAddress)
   }
 }
@@ -241,7 +242,7 @@ trait ChoosePaperlessController
         "userCreated" -> userCreated.toString,
         "userActivated" -> userActivated.toString))))
 
-  protected def _displayNearlyDone(emailAddress: Option[EncryptedEmail])(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Result = {
+  protected def _displayNearlyDone(emailAddress: Option[Encrypted[EmailAddress]])(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Result = {
     Ok(views.html.account_details_printing_preference_confirm(calculateCohort(authContext), emailAddress.map(_.decryptedValue)))
   }
 }

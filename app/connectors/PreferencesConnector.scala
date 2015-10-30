@@ -30,7 +30,7 @@ object TermsAccepted {
 object PreferencesConnector extends PreferencesConnector with ServicesConfig {
   override val serviceUrl = baseUrl("preferences")
 
-  override def http = HttpVerbs
+  override def http = WsHttp
 
   protected[connectors] case class ActivationStatus(active: Boolean)
   protected[connectors] object ActivationStatus { implicit val format = Json.format[ActivationStatus]}

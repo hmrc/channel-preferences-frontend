@@ -1,7 +1,7 @@
 package controllers.sa.prefs.config
 
 import com.kenshoo.play.metrics.{MetricsRegistry, MetricsFilter}
-import connectors.HttpVerbs
+import connectors.WsHttp
 import controllers.sa.prefs.internal.OptInCohortConfigurationValues
 import play.api.mvc.Request
 import play.api.{Application, Configuration}
@@ -22,7 +22,7 @@ object Global extends DefaultFrontendGlobal with RunMode with ServicesConfig {
   lazy val auditConnector: AuditConnector = AuditConnector(LoadAuditingConfig(s"$env.auditing"))
 
   lazy val authConnector: AuthConnector = new AuthConnector {
-    lazy val http: HttpGet = HttpVerbs
+    lazy val http: HttpGet = WsHttp
 
     val serviceUrl: String = baseUrl("auth")
   }

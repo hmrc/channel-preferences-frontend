@@ -7,7 +7,7 @@ import connectors.{SaEmailPreference, SaPreference}
 import controllers.sa.prefs.ExternalUrlPrefixes
 import controllers.sa.prefs.internal.routes
 import helpers.{TestFixtures, ConfigHelper}
-import hostcontext.HostContext
+import model.HostContext
 import org.joda.time.LocalDate
 import org.scalatest.concurrent.ScalaFutures
 import partial.paperless.manage.ManagePaperlessPartial

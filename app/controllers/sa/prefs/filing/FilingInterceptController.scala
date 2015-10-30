@@ -6,7 +6,7 @@ import com.netaporter.uri.config.UriConfig
 import com.netaporter.uri.dsl._
 import com.netaporter.uri.encoding._
 import connectors.PreferencesConnector
-import controllers.sa.prefs.Encrypted
+import model.Encrypted
 import play.api.Play
 import play.api.Play.current
 import play.api.mvc._

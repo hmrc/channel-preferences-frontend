@@ -1,7 +1,7 @@
 package controllers.sa.prefs.internal
 
 import connectors._
-import controllers.sa.prefs.Encrypted
+import model.Encrypted
 import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{any, eq => is}

@@ -1,9 +1,9 @@
 package partial.paperless
 
+import authentication.SaRegimeWithoutRedirection
 import connectors.PreferencesConnector
-import controllers.sa.prefs.SaRegimeWithoutRedirection
 import controllers.sa.prefs.config.Global
-import hostcontext.HostContext
+import model.HostContext
 import partial.paperless.manage.ManagePaperlessPartial
 import partial.paperless.warnings.PaperlessWarningPartial
 import play.api.mvc.{Action, AnyContent}

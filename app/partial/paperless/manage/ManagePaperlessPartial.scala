@@ -2,7 +2,7 @@ package partial.paperless.manage
 
 import connectors.SaEmailPreference.Status
 import connectors.SaPreference
-import hostcontext.HostContext
+import model.HostContext
 import play.api.mvc.Request
 import play.twirl.api.HtmlFormat
 

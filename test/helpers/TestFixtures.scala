@@ -1,6 +1,6 @@
 package helpers
 
-import hostcontext.HostContext
+import model.HostContext
 
 object TestFixtures {
   val sampleHostContext = HostContext(

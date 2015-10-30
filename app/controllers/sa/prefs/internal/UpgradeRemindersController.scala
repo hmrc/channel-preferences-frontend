@@ -1,8 +1,10 @@
 package controllers.sa.prefs.internal
 
+import authentication.SaRegimeWithoutRedirection
 import connectors._
 import controllers.sa.prefs.config.Global
-import controllers.sa.prefs.{Encrypted, SaRegimeWithoutRedirection, UpgradeRemindersTandC}
+import controllers.sa.prefs.UpgradeRemindersTandC
+import model.Encrypted
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json

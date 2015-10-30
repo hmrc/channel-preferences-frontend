@@ -2,8 +2,8 @@ package controllers.sa.prefs.internal
 
 import connectors.{EmailConnector, PreferencesConnector, SaEmailPreference, SaPreference}
 import controllers.sa.prefs.AuthorityUtils._
-import controllers.sa.prefs.Encrypted
 import helpers.{TestFixtures, ConfigHelper}
+import model.Encrypted
 import org.jsoup.Jsoup
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
