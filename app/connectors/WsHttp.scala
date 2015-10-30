@@ -1,6 +1,6 @@
 package connectors
 
-import controllers.sa.prefs.config.Global
+import config.Global
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.config.{AppName, RunMode}
 import uk.gov.hmrc.play.http.ws.{WSGet, WSPost, WSPut}

@@ -1,4 +1,4 @@
-package controllers.sa.prefs.config
+package config
 
 import controllers.sa.prefs.ExternalUrls
 import play.api.Play.{configuration, current}

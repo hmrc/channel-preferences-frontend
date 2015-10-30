@@ -1,8 +1,7 @@
 package connectors
 
 import java.net.URLEncoder
-
-import controllers.sa.prefs.config.Global
+import config.Global
 import play.api.libs.json._
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector

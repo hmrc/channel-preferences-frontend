@@ -1,8 +1,8 @@
 package controllers.sa.prefs.internal
 
 import authentication.SaRegimeWithoutRedirection
+import config.Global
 import connectors._
-import controllers.sa.prefs.config.Global
 import model.Encrypted
 import play.api.data.Form
 import play.api.data.Forms._

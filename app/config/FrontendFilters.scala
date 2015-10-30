@@ -1,4 +1,4 @@
-package uk.gov.hmrc.messagerenderer.config
+package config
 
 import play.api.Play
 import uk.gov.hmrc.play.audit.filters.FrontendAuditFilter

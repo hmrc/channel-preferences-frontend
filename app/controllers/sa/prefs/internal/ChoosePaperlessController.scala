@@ -1,8 +1,8 @@
 package controllers.sa.prefs.internal
 
 import authentication.SaRegime
+import config.Global
 import connectors._
-import controllers.sa.prefs.config.Global
 import controllers.sa.prefs.internal.EmailOptInJourney._
 import model.{Encrypted, HostContext}
 import play.api.data.Form

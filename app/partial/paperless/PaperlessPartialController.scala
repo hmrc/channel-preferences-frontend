@@ -1,8 +1,8 @@
 package partial.paperless
 
 import authentication.SaRegimeWithoutRedirection
+import config.Global
 import connectors.PreferencesConnector
-import controllers.sa.prefs.config.Global
 import model.HostContext
 import partial.paperless.manage.ManagePaperlessPartial
 import partial.paperless.warnings.PaperlessWarningPartial

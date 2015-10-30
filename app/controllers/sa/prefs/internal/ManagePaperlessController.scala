@@ -1,9 +1,9 @@
 package controllers.sa.prefs.internal
 
 import authentication.{SaRegime, ValidSessionCredentialsProvider}
+import config.Global
 import connectors.{EmailConnector, PreferencesConnector, SaPreference}
 import controllers.sa.prefs.AuthContextAvailability._
-import controllers.sa.prefs.config.Global
 import model.{Encrypted, HostContext}
 import play.api.mvc.{Request, Result}
 import uk.gov.hmrc.emailaddress.EmailAddress
