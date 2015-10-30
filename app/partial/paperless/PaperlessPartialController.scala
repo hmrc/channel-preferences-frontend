@@ -1,12 +1,12 @@
-package controllers.sa.prefs.partial
+package partial.paperless
 
 import connectors.PreferencesConnector
-import controllers.sa.prefs.{ExternalUrls, SaRegimeWithoutRedirection}
+import controllers.sa.prefs.SaRegimeWithoutRedirection
 import controllers.sa.prefs.config.Global
-import controllers.sa.prefs.internal.EmailForm
 import hostcontext.HostContext
-import partial.{ManagePaperlessPartial, PaperlessWarningPartial}
-import play.api.mvc.{AnyContent, Action}
+import partial.paperless.manage.ManagePaperlessPartial
+import partial.paperless.warnings.PaperlessWarningPartial
+import play.api.mvc.{Action, AnyContent}
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
 import uk.gov.hmrc.play.frontend.auth.Actions

@@ -39,7 +39,7 @@ GET         /sa/print-preferences/verification/:token                           
 GET         /sa/print-preferences/assets/*file                                      controllers.sa.prefs.Assets.at(path="/public", file)
 
 # Partials
-GET         /paperless/manage                                                       controllers.sa.prefs.partial.PaperlessPartialController.displayManagePaperlessPartial(hostContext: hostcontext.HostContext)
-GET         /paperless/warnings                                                     controllers.sa.prefs.partial.PaperlessPartialController.displayPaperlessWarningsPartial
-GET         /account/account-details/sa/email-reminders-status                      controllers.sa.prefs.partial.PaperlessPartialsForDeprecatedYTAEndpointsController.displayManagePaperlessPartial
-GET         /account/preferences/warnings                                           controllers.sa.prefs.partial.PaperlessPartialsForDeprecatedYTAEndpointsController.displayPaperlessWarningsPartial
+GET         /paperless/manage                                                       partial.paperless.PaperlessPartialController.displayManagePaperlessPartial(hostContext: hostcontext.HostContext)
+GET         /paperless/warnings                                                     partial.paperless.PaperlessPartialController.displayPaperlessWarningsPartial
+GET         /account/account-details/sa/email-reminders-status                      partial.paperless.PaperlessPartialsForDeprecatedYTAEndpointsController.displayManagePaperlessPartial
+GET         /account/preferences/warnings                                           partial.paperless.PaperlessPartialsForDeprecatedYTAEndpointsController.displayPaperlessWarningsPartial

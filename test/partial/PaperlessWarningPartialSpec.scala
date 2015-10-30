@@ -3,6 +3,7 @@ package partial
 import connectors.{SaEmailPreference, SaPreference}
 import helpers.ConfigHelper
 import org.joda.time.LocalDate
+import partial.paperless.warnings.PaperlessWarningPartial
 import play.api.mvc.Results
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
