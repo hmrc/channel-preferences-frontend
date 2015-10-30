@@ -3,7 +3,7 @@ package controllers.sa.prefs.partial
 import connectors.PreferencesConnector
 import controllers.sa.prefs.{ExternalUrls, SaRegimeWithoutRedirection}
 import controllers.sa.prefs.config.Global
-import controllers.sa.prefs.internal.PreferencesControllerHelper
+import controllers.sa.prefs.internal.EmailForm
 import hostcontext.HostContext
 import partial.{ManagePaperlessPartial, PaperlessWarningPartial}
 import play.api.mvc.{AnyContent, Action}
@@ -24,13 +24,12 @@ object PaperlessPartialsForDeprecatedYTAEndpointsController extends PaperlessPar
   lazy val authConnector = Global.authConnector
   lazy val preferencesConnector = PreferencesConnector
 
-  val displayManagePaperlessPartial: Action[AnyContent] = displayManagePaperlessPartial(HostContext.defaultsForYtaManageAccount)
+  val displayManagePaperlessPartial: Action[AnyContent] = displayManagePaperlessPartial(HostContext.defaultsForYtaManageAccountPages)
 }
 
 trait PaperlessPartialController
   extends FrontendController
-  with Actions
-  with PreferencesControllerHelper {
+  with Actions {
 
   def preferencesConnector: PreferencesConnector
 

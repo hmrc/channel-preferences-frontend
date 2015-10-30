@@ -1,13 +1,12 @@
 package controllers.sa.prefs.internal
 
 import connectors._
-import controllers.sa.prefs.Encrypted
 import controllers.sa.prefs.config.Global
-import controllers.sa.prefs.{SaRegimeWithoutRedirection, UpgradeRemindersTandC}
+import controllers.sa.prefs.{Encrypted, SaRegimeWithoutRedirection, UpgradeRemindersTandC}
 import play.api.data.Form
+import play.api.data.Forms._
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, Request, Result}
-import uk.gov.hmrc.crypto.{PlainText, ApplicationCrypto}
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
@@ -27,12 +26,17 @@ object UpgradeRemindersController extends UpgradeRemindersController {
   override def auditConnector: AuditConnector = Global.auditConnector
 }
 
-trait UpgradeRemindersController extends FrontendController with Actions with AppName with PreferencesControllerHelper  {
+object UpgradeRemindersForm {
+  def apply() = Form[UpgradeRemindersTandC](mapping(
+    "opt-in" -> optional(boolean).verifying("sa_printing_preference.opt_in_choice_required", _.isDefined).transform[Boolean](_.get, Some(_)),
+    "accept-tc" -> boolean
+  )(UpgradeRemindersTandC.apply)(UpgradeRemindersTandC.unapply))
+}
+
+trait UpgradeRemindersController extends FrontendController with Actions with AppName {
 
   def authConnector: AuthConnector
-
   def preferencesConnector: PreferencesConnector
-
   def auditConnector: AuditConnector
 
   def display(encryptedReturnUrl: Encrypted[String]): Action[AnyContent] = AuthorisedFor(SaRegimeWithoutRedirection).async {
@@ -41,7 +45,7 @@ trait UpgradeRemindersController extends FrontendController with Actions with Ap
   }
 
   private[controllers] def renderUpgradePageIfPreferencesAvailable(utr: SaUtr, maybeNino: Option[Nino], encryptedReturnUrl: Encrypted[String])(implicit request: Request[AnyContent]): Future[Result] = {
-    decideRoutingFromPreference(utr,maybeNino, encryptedReturnUrl, upgradeRemindersForm)
+    decideRoutingFromPreference(utr,maybeNino, encryptedReturnUrl, UpgradeRemindersForm())
   }
 
   def upgrade(returnUrl: Encrypted[String]) = AuthorisedFor(SaRegimeWithoutRedirection).async { authContext => implicit request =>
@@ -53,7 +57,7 @@ trait UpgradeRemindersController extends FrontendController with Actions with Ap
   }
 
   private[controllers] def upgradePreferences(returnUrl:String, utr: SaUtr, maybeNino: Option[Nino])(implicit request: Request[AnyContent]): Future[Result] = {
-    val form = upgradeRemindersForm.bindFromRequest()
+    val form = UpgradeRemindersForm().bindFromRequest()
     form.fold(
       hasErrors = f => Future(BadRequest(upgrade_printing_preferences(None, Encrypted(returnUrl), f))),
       success = {

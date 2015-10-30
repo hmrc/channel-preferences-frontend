@@ -10,7 +10,7 @@ import uk.gov.hmrc.emailaddress.ObfuscatedEmailAddress
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import views.html.sa.prefs.{upgrade_printing_preferences_thank_you, upgrade_printing_preferences}
 
-class UpgradePrintingPreferencesViewSpec extends UnitSpec with PreferencesControllerHelper with WithFakeApplication {
+class UpgradePrintingPreferencesViewSpec extends UnitSpec with WithFakeApplication {
   override lazy val fakeApplication = ConfigHelper.fakeApp
 
   "upgrade printing preferences template" should {
@@ -19,7 +19,7 @@ class UpgradePrintingPreferencesViewSpec extends UnitSpec with PreferencesContro
       val returnUrl = Encrypted("someReturnUrl")
       val upgradeUrl = routes.UpgradeRemindersController.upgrade(returnUrl).toString()
 
-      val document = Jsoup.parse(upgrade_printing_preferences(Some(emailAddress), returnUrl, upgradeRemindersForm)(FakeRequest("GET", "/")).toString())
+      val document = Jsoup.parse(upgrade_printing_preferences(Some(emailAddress), returnUrl, UpgradeRemindersForm())(FakeRequest("GET", "/")).toString())
       document.getElementById("opted-in-email").text() should include (emailAddress)
       document.getElementsByTag("form").attr("action") should be (upgradeUrl)
     }
@@ -33,5 +33,4 @@ class UpgradePrintingPreferencesViewSpec extends UnitSpec with PreferencesContro
       document.getElementsByClass("button").attr("href") should be(returnUrl)
     }
   }
-
 }

@@ -13,7 +13,7 @@
     <p>Are you sure @emailAddress is correct?</p>
 
 
-    @form(action = controllers.sa.prefs.internal.routes.ManagePaperlessController.submitEmailAddress(hostContext)) {
+    @form(action = controllers.sa.prefs.internal.routes.ManagePaperlessController.submitChangeEmailAddress(hostContext)) {
         <div class="form-field">
             <p>
             <button id="emailIsCorrectLink" class="button" type="submit">This email address is correct</button>
@@ -24,5 +24,5 @@
         <input type="hidden" name="email.confirm" value="@emailAddress" />
         <input type="hidden" name="emailVerified" value="true" />
     }
-    <p>@Link.toInternalPage(id = Some("emailIsNotCorrectLink"), url = controllers.sa.prefs.internal.routes.ManagePaperlessController.changeEmailAddress(Some(Encrypted(EmailAddress(emailAddress))), hostContext).url, value = Some("Change this email address")).toHtml</p>
+    <p>@Link.toInternalPage(id = Some("emailIsNotCorrectLink"), url = controllers.sa.prefs.internal.routes.ManagePaperlessController.displayChangeEmailAddress(Some(Encrypted(EmailAddress(emailAddress))), hostContext).url, value = Some("Change this email address")).toHtml</p>
 }

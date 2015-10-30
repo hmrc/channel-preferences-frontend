@@ -54,6 +54,6 @@ object HostContext {
   }
 
   // TODO remove once YTA no longer depends on this
-  lazy val defaultsForYtaManageAccount = HostContext(returnUrl = ExternalUrls.manageAccount, returnLinkText = "Go to manage account", headers = Headers.YTA)
-  lazy val defaultsForYtaInterstitials = HostContext(returnUrl = ExternalUrls.businessTaxHome, returnLinkText = "Go to your tax account", headers = Headers.Blank)
+  lazy val defaultsForYtaManageAccountPages = HostContext(returnUrl = ExternalUrls.manageAccount, returnLinkText = "Go to manage account", headers = Headers.YTA)
+  lazy val defaultsForYtaLoginPages = HostContext(returnUrl = ExternalUrls.businessTaxHome, returnLinkText = "Go to your tax account", headers = Headers.Blank)
 }

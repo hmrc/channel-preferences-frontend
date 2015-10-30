@@ -10,15 +10,13 @@
 
     <p>You'll get letters again, instead of emails.</p>
 
-    @form(action = controllers.sa.prefs.internal.routes.ManagePaperlessController.confirmOptOutOfEmailReminders(hostContext)) {
+    @form(action = controllers.sa.prefs.internal.routes.ManagePaperlessController.submitStopPaperless(hostContext)) {
         <div class="form-field">
             <button id="confirm-opt-out" class="button" type="submit">@Messages("bt.account.stopreminders")</button>
         </div>
     }
 
-    @form(action = play.api.mvc.Call("GET", controllers.sa.prefs.ExternalUrls.accountDetails)) {
-        <p class="form-field">
-            @Link.toInternalPage(id = Some("cancel-opt-out-link"), url = hostContext.returnUrl, value = Some("Don't stop paperless notifications")).toHtml
-        </p>
-    }
+    <p class="form-field">
+        @Link.toInternalPage(id = Some("cancel-opt-out-link"), url = hostContext.returnUrl, value = Some("Don't stop paperless notifications")).toHtml
+    </p>
 }
