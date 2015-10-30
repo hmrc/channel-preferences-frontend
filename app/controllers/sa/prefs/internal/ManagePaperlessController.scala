@@ -4,22 +4,15 @@ import authentication.{SaRegime, ValidSessionCredentialsProvider}
 import connectors.{EmailConnector, PreferencesConnector, SaPreference}
 import controllers.sa.prefs.AuthContextAvailability._
 import controllers.sa.prefs.config.Global
-import controllers.sa.prefs.{EmailFormData, UpgradeRemindersTandC}
-import model.{HostContext, Encrypted}
-import play.api.data.Form
-import play.api.data.Forms._
-import play.api.mvc.{Call, Request, Result}
-import play.twirl.api.HtmlFormat
-import uk.gov.hmrc.domain.SaUtr
+import model.{Encrypted, HostContext}
+import play.api.mvc.{Request, Result}
 import uk.gov.hmrc.emailaddress.EmailAddress
-import uk.gov.hmrc.play.audit.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 import uk.gov.hmrc.play.frontend.auth.{Actions, AuthContext}
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 
-import scala.Function._
 import scala.concurrent.Future
 
 object ManagePaperlessController extends ManagePaperlessController with ServicesConfig {
@@ -129,7 +122,7 @@ with Actions {
     lookupCurrentEmail(email => Future.successful(Ok(views.html.confirm_opt_back_into_paper(email.obfuscated))))
 
   private[prefs] def _displayChangeEmailAddress(emailAddress: Option[Encrypted[EmailAddress]])(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Future[Result] =
-    lookupCurrentEmail(email => Future.successful(Ok(views.html.account_details_update_email_address(email, EmailForm().fill(EmailFormData(emailAddress.map(_.decryptedValue)))))))
+    lookupCurrentEmail(email => Future.successful(Ok(views.html.account_details_update_email_address(email, EmailForm().fill(EmailForm.Data(emailAddress.map(_.decryptedValue)))))))
 
   private def lookupCurrentEmail(func: (EmailAddress) => Future[Result])(implicit authContext: AuthContext, request: Request[AnyRef]): Future[Result] = {
     preferencesConnector.getPreferences(authContext.principal.accounts.sa.get.utr, None).flatMap {

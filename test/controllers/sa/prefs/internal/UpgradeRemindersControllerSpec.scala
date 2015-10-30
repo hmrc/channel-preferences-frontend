@@ -10,7 +10,7 @@ import org.scalatest.mock.MockitoSugar
 import play.api.i18n.Messages
 import play.api.libs.json.JsString
 import play.api.mvc.{AnyContent, Request}
-import play.api.test.FakeRequest
+import play.api.test.{FakeApplication, FakeRequest}
 import play.api.test.Helpers._
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.play.audit.http.HeaderCarrier
@@ -22,6 +22,8 @@ import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import scala.concurrent.Future
 
 class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication {
+
+
 
   "create an audit event with positive upgrade decision" in new UpgradeTestCase {
     val event = upgradeAndCaptureAuditEvent(Generic -> TermsAccepted(true)).getValue
@@ -119,6 +121,13 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
     }
   }
 
+  override lazy val fakeApplication = FakeApplication(additionalConfiguration = Map(
+    s"govuk-tax.Test.assets.url" -> "dfghj",
+    s"govuk-tax.Test.assets.version" -> "dfghj",
+    "govuk-tax.Test.google-analytics.token" -> "dfghjk",
+    "govuk-tax.Test.google-analytics.host" -> "dfghjk"
+  ))
+
   trait UpgradeTestCase  {
 
     implicit val hc = HeaderCarrier()
@@ -143,7 +152,7 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
       await(controller.upgradePaperless(utr, Some(nino), digital))
       val eventArg : ArgumentCaptor[ExtendedDataEvent] = ArgumentCaptor.forClass(classOf[ExtendedDataEvent])
       verify(controller.auditConnector).sendEvent(eventArg.capture())(any(), any())
-      return  eventArg
+      eventArg
     }
   }
 }

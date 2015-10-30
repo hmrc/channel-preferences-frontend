@@ -3,7 +3,6 @@ package controllers.sa.prefs.internal
 import authentication.SaRegimeWithoutRedirection
 import connectors._
 import controllers.sa.prefs.config.Global
-import controllers.sa.prefs.UpgradeRemindersTandC
 import model.Encrypted
 import play.api.data.Form
 import play.api.data.Forms._
@@ -29,10 +28,12 @@ object UpgradeRemindersController extends UpgradeRemindersController {
 }
 
 object UpgradeRemindersForm {
-  def apply() = Form[UpgradeRemindersTandC](mapping(
+  def apply() = Form[Data](mapping(
     "opt-in" -> optional(boolean).verifying("sa_printing_preference.opt_in_choice_required", _.isDefined).transform[Boolean](_.get, Some(_)),
     "accept-tc" -> boolean
-  )(UpgradeRemindersTandC.apply)(UpgradeRemindersTandC.unapply))
+  )(Data.apply)(Data.unapply))
+
+  case class Data(optIn: Boolean, acceptTandC: Boolean)
 }
 
 trait UpgradeRemindersController extends FrontendController with Actions with AppName {
@@ -63,17 +64,17 @@ trait UpgradeRemindersController extends FrontendController with Actions with Ap
     form.fold(
       hasErrors = f => Future(BadRequest(upgrade_printing_preferences(None, Encrypted(returnUrl), f))),
       success = {
-        case u @ UpgradeRemindersTandC(true, false) => Future(BadRequest(upgrade_printing_preferences(None, Encrypted(returnUrl), form.withError("accept-tc", "sa_printing_preference.accept_tc_required"))))
-        case UpgradeRemindersTandC(true, true) => upgradePaperless(utr, maybeNino, Generic -> TermsAccepted(true)).map {
+        case u @ UpgradeRemindersForm.Data(true, false) => Future(BadRequest(upgrade_printing_preferences(None, Encrypted(returnUrl), form.withError("accept-tc", "sa_printing_preference.accept_tc_required"))))
+        case UpgradeRemindersForm.Data(true, true) => upgradePaperless(utr, maybeNino, Generic -> TermsAccepted(true)).map {
           case true => Redirect(routes.UpgradeRemindersController.thankYou(Encrypted(returnUrl)))
           case false => Redirect(returnUrl)
         }
-        case UpgradeRemindersTandC(false, _) => upgradePaperless(utr, maybeNino, Generic -> TermsAccepted(false)).map(resp => Redirect(returnUrl))
+        case UpgradeRemindersForm.Data(false, _) => upgradePaperless(utr, maybeNino, Generic -> TermsAccepted(false)).map(resp => Redirect(returnUrl))
       }
     )
   }
 
-  private def decideRoutingFromPreference(utr: SaUtr, maybeNino: Option[Nino], encryptedReturnUrl: Encrypted[String], tandcForm:Form[UpgradeRemindersTandC])(implicit request: Request[AnyContent]) = {
+  private def decideRoutingFromPreference(utr: SaUtr, maybeNino: Option[Nino], encryptedReturnUrl: Encrypted[String], tandcForm:Form[UpgradeRemindersForm.Data])(implicit request: Request[AnyContent]) = {
     preferencesConnector.getPreferences(utr, maybeNino).map {
       case Some(prefs) => Ok(upgrade_printing_preferences(prefs.email.map(e => e.email), encryptedReturnUrl, tandcForm))
       case None => Redirect(encryptedReturnUrl.decryptedValue)

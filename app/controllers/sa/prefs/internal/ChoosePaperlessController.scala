@@ -4,8 +4,7 @@ import authentication.SaRegime
 import connectors._
 import controllers.sa.prefs.config.Global
 import controllers.sa.prefs.internal.EmailOptInJourney._
-import controllers.sa.prefs.{_}
-import model.{HostContext, Encrypted}
+import model.{Encrypted, HostContext}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
@@ -112,30 +111,6 @@ trait ChoosePaperlessController
   }
 
 
-  private val optInOrOutForm =
-    Form[PreferenceData](mapping(
-      "opt-in" -> optional(boolean).verifying("sa_printing_preference.opt_in_choice_required", _.isDefined)
-    )(PreferenceData.apply)(PreferenceData.unapply))
-
-  private val optInDetailsForm =
-    Form[EmailFormDataWithPreference](mapping(
-      "email" -> tuple(
-        "main" -> optional(EmailForm.emailWithLimitedLength),
-        "confirm" -> optional(text)
-      ),
-      "emailVerified" -> optional(text),
-      "opt-in" -> optional(boolean).verifying("sa_printing_preference.opt_in_choice_required", _.isDefined).transform(
-        _.map(EmailPreference.fromBoolean), (p: Option[EmailPreference]) => p.map(_.toBoolean)
-      ),
-      "accept-tc" -> optional(boolean).verifying("sa_printing_preference.accept_tc_required", _.contains(true))
-    )(EmailFormDataWithPreference.apply)(EmailFormDataWithPreference.unapply)
-      .verifying("error.email.optIn", _ match {
-      case EmailFormDataWithPreference((None, _), _, Some(OptIn), _) => false
-      case _ => true
-    })
-      .verifying("email.confirmation.emails.unequal", formData => formData.email._1 == formData.email._2)
-    )
-
   private[prefs] def _redirectToDisplayFormWithCohortIfNotOptedIn(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext) =
     returnIf(userAlreadyOptedIn) otherwise {
       Future.successful(Redirect(routes.DeprecatedYTALoginChoosePaperlessController.displayFormIfNotOptedIn(Some(calculateCohort(authContext)))))
@@ -156,7 +131,7 @@ trait ChoosePaperlessController
         val email = emailAddress.map(_.decryptedValue)
         Ok(
           views.html.sa.prefs.sa_printing_preference(
-            emailForm = optInDetailsForm.fill(EmailFormDataWithPreference(emailAddress = email, preference = email.map(_ => OptIn), acceptedTcs = Some(false))),
+            emailForm = OptInDetailsForm().fill(OptInDetailsForm.Data(emailAddress = email, preference = email.map(_ => OptInDetailsForm.Data.PaperlessChoice.OptedIn), acceptedTcs = Some(false))),
             submitPrefsFormAction = controllers.sa.prefs.internal.routes.ChoosePaperlessController.submitForm(hostContext),
             cohort = cohort
           )
@@ -193,14 +168,14 @@ trait ChoosePaperlessController
 
     def returnToFormWithErrors(f: Form[_]) = Future.successful(BadRequest(views.html.sa.prefs.sa_printing_preference(f, routes.ChoosePaperlessController.submitForm(hostContext), cohort)))
 
-    optInOrOutForm.bindFromRequest.fold[Future[Result]](
+    OptInOrOutForm().bindFromRequest.fold[Future[Result]](
       hasErrors = returnToFormWithErrors,
       happyForm =>
         if (happyForm.optedIn.contains(false)) saveAndAuditPreferences(saUtr, false, None, hc)
-        else optInDetailsForm.bindFromRequest.fold[Future[Result]](
+        else OptInDetailsForm().bindFromRequest.fold[Future[Result]](
           hasErrors = returnToFormWithErrors,
           success = {
-            case emailForm@EmailFormDataWithPreference((Some(emailAddress), _), _, Some(OptIn), Some(true)) =>
+            case emailForm@OptInDetailsForm.Data((Some(emailAddress), _), _, Some(OptInDetailsForm.Data.PaperlessChoice.OptedIn), Some(true)) =>
               val emailVerificationStatus =
                 if (emailForm.isEmailVerified) Future.successful(true)
                 else emailConnector.isValid(emailAddress)
@@ -209,7 +184,7 @@ trait ChoosePaperlessController
                 case true => saveAndAuditPreferences(saUtr, true, Some(emailAddress), hc)
                 case false => Future.successful(Ok(views.html.sa_printing_preference_verify_email(emailAddress, cohort)))
               }
-            case _ => returnToFormWithErrors(optInDetailsForm.bindFromRequest)
+            case _ => returnToFormWithErrors(OptInDetailsForm().bindFromRequest)
           }
         )
     )
