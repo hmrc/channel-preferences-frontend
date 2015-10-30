@@ -17,11 +17,20 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
       `/preferences/paye/individual/:nino/activations/paye`(nino,authHeader).put().futureValue.status should be (412)
 
-      val response = `/upgrade-email-reminders`.post(optIn = true).futureValue
+      val response = `/upgrade-email-reminders`.post(optIn = true, acceptedTandC = Some(true)).futureValue
       response should have('status(303))
       response.header("Location").get should be (routes.UpgradeRemindersController.thankYou(Encrypted(returnUrl)).toString())
 
       `/preferences/paye/individual/:nino/activations/paye`(nino, authHeader).put().futureValue.status should be (200)
+    }
+
+    "return bad request if T&Cs not accepted"  in new UpgradeTestCase  {
+      createOptedInVerifiedPreferenceWithNino()
+
+      `/preferences/paye/individual/:nino/activations/paye`(nino,authHeader).put().futureValue.status should be (412)
+
+      val response = `/upgrade-email-reminders`.post(optIn = true, acceptedTandC = Some(false)).futureValue
+      response should have('status(400))
     }
 
     "set not upgraded to paperless and don't allow subsequent activation"  in new UpgradeTestCase  {
@@ -29,7 +38,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
       `/preferences/paye/individual/:nino/activations/paye`(nino,authHeader).put().futureValue.status should be (412)
 
-      val response = `/upgrade-email-reminders`.post(optIn = false).futureValue
+      val response = `/upgrade-email-reminders`.post(optIn = false, acceptedTandC = None).futureValue
       response should have('status(303))
       response.header("Location") should contain (returnUrl)
 
@@ -66,7 +75,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
       upgradeResponse.status should be (200)
       upgradeResponse.body should include ("Go paperless with HMRC")
 
-      val response = `/upgrade-email-reminders`.post(optIn = true).futureValue
+      val response = `/upgrade-email-reminders`.post(optIn = true, acceptedTandC = Some(true)).futureValue
       response should have('status(303))
       response.header("Location").get should be (routes.UpgradeRemindersController.thankYou(Encrypted(returnUrl)).toString())
 
@@ -87,7 +96,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
       upgradeResponse.status should be (200)
       upgradeResponse.body should include ("Go paperless with HMRC")
 
-      val response = `/upgrade-email-reminders`.post(optIn = true).futureValue
+      val response = `/upgrade-email-reminders`.post(optIn = true, acceptedTandC = Some(true)).futureValue
       response should have('status(303))
       response.header("Location").get should be (routes.UpgradeRemindersController.thankYou(Encrypted(returnUrl)).toString())
 
@@ -211,9 +220,9 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
       val url = WS.url(resource("/account/account-details/sa/upgrade-email-reminders")).withQueryString("returnUrl" -> ApplicationCrypto.QueryParameterCrypto.encrypt(PlainText(returnUrl)).value)
 
-      def post(optIn: Boolean) = {
+      def post(optIn: Boolean, acceptedTandC: Option[Boolean]) = {
         url.withHeaders(cookie,"Csrf-Token"->"nocheck").withFollowRedirects(false).post(
-          Map("opt-in" -> Seq(optIn.toString))
+          Seq(Some("opt-in" -> Seq(optIn.toString)), acceptedTandC.map(a => "accept-tc" -> Seq(a.toString))).flatten.toMap
         )
       }
 
