@@ -10,7 +10,7 @@
 
     <p>You'll get letters again, instead of emails.</p>
 
-    @form(action = controllers.sa.prefs.internal.routes.ManagePaperlessController.submitStopPaperless(hostContext)) {
+    @form(action = controllers.internal.routes.ManagePaperlessController.submitStopPaperless(hostContext)) {
         <div class="form-field">
             <button id="confirm-opt-out" class="button" type="submit">@Messages("bt.account.stopreminders")</button>
         </div>

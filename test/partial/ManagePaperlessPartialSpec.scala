@@ -4,8 +4,8 @@ import java.net.URLEncoder
 
 import connectors.SaEmailPreference.Status
 import connectors.{SaEmailPreference, SaPreference}
-import controllers.sa.prefs.ExternalUrlPrefixes
-import controllers.sa.prefs.internal.routes
+import controllers.ExternalUrlPrefixes
+import controllers.internal.routes
 import helpers.{TestFixtures, ConfigHelper}
 import model.HostContext
 import org.joda.time.LocalDate

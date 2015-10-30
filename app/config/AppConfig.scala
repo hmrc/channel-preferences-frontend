@@ -1,6 +1,6 @@
 package config
 
-import controllers.sa.prefs.ExternalUrls
+import controllers.ExternalUrls
 import play.api.Play.{configuration, current}
 import uk.gov.hmrc.play.config.RunMode
 

@@ -1,6 +1,6 @@
 package authentication
 
-import controllers.sa.prefs.ExternalUrls
+import controllers.ExternalUrls
 import play.api.Logger
 import play.api.mvc.{AnyContent, Request, Results}
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.Accounts

@@ -1,4 +1,4 @@
-import controllers.sa.prefs.internal.routes
+import controllers.internal.routes
 import model.Encrypted
 import org.scalatest.mock.MockitoSugar
 import play.api.libs.json.JsString

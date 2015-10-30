@@ -1,6 +1,6 @@
 package model
 
-import controllers.sa.prefs.ExternalUrls
+import controllers.ExternalUrls
 import play.api.mvc.QueryStringBindable
 import play.twirl.api.{Html, HtmlFormat}
 

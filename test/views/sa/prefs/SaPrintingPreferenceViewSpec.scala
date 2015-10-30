@@ -1,7 +1,7 @@
 package views.sa.prefs
 
 import _root_.helpers.{TestFixtures, ConfigHelper}
-import controllers.sa.prefs.internal._
+import controllers.internal._
 import org.jsoup.Jsoup
 import play.api.mvc.Call
 import play.api.test.FakeRequest

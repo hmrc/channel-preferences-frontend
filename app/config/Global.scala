@@ -2,7 +2,7 @@ package config
 
 import com.kenshoo.play.metrics.{MetricsFilter, MetricsRegistry}
 import connectors.WsHttp
-import controllers.sa.prefs.internal.OptInCohortConfigurationValues
+import controllers.internal.OptInCohortConfigurationValues
 import play.api.mvc.Request
 import play.api.{Application, Configuration}
 import play.twirl.api.Html

@@ -1,7 +1,6 @@
 package connectors
 
-
-import controllers.sa.prefs.internal.OptInCohort
+import controllers.internal.OptInCohort
 import play.api.Logger
 import play.api.http.Status
 import play.api.libs.json._
