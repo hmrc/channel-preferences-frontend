@@ -12,8 +12,8 @@ object HostContext {
       for {
         errorOrReturnUrl      <- stringBinder.bind("returnUrl", params)
         errorOrReturnLinkText <- stringBinder.bind("returnLinkText", params)
-        errorOrHeaders        <- stringBinder.bind("headers", params) orElse Some(Right(Encrypted(Headers.Blank.name)))
-      } yield (errorOrReturnUrl, errorOrReturnLinkText, errorOrHeaders) match {
+        maybeHeaders        <- stringBinder.bind("headers", params) orElse Some(Right(Encrypted(Headers.Blank.name)))
+      } yield (errorOrReturnUrl, errorOrReturnLinkText, maybeHeaders) match {
         case (Right(returnUrl), Right(returnLinkText), Right(headersName)) =>
           Right(HostContext(returnUrl = returnUrl.decryptedValue, returnLinkText = returnLinkText.decryptedValue, headers = Headers(headersName.decryptedValue)))
         case someErrors => Left(Seq(
@@ -53,5 +53,6 @@ object HostContext {
 
   // TODO remove once YTA no longer depends on this
   lazy val defaultsForYtaManageAccountPages = HostContext(returnUrl = ExternalUrls.manageAccount, returnLinkText = "Go to manage account", headers = Headers.YTA)
+  lazy val defaultsForYtaWarningsPartial = HostContext(returnUrl = ExternalUrls.manageAccount, returnLinkText = "Manage account", headers = Headers.YTA)
   lazy val defaultsForYtaLoginPages = HostContext(returnUrl = ExternalUrls.businessTaxHome, returnLinkText = "Go to your tax account", headers = Headers.Blank)
 }

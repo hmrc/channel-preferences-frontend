@@ -25,6 +25,8 @@ object PaperlessPartialsForDeprecatedYTAEndpointsController extends PaperlessPar
   lazy val preferencesConnector = PreferencesConnector
 
   val displayManagePaperlessPartial: Action[AnyContent] = displayManagePaperlessPartial(HostContext.defaultsForYtaManageAccountPages)
+
+  val displayPaperlessWarningsPartial: Action[AnyContent] = displayPaperlessWarningsPartial(HostContext.defaultsForYtaWarningsPartial)
 }
 
 trait PaperlessPartialController
@@ -39,10 +41,10 @@ trait PaperlessPartialController
     }
   }
 
-  val displayPaperlessWarningsPartial = AuthorisedFor(taxRegime = SaRegimeWithoutRedirection, redirectToOrigin = false).async { implicit authContext => implicit request =>
+  def displayPaperlessWarningsPartial(implicit hostContext: HostContext) = AuthorisedFor(taxRegime = SaRegimeWithoutRedirection, redirectToOrigin = false).async { implicit authContext => implicit request =>
     def pendingEmailVerification(utr: SaUtr, nino: Option[Nino])(implicit hc: HeaderCarrier) = preferencesConnector.getPreferences(utr, nino).map {
       case None => NotFound
-      case Some(prefs) => Ok(PaperlessWarningPartial.apply(prefs)).withHeaders("X-Opted-In-Email" -> prefs.digital.toString)
+      case Some(prefs) => Ok(PaperlessWarningPartial.apply(prefs, hostContext.returnUrl, hostContext.returnLinkText)).withHeaders("X-Opted-In-Email" -> prefs.digital.toString)
     }
     pendingEmailVerification(utr = authContext.principal.accounts.sa.get.utr, nino = authContext.principal.accounts.paye.map(_.nino))
   }

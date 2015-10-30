@@ -1,4 +1,4 @@
-@(mailBoxFull: Boolean)
+@(mailBoxFull: Boolean, returnUrl: String, returnLinkText: String)
 
 @import uk.gov.hmrc.urls.Link
 
@@ -11,8 +11,8 @@
         <p>Go to
             @Link.toInternalPage(
             id = Some("remindersProblem"),
-            url = controllers.ExternalUrls.accountDetails,
-            value = Some("Manage account")
+            url = returnUrl,
+            value = Some(returnLinkText)
             ).toHtml for more information.</p>
     </div>
 </details>
