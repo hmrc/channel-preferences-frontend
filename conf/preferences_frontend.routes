@@ -40,6 +40,6 @@ GET         /sa/print-preferences/assets/*file                                  
 
 # Partials
 GET         /paperless/manage                                                       partial.paperless.PaperlessPartialController.displayManagePaperlessPartial(hostContext: model.HostContext)
-GET         /paperless/warnings                                                     partial.paperless.PaperlessPartialController.displayPaperlessWarningsPartial(hostContext: hostcontext.HostContext)
+GET         /paperless/warnings                                                     partial.paperless.PaperlessPartialController.displayPaperlessWarningsPartial(hostContext: model.HostContext)
 GET         /account/account-details/sa/email-reminders-status                      partial.paperless.PaperlessPartialsForDeprecatedYTAEndpointsController.displayManagePaperlessPartial
 GET         /account/preferences/warnings                                           partial.paperless.PaperlessPartialsForDeprecatedYTAEndpointsController.displayPaperlessWarningsPartial
