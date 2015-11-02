@@ -128,8 +128,8 @@ trait PreferencesFrontEndServer extends ServiceSpec {
              |}""".stripMargin))
     }
 
-    def `/paperless/warnings` = WS.url(resource("/paperless/warnings"))
-    def `/account/preferences/warnings` = WS.url(resource("/account/preferences/warnings"))
+    def `/paperless/warnings` = urlWithHostContext("/paperless/warnings")()
+    def `/account/preferences/warnings` = urlWithHostContext("/account/preferences/warnings")()
   }
 
   trait TestCaseWithFrontEndAuthentication extends TestCase with BearerTokenHelper with FrontendCookieHelper {
