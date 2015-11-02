@@ -1,45 +1,45 @@
-GET         /account/account-details/sa/update-email-address                        controllers.sa.prefs.internal.DeprecatedYTAManagePaperlessController.displayChangeEmailAddress(email: Option[controllers.sa.prefs.EncryptedEmail])
-POST        /account/account-details/sa/update-email-address                        controllers.sa.prefs.internal.DeprecatedYTAManagePaperlessController.submitChangeEmailAddress
-GET         /account/account-details/sa/update-email-address-thank-you              controllers.sa.prefs.internal.DeprecatedYTAManagePaperlessController.displayChangeEmailAddressConfirmed
-GET         /paperless/email-address/change                                         controllers.sa.prefs.internal.ManagePaperlessController.displayChangeEmailAddress(email: Option[controllers.sa.prefs.EncryptedEmail], hostContext: hostcontext.HostContext)
-POST        /paperless/email-address/change                                         controllers.sa.prefs.internal.ManagePaperlessController.submitChangeEmailAddress(hostContext: hostcontext.HostContext)
-GET         /paperless/email-address/change/confirmed                               controllers.sa.prefs.internal.ManagePaperlessController.displayChangeEmailAddressConfirmed(hostContext: hostcontext.HostContext)
+GET         /account/account-details/sa/update-email-address                        controllers.internal.DeprecatedYTAManagePaperlessController.displayChangeEmailAddress(email: Option[model.EncryptedEmail])
+POST        /account/account-details/sa/update-email-address                        controllers.internal.DeprecatedYTAManagePaperlessController.submitChangeEmailAddress
+GET         /account/account-details/sa/update-email-address-thank-you              controllers.internal.DeprecatedYTAManagePaperlessController.displayChangeEmailAddressConfirmed
+GET         /paperless/email-address/change                                         controllers.internal.ManagePaperlessController.displayChangeEmailAddress(email: Option[model.EncryptedEmail], hostContext: model.HostContext)
+POST        /paperless/email-address/change                                         controllers.internal.ManagePaperlessController.submitChangeEmailAddress(hostContext: model.HostContext)
+GET         /paperless/email-address/change/confirmed                               controllers.internal.ManagePaperlessController.displayChangeEmailAddressConfirmed(hostContext: model.HostContext)
 
-GET         /account/account-details/sa/opt-out-email-reminders                     controllers.sa.prefs.internal.DeprecatedYTAManagePaperlessController.displayStopPaperless
-POST        /account/account-details/sa/opt-out-email-reminders                     controllers.sa.prefs.internal.DeprecatedYTAManagePaperlessController.submitStopPaperless
-GET         /account/account-details/sa/opt-out-email-reminders-thank-you           controllers.sa.prefs.internal.DeprecatedYTAManagePaperlessController.displayStopPaperlessConfirmed
-GET         /paperless/stop                                                         controllers.sa.prefs.internal.ManagePaperlessController.displayStopPaperless(hostContext: hostcontext.HostContext)
-POST        /paperless/stop                                                         controllers.sa.prefs.internal.ManagePaperlessController.submitStopPaperless(hostContext: hostcontext.HostContext)
-GET         /paperless/stop/confirmed                                               controllers.sa.prefs.internal.ManagePaperlessController.displayStopPaperlessConfirmed(hostContext: hostcontext.HostContext)
+GET         /account/account-details/sa/opt-out-email-reminders                     controllers.internal.DeprecatedYTAManagePaperlessController.displayStopPaperless
+POST        /account/account-details/sa/opt-out-email-reminders                     controllers.internal.DeprecatedYTAManagePaperlessController.submitStopPaperless
+GET         /account/account-details/sa/opt-out-email-reminders-thank-you           controllers.internal.DeprecatedYTAManagePaperlessController.displayStopPaperlessConfirmed
+GET         /paperless/stop                                                         controllers.internal.ManagePaperlessController.displayStopPaperless(hostContext: model.HostContext)
+POST        /paperless/stop                                                         controllers.internal.ManagePaperlessController.submitStopPaperless(hostContext: model.HostContext)
+GET         /paperless/stop/confirmed                                               controllers.internal.ManagePaperlessController.displayStopPaperlessConfirmed(hostContext: model.HostContext)
 
-POST        /account/account-details/sa/resend-validation-email                     controllers.sa.prefs.internal.DeprecatedYTAManagePaperlessController.resendVerificationEmail
-POST        /paperless/resend-verification-email                                    controllers.sa.prefs.internal.ManagePaperlessController.resendVerificationEmail(hostContext: hostcontext.HostContext)
+POST        /account/account-details/sa/resend-validation-email                     controllers.internal.DeprecatedYTAManagePaperlessController.resendVerificationEmail
+POST        /paperless/resend-verification-email                                    controllers.internal.ManagePaperlessController.resendVerificationEmail(hostContext: model.HostContext)
 
-GET         /account/account-details/sa/login-opt-in-email-reminders                controllers.sa.prefs.internal.DeprecatedYTALoginChoosePaperlessController.redirectToDisplayFormWithCohortIfNotOptedIn
-GET         /account/account-details/sa/login-opt-in-email-reminders/:cohort        controllers.sa.prefs.internal.DeprecatedYTALoginChoosePaperlessController.displayFormIfNotOptedIn(cohort: Option[controllers.sa.prefs.internal.OptInCohort])
-POST        /account/account-details/sa/login-opt-in-email-reminders                controllers.sa.prefs.internal.DeprecatedYTALoginChoosePaperlessController.submitForm
+GET         /account/account-details/sa/login-opt-in-email-reminders                controllers.internal.DeprecatedYTALoginChoosePaperlessController.redirectToDisplayFormWithCohortIfNotOptedIn
+GET         /account/account-details/sa/login-opt-in-email-reminders/:cohort        controllers.internal.DeprecatedYTALoginChoosePaperlessController.displayFormIfNotOptedIn(cohort: Option[controllers.internal.OptInCohort])
+POST        /account/account-details/sa/login-opt-in-email-reminders                controllers.internal.DeprecatedYTALoginChoosePaperlessController.submitForm
 
-GET         /account/account-details/sa/opt-in-email-reminders-thank-you            controllers.sa.prefs.internal.DeprecatedYTAManageAccountChoosePaperlessController.displayNearlyDone(email: Option[controllers.sa.prefs.EncryptedEmail])
-GET         /account/account-details/sa/opt-in-email-reminders                      controllers.sa.prefs.internal.DeprecatedYTAManageAccountChoosePaperlessController.redirectToDisplayFormWithCohort(email: Option[controllers.sa.prefs.EncryptedEmail])
-GET         /account/account-details/sa/opt-in-email-reminders/:cohort              controllers.sa.prefs.internal.DeprecatedYTAManageAccountChoosePaperlessController.displayForm(cohort: Option[controllers.sa.prefs.internal.OptInCohort], email: Option[controllers.sa.prefs.EncryptedEmail])
-POST        /account/account-details/sa/opt-in-email-reminders                      controllers.sa.prefs.internal.DeprecatedYTAManageAccountChoosePaperlessController.submitForm
-GET         /paperless/choose/nearly-done                                           controllers.sa.prefs.internal.ChoosePaperlessController.displayNearlyDone(email: Option[controllers.sa.prefs.EncryptedEmail], hostContext: hostcontext.HostContext)
-GET         /paperless/choose                                                       controllers.sa.prefs.internal.ChoosePaperlessController.redirectToDisplayFormWithCohort(email: Option[controllers.sa.prefs.EncryptedEmail], hostContext: hostcontext.HostContext)
-GET         /paperless/choose/:cohort                                               controllers.sa.prefs.internal.ChoosePaperlessController.displayForm(cohort: Option[controllers.sa.prefs.internal.OptInCohort], email: Option[controllers.sa.prefs.EncryptedEmail], hostContext: hostcontext.HostContext)
-POST        /paperless/choose                                                       controllers.sa.prefs.internal.ChoosePaperlessController.submitForm(hostContext: hostcontext.HostContext)
+GET         /account/account-details/sa/opt-in-email-reminders-thank-you            controllers.internal.DeprecatedYTAManageAccountChoosePaperlessController.displayNearlyDone(email: Option[model.EncryptedEmail])
+GET         /account/account-details/sa/opt-in-email-reminders                      controllers.internal.DeprecatedYTAManageAccountChoosePaperlessController.redirectToDisplayFormWithCohort(email: Option[model.EncryptedEmail])
+GET         /account/account-details/sa/opt-in-email-reminders/:cohort              controllers.internal.DeprecatedYTAManageAccountChoosePaperlessController.displayForm(cohort: Option[controllers.internal.OptInCohort], email: Option[model.EncryptedEmail])
+POST        /account/account-details/sa/opt-in-email-reminders                      controllers.internal.DeprecatedYTAManageAccountChoosePaperlessController.submitForm
+GET         /paperless/choose/nearly-done                                           controllers.internal.ChoosePaperlessController.displayNearlyDone(email: Option[model.EncryptedEmail], hostContext: model.HostContext)
+GET         /paperless/choose                                                       controllers.internal.ChoosePaperlessController.redirectToDisplayFormWithCohort(email: Option[model.EncryptedEmail], hostContext: model.HostContext)
+GET         /paperless/choose/:cohort                                               controllers.internal.ChoosePaperlessController.displayForm(cohort: Option[controllers.internal.OptInCohort], email: Option[model.EncryptedEmail], hostContext: model.HostContext)
+POST        /paperless/choose                                                       controllers.internal.ChoosePaperlessController.submitForm(hostContext: model.HostContext)
 
-GET         /account/account-details/sa/upgrade-email-reminders                     controllers.sa.prefs.internal.UpgradeRemindersController.display(returnUrl: controllers.sa.prefs.Encrypted[String])
-POST        /account/account-details/sa/upgrade-email-reminders                     controllers.sa.prefs.internal.UpgradeRemindersController.upgrade(returnUrl: controllers.sa.prefs.Encrypted[String])
-GET         /account/account-details/sa/upgrade-email-reminders-thank-you           controllers.sa.prefs.internal.UpgradeRemindersController.thankYou(returnUrl: controllers.sa.prefs.Encrypted[String])
+GET         /account/account-details/sa/upgrade-email-reminders                     controllers.internal.UpgradeRemindersController.display(returnUrl: model.Encrypted[String])
+POST        /account/account-details/sa/upgrade-email-reminders                     controllers.internal.UpgradeRemindersController.upgrade(returnUrl: model.Encrypted[String])
+GET         /account/account-details/sa/upgrade-email-reminders-thank-you           controllers.internal.UpgradeRemindersController.thankYou(returnUrl: model.Encrypted[String])
 
-GET         /sa/print-preferences/:token                                            @controllers.sa.prefs.filing.FilingInterceptController.redirectWithEmailAddress(token: String, return_url: String, emailAddress: Option[controllers.sa.prefs.EncryptedEmail])
-GET         /sa/print-preferences/verification/:token                               @controllers.sa.prefs.external.EmailValidationController.verify(token: String)
+GET         /sa/print-preferences/:token                                            @controllers.filing.FilingInterceptController.redirectWithEmailAddress(token: String, return_url: String, emailAddress: Option[model.EncryptedEmail])
+GET         /sa/print-preferences/verification/:token                               @controllers.external.EmailValidationController.verify(token: String)
 
 # Serves up the test gif that is used to determine if the service is up
-GET         /sa/print-preferences/assets/*file                                      controllers.sa.prefs.Assets.at(path="/public", file)
+GET         /sa/print-preferences/assets/*file                                      controllers.assets.Assets.at(path="/public", file)
 
 # Partials
-GET         /paperless/manage                                                       controllers.sa.prefs.partial.PaperlessPartialController.displayManagePaperlessPartial(hostContext: hostcontext.HostContext)
-GET         /paperless/warnings                                                     controllers.sa.prefs.partial.PaperlessPartialController.displayPaperlessWarningsPartial
-GET         /account/account-details/sa/email-reminders-status                      controllers.sa.prefs.partial.PaperlessPartialsForDeprecatedYTAEndpointsController.displayManagePaperlessPartial
-GET         /account/preferences/warnings                                           controllers.sa.prefs.partial.PaperlessPartialsForDeprecatedYTAEndpointsController.displayPaperlessWarningsPartial
+GET         /paperless/manage                                                       partial.paperless.PaperlessPartialController.displayManagePaperlessPartial(hostContext: model.HostContext)
+GET         /paperless/warnings                                                     partial.paperless.PaperlessPartialController.displayPaperlessWarningsPartial
+GET         /account/account-details/sa/email-reminders-status                      partial.paperless.PaperlessPartialsForDeprecatedYTAEndpointsController.displayManagePaperlessPartial
+GET         /account/preferences/warnings                                           partial.paperless.PaperlessPartialsForDeprecatedYTAEndpointsController.displayPaperlessWarningsPartial

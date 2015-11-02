@@ -1,0 +1,21 @@
+@(email: connectors.SaEmailPreference)(implicit request: Request[_], hostContext: model.HostContext)
+@import connectors.SaEmailPreference
+@import uk.gov.hmrc.urls.Link
+@import uk.gov.hmrc.emailaddress.EmailAddress
+@import uk.gov.hmrc.play.views.html.helpers._
+@import controllers.ExternalUrlPrefixes._
+@import views.sa.prefs.helpers.DateFormat._
+
+<section>
+    <h2 id="saEmailRemindersHeader">Email for paperless notifications</h2>
+    <p>You need to verify your email address.</p>
+    <div class="indent">
+        <p id="pending-status-message">An email was sent to <strong id="email-address">@{email.email}</strong> on @longDateFormat(email.linkSent). Click on the link in the email to verify your email address.</p>
+    </div>
+    @form(action = play.api.mvc.Call("POST", pfUrlPrefix + controllers.internal.routes.ManagePaperlessController.resendVerificationEmail(hostContext).url)){
+        <p> If you can't find it, we can <button id="resend-email-button" class="button--link-style" type="submit" data-journey-click="self-assessment-preferences-page:Click:Send a new verification email">send a new verification email</button></p>
+    }
+
+    @digital_true_links(email, "change-email-address-link")
+</section>
+

@@ -1,0 +1,16 @@
+@()(implicit hostContext: model.HostContext)
+@import uk.gov.hmrc.urls.Link
+@import controllers.ExternalUrlPrefixes._
+
+<section>
+    <h2 id="saEmailRemindersHeader">Go paperless</h2>
+    <p id="opt-out-status-message">Replace the letters you get about taxes with emails.</p>
+    <p>
+        @Link.toInternalPage(
+            id = Some("opt-in-to-digital-email-link"),
+            url = pfUrlPrefix + controllers.internal.routes.ChoosePaperlessController.redirectToDisplayFormWithCohort(None, hostContext),
+            value = Some("Sign up for paperless notifications"),
+            dataAttributes = Some(Map("journey-click" -> "self-assessment-preferences:Click:Sign up for paperless notifications"))
+        ).toHtml
+    </p>
+</section>

@@ -4,12 +4,13 @@ import java.net.URLEncoder
 
 import connectors.SaEmailPreference.Status
 import connectors.{SaEmailPreference, SaPreference}
-import controllers.sa.prefs.ExternalUrlPrefixes
-import controllers.sa.prefs.internal.routes
+import controllers.ExternalUrlPrefixes
+import controllers.internal.routes
 import helpers.{TestFixtures, ConfigHelper}
-import hostcontext.HostContext
+import model.HostContext
 import org.joda.time.LocalDate
 import org.scalatest.concurrent.ScalaFutures
+import partial.paperless.manage.ManagePaperlessPartial
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.twirl.api.Html

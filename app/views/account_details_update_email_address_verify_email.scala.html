@@ -1,7 +1,7 @@
-@(emailAddress: String)(implicit context: Option[uk.gov.hmrc.play.frontend.auth.AuthContext], request : Request[_], hostContext: hostcontext.HostContext)
+@(emailAddress: String)(implicit context: Option[uk.gov.hmrc.play.frontend.auth.AuthContext], request : Request[_], hostContext: model.HostContext)
 
 @import uk.gov.hmrc.urls.Link
-@import controllers.sa.prefs.Encrypted
+@import model.Encrypted
 @import uk.gov.hmrc.emailaddress.EmailAddress
 @import uk.gov.hmrc.play.views.html.helpers._
 
@@ -13,7 +13,7 @@
     <p>Are you sure @emailAddress is correct?</p>
 
 
-    @form(action = controllers.sa.prefs.internal.routes.ManagePaperlessController.submitChangeEmailAddress(hostContext)) {
+    @form(action = controllers.internal.routes.ManagePaperlessController.submitChangeEmailAddress(hostContext)) {
         <div class="form-field">
             <p>
             <button id="emailIsCorrectLink" class="button" type="submit">This email address is correct</button>
@@ -24,5 +24,5 @@
         <input type="hidden" name="email.confirm" value="@emailAddress" />
         <input type="hidden" name="emailVerified" value="true" />
     }
-    <p>@Link.toInternalPage(id = Some("emailIsNotCorrectLink"), url = controllers.sa.prefs.internal.routes.ManagePaperlessController.displayChangeEmailAddress(Some(Encrypted(EmailAddress(emailAddress))), hostContext).url, value = Some("Change this email address")).toHtml</p>
+    <p>@Link.toInternalPage(id = Some("emailIsNotCorrectLink"), url = controllers.internal.routes.ManagePaperlessController.displayChangeEmailAddress(Some(Encrypted(EmailAddress(emailAddress))), hostContext).url, value = Some("Change this email address")).toHtml</p>
 }

@@ -1,7 +1,6 @@
 package connectors
 
-
-import controllers.sa.prefs.internal.OptInCohort
+import controllers.internal.OptInCohort
 import play.api.Logger
 import play.api.http.Status
 import play.api.libs.json._
@@ -30,7 +29,7 @@ object TermsAccepted {
 object PreferencesConnector extends PreferencesConnector with ServicesConfig {
   override val serviceUrl = baseUrl("preferences")
 
-  override def http = HttpVerbs
+  override def http = WsHttp
 
   protected[connectors] case class ActivationStatus(active: Boolean)
   protected[connectors] object ActivationStatus { implicit val format = Json.format[ActivationStatus]}

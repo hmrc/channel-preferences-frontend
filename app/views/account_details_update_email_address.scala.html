@@ -1,4 +1,4 @@
-@(currentEmail : String, emailForm: Form[_])(implicit context: Option[uk.gov.hmrc.play.frontend.auth.AuthContext], request: Request[_], hostContext: hostcontext.HostContext)
+@(currentEmail : String, emailForm: Form[_])(implicit context: Option[uk.gov.hmrc.play.frontend.auth.AuthContext], request: Request[_], hostContext: model.HostContext)
 
 @import uk.gov.hmrc.play.views.html.helpers._
 
@@ -9,7 +9,7 @@
     </header>
    <p>Emails are sent to <span id="current-email-address">@{currentEmail}.</span></p>
 
-    @form(action = controllers.sa.prefs.internal.routes.ManagePaperlessController.submitChangeEmailAddress(hostContext), 'id -> "form-submit-email-address") {
+    @form(action = controllers.internal.routes.ManagePaperlessController.submitChangeEmailAddress(hostContext), 'id -> "form-submit-email-address") {
         <fieldset>
         @input(
             emailForm("email.main"),
