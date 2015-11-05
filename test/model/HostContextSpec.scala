@@ -5,8 +5,8 @@ import org.scalatest.{Matchers, WordSpec}
 import uk.gov.hmrc.play.test.WithFakeApplication
 
 class HostContextSpec extends WordSpec with Matchers with WithFakeApplication {
-  "Binding a host context" should {
 
+  "Binding a host context" should {
     val validReturnUrl = "returnUrl" -> Seq("9tNUeRTIYBD0RO+T5WRO7A]==")
     val validReturnLinkText = "returnLinkText" -> Seq("w/PwaxV+KgqutfsU0cyrJQ==")
     val validBlankHeaders = "headers" -> Seq("47pBbPf0Mz0gcFMRdx8qUQ==")
@@ -28,10 +28,10 @@ class HostContextSpec extends WordSpec with Matchers with WithFakeApplication {
       )
     }
     "fail if the returnURL is not present" in {
-      model.HostContext.hostContextBinder.bind("anyValName", Map(validReturnLinkText, validBlankHeaders)) should be (None)
+      model.HostContext.hostContextBinder.bind("anyValName", Map(validReturnLinkText, validBlankHeaders)) should be (Some(Left("No returnUrl query parameter")))
     }
     "fail if the returnLinkText is not present" in {
-      model.HostContext.hostContextBinder.bind("anyValName", Map(validReturnUrl, validBlankHeaders)) should be (None)
+      model.HostContext.hostContextBinder.bind("anyValName", Map(validReturnUrl, validBlankHeaders)) should be (Some(Left("No returnLinkText query parameter")))
     }
   }
   "Unbinding a host context" should {
