@@ -28,9 +28,12 @@ GET         /paperless/choose                                                   
 GET         /paperless/choose/:cohort                                               controllers.internal.ChoosePaperlessController.displayForm(cohort: Option[controllers.internal.OptInCohort], email: Option[model.EncryptedEmail], hostContext: model.HostContext)
 POST        /paperless/choose                                                       controllers.internal.ChoosePaperlessController.submitForm(hostContext: model.HostContext)
 
-GET         /account/account-details/sa/upgrade-email-reminders                     controllers.internal.UpgradeRemindersController.display(returnUrl: model.Encrypted[String])
-POST        /account/account-details/sa/upgrade-email-reminders                     controllers.internal.UpgradeRemindersController.upgrade(returnUrl: model.Encrypted[String])
-GET         /account/account-details/sa/upgrade-email-reminders-thank-you           controllers.internal.UpgradeRemindersController.thankYou(returnUrl: model.Encrypted[String])
+GET         /account/account-details/sa/upgrade-email-reminders                     controllers.internal.DeprecatedYTAUpgradeRemindersController.displayUpgradeForm(returnUrl: model.Encrypted[String])
+POST        /account/account-details/sa/upgrade-email-reminders                     controllers.internal.DeprecatedYTAUpgradeRemindersController.submitUpgrade(returnUrl: model.Encrypted[String])
+GET         /account/account-details/sa/upgrade-email-reminders-thank-you           controllers.internal.DeprecatedYTAUpgradeRemindersController.displayUpgradeConfirmed(returnUrl: model.Encrypted[String])
+GET         /paperless/upgrade                                                      controllers.internal.UpgradeRemindersController.displayUpgradeForm(returnUrl: model.Encrypted[String])
+POST        /paperless/upgrade                                                      controllers.internal.UpgradeRemindersController.submitUpgrade(returnUrl: model.Encrypted[String])
+GET         /paperless/upgrade/confirmed                                            controllers.internal.UpgradeRemindersController.displayUpgradeConfirmed(returnUrl: model.Encrypted[String])
 
 GET         /sa/print-preferences/:token                                            @controllers.filing.FilingInterceptController.redirectWithEmailAddress(token: String, return_url: String, emailAddress: Option[model.EncryptedEmail])
 GET         /sa/print-preferences/verification/:token                               @controllers.external.EmailValidationController.verify(token: String)

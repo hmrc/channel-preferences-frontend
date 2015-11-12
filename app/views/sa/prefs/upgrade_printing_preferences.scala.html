@@ -18,7 +18,7 @@
     <h2>We're expanding our electronic communications</h2>
     <p>You have already chosen to receive electronic communications instead of paper for some HMRC services. We are now expanding this service to include other areas of your tax affairs. You now need to accept the updated terms and conditions.</p>
 
-    @form(action = controllers.internal.routes.UpgradeRemindersController.upgrade(returnUrl), 'id -> "form-submit-email-address",
+    @form(action = controllers.internal.routes.UpgradeRemindersController.submitUpgrade(returnUrl), 'id -> "form-submit-email-address",
     'class -> "form") {
         <label class="selectable">
             <input
