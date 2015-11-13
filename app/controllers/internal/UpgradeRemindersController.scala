@@ -20,11 +20,56 @@ import views.html.sa.prefs.{upgrade_printing_preferences, upgrade_printing_prefe
 
 import scala.concurrent.Future
 
+object DeprecatedYTAUpgradeRemindersController extends UpgradeRemindersController {
+  override def authConnector = Global.authConnector
+  def preferencesConnector = PreferencesConnector
+
+  override def auditConnector: AuditConnector = Global.auditConnector
+
+  def displayUpgradeForm(encryptedReturnUrl: Encrypted[String]): Action[AnyContent] = AuthorisedFor(SaRegimeWithoutRedirection).async {
+    authContext => implicit request =>
+      _renderUpgradePageIfPreferencesAvailable(authContext.principal.accounts.sa.get.utr, authContext.principal.accounts.paye.map(_.nino), encryptedReturnUrl)
+  }
+
+  def submitUpgrade(returnUrl: Encrypted[String]) = AuthorisedFor(SaRegimeWithoutRedirection).async { authContext => implicit request =>
+    _upgradePreferences(
+      returnUrl = returnUrl.decryptedValue,
+      utr = authContext.principal.accounts.sa.get.utr,
+      maybeNino = authContext.principal.accounts.paye.map(_.nino)
+    )
+  }
+
+  def displayUpgradeConfirmed(returnUrl: Encrypted[String]): Action[AnyContent] = AuthorisedFor(SaRegimeWithoutRedirection).async {
+    authContext => implicit request =>
+      _displayConfirm(returnUrl)
+  }
+
+}
+
+
 object UpgradeRemindersController extends UpgradeRemindersController {
   override def authConnector = Global.authConnector
   def preferencesConnector = PreferencesConnector
 
   override def auditConnector: AuditConnector = Global.auditConnector
+
+  def displayUpgradeForm(encryptedReturnUrl: Encrypted[String]): Action[AnyContent] = AuthorisedFor(SaRegimeWithoutRedirection).async {
+    authContext => implicit request =>
+      _renderUpgradePageIfPreferencesAvailable(authContext.principal.accounts.sa.get.utr, authContext.principal.accounts.paye.map(_.nino), encryptedReturnUrl)
+  }
+
+  def submitUpgrade(returnUrl: Encrypted[String]) = AuthorisedFor(SaRegimeWithoutRedirection).async { authContext => implicit request =>
+    _upgradePreferences(
+      returnUrl = returnUrl.decryptedValue,
+      utr = authContext.principal.accounts.sa.get.utr,
+      maybeNino = authContext.principal.accounts.paye.map(_.nino)
+    )
+  }
+
+  def displayUpgradeConfirmed(returnUrl: Encrypted[String]): Action[AnyContent] = AuthorisedFor(SaRegimeWithoutRedirection).async {
+    authContext => implicit request =>
+      _displayConfirm(returnUrl)
+  }
 }
 
 object UpgradeRemindersForm {
@@ -42,31 +87,18 @@ trait UpgradeRemindersController extends FrontendController with Actions with Ap
   def preferencesConnector: PreferencesConnector
   def auditConnector: AuditConnector
 
-  def display(encryptedReturnUrl: Encrypted[String]): Action[AnyContent] = AuthorisedFor(SaRegimeWithoutRedirection).async {
-    authContext => implicit request =>
-      renderUpgradePageIfPreferencesAvailable(authContext.principal.accounts.sa.get.utr, authContext.principal.accounts.paye.map(_.nino), encryptedReturnUrl)
-  }
-
-  private[controllers] def renderUpgradePageIfPreferencesAvailable(utr: SaUtr, maybeNino: Option[Nino], encryptedReturnUrl: Encrypted[String])(implicit request: Request[AnyContent]): Future[Result] = {
+  private[controllers] def _renderUpgradePageIfPreferencesAvailable(utr: SaUtr, maybeNino: Option[Nino], encryptedReturnUrl: Encrypted[String])(implicit request: Request[AnyContent]): Future[Result] = {
     decideRoutingFromPreference(utr,maybeNino, encryptedReturnUrl, UpgradeRemindersForm())
   }
 
-  def upgrade(returnUrl: Encrypted[String]) = AuthorisedFor(SaRegimeWithoutRedirection).async { authContext => implicit request =>
-    upgradePreferences(
-      returnUrl = returnUrl.decryptedValue,
-      utr = authContext.principal.accounts.sa.get.utr,
-      maybeNino = authContext.principal.accounts.paye.map(_.nino)
-    )
-  }
-
-  private[controllers] def upgradePreferences(returnUrl:String, utr: SaUtr, maybeNino: Option[Nino])(implicit request: Request[AnyContent]): Future[Result] = {
+  private[controllers] def _upgradePreferences(returnUrl:String, utr: SaUtr, maybeNino: Option[Nino])(implicit request: Request[AnyContent]): Future[Result] = {
     val form = UpgradeRemindersForm().bindFromRequest()
     form.fold(
       hasErrors = f => Future(BadRequest(upgrade_printing_preferences(None, Encrypted(returnUrl), f))),
       success = {
         case u @ UpgradeRemindersForm.Data(true, false) => Future(BadRequest(upgrade_printing_preferences(None, Encrypted(returnUrl), form.withError("accept-tc", "sa_printing_preference.accept_tc_required"))))
         case UpgradeRemindersForm.Data(true, true) => upgradePaperless(utr, maybeNino, Generic -> TermsAccepted(true)).map {
-          case true => Redirect(routes.UpgradeRemindersController.thankYou(Encrypted(returnUrl)))
+          case true => Redirect(routes.UpgradeRemindersController.displayUpgradeConfirmed(Encrypted(returnUrl)))
           case false => Redirect(returnUrl)
         }
         case UpgradeRemindersForm.Data(false, _) => upgradePaperless(utr, maybeNino, Generic -> TermsAccepted(false)).map(resp => Redirect(returnUrl))
@@ -103,9 +135,7 @@ trait UpgradeRemindersController extends FrontendController with Actions with Ap
         "cohort" -> ""
       ))))
 
+  private[controllers] def _displayConfirm(returnUrl: Encrypted[String])(implicit request: Request[_], hc: HeaderCarrier) =
+    Future(Ok(upgrade_printing_preferences_thank_you(returnUrl.decryptedValue)))
 
-  def thankYou(returnUrl: Encrypted[String]): Action[AnyContent] = AuthorisedFor(SaRegimeWithoutRedirection).async {
-    authContext => implicit request =>
-        Future(Ok(upgrade_printing_preferences_thank_you(returnUrl.decryptedValue)))
-    }
 }

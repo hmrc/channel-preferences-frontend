@@ -63,17 +63,17 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
 
       when(controller.preferencesConnector.addTermsAndConditions(is(utr), is(Generic -> TermsAccepted(true)), email = is(None))(any())).thenReturn(Future.successful(true))
 
-      val result = await(controller.upgradePreferences("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("opt-in" -> "true", "accept-tc" -> "true")))
+      val result = await(controller._upgradePreferences("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("opt-in" -> "true", "accept-tc" -> "true")))
 
       status(result) shouldBe 303
-      header("Location", result).get should be(routes.UpgradeRemindersController.thankYou(Encrypted[String]("someUrl")).url)
+      header("Location", result).get should be(routes.UpgradeRemindersController.displayUpgradeConfirmed(Encrypted[String]("someUrl")).url)
     }
 
     "return the page with an error if if digital button is pressed but t&cs unchecked" in new UpgradeTestCase {
 
       when(controller.preferencesConnector.addTermsAndConditions(is(utr), is(Generic -> TermsAccepted(true)), email = is(None))(any())).thenReturn(Future.successful(true))
 
-      val result = await(controller.upgradePreferences("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("opt-in" -> "true", "accept-tc" -> "false")))
+      val result = await(controller._upgradePreferences("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("opt-in" -> "true", "accept-tc" -> "false")))
 
       status(result) shouldBe 400
       Jsoup.parse(contentAsString(result)).select(".error-notification").text shouldBe "You must accept the terms and conditions"
@@ -84,7 +84,7 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
 
       when(controller.preferencesConnector.addTermsAndConditions(is(utr), is(Generic -> TermsAccepted(false)), email = is(None))(any())).thenReturn(Future.successful(true))
 
-      val result = await(controller.upgradePreferences("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("opt-in" -> "false")))
+      val result = await(controller._upgradePreferences("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("opt-in" -> "false")))
 
       status(result) shouldBe 303
       header("Location", result).get should be("someUrl")
@@ -93,7 +93,7 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
     "redirect to supplied url when digital true and no preference found" in new UpgradeTestCase {
       when(controller.preferencesConnector.addTermsAndConditions(is(utr), is(Generic -> TermsAccepted(true)), email = is(None))(any())).thenReturn(Future.successful(false))
 
-      val result = await(controller.upgradePreferences("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("opt-in" -> "true", "accept-tc" -> "true")))
+      val result = await(controller._upgradePreferences("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("opt-in" -> "true", "accept-tc" -> "true")))
 
       status(result) shouldBe 303
       header("Location", result).get should include("someUrl")
@@ -102,7 +102,7 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
     "redirect to supplied url when digital false and no preference found" in new UpgradeTestCase {
       when(controller.preferencesConnector.addTermsAndConditions(is(utr), is(Generic -> TermsAccepted(false)), email = is(None))(any())).thenReturn(Future.successful(false))
 
-      val result = await(controller.upgradePreferences("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("opt-in" -> "false")))
+      val result = await(controller._upgradePreferences("someUrl", utr, Some(nino))(testRequest.withFormUrlEncodedBody("opt-in" -> "false")))
 
       status(result) shouldBe 303
       header("Location", result).get should include("someUrl")
@@ -114,7 +114,7 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
     "redirect to supplied url when no preference found" in new UpgradeTestCase {
       when(controller.preferencesConnector.getPreferences(is(utr), is(Some(nino)))(any())).thenReturn(Future.successful(None))
 
-      val result = await(controller.renderUpgradePageIfPreferencesAvailable(utr, Some(nino), Encrypted("someUrl"))(testRequest))
+      val result = await(controller._renderUpgradePageIfPreferencesAvailable(utr, Some(nino), Encrypted("someUrl"))(testRequest))
 
       status(result) shouldBe 303
       header("Location", result).get should include("someUrl")

@@ -5,10 +5,8 @@ import controllers.internal._
 import model.Encrypted
 import org.jsoup.Jsoup
 import play.api.test.FakeRequest
-import uk.gov.hmrc.domain.{Nino, SaUtr}
-import uk.gov.hmrc.emailaddress.ObfuscatedEmailAddress
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
-import views.html.sa.prefs.{upgrade_printing_preferences_thank_you, upgrade_printing_preferences}
+import views.html.sa.prefs.{upgrade_printing_preferences, upgrade_printing_preferences_thank_you}
 
 class UpgradePrintingPreferencesViewSpec extends UnitSpec with WithFakeApplication {
   override lazy val fakeApplication = ConfigHelper.fakeApp
@@ -17,7 +15,7 @@ class UpgradePrintingPreferencesViewSpec extends UnitSpec with WithFakeApplicati
     "render the correct content" in {
       val emailAddress = "test@test.com"
       val returnUrl = Encrypted("someReturnUrl")
-      val upgradeUrl = routes.UpgradeRemindersController.upgrade(returnUrl).toString()
+      val upgradeUrl = routes.UpgradeRemindersController.submitUpgrade(returnUrl).toString()
 
       val document = Jsoup.parse(upgrade_printing_preferences(Some(emailAddress), returnUrl, UpgradeRemindersForm())(FakeRequest("GET", "/")).toString())
       document.getElementById("opted-in-email").text() should include (emailAddress)

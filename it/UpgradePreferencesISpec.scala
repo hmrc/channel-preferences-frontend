@@ -19,7 +19,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
       val response = `/upgrade-email-reminders`.post(optIn = true, acceptedTandC = Some(true)).futureValue
       response should have('status(303))
-      response.header("Location").get should be (routes.UpgradeRemindersController.thankYou(Encrypted(returnUrl)).toString())
+      response.header("Location").get should be (routes.UpgradeRemindersController.displayUpgradeConfirmed(Encrypted(returnUrl)).toString())
 
       `/preferences/paye/individual/:nino/activations/paye`(nino, authHeader).put().futureValue.status should be (200)
     }
@@ -77,7 +77,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
       val response = `/upgrade-email-reminders`.post(optIn = true, acceptedTandC = Some(true)).futureValue
       response should have('status(303))
-      response.header("Location").get should be (routes.UpgradeRemindersController.thankYou(Encrypted(returnUrl)).toString())
+      response.header("Location").get should be (routes.UpgradeRemindersController.displayUpgradeConfirmed(Encrypted(returnUrl)).toString())
 
       `/preferences/sa/individual/:utr/activations`(utr).put().futureValue.status should be (200)
     }
@@ -98,7 +98,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
       val response = `/upgrade-email-reminders`.post(optIn = true, acceptedTandC = Some(true)).futureValue
       response should have('status(303))
-      response.header("Location").get should be (routes.UpgradeRemindersController.thankYou(Encrypted(returnUrl)).toString())
+      response.header("Location").get should be (routes.UpgradeRemindersController.displayUpgradeConfirmed(Encrypted(returnUrl)).toString())
 
       `/preferences/sa/individual/:utr/activations`(utr).put().futureValue.status should be (200)
     }
