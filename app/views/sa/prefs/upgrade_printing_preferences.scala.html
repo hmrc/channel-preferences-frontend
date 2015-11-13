@@ -29,7 +29,7 @@
             class="email-prefs__toggle"
             checked="checked"
             />
-            Yes, I want to continue to receive electronic communications.
+            Yes, I want to continue to receive electronic communications
         </label>
         <fieldset class="connected">
             @singleCheckbox(
@@ -58,7 +58,7 @@
             class="email-prefs__toggle"
                 @if(tandc("opt-in").value == Some("false")) { checked="checked" }
             />
-            No, stop sending electronic communications.
+            No, stop sending electronic communications
         </label>
         <div class="email-form-errors">
             @tandc("opt-in").errors.map { error => <label class="error-notification">@Messages(error.message)</label>}
