@@ -8,7 +8,7 @@ import play.api.libs.ws.WS
 import play.api.mvc.Results.EmptyContent
 import uk.gov.hmrc.crypto.{PlainText, ApplicationCrypto}
 import uk.gov.hmrc.domain.{Nino, SaUtr}
-import uk.gov.hmrc.play.audit.http.HeaderCarrier
+import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.it.{ExternalService, MicroServiceEmbeddedServer, ServiceSpec}
 import uk.gov.hmrc.test.it.{BearerTokenHelper, FrontendCookieHelper}
 import uk.gov.hmrc.time.DateTimeUtils

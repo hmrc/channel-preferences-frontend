@@ -2,9 +2,9 @@ package connectors
 
 import org.scalatest.concurrent.ScalaFutures
 import play.api.libs.json.Json
-import uk.gov.hmrc.play.audit.http.HeaderCarrier
-import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.http.HttpResponse
+import uk.gov.hmrc.play.audit.http.HttpAuditing
+import uk.gov.hmrc.play.http.hooks.HttpHook
+import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test._
 
 import scala.concurrent.Future
@@ -27,14 +27,18 @@ class EmailConnectorSpec extends UnitSpec with ScalaFutures {
 
     trait TestCase {
       def responseFromEmailService: HttpResponse
-      val connector = new EmailConnector {
-        val serviceUrl = "http://email.service:80"
+      val connector = new EmailConnector with HttpAuditing {
+        protected def serviceUrl = "http://email.service:80"
+
         protected def doGet(url: String)(implicit hc: HeaderCarrier) = {
           Future.successful(responseFromEmailService)
         }
 
-        override def auditConnector: AuditConnector = ???
+        val hooks: Seq[HttpHook] = Seq(AuditingHook)
+
+        def auditConnector = ???
       }
+
       val exampleEmailAddress = "bob@somewhere.com"
     }
   }

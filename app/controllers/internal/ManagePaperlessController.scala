@@ -24,31 +24,31 @@ object ManagePaperlessController extends ManagePaperlessController with Services
   lazy val emailConnector = EmailConnector
   lazy val preferencesConnector = PreferencesConnector
 
-  def displayChangeEmailAddress(implicit emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
+  def displayChangeEmailAddress(implicit emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = AuthorisedFor(taxRegime = SaRegime, pageVisibility = GGConfidence).async { implicit authContext => implicit request =>
     _displayChangeEmailAddress(emailAddress)
   }
 
-  def submitChangeEmailAddress(implicit hostContext: HostContext) = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
+  def submitChangeEmailAddress(implicit hostContext: HostContext) = AuthorisedFor(taxRegime = SaRegime, pageVisibility = GGConfidence).async { implicit authContext => implicit request =>
     _submitChangeEmailAddress
   }
 
-  def displayChangeEmailAddressConfirmed(implicit hostContext: HostContext) = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
+  def displayChangeEmailAddressConfirmed(implicit hostContext: HostContext) = AuthorisedFor(taxRegime = SaRegime, pageVisibility = GGConfidence).async { implicit authContext => implicit request =>
     _displayChangeEmailAddressConfirmed
   }
 
-  def displayStopPaperless(implicit hostContext: HostContext) = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
+  def displayStopPaperless(implicit hostContext: HostContext) = AuthorisedFor(taxRegime = SaRegime, pageVisibility = GGConfidence).async { implicit authContext => implicit request =>
     _displayStopPaperless
   }
 
-  def submitStopPaperless(implicit hostContext: HostContext) = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
+  def submitStopPaperless(implicit hostContext: HostContext) = AuthorisedFor(taxRegime = SaRegime, pageVisibility = GGConfidence).async { implicit authContext => implicit request =>
     _submitStopPaperless
   }
 
-  def displayStopPaperlessConfirmed(implicit hostContext: HostContext) = AuthenticatedBy(ValidSessionCredentialsProvider, redirectToOrigin = true) { implicit authContext => implicit request =>
+  def displayStopPaperlessConfirmed(implicit hostContext: HostContext) = AuthenticatedBy(ValidSessionCredentialsProvider, redirectToOrigin = true, pageVisibility = GGConfidence) { implicit authContext => implicit request =>
     _displayStopPaperlessConfirmed
   }
 
-  def resendVerificationEmail(implicit hostContext: HostContext) = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
+  def resendVerificationEmail(implicit hostContext: HostContext) = AuthorisedFor(taxRegime = SaRegime, pageVisibility = GGConfidence).async { implicit authContext => implicit request =>
     _resendVerificationEmail
   }
 }
@@ -63,31 +63,31 @@ object DeprecatedYTAManagePaperlessController extends ManagePaperlessController 
 
   implicit val hostContext = HostContext.defaultsForYtaManageAccountPages
 
-  def displayChangeEmailAddress(emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
+  def displayChangeEmailAddress(emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(taxRegime = SaRegime, pageVisibility = GGConfidence).async { implicit authContext => implicit request =>
     _displayChangeEmailAddress(emailAddress)
   }
 
-  def submitChangeEmailAddress = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
+  def submitChangeEmailAddress = AuthorisedFor(taxRegime = SaRegime, pageVisibility = GGConfidence).async { implicit authContext => implicit request =>
     _submitChangeEmailAddress
   }
 
-  def displayChangeEmailAddressConfirmed() = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
+  def displayChangeEmailAddressConfirmed() = AuthorisedFor(taxRegime = SaRegime, pageVisibility = GGConfidence).async { implicit authContext => implicit request =>
     _displayChangeEmailAddressConfirmed
   }
 
-  def displayStopPaperless = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
+  def displayStopPaperless = AuthorisedFor(taxRegime = SaRegime, pageVisibility = GGConfidence).async { implicit authContext => implicit request =>
     _displayStopPaperless
   }
 
-  def submitStopPaperless = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
+  def submitStopPaperless = AuthorisedFor(taxRegime = SaRegime, pageVisibility = GGConfidence).async { implicit authContext => implicit request =>
     _submitStopPaperless
   }
 
-  def displayStopPaperlessConfirmed() = AuthenticatedBy(ValidSessionCredentialsProvider, redirectToOrigin = true) { implicit authContext => implicit request =>
+  def displayStopPaperlessConfirmed() = AuthenticatedBy(authenticationProvider = ValidSessionCredentialsProvider, redirectToOrigin = true, pageVisibility = GGConfidence) { implicit authContext => implicit request =>
     _displayStopPaperlessConfirmed
   }
 
-  def resendVerificationEmail = AuthorisedFor(SaRegime).async { implicit authContext => implicit request =>
+  def resendVerificationEmail = AuthorisedFor(taxRegime = SaRegime, pageVisibility = GGConfidence).async { implicit authContext => implicit request =>
     _resendVerificationEmail
   }
 }

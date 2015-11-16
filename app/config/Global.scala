@@ -10,7 +10,7 @@ import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.play.audit.filters.FrontendAuditFilter
 import uk.gov.hmrc.play.audit.http.config.LoadAuditingConfig
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.config.{RunMode, ServicesConfig}
+import uk.gov.hmrc.play.config.{AppName, RunMode, ServicesConfig}
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 import uk.gov.hmrc.play.frontend.bootstrap.DefaultFrontendGlobal
 import uk.gov.hmrc.play.http.HttpGet
@@ -18,7 +18,7 @@ import uk.gov.hmrc.play.http.logging.filters.FrontendLoggingFilter
 
 object Global extends DefaultFrontendGlobal with RunMode with ServicesConfig {
 
-  lazy val auditConnector: AuditConnector = AuditConnector(LoadAuditingConfig(s"$env.auditing"))
+  override val auditConnector = Audit
 
   lazy val authConnector: AuthConnector = new AuthConnector {
     lazy val http: HttpGet = WsHttp
@@ -50,4 +50,9 @@ object Global extends DefaultFrontendGlobal with RunMode with ServicesConfig {
   }
 
   override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: Request[_]): Html = Html("")
+
+}
+
+object Audit extends AuditConnector with AppName with RunMode {
+  override lazy val auditingConfig = LoadAuditingConfig(s"$env.auditing")
 }

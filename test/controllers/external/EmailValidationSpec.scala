@@ -1,6 +1,6 @@
 package controllers.external
 
-import connectors.{EmailVerificationLinkResponse, PreferencesConnector}
+import connectors.PreferencesConnector
 import helpers.ConfigHelper
 import org.jsoup.Jsoup
 import org.mockito.Matchers.{any, eq => meq}
@@ -9,7 +9,7 @@ import org.scalatest._
 import org.scalatest.mock.MockitoSugar
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, WithApplication}
-import uk.gov.hmrc.play.audit.http.HeaderCarrier
+import uk.gov.hmrc.play.http.HeaderCarrier
 
 import scala.concurrent.Future
 

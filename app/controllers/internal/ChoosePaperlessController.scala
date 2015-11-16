@@ -4,40 +4,40 @@ import authentication.SaRegime
 import config.Global
 import connectors._
 import controllers.internal
-import EmailOptInJourney._
+import controllers.internal.EmailOptInJourney._
 import model.{Encrypted, HostContext}
 import play.api.data.Form
-import play.api.data.Forms._
 import play.api.libs.json.Json
 import play.api.mvc._
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
-import uk.gov.hmrc.play.audit.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.AuditExtensions._
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.{EventTypes, ExtendedDataEvent}
 import uk.gov.hmrc.play.config.AppName
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 import uk.gov.hmrc.play.frontend.auth.{Actions, AuthContext}
 import uk.gov.hmrc.play.frontend.controller.FrontendController
+import uk.gov.hmrc.play.http.HeaderCarrier
 
 import scala.concurrent.Future
 
 object DeprecatedYTAManageAccountChoosePaperlessController extends ChoosePaperlessController with ChoosePaperlessControllerDependencies {
   implicit val hostContext = HostContext.defaultsForYtaManageAccountPages
 
-  def redirectToDisplayFormWithCohort(emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(SaRegime) { implicit authContext => implicit request =>
+  def redirectToDisplayFormWithCohort(emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(taxRegime = SaRegime, pageVisibility = GGConfidence) { implicit authContext => implicit request =>
     _redirectToDisplayFormWithCohort(emailAddress)
   }
 
-  def displayForm(cohort: Option[OptInCohort], emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(SaRegime).async { implicit user => implicit request =>
+  def displayForm(cohort: Option[OptInCohort], emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(taxRegime = SaRegime, pageVisibility = GGConfidence).async { implicit user => implicit request =>
     _displayForm(AccountDetails, emailAddress, cohort)
   }
 
-  def submitForm() = AuthorisedFor(SaRegime).async { implicit user => implicit request =>
+  def submitForm() = AuthorisedFor(taxRegime = SaRegime, pageVisibility = GGConfidence).async { implicit user => implicit request =>
     _submitForm(AccountDetails)
   }
 
-  def displayNearlyDone(emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(SaRegime) { implicit authContext => implicit request =>
+  def displayNearlyDone(emailAddress: Option[Encrypted[EmailAddress]]) = AuthorisedFor(taxRegime = SaRegime, pageVisibility = GGConfidence) { implicit authContext => implicit request =>
     _displayNearlyDone(emailAddress)
   }
 }
@@ -45,34 +45,34 @@ object DeprecatedYTAManageAccountChoosePaperlessController extends ChoosePaperle
 object DeprecatedYTALoginChoosePaperlessController extends ChoosePaperlessController with ChoosePaperlessControllerDependencies {
   implicit val hostContext = HostContext.defaultsForYtaLoginPages
 
-  def redirectToDisplayFormWithCohortIfNotOptedIn = AuthorisedFor(SaRegime).async { implicit user => implicit request =>
+  def redirectToDisplayFormWithCohortIfNotOptedIn = AuthorisedFor(taxRegime = SaRegime, pageVisibility = GGConfidence).async { implicit user => implicit request =>
     _redirectToDisplayFormWithCohortIfNotOptedIn
   }
 
-  def displayFormIfNotOptedIn(implicit cohort: Option[OptInCohort]) = AuthorisedFor(SaRegime).async { implicit user => implicit request =>
+  def displayFormIfNotOptedIn(implicit cohort: Option[OptInCohort]) = AuthorisedFor(taxRegime = SaRegime, pageVisibility = GGConfidence).async { implicit user => implicit request =>
     _displayFormIfNotOptedIn
   }
 
-  def submitForm() = AuthorisedFor(SaRegime).async { implicit user => implicit request =>
+  def submitForm() = AuthorisedFor(taxRegime = SaRegime, pageVisibility = GGConfidence).async { implicit user => implicit request =>
     _submitForm(Interstitial)
   }
 }
 
 object ChoosePaperlessController extends ChoosePaperlessController with ChoosePaperlessControllerDependencies {
 
-  def redirectToDisplayFormWithCohort(implicit emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = AuthorisedFor(SaRegime) { implicit authContext => implicit request =>
+  def redirectToDisplayFormWithCohort(implicit emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = AuthorisedFor(taxRegime = SaRegime, pageVisibility = GGConfidence) { implicit authContext => implicit request =>
     _redirectToDisplayFormWithCohort(emailAddress)
   }
 
-  def displayForm(implicit cohort: Option[OptInCohort], emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = AuthorisedFor(SaRegime).async { implicit user => implicit request =>
+  def displayForm(implicit cohort: Option[OptInCohort], emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = AuthorisedFor(taxRegime = SaRegime, pageVisibility = GGConfidence).async { implicit user => implicit request =>
     _displayForm(AccountDetails, emailAddress, cohort)
   }
 
-  def submitForm(implicit hostContext: HostContext) = AuthorisedFor(SaRegime).async { implicit user => implicit request =>
+  def submitForm(implicit hostContext: HostContext) = AuthorisedFor(taxRegime = SaRegime, pageVisibility = GGConfidence).async { implicit user => implicit request =>
     _submitForm(AccountDetails)
   }
 
-  def displayNearlyDone(implicit emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = AuthorisedFor(SaRegime) { implicit authContext => implicit request =>
+  def displayNearlyDone(implicit emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = AuthorisedFor(taxRegime = SaRegime, pageVisibility = GGConfidence) { implicit authContext => implicit request =>
     _displayNearlyDone(emailAddress)
   }
 }

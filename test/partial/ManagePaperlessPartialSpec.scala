@@ -1,21 +1,17 @@
 package partial
 
-import java.net.URLEncoder
-
 import connectors.SaEmailPreference.Status
 import connectors.{SaEmailPreference, SaPreference}
 import controllers.ExternalUrlPrefixes
 import controllers.internal.routes
-import helpers.{TestFixtures, ConfigHelper}
-import model.HostContext
+import helpers.{ConfigHelper, TestFixtures}
 import org.joda.time.LocalDate
 import org.scalatest.concurrent.ScalaFutures
 import partial.paperless.manage.ManagePaperlessPartial
 import play.api.mvc.Call
 import play.api.test.FakeRequest
-import play.twirl.api.Html
 import uk.gov.hmrc.emailaddress.EmailAddress
-import uk.gov.hmrc.play.audit.http.HeaderCarrier
+import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 class ManagePaperlessPartialSpec extends UnitSpec with WithFakeApplication with ScalaFutures {

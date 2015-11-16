@@ -3,13 +3,13 @@ package connectors
 import connectors.SaEmailPreference.Status
 import helpers.ConfigHelper
 import org.scalatest.concurrent.ScalaFutures
-import play.api.libs.json.{JsString, JsValue, Json, Writes}
+import play.api.libs.json.{Json, Writes}
 import play.api.test.WithApplication
 import uk.gov.hmrc.domain.{Nino, SaUtr}
-import uk.gov.hmrc.play.audit.http.HeaderCarrier
-import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.audit.http.HttpAuditing
 import uk.gov.hmrc.play.config.AppName
 import uk.gov.hmrc.play.http._
+import uk.gov.hmrc.play.http.hooks.HttpHook
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
@@ -42,7 +42,7 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
   def preferencesConnector(returnFromDoGet: String => Future[HttpResponse] = defaultGetHandler,
                            returnFromDoPost: (String, Any) => Future[HttpResponse] = defaultPostHandler,
                            returnFromDoPut: (String, Any) => Future[HttpResponse] = defaultPutHandler) = new TestPreferencesConnector {
-    override def http = new HttpGet with HttpPost with HttpPut with AppName {
+    override def http = new HttpGet with HttpPost with HttpPut with AppName with HttpAuditing {
       override protected def doGet(url: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = returnFromDoGet(url)
 
       override protected def doPostString(url: String, body: String, headers: Seq[(String, String)])(implicit hc: HeaderCarrier): Future[HttpResponse] = ???
@@ -55,7 +55,9 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
 
       override protected def doPut[A](url: String, body: A)(implicit rds: Writes[A], hc: HeaderCarrier): Future[HttpResponse] = returnFromDoPut(url, body)
 
-      override def auditConnector: AuditConnector = ???
+      val hooks: Seq[HttpHook] = Seq(AuditingHook)
+
+      def auditConnector = ???
     }
   }
 

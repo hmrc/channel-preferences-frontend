@@ -12,7 +12,7 @@ addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "1.6.0")
 
 addSbtPlugin("com.github.gseitz" % "sbt-release" % "0.8.4")
 
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.3.8")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.3.10")
 
 addSbtPlugin("uk.gov.hmrc" % "sbt-settings" % "3.2.0")
 
