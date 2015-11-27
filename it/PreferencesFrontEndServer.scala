@@ -64,20 +64,20 @@ trait PreferencesFrontEndServer extends ServiceSpec {
 
     val payeFormTypeBody = Json.parse(s"""{"active":true}""")
 
-    def `/preferences/paye/individual/:nino/activations/paye`(nino: String, header: (String, String)) = new {
+    def `/preferences/paye/individual/:nino/activations/notice-of-coding`(nino: String, header: (String, String)) = new {
 
-      def put() = WS.url(server.externalResource("preferences", s"/preferences/paye/individual/$nino/activations/paye")).withQueryString("returnUrl" -> "/some/return/url")
+      def put() = WS.url(server.externalResource("preferences", s"/preferences/paye/individual/$nino/activations/notice-of-coding")).withQueryString("returnUrl" -> "/some/return/url")
         .withHeaders(header)
         .put(payeFormTypeBody)
-
-      val resource = WS.url(server.externalResource("preferences", s"/preferences/paye/individual/$nino/activations/paye"))
     }
 
-    def `/preferences/sa/individual/:utr/activations`(utr: String, header: (String, String)) = new {
+    def `/preferences/sa/individual/:utr/activations/sa-all`(utr: String, header: (String, String)) = new {
       def put() =
-        WS.url(server.externalResource("preferences", s"/preferences/sa/individual/$utr/activations"))
+        WS.url(server.externalResource("preferences", s"/preferences/sa/individual/$utr/activations/sa-all"))
           .withHeaders(header)
-          .withQueryString("returnUrl" -> "/some/return/url").put(payeFormTypeBody)
+          .withQueryString("returnUrl" -> "/some/return/url")
+          .withQueryString("returnLinkText" -> "Go-somewhere")
+          .put(payeFormTypeBody)
     }
 
     val `/portal/preferences/sa/individual` = new {

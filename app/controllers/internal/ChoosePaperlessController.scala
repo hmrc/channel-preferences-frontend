@@ -113,7 +113,7 @@ trait ChoosePaperlessController
 
   private[controllers] def _redirectToDisplayFormWithCohortIfNotOptedIn(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext) =
     returnIf(userAlreadyOptedIn) otherwise {
-      Future.successful(Redirect(routes.DeprecatedYTALoginChoosePaperlessController.displayFormIfNotOptedIn(Some(calculateCohort(authContext)))))
+      Future.successful(Redirect(routes.ChoosePaperlessController.displayForm(cohort = Some(calculateCohort(authContext)), email = None, hostContext = hostContext)))
     }
 
   protected def _redirectToDisplayFormWithCohort(emailAddress: Option[Encrypted[EmailAddress]])(implicit authContext: AuthContext, hostContext: HostContext) =
