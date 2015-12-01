@@ -177,12 +177,12 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
   trait NewUserTestCase extends TestCaseWithFrontEndAuthentication {
     import play.api.Play.current
 
-    override val gatewayId: String = "UpgradePreferencesISpec"
     override val utr : String = Math.abs(Random.nextInt()).toString.substring(0, 6)
-
     val email = "a@b.com"
     val returnUrl = "/test/return/url"
-    val authHeader = bearerTokenHeader()
+    val authHeader = createGGAuthorisationHeader(SaUtr(utr))
+    override lazy val cookie = cookieForUtr(SaUtr(utr))
+
     val url = WS.url(resource("/account/account-details/sa/login-opt-in-email-reminders"))
         .withQueryString("returnUrl" -> ApplicationCrypto.QueryParameterCrypto.encrypt(PlainText(returnUrl)).value)
 
@@ -201,7 +201,6 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
         case None => params
         case Some(emailValue) => params + ("email.main" -> Seq(emailValue), "email.confirm" -> Seq(emailValue), "emailVerified" -> Seq(true.toString))
       }
-
       url.withHeaders(cookie,"Csrf-Token"->"nocheck", authHeader).withFollowRedirects(optIn).post(paramsWithEmail)
     }
   }
@@ -211,12 +210,9 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
     val returnUrl = "/test/return/url"
     override def utr: String = "1097172564"
-
     val nino = "CE123457D"
-
-    override val gatewayId: String = "UpgradePreferencesISpec"
-    val authHeader =  createGGAuthorisationHeader(SaUtr(utr), Nino(nino))//bearerTokenHeader()
-
+    val authHeader =  createGGAuthorisationHeader(SaUtr(utr), Nino(nino))
+    override lazy val cookie = cookieForUtrAndNino(SaUtr(utr), Nino(nino))
 
     val `/upgrade-email-reminders` = new {
 
@@ -239,4 +235,5 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
       await(`/preferences-admin/sa/process-nino-determination`.post())
     }
   }
+
 }

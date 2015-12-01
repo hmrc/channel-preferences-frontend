@@ -2,18 +2,18 @@ import java.net.URLEncoder
 import java.util.UUID
 
 import play.api.Play.current
-import play.api.http.HeaderNames
 import play.api.libs.json.Json
 import play.api.libs.ws.WS
 import play.api.mvc.Results.EmptyContent
-import uk.gov.hmrc.crypto.{PlainText, ApplicationCrypto}
-import uk.gov.hmrc.domain.{TaxIdentifier, Nino, SaUtr}
+import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
+import uk.gov.hmrc.domain.{Nino, SaUtr, TaxIdentifier}
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.it.{ExternalService, MicroServiceEmbeddedServer, ServiceSpec}
-import uk.gov.hmrc.test.it.{AuthorisationHeader, BearerTokenHelper, FrontendCookieHelper}
+import uk.gov.hmrc.test.it.{AuthorisationHeader, FrontendCookieHelper}
 import uk.gov.hmrc.time.DateTimeUtils
 import views.sa.prefs.helpers.DateFormat
 import scala.concurrent.duration._
+
 trait TestUser {
   def userId = "SA0055"
 
@@ -134,35 +134,24 @@ trait PreferencesFrontEndServer extends ServiceSpec {
     def `/account/preferences/warnings` = urlWithHostContext("/account/preferences/warnings")()
   }
 
-  trait TestCaseWithFrontEndAuthentication extends TestCase with BearerTokenHelper with FrontendCookieHelper {
+  trait TestCaseWithFrontEndAuthentication extends TestCase with FrontendCookieHelper {
 
     implicit val hc = HeaderCarrier()
 
     def authResource(path: String) = {
       server.externalResource("auth", path)
     }
+
     private lazy val ggAuthorisationHeader = AuthorisationHeader.forGovernmentGateway(authResource)
     private lazy val verifyAuthorisationHeader = AuthorisationHeader.forVerify(authResource)
 
     def createGGAuthorisationHeader(ids: TaxIdentifier*): (String, String) = ggAuthorisationHeader.create(ids.toList).futureValue
-
     def createVerifyAuthorisationHeader(utr: TaxIdentifier): (String, String) = verifyAuthorisationHeader.create(utr).futureValue
 
+    lazy val cookie = cookieFor(ggAuthorisationHeader.createBearerToken(List(SaUtr(utr))).futureValue)
 
-    //----
-
-    lazy val keyValues = Map(
-      "authToken" -> createBearerTokenFor(SaUtr(utr)).futureValue,
-      "token" -> "system-assumes-valid-token",
-      "userId" -> "/auth/oid/system-assumes-valid-oid"
-    )
-
-    lazy val cookie = cookieFor(createBearerTokenFor(SaUtr(utr)).futureValue)
-
-    def bearerTokenHeader() =
-      HeaderNames.AUTHORIZATION -> createBearerTokenFor(SaUtr(utr)).futureValue
-
-    def cookieWithNino(nino: Nino) = cookieFor(createBearerTokenFor(List(SaUtr(utr), nino)).futureValue)
+    def cookieForUtr(utr: SaUtr) = cookieFor(ggAuthorisationHeader.createBearerToken(List(utr)).futureValue)
+    def cookieForUtrAndNino(utr: SaUtr, nino: Nino) = cookieFor(ggAuthorisationHeader.createBearerToken(List(utr, nino)).futureValue)
   }
 
 }
