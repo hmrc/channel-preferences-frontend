@@ -42,10 +42,9 @@ trait PaperlessPartialController
   }
 
   def displayPaperlessWarningsPartial(implicit hostContext: HostContext) = AuthorisedFor(taxRegime = SaRegimeWithoutRedirection, pageVisibility = GGConfidence).async { implicit authContext => implicit request =>
-    def pendingEmailVerification(utr: SaUtr, nino: Option[Nino])(implicit hc: HeaderCarrier) = preferencesConnector.getPreferences(utr, nino).map {
+    preferencesConnector.getPreferences(utr = authContext.principal.accounts.sa.get.utr).map {
       case None => NotFound
-      case Some(prefs) => Ok(PaperlessWarningPartial.apply(prefs, hostContext.returnUrl, hostContext.returnLinkText)).withHeaders("X-Opted-In-Email" -> prefs.digital.toString)
+      case Some(prefs) => Ok(PaperlessWarningPartial.apply(prefs, hostContext.returnUrl, hostContext.returnLinkText))
     }
-    pendingEmailVerification(utr = authContext.principal.accounts.sa.get.utr, nino = authContext.principal.accounts.paye.map(_.nino))
   }
 }

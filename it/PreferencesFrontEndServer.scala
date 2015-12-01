@@ -12,6 +12,7 @@ import uk.gov.hmrc.play.it.{ExternalService, MicroServiceEmbeddedServer, Service
 import uk.gov.hmrc.test.it.{AuthorisationHeader, FrontendCookieHelper}
 import uk.gov.hmrc.time.DateTimeUtils
 import views.sa.prefs.helpers.DateFormat
+
 import scala.concurrent.duration._
 
 trait TestUser {
@@ -86,8 +87,8 @@ trait PreferencesFrontEndServer extends ServiceSpec {
       def postDeEnrolling(utr: String) = WS.url(server.externalResource("preferences",
         s"/portal/preferences/sa/individual/$utr/print-suppression")).post(Json.parse(s"""{"de-enrolling": true, "reason": "Pour le-test"}"""))
 
-      def postOptOut(utr: String) = WS.url(server.externalResource("preferences",
-        s"/portal/preferences/sa/individual/$utr/print-suppression")).post(Json.parse( s"""{"digital": false}"""))
+      def postOptOut(utr: String, authHeader: (String, String)) = WS.url(server.externalResource("preferences",
+        s"/portal/preferences/sa/individual/$utr/print-suppression")).withHeaders(authHeader).post(Json.parse( s"""{"digital": false}"""))
 
       def postLegacyOptOut(utr: String) = WS.url(server.externalResource("preferences",
         s"/preferences-admin/sa/individual/$utr/legacy-opt-out")).post(Json.parse("{}"))
@@ -141,6 +142,8 @@ trait PreferencesFrontEndServer extends ServiceSpec {
     def authResource(path: String) = {
       server.externalResource("auth", path)
     }
+
+    lazy val authHeader = createGGAuthorisationHeader(SaUtr(utr))
 
     private lazy val ggAuthorisationHeader = AuthorisationHeader.forGovernmentGateway(authResource)
     private lazy val verifyAuthorisationHeader = AuthorisationHeader.forVerify(authResource)

@@ -43,7 +43,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar  {
   "clicking on Change email address link in the account details page" should {
     "display update email address form when accessed from Account Details" in new Setup {
       val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified)))
-      when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
+      when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Future.successful(Some(saPreferences)))
 
       val result = Future.successful(controller._displayChangeEmailAddress(None)(user, request, TestFixtures.sampleHostContext))
 
@@ -60,7 +60,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar  {
 
     "display update email address form with the email input field pre-populated when coming back from the warning page" in new Setup {
       val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified)))
-      when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
+      when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Future.successful(Some(saPreferences)))
 
       val existingEmailAddress = "existing@email.com"
       val result = Future.successful(controller._displayChangeEmailAddress(Some(Encrypted(EmailAddress(existingEmailAddress))))(user, request, TestFixtures.sampleHostContext))
@@ -78,7 +78,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar  {
     "return bad request if the SA user has opted into paper" in new Setup {
 
       val saPreferences = SaPreference(false, None)
-      when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
+      when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Future.successful(Some(saPreferences)))
 
       val result = Future.successful(controller._displayChangeEmailAddress(None)(user, request, TestFixtures.sampleHostContext))
 
@@ -92,7 +92,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar  {
 
       val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Pending)))
 
-      when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
+      when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Future.successful(Some(saPreferences)))
       when(mockPreferencesConnector.savePreferences(is(validUtr), is(true), is(Some("test@test.com")))(any())).thenReturn(Future.successful(()))
 
       val page = Future.successful(controller._resendVerificationEmail(user, FakeRequest(), TestFixtures.sampleHostContext))
@@ -112,7 +112,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar  {
       val emailAddress = "someone@email.com"
       val saPreferences = SaPreference(true, Some(SaEmailPreference(emailAddress, SaEmailPreference.Status.Verified)))
 
-      when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
+      when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Future.successful(Some(saPreferences)))
 
       val page = controller._displayChangeEmailAddressConfirmed(user, FakeRequest(), TestFixtures.sampleHostContext)
 
@@ -131,7 +131,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar  {
       val saPreferences = SaPreference(true, Some(SaEmailPreference("oldEmailAddress@test.com", SaEmailPreference.Status.Verified)))
 
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(true)
-      when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
+      when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Future.successful(Some(saPreferences)))
       when(mockPreferencesConnector.savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())).thenReturn(Future.successful(None))
 
       val page = Future.successful(controller._submitChangeEmailAddress(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress),("email.confirm", emailAddress)), TestFixtures.sampleHostContext))
@@ -141,14 +141,14 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar  {
 
       verify(mockPreferencesConnector).savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())
       verify(mockEmailConnector).isValid(is(emailAddress))(any())
-      verify(mockPreferencesConnector).getPreferences(is(validUtr), any())(any())
+      verify(mockPreferencesConnector).getPreferences(is(validUtr))(any())
       verifyNoMoreInteractions(mockPreferencesConnector, mockEmailConnector)
     }
 
     "show error if the 2 email address fields do not match" in new Setup {
       val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified)))
 
-      when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
+      when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Future.successful(Some(saPreferences)))
 
       val page = Future.successful(controller._submitChangeEmailAddress(user, FakeRequest().withFormUrlEncodedBody("email.main" -> "a@a.com", "email.confirm" -> "b@b.com"), TestFixtures.sampleHostContext))
 
@@ -162,7 +162,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar  {
       val emailAddress = "invalid-email"
       val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified)))
 
-      when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
+      when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Future.successful(Some(saPreferences)))
       val page = Future.successful(controller._submitChangeEmailAddress(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress)), TestFixtures.sampleHostContext))
 
       status(page) shouldBe 400
@@ -174,7 +174,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar  {
     "show error if the email field is empty" in new Setup {
       val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified)))
 
-      when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
+      when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Future.successful(Some(saPreferences)))
 
       val page = Future.successful(controller._submitChangeEmailAddress(user, FakeRequest().withFormUrlEncodedBody(("email.main", "")), TestFixtures.sampleHostContext))
 
@@ -190,7 +190,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar  {
       val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified)))
 
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(false)
-      when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
+      when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Future.successful(Some(saPreferences)))
 
       val page = Future.successful(controller._submitChangeEmailAddress(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress),("email.confirm", emailAddress)), TestFixtures.sampleHostContext))
 
@@ -211,7 +211,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar  {
       val emailAddress = "someone@email.com"
       val saPreferences = SaPreference(true, Some(SaEmailPreference("oldEmailAddress@test.com", SaEmailPreference.Status.Verified)))
 
-      when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
+      when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Future.successful(Some(saPreferences)))
       when(mockPreferencesConnector.savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())).thenReturn(Future.successful(None))
 
       val page = Future.successful(controller._submitChangeEmailAddress(user, FakeRequest().withFormUrlEncodedBody
@@ -221,7 +221,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar  {
       header("Location", page).get should include(routes.ManagePaperlessController.displayChangeEmailAddressConfirmed(TestFixtures.sampleHostContext).toString())
 
       verify(mockPreferencesConnector).savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())
-      verify(mockPreferencesConnector).getPreferences(is(validUtr), any())(any())
+      verify(mockPreferencesConnector).getPreferences(is(validUtr))(any())
       verifyNoMoreInteractions(mockPreferencesConnector, mockEmailConnector)
     }
 
@@ -231,7 +231,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar  {
       val saPreferences = SaPreference(true, Some(SaEmailPreference("oldEmailAddress@test.com", SaEmailPreference.Status.Verified)))
 
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(false)
-      when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
+      when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Future.successful(Some(saPreferences)))
 
 
       val page = Future.successful(controller._submitChangeEmailAddress(user, FakeRequest().withFormUrlEncodedBody
@@ -243,7 +243,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar  {
       document.select("#emailIsNotCorrectLink") shouldNot be(null)
       document.select("#emailIsCorrectLink") shouldNot be(null)
 
-      verify(mockPreferencesConnector).getPreferences(is(validUtr), any())(any())
+      verify(mockPreferencesConnector).getPreferences(is(validUtr))(any())
       verifyNoMoreInteractions(mockPreferencesConnector)
       verify(mockEmailConnector).isValid(is(emailAddress))(any())
     }
@@ -254,7 +254,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar  {
       val saPreferences = SaPreference(true, Some(SaEmailPreference("oldEmailAddress@test.com", SaEmailPreference.Status.Verified)))
 
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(false)
-      when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
+      when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Future.successful(Some(saPreferences)))
 
 
       val page = Future.successful(controller._submitChangeEmailAddress(user, FakeRequest().withFormUrlEncodedBody
@@ -266,7 +266,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar  {
       document.select("#emailIsNotCorrectLink") shouldNot be(null)
       document.select("#emailIsCorrectLink") shouldNot be(null)
 
-      verify(mockPreferencesConnector).getPreferences(is(validUtr), any())(any())
+      verify(mockPreferencesConnector).getPreferences(is(validUtr))(any())
       verifyNoMoreInteractions(mockPreferencesConnector)
       verify(mockEmailConnector).isValid(is(emailAddress))(any())
     }
@@ -277,7 +277,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar  {
     "display the <are you sure> page" in new Setup {
       val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified)))
 
-      when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
+      when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Future.successful(Some(saPreferences)))
 
       val result = controller._displayStopPaperless(user, request, TestFixtures.sampleHostContext)
 
@@ -293,7 +293,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar  {
 
     "return bad request if the user has not opted into digital" in new Setup{
       val saPreferences = SaPreference(false, None)
-      when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
+      when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Future.successful(Some(saPreferences)))
 
       val result = controller._displayStopPaperless(user, request, TestFixtures.sampleHostContext)
 
@@ -306,7 +306,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar  {
     "return a redirect to thank you page" in new Setup {
       val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified)))
 
-      when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Future.successful(Some(saPreferences)))
+      when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Future.successful(Some(saPreferences)))
       when(mockPreferencesConnector.savePreferences(is(validUtr), is(false), is(None))(any())).thenReturn(Future.successful(()))
 
       val result = Future.successful(controller._submitStopPaperless(user, request, TestFixtures.sampleHostContext))

@@ -29,7 +29,7 @@ object DeprecatedYTAUpgradeRemindersController extends UpgradeRemindersControlle
 
   def displayUpgradeForm(encryptedReturnUrl: Encrypted[String]): Action[AnyContent] = AuthorisedFor(taxRegime = SaRegimeWithoutRedirection, pageVisibility = GGConfidence).async {
     authContext => implicit request =>
-      _renderUpgradePageIfPreferencesAvailable(authContext.principal.accounts.sa.get.utr, authContext.principal.accounts.paye.map(_.nino), encryptedReturnUrl)
+      _renderUpgradePageIfPreferencesAvailable(authContext.principal.accounts.sa.get.utr, encryptedReturnUrl)
   }
 
   def submitUpgrade(returnUrl: Encrypted[String]) = AuthorisedFor(taxRegime = SaRegimeWithoutRedirection, pageVisibility = GGConfidence).async { authContext => implicit request =>
@@ -56,7 +56,7 @@ object UpgradeRemindersController extends UpgradeRemindersController {
 
   def displayUpgradeForm(encryptedReturnUrl: Encrypted[String]): Action[AnyContent] = AuthorisedFor(taxRegime = SaRegimeWithoutRedirection, pageVisibility = GGConfidence).async {
     authContext => implicit request =>
-      _renderUpgradePageIfPreferencesAvailable(authContext.principal.accounts.sa.get.utr, authContext.principal.accounts.paye.map(_.nino), encryptedReturnUrl)
+      _renderUpgradePageIfPreferencesAvailable(authContext.principal.accounts.sa.get.utr, encryptedReturnUrl)
   }
 
   def submitUpgrade(returnUrl: Encrypted[String]) = AuthorisedFor(taxRegime = SaRegimeWithoutRedirection, pageVisibility = GGConfidence).async { authContext => implicit request =>
@@ -88,8 +88,8 @@ trait UpgradeRemindersController extends FrontendController with Actions with Ap
   def preferencesConnector: PreferencesConnector
   def auditConnector: AuditConnector
 
-  private[controllers] def _renderUpgradePageIfPreferencesAvailable(utr: SaUtr, maybeNino: Option[Nino], encryptedReturnUrl: Encrypted[String])(implicit request: Request[AnyContent]): Future[Result] = {
-    decideRoutingFromPreference(utr,maybeNino, encryptedReturnUrl, UpgradeRemindersForm())
+  private[controllers] def _renderUpgradePageIfPreferencesAvailable(utr: SaUtr, encryptedReturnUrl: Encrypted[String])(implicit request: Request[AnyContent]): Future[Result] = {
+    decideRoutingFromPreference(utr, encryptedReturnUrl, UpgradeRemindersForm())
   }
 
   private[controllers] def _upgradePreferences(returnUrl:String, utr: SaUtr, maybeNino: Option[Nino])(implicit request: Request[AnyContent]): Future[Result] = {
@@ -107,8 +107,8 @@ trait UpgradeRemindersController extends FrontendController with Actions with Ap
     )
   }
 
-  private def decideRoutingFromPreference(utr: SaUtr, maybeNino: Option[Nino], encryptedReturnUrl: Encrypted[String], tandcForm:Form[UpgradeRemindersForm.Data])(implicit request: Request[AnyContent]) = {
-    preferencesConnector.getPreferences(utr, maybeNino).map {
+  private def decideRoutingFromPreference(utr: SaUtr, encryptedReturnUrl: Encrypted[String], tandcForm:Form[UpgradeRemindersForm.Data])(implicit request: Request[AnyContent]) = {
+    preferencesConnector.getPreferences(utr).map {
       case Some(prefs) => Ok(upgrade_printing_preferences(prefs.email.map(e => e.email), encryptedReturnUrl, tandcForm))
       case None => Redirect(encryptedReturnUrl.decryptedValue)
     }

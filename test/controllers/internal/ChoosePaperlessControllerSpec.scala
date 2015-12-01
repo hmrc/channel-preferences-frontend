@@ -62,7 +62,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
 
     "redirect to BTA when preferences already exist" in new ChoosePaperlessControllerSetup {
       val preferencesAlreadyCreated = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified)))
-      when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Some(preferencesAlreadyCreated))
+      when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Some(preferencesAlreadyCreated))
 
       val page = Future.successful(controller._redirectToDisplayFormWithCohortIfNotOptedIn(user, request, TestFixtures.sampleHostContext))
 
@@ -71,7 +71,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
     }
 
     "redirect to login version page for the matching cohort if they have no preference set" in new ChoosePaperlessControllerSetup {
-      when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(None)
+      when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(None)
 
       val page = controller._redirectToDisplayFormWithCohortIfNotOptedIn(user, request, TestFixtures.sampleHostContext)
 
@@ -81,7 +81,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
 
     "redirect to login version page for the matching cohort if they are currently opted out" in new ChoosePaperlessControllerSetup {
       val preferencesAlreadyCreated = SaPreference(false, None)
-      when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Some(preferencesAlreadyCreated))
+      when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Some(preferencesAlreadyCreated))
 
       val page = controller._redirectToDisplayFormWithCohortIfNotOptedIn(user, request, TestFixtures.sampleHostContext)
 
@@ -95,7 +95,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
 
     "redirect to BTA when preferences already exist" in new ChoosePaperlessControllerSetup {
       val preferencesAlreadyCreated = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified)))
-      when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Some(preferencesAlreadyCreated))
+      when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Some(preferencesAlreadyCreated))
 
       val page = controller._displayFormIfNotOptedIn(user, request, Some(assignedCohort), TestFixtures.sampleHostContext)
 
@@ -104,7 +104,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
     }
 
     "redirect to a re-calculated cohort when no cohort is supplied" in new ChoosePaperlessControllerSetup {
-      when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(None)
+      when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(None)
 
       val page = controller._displayFormIfNotOptedIn(user, request, possibleCohort = None, TestFixtures.sampleHostContext)
 
@@ -113,7 +113,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
     }
 
     "render the form in the correct initial state when no preferences exist" in new ChoosePaperlessControllerSetup {
-      when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(None)
+      when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(None)
 
       val page = controller._displayFormIfNotOptedIn(user, request, Some(assignedCohort), TestFixtures.sampleHostContext)
 
@@ -123,7 +123,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
     }
 
     "render the form in the correct initial state when user is currently opted out" in new ChoosePaperlessControllerSetup {
-      when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(Some(SaPreference(false, None)))
+      when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Some(SaPreference(false, None)))
 
       val page = controller._displayFormIfNotOptedIn(user, request, Some(assignedCohort), TestFixtures.sampleHostContext)
 
@@ -134,7 +134,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
 
     "audit the cohort information for IPage" in new ChoosePaperlessControllerSetup {
       override def assignedCohort = IPage
-      when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(None)
+      when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(None)
 
       val page = controller._displayFormIfNotOptedIn(user, request, Some(assignedCohort), TestFixtures.sampleHostContext)
       status(page) shouldBe 200
@@ -201,7 +201,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
     }
 
     "redirect to a re-calculated cohort when no cohort is supplied" in new ChoosePaperlessControllerSetup {
-      when(mockPreferencesConnector.getPreferences(is(validUtr), any())(any())).thenReturn(None)
+      when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(None)
 
       val page = controller._displayForm(AccountDetails, emailAddress = None, possibleCohort = None)(user, request, TestFixtures.sampleHostContext)
 

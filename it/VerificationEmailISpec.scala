@@ -94,7 +94,7 @@ class VerificationEmailISpec
           'subject("HMRC paperless notifications: verify your email address"))
       }
 
-      `/portal/preferences/sa/individual`.postOptOut(utr) should have(status(200))
+      `/portal/preferences/sa/individual`.postOptOut(utr, authHeader) should have(status(200))
 
       `/sa/print-preferences/verification`.verify(verificationTokenFromEmail()) should beForAnExpiredOldEmail
     }
@@ -227,7 +227,7 @@ class VerificationEmailISpec
     }
   }
 
-  trait VerificationEmailTestCase extends TestCase with EmailSupport with Eventually {
+  trait VerificationEmailTestCase extends TestCaseWithFrontEndAuthentication with EmailSupport with Eventually {
     clearEmails()
     `/preferences-admin/sa/individual`.delete(utr) should have(status(200))
 

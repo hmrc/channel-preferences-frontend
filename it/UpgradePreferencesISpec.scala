@@ -51,7 +51,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
     "not be redirected to go paperless if they have already opted-out of generic terms" in new NewUserTestCase {
       await(`/preferences-admin/sa/individual`.delete(utr))
 
-      `/portal/preferences/sa/individual`.postOptOut(utr).futureValue.status should be (201)
+      `/portal/preferences/sa/individual`.postOptOut(utr, authHeader).futureValue.status should be (201)
 
       val activateResponse = `/preferences/sa/individual/:utr/activations`(utr, authHeader).put().futureValue
       activateResponse.status should be (409)
@@ -178,9 +178,11 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
     import play.api.Play.current
 
     override val utr : String = Math.abs(Random.nextInt()).toString.substring(0, 6)
+
     val email = "a@b.com"
     val returnUrl = "/test/return/url"
-    val authHeader = createGGAuthorisationHeader(SaUtr(utr))
+
+    override lazy val authHeader = createGGAuthorisationHeader(SaUtr(utr))
     override lazy val cookie = cookieForUtr(SaUtr(utr))
 
     val url = WS.url(resource("/account/account-details/sa/login-opt-in-email-reminders"))
@@ -209,9 +211,10 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
     import play.api.Play.current
 
     val returnUrl = "/test/return/url"
-    override def utr: String = "1097172564"
     val nino = "CE123457D"
-    val authHeader =  createGGAuthorisationHeader(SaUtr(utr), Nino(nino))
+
+    override val utr: String = "1097172564"
+    override lazy val authHeader =  createGGAuthorisationHeader(SaUtr(utr), Nino(nino))
     override lazy val cookie = cookieForUtrAndNino(SaUtr(utr), Nino(nino))
 
     val `/upgrade-email-reminders` = new {
