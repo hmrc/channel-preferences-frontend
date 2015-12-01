@@ -4,6 +4,7 @@ import org.scalatest.mock.MockitoSugar
 import play.api.libs.json.JsString
 import play.api.libs.ws.{WS, WSResponse}
 import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
+import uk.gov.hmrc.domain.{Nino, SaUtr}
 
 import scala.concurrent.Future
 import scala.util.Random
@@ -211,10 +212,11 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
     val returnUrl = "/test/return/url"
     override def utr: String = "1097172564"
 
-    override val gatewayId: String = "UpgradePreferencesISpec"
-    val authHeader = bearerTokenHeader()
-
     val nino = "CE123457D"
+
+    override val gatewayId: String = "UpgradePreferencesISpec"
+    val authHeader =  createGGAuthorisationHeader(SaUtr(utr), Nino(nino))//bearerTokenHeader()
+
 
     val `/upgrade-email-reminders` = new {
 

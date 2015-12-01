@@ -7,10 +7,10 @@ import play.api.libs.json.Json
 import play.api.libs.ws.WS
 import play.api.mvc.Results.EmptyContent
 import uk.gov.hmrc.crypto.{PlainText, ApplicationCrypto}
-import uk.gov.hmrc.domain.{Nino, SaUtr}
+import uk.gov.hmrc.domain.{TaxIdentifier, Nino, SaUtr}
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.it.{ExternalService, MicroServiceEmbeddedServer, ServiceSpec}
-import uk.gov.hmrc.test.it.{BearerTokenHelper, FrontendCookieHelper}
+import uk.gov.hmrc.test.it.{AuthorisationHeader, BearerTokenHelper, FrontendCookieHelper}
 import uk.gov.hmrc.time.DateTimeUtils
 import views.sa.prefs.helpers.DateFormat
 import scala.concurrent.duration._
@@ -139,6 +139,15 @@ trait PreferencesFrontEndServer extends ServiceSpec {
     def authResource(path: String) = {
       server.externalResource("auth", path)
     }
+    private lazy val ggAuthorisationHeader = AuthorisationHeader.forGovernmentGateway(authResource)
+    private lazy val verifyAuthorisationHeader = AuthorisationHeader.forVerify(authResource)
+
+    def createGGAuthorisationHeader(ids: TaxIdentifier*): (String, String) = ggAuthorisationHeader.create(ids.toList).futureValue
+
+    def createVerifyAuthorisationHeader(utr: TaxIdentifier): (String, String) = verifyAuthorisationHeader.create(utr).futureValue
+
+
+    //----
 
     lazy val keyValues = Map(
       "authToken" -> createBearerTokenFor(SaUtr(utr)).futureValue,
