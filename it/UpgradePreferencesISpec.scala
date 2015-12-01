@@ -53,7 +53,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
       `/portal/preferences/sa/individual`.postOptOut(utr).futureValue.status should be (201)
 
-      val activateResponse = `/preferences/sa/individual/:utr/activations`(utr).put().futureValue
+      val activateResponse = `/preferences/sa/individual/:utr/activations`(utr, authHeader).put().futureValue
       activateResponse.status should be (409)
     }
   }
@@ -67,7 +67,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
       `/portal/preferences/sa/individual`.postPendingEmail(utr, pendingEmail).futureValue.status should be (201)
       `/preferences-admin/sa/individual`.verifyEmailFor(utr).futureValue.status should be (204)
 
-      val activateResponse = `/preferences/sa/individual/:utr/activations`(utr).put().futureValue
+      val activateResponse = `/preferences/sa/individual/:utr/activations`(utr, authHeader).put().futureValue
       activateResponse.status should be (412)
 
       (activateResponse.json \ "redirectUserTo").as[JsString].value should include ("/account/account-details/sa/upgrade-email-reminders")
@@ -80,7 +80,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
       response should have('status(303))
       response.header("Location").get should be (routes.UpgradeRemindersController.displayUpgradeConfirmed(Encrypted(returnUrl)).toString())
 
-      `/preferences/sa/individual/:utr/activations`(utr).put().futureValue.status should be (200)
+      `/preferences/sa/individual/:utr/activations`(utr, authHeader).put().futureValue.status should be (200)
     }
 
     "set upgraded to paperless and allow subsequent activation when legacy user is pending verification" in new UpgradeTestCase {
@@ -88,7 +88,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
       `/portal/preferences/sa/individual`.postPendingEmail(utr, pendingEmail).futureValue.status should be (201)
 
-      val activateResponse = `/preferences/sa/individual/:utr/activations`(utr).put().futureValue
+      val activateResponse = `/preferences/sa/individual/:utr/activations`(utr, authHeader).put().futureValue
       activateResponse.status should be (412)
 
       (activateResponse.json \ "redirectUserTo").as[JsString].value should include ("/account/account-details/sa/upgrade-email-reminders")
@@ -101,7 +101,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
       response should have('status(303))
       response.header("Location").get should be (routes.UpgradeRemindersController.displayUpgradeConfirmed(Encrypted(returnUrl)).toString())
 
-      `/preferences/sa/individual/:utr/activations`(utr).put().futureValue.status should be (200)
+      `/preferences/sa/individual/:utr/activations`(utr, authHeader).put().futureValue.status should be (200)
     }
 
     "show go paperless and allow subsequent activation when legacy user is opted out" in new NewUserTestCase  {
@@ -109,7 +109,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
       `/portal/preferences/sa/individual`.postLegacyOptOut(utr).futureValue.status should be (200)
 
-      val activateResponse = `/preferences/sa/individual/:utr/activations`(utr).put().futureValue
+      val activateResponse = `/preferences/sa/individual/:utr/activations`(utr, authHeader).put().futureValue
       activateResponse.status should be (412)
 
       (activateResponse.json \ "redirectUserTo").as[JsString].value should include ("/account/account-details/sa/login-opt-in-email-reminders")
@@ -122,7 +122,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
       postGoPaperless should have('status(200))
       postGoPaperless.body should include ("Nearly done...")
 
-      `/preferences/sa/individual/:utr/activations`(utr).put().futureValue.status should be (200)
+      `/preferences/sa/individual/:utr/activations`(utr, authHeader).put().futureValue.status should be (200)
     }
 
     "show go paperless and allow subsequent activation when legacy user is de-enrolled" in new NewUserTestCase {
@@ -132,7 +132,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
       a.postPendingEmail(utr, pendingEmail).futureValue.status should be (201)
       a.postDeEnrolling(utr).futureValue.status should be (200)
 
-      val activateResponse = `/preferences/sa/individual/:utr/activations`(utr).put().futureValue
+      val activateResponse = `/preferences/sa/individual/:utr/activations`(utr, authHeader).put().futureValue
       activateResponse.status should be (412)
 
       (activateResponse.json \ "redirectUserTo").as[JsString].value should include ("/account/account-details/sa/login-opt-in-email-reminders")
@@ -145,7 +145,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
       postGoPaperless should have('status(200))
       postGoPaperless.body should include ("Nearly done...")
 
-      `/preferences/sa/individual/:utr/activations`(utr).put().futureValue.status should be (200)
+      `/preferences/sa/individual/:utr/activations`(utr, authHeader).put().futureValue.status should be (200)
     }
    }
 

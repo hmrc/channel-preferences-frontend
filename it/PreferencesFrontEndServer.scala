@@ -63,18 +63,20 @@ trait PreferencesFrontEndServer extends ServiceSpec {
 
     val payeFormTypeBody = Json.parse(s"""{"active":true}""")
 
-    def `/preferences/paye/individual/:nino/activations/paye`(nino: String, headers: (String, String)) = new {
+    def `/preferences/paye/individual/:nino/activations/paye`(nino: String, header: (String, String)) = new {
 
       def put() = WS.url(server.externalResource("preferences", s"/preferences/paye/individual/$nino/activations/paye")).withQueryString("returnUrl" -> "/some/return/url")
-        .withHeaders(headers)
+        .withHeaders(header)
         .put(payeFormTypeBody)
 
       val resource = WS.url(server.externalResource("preferences", s"/preferences/paye/individual/$nino/activations/paye"))
     }
 
-    def `/preferences/sa/individual/:utr/activations`(utr: String) = new {
+    def `/preferences/sa/individual/:utr/activations`(utr: String, header: (String, String)) = new {
       def put() =
-        WS.url(server.externalResource("preferences", s"/preferences/sa/individual/$utr/activations")).withQueryString("returnUrl" -> "/some/return/url").put(payeFormTypeBody)
+        WS.url(server.externalResource("preferences", s"/preferences/sa/individual/$utr/activations"))
+          .withHeaders(header)
+          .withQueryString("returnUrl" -> "/some/return/url").put(payeFormTypeBody)
     }
 
     val `/portal/preferences/sa/individual` = new {
