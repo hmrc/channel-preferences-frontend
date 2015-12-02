@@ -67,7 +67,7 @@ class PaperlessWarningPartialISpec
     "have no warning if user then opts out" in new TestCaseWithFrontEndAuthentication {
       val email = uniqueEmail
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
-      `/portal/preferences/sa/individual`.postOptOut(utr, authHeader) should have(status(200))
+      `/portal/preferences/sa/individual`.postOptOut(utr) should have(status(200))
 
       val response =`/paperless/warnings`.withHeaders(cookie).get()
 
@@ -112,7 +112,7 @@ class PaperlessWarningPartialISpec
       val email = uniqueEmail
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/preferences-admin/sa/bounce-email`.post(email) should have(status(204))
-      `/portal/preferences/sa/individual`.postOptOut(utr, authHeader)
+      `/portal/preferences/sa/individual`.postOptOut(utr)
 
       val response =`/paperless/warnings`.withHeaders(cookie).get()
 
@@ -160,7 +160,7 @@ class PaperlessWarningPartialISpec
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/preferences-admin/sa/bounce-email`.post(email) should have(status(204))
       `/portal/preferences/sa/individual`.postDeEnrolling(utr) should have(status(200))
-      `/portal/preferences/sa/individual`.postOptOut(utr, authHeader) should have(status(200))
+      `/portal/preferences/sa/individual`.postOptOut(utr) should have(status(200))
 
       val response =`/paperless/warnings`.withHeaders(cookie).get()
 
@@ -199,7 +199,7 @@ class PaperlessWarningPartialISpec
   "Paperless warnings partial for opted out user" should {
 
     "be empty" in new TestCaseWithFrontEndAuthentication {
-      `/portal/preferences/sa/individual`.postOptOut(utr, authHeader) should have(status(201))
+      `/portal/preferences/sa/individual`.postOptOut(utr) should have(status(201))
 
       val response = `/paperless/warnings`.withHeaders(cookie).get()
 

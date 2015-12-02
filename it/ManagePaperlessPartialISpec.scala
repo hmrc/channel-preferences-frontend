@@ -60,7 +60,7 @@ class ManagePaperlessPartialISpec
     "contain sign up details for a subsequent opt out" in new TestCase with TestCaseWithFrontEndAuthentication {
       val email = s"${UUID.randomUUID().toString}@email.com"
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
-      `/portal/preferences/sa/individual`.postOptOut(utr, authHeader) should have(status(200))
+      `/portal/preferences/sa/individual`.postOptOut(utr) should have(status(200))
       val response = `/paperless/manage`(returnUrl = "http://some/other/url", returnLinkText = "Continue").withHeaders(cookie).get()
       response should have(status(200))
       response.futureValue.body should (
@@ -87,7 +87,7 @@ class ManagePaperlessPartialISpec
       val email = s"${UUID.randomUUID().toString}@email.com"
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/preferences-admin/sa/individual`.verifyEmailFor(utr) should have(status(204))
-      `/portal/preferences/sa/individual`.postOptOut(utr, authHeader) should have(status(200))
+      `/portal/preferences/sa/individual`.postOptOut(utr) should have(status(200))
       val response = `/paperless/manage`(returnUrl = "http://some/other/url", returnLinkText = "Continue").withHeaders(cookie).get()
       response should have(status(200))
       response.futureValue.body should (
@@ -113,7 +113,7 @@ class ManagePaperlessPartialISpec
       val email = s"${UUID.randomUUID().toString}@email.com"
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
       `/preferences-admin/sa/bounce-email`.post(email) should have(status(204))
-      `/portal/preferences/sa/individual`.postOptOut(utr, authHeader) should have(status(200))
+      `/portal/preferences/sa/individual`.postOptOut(utr) should have(status(200))
       val response = `/paperless/manage`(returnUrl = "http://some/other/url", returnLinkText = "Continue").withHeaders(cookie).get()
       response should have(status(200))
       response.futureValue.body should (

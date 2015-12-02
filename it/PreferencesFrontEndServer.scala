@@ -87,8 +87,8 @@ trait PreferencesFrontEndServer extends ServiceSpec {
       def postDeEnrolling(utr: String) = WS.url(server.externalResource("preferences",
         s"/portal/preferences/sa/individual/$utr/print-suppression")).post(Json.parse(s"""{"de-enrolling": true, "reason": "Pour le-test"}"""))
 
-      def postOptOut(utr: String, authHeader: (String, String)) = WS.url(server.externalResource("preferences",
-        s"/portal/preferences/sa/individual/$utr/print-suppression")).withHeaders(authHeader).post(Json.parse( s"""{"digital": false}"""))
+      def postOptOut(utr: String) = WS.url(server.externalResource("preferences",
+        s"/portal/preferences/sa/individual/$utr/print-suppression")).post(Json.parse( s"""{"digital": false}"""))
 
       def postLegacyOptOut(utr: String) = WS.url(server.externalResource("preferences",
         s"/preferences-admin/sa/individual/$utr/legacy-opt-out")).post(Json.parse("{}"))
@@ -143,15 +143,13 @@ trait PreferencesFrontEndServer extends ServiceSpec {
       server.externalResource("auth", path)
     }
 
-    lazy val authHeader = createGGAuthorisationHeader(SaUtr(utr))
-
     private lazy val ggAuthorisationHeader = AuthorisationHeader.forGovernmentGateway(authResource)
     private lazy val verifyAuthorisationHeader = AuthorisationHeader.forVerify(authResource)
 
     def createGGAuthorisationHeader(ids: TaxIdentifier*): (String, String) = ggAuthorisationHeader.create(ids.toList).futureValue
     def createVerifyAuthorisationHeader(utr: TaxIdentifier): (String, String) = verifyAuthorisationHeader.create(utr).futureValue
 
-    lazy val cookie = cookieFor(ggAuthorisationHeader.createBearerToken(List(SaUtr(utr))).futureValue)
+    lazy val cookie = cookieFor(ggAuthorisationHeader.createBearerToken(List(SaUtr(utr))).futureValue).futureValue
 
     def cookieForUtr(utr: SaUtr) = cookieFor(ggAuthorisationHeader.createBearerToken(List(utr)).futureValue)
     def cookieForUtrAndNino(utr: SaUtr, nino: Nino) = cookieFor(ggAuthorisationHeader.createBearerToken(List(utr, nino)).futureValue)

@@ -94,7 +94,7 @@ class VerificationEmailISpec
           'subject("HMRC paperless notifications: verify your email address"))
       }
 
-      `/portal/preferences/sa/individual`.postOptOut(utr, authHeader) should have(status(200))
+      `/portal/preferences/sa/individual`.postOptOut(utr) should have(status(200))
 
       `/sa/print-preferences/verification`.verify(verificationTokenFromEmail()) should beForAnExpiredOldEmail
     }
