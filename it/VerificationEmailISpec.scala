@@ -227,7 +227,7 @@ class VerificationEmailISpec
     }
   }
 
-  trait VerificationEmailTestCase extends TestCase with EmailSupport with Eventually {
+  trait VerificationEmailTestCase extends TestCaseWithFrontEndAuthentication with EmailSupport with Eventually {
     clearEmails()
     `/preferences-admin/sa/individual`.delete(utr) should have(status(200))
 

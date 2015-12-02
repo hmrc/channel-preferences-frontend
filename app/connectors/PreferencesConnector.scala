@@ -55,9 +55,8 @@ trait PreferencesConnector extends Status {
   def savePreferences(utr: SaUtr, digital: Boolean, email: Option[String])(implicit hc: HeaderCarrier): Future[Any] =
     http.POST(url(s"/preferences/sa/individual/$utr/print-suppression"), UpdateEmail(digital, email))
 
-  def getPreferences(utr: SaUtr, nino: Option[Nino] = None)(implicit headerCarrier: HeaderCarrier): Future[Option[SaPreference]] = {
-    val preferencesUrl = nino.fold(s"/preferences/sa/individual/$utr/print-suppression")(n => s"/preferences/sa/individual/$utr/$n/print-suppression")
-    http.GET[Option[SaPreference]](url(preferencesUrl)).recover {
+  def getPreferences(utr: SaUtr)(implicit headerCarrier: HeaderCarrier): Future[Option[SaPreference]] = {
+    http.GET[Option[SaPreference]](url(s"/preferences/sa/individual/$utr/print-suppression")).recover {
       case response: Upstream4xxResponse if response.upstreamResponseCode == GONE => None
       case e: NotFoundException => None
     }

@@ -178,10 +178,12 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
     import play.api.Play.current
 
     override val utr : String = Math.abs(Random.nextInt()).toString.substring(0, 6)
+
     val email = "a@b.com"
     val returnUrl = "/test/return/url"
+
     val authHeader = createGGAuthorisationHeader(SaUtr(utr))
-    override lazy val cookie = cookieForUtr(SaUtr(utr))
+    override lazy val cookie = cookieForUtr(SaUtr(utr)).futureValue
 
     val url = WS.url(resource("/account/account-details/sa/login-opt-in-email-reminders"))
         .withQueryString("returnUrl" -> ApplicationCrypto.QueryParameterCrypto.encrypt(PlainText(returnUrl)).value)
@@ -209,10 +211,11 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
     import play.api.Play.current
 
     val returnUrl = "/test/return/url"
-    override def utr: String = "1097172564"
     val nino = "CE123457D"
+
+    override val utr: String = "1097172564"
     val authHeader =  createGGAuthorisationHeader(SaUtr(utr), Nino(nino))
-    override lazy val cookie = cookieForUtrAndNino(SaUtr(utr), Nino(nino))
+    override lazy val cookie = cookieForUtrAndNino(SaUtr(utr), Nino(nino)).futureValue
 
     val `/upgrade-email-reminders` = new {
 

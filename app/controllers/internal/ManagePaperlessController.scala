@@ -126,7 +126,7 @@ with Actions {
     lookupCurrentEmail(email => Future.successful(Ok(views.html.account_details_update_email_address(email, EmailForm().fill(EmailForm.Data(emailAddress.map(_.decryptedValue)))))))
 
   private def lookupCurrentEmail(func: (EmailAddress) => Future[Result])(implicit authContext: AuthContext, request: Request[AnyRef]): Future[Result] = {
-    preferencesConnector.getPreferences(authContext.principal.accounts.sa.get.utr, None).flatMap {
+    preferencesConnector.getPreferences(authContext.principal.accounts.sa.get.utr).flatMap {
         case Some(SaPreference(true, Some(email))) => func(EmailAddress(email.email))
         case _ => Future.successful(BadRequest("Could not find existing preferences."))
     }

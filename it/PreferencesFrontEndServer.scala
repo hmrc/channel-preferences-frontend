@@ -12,6 +12,7 @@ import uk.gov.hmrc.play.it.{ExternalService, MicroServiceEmbeddedServer, Service
 import uk.gov.hmrc.test.it.{AuthorisationHeader, FrontendCookieHelper}
 import uk.gov.hmrc.time.DateTimeUtils
 import views.sa.prefs.helpers.DateFormat
+
 import scala.concurrent.duration._
 
 trait TestUser {
@@ -148,7 +149,7 @@ trait PreferencesFrontEndServer extends ServiceSpec {
     def createGGAuthorisationHeader(ids: TaxIdentifier*): (String, String) = ggAuthorisationHeader.create(ids.toList).futureValue
     def createVerifyAuthorisationHeader(utr: TaxIdentifier): (String, String) = verifyAuthorisationHeader.create(utr).futureValue
 
-    lazy val cookie = cookieFor(ggAuthorisationHeader.createBearerToken(List(SaUtr(utr))).futureValue)
+    lazy val cookie = cookieFor(ggAuthorisationHeader.createBearerToken(List(SaUtr(utr))).futureValue).futureValue
 
     def cookieForUtr(utr: SaUtr) = cookieFor(ggAuthorisationHeader.createBearerToken(List(utr)).futureValue)
     def cookieForUtrAndNino(utr: SaUtr, nino: Nino) = cookieFor(ggAuthorisationHeader.createBearerToken(List(utr, nino)).futureValue)

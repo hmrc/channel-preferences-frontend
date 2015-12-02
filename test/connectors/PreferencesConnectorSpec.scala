@@ -90,31 +90,6 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
       ))
     }
 
-    "return the preferences for utr and nino" in {
-      val preferenceConnector = preferencesConnector { url =>
-        url should include(nino.value)
-        Future.successful(HttpResponse(200, Some(Json.parse(
-          """
-            |{
-            |   "digital": true,
-            |   "email": {
-            |     "email": "test@mail.com",
-            |     "status": "verified",
-            |     "mailboxFull": false
-            |   }
-            |}
-          """.stripMargin))))
-      }
-
-      val preferences = preferenceConnector.getPreferences(SaUtr("1"), Some(nino)).futureValue
-
-      preferences shouldBe Some(SaPreference(
-        digital = true, email = Some(SaEmailPreference(
-          email = "test@mail.com",
-          status = Status.Verified))
-      ))
-    }
-
     "return None for a 404" in {
       val preferenceConnector = preferencesConnector(_ => Future.successful(HttpResponse(404, None)))
 
