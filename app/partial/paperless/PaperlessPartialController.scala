@@ -41,7 +41,7 @@ trait PaperlessPartialController
   def displayPaperlessWarningsPartial(implicit hostContext: HostContext) = authenticated.async { implicit authContext => implicit request =>
     preferencesConnector.getPreferences(utr = authContext.principal.accounts.sa.get.utr).map {
       case None => NotFound
-      case Some(prefs) => Ok(PaperlessWarningPartial.apply(prefs, hostContext.returnUrl, hostContext.returnLinkText))
+      case Some(prefs) => Ok(PaperlessWarningPartial.apply(prefs, hostContext.returnUrl, hostContext.returnLinkText)).withHeaders("X-Opted-In-Email" -> prefs.digital.toString)
     }
   }
 }
