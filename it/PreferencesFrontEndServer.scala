@@ -26,7 +26,13 @@ trait PreferencesFrontEndServer extends ServiceSpec {
   protected val server = new PreferencesFrontendIntegrationServer("AccountDetailPartialISpec")
 
   class PreferencesFrontendIntegrationServer(override val testName: String) extends MicroServiceEmbeddedServer {
-    override protected val externalServices: Seq[ExternalService] = Seq(
+    override protected val externalServices: Seq[ExternalService] = externalServiceNames.map(ExternalService.runFromJar(_))
+
+    override protected def startTimeout: Duration = 300.seconds
+  }
+
+  def externalServiceNames: Seq[String] = {
+    Seq(
       "external-government-gateway",
       "government-gateway",
       "auth",
@@ -37,9 +43,7 @@ trait PreferencesFrontEndServer extends ServiceSpec {
       "email",
       "cid",
       "preferences"
-    ).map(ExternalService.runFromJar(_))
-
-    override protected def startTimeout: Duration = 300.seconds
+    )
   }
 
   class TestCase extends TestUser {

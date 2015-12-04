@@ -37,7 +37,10 @@ private object Dependencies {
     "uk.gov.hmrc"    %% "url-builder"              % "1.0.0",
 
     "org.mockito"    %  "mockito-all"              % "1.10.19"   % "test",
+
     "uk.gov.hmrc"    %% "http-verbs-test"          % "0.1.0"     % "it",
+    "uk.gov.hmrc"    %% "sa-e2e-test"              % "1.0"       % "it",
+
     "uk.gov.hmrc"    %% "auth-test"                % "1.0.0"     % "test, it",
     "uk.gov.hmrc"    %% "hmrctest"                 % "1.4.0"     % "test, it",
     "org.jsoup"      %  "jsoup"                    % "1.8.3"     % "test, it",
