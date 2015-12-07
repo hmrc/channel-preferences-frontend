@@ -143,9 +143,7 @@ trait PreferencesFrontEndServer extends ServiceSpec {
 
     implicit val hc = HeaderCarrier()
 
-    def authResource(path: String) = {
-      server.externalResource("auth", path)
-    }
+    def authResource(path: String) = server.externalResource("auth", path)
 
     private lazy val ggAuthorisationHeader = AuthorisationHeader.forGovernmentGateway(authResource)
     private lazy val verifyAuthorisationHeader = AuthorisationHeader.forVerify(authResource)

@@ -1,18 +1,32 @@
+import java.net.URLEncoder
+
+import com.github.tomakehurst.wiremock.WireMockServer
+import org.openqa.selenium.WebDriver
 import org.scalatest.concurrent.ScalaFutures
 import play.api.test.TestServer
+import uk.gov.hmrc.crypto.{PlainText, ApplicationCrypto}
 import uk.gov.hmrc.endtoend
 import uk.gov.hmrc.endtoend.sa.config.TestConfig
-import uk.gov.hmrc.endtoend.sa.page.PreferencesFrontEnd
-import uk.gov.hmrc.endtoend.sa.page.PreferencesFrontEnd._
+//import uk.gov.hmrc.endtoend.sa.page.PreferencesFrontEnd.GenericUpgradePage._
+//import uk.gov.hmrc.endtoend.sa.page.PreferencesFrontEnd._
+import uk.gov.hmrc.endtoend.sa.page.PreferencesFrontendPage
+import uk.gov.hmrc.test.it.{BearerToken, FrontendCookieHelper}
+import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
+
+import scala.concurrent.Future
 
 //TODO rename Spec & package
-class UpgradeBrowserSpec extends endtoend.sa.Spec with ScalaFutures {
+class UpgradeBrowserSpec extends endtoend.sa.Spec with ScalaFutures with BrowserSessionCookie with AuthenticationBaker {
 
   val t = TestServer(9000)
 
   override def beforeAll() = {
     super.beforeAll()
     t.start()
+
+    val wireMockServer = new WireMockServer(wireMockConfig().port(8080))
+    wireMockServer.start()
   }
 
   override def afterAll() = {
@@ -35,6 +49,11 @@ class UpgradeBrowserSpec extends endtoend.sa.Spec with ScalaFutures {
     scenario("Agree to upgrading") {
       Given("I am on the Upgrade Page")
 
+        val session = cookieFor(BearerToken("1234567890")).futureValue
+        addCookie(session._1, session._2)
+
+        stubAuth()
+
         go to GenericUpgradePage
         GenericUpgradePage should be (displayed)
 
@@ -43,26 +62,52 @@ class UpgradeBrowserSpec extends endtoend.sa.Spec with ScalaFutures {
       Then("I am taken back to the return page")
 
       And("My T&Cs have been set to generic=accepted")
-
-//      `/preferences-admin/sa/individual`.delete(utr).futureValue
-//
-//      `/portal/preferences/sa/individual`.postPendingEmail(utr, pendingEmail).futureValue.status should be (201)
-//      `/preferences-admin/sa/individual`.verifyEmailFor(utr).futureValue.status should be (204)
-//
-//      val activateResponse = `/preferences/sa/individual/:utr/activations`(utr).put().futureValue
-//      activateResponse.status should be (412)
-//
-//      (activateResponse.json \ "redirectUserTo").as[JsString].value should include ("/account/account-details/sa/upgrade-email-reminders")
-//
-//      val upgradeResponse = `/upgrade-email-reminders`.get().futureValue
-//      upgradeResponse.status should be (200)
-//      upgradeResponse.body should include ("Go paperless with HMRC")
-//
-//      val response = `/upgrade-email-reminders`.post(optIn = true, acceptedTandC = Some(true)).futureValue
-//      response should have('status(303))
-//      response.header("Location").get should be (routes.UpgradeRemindersController.displayUpgradeConfirmed(Encrypted(returnUrl)).toString())
-//
-//      `/preferences/sa/individual/:utr/activations`(utr).put().futureValue.status should be (200)
     }
   }
+
+
+
+  object GenericUpgradePage extends PreferencesFrontendPage {
+    val title = "Go paperless with HMRC"
+    def relativeUrl(implicit testConfig: TestConfig) = "account/account-details/sa/upgrade-email-reminders?returnUrl=" +
+      URLEncoder.encode(ApplicationCrypto.QueryParameterCrypto.encrypt(PlainText("/some/other/page")).value, "utf8")
+
+//    def `terms and conditions checkbox`(implicit driver: WebDriver) =              checkbox("accept-tc").underlying
+//    def `no ask me later radio button`(implicit driver: WebDriver) =               radioButton("opt-in-out").underlying
+//    def `yes continue electronic comms radio button`(implicit driver: WebDriver) = radioButton("opt-in-in").underlying
+//    def continue(implicit driver: WebDriver) =                                     id("submitUpgrade")
+  }
+}
+
+//TODO tidy up creating cookies
+trait BrowserSessionCookie extends FrontendCookieHelper {
+  def authResource(path: String) = ???
+
+  override def userId(bearerToken: String) = Future.successful("mo")
+}
+
+// TODO: Tidy up into own set of suite classes
+trait AuthenticationBaker {
+
+  def stubAuth() =
+    stubFor(get(urlEqualTo("/auth/authority"))
+    .willReturn(
+      aResponse()
+        .withStatus(200)
+        .withBody(
+          s"""
+             |{
+             |    "uri": "/auth/oid/1234567890",
+             |    "loggedInAt": "2014-06-09T14:57:09.522Z",
+             |    "accounts": {
+             |       "sa": {
+             |        "link": "/sa/individual/1111111111",
+             |        "utr": "1111111111"
+             |       }
+             |    },
+             |    "levelOfAssurance": "2",
+             |    "confidenceLevel": 50
+             |}
+            """.stripMargin
+        )))
 }
