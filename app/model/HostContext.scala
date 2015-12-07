@@ -48,8 +48,8 @@ object HostContext {
     }
     case object Blank extends Headers {
       val name = "blank"
-      val navLinks = HtmlFormat.empty
       val navTitle = ""
+      lazy val navLinks = views.html.includes.header_nav_links()
     }
     def apply(name: String) = name match {
       case YTA.name => YTA
