@@ -4,6 +4,7 @@ import org.scalatest.mock.MockitoSugar
 import play.api.libs.json.JsString
 import play.api.libs.ws.{WS, WSResponse}
 import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
+import uk.gov.hmrc.domain.{Nino, SaUtr}
 
 import scala.concurrent.Future
 import scala.util.Random
@@ -52,7 +53,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
       `/portal/preferences/sa/individual`.postOptOut(utr).futureValue.status should be (201)
 
-      val activateResponse = `/preferences/sa/individual/:utr/activations`(utr).put().futureValue
+      val activateResponse = `/preferences/sa/individual/:utr/activations`(utr, authHeader).put().futureValue
       activateResponse.status should be (409)
     }
   }
@@ -66,7 +67,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
       `/portal/preferences/sa/individual`.postPendingEmail(utr, pendingEmail).futureValue.status should be (201)
       `/preferences-admin/sa/individual`.verifyEmailFor(utr).futureValue.status should be (204)
 
-      val activateResponse = `/preferences/sa/individual/:utr/activations`(utr).put().futureValue
+      val activateResponse = `/preferences/sa/individual/:utr/activations`(utr, authHeader).put().futureValue
       activateResponse.status should be (412)
 
       (activateResponse.json \ "redirectUserTo").as[JsString].value should include ("/account/account-details/sa/upgrade-email-reminders")
@@ -79,7 +80,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
       response should have('status(303))
       response.header("Location").get should be (routes.UpgradeRemindersController.displayUpgradeConfirmed(Encrypted(returnUrl)).toString())
 
-      `/preferences/sa/individual/:utr/activations`(utr).put().futureValue.status should be (200)
+      `/preferences/sa/individual/:utr/activations`(utr, authHeader).put().futureValue.status should be (200)
     }
 
     "set upgraded to paperless and allow subsequent activation when legacy user is pending verification" in new UpgradeTestCase {
@@ -87,7 +88,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
       `/portal/preferences/sa/individual`.postPendingEmail(utr, pendingEmail).futureValue.status should be (201)
 
-      val activateResponse = `/preferences/sa/individual/:utr/activations`(utr).put().futureValue
+      val activateResponse = `/preferences/sa/individual/:utr/activations`(utr, authHeader).put().futureValue
       activateResponse.status should be (412)
 
       (activateResponse.json \ "redirectUserTo").as[JsString].value should include ("/account/account-details/sa/upgrade-email-reminders")
@@ -100,7 +101,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
       response should have('status(303))
       response.header("Location").get should be (routes.UpgradeRemindersController.displayUpgradeConfirmed(Encrypted(returnUrl)).toString())
 
-      `/preferences/sa/individual/:utr/activations`(utr).put().futureValue.status should be (200)
+      `/preferences/sa/individual/:utr/activations`(utr, authHeader).put().futureValue.status should be (200)
     }
 
     "show go paperless and allow subsequent activation when legacy user is opted out" in new NewUserTestCase  {
@@ -108,7 +109,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
       `/portal/preferences/sa/individual`.postLegacyOptOut(utr).futureValue.status should be (200)
 
-      val activateResponse = `/preferences/sa/individual/:utr/activations`(utr).put().futureValue
+      val activateResponse = `/preferences/sa/individual/:utr/activations`(utr, authHeader).put().futureValue
       activateResponse.status should be (412)
 
       (activateResponse.json \ "redirectUserTo").as[JsString].value should include ("/account/account-details/sa/login-opt-in-email-reminders")
@@ -121,7 +122,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
       postGoPaperless should have('status(200))
       postGoPaperless.body should include ("Nearly done...")
 
-      `/preferences/sa/individual/:utr/activations`(utr).put().futureValue.status should be (200)
+      `/preferences/sa/individual/:utr/activations`(utr, authHeader).put().futureValue.status should be (200)
     }
 
     "show go paperless and allow subsequent activation when legacy user is de-enrolled" in new NewUserTestCase {
@@ -131,7 +132,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
       a.postPendingEmail(utr, pendingEmail).futureValue.status should be (201)
       a.postDeEnrolling(utr).futureValue.status should be (200)
 
-      val activateResponse = `/preferences/sa/individual/:utr/activations`(utr).put().futureValue
+      val activateResponse = `/preferences/sa/individual/:utr/activations`(utr, authHeader).put().futureValue
       activateResponse.status should be (412)
 
       (activateResponse.json \ "redirectUserTo").as[JsString].value should include ("/account/account-details/sa/login-opt-in-email-reminders")
@@ -144,7 +145,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
       postGoPaperless should have('status(200))
       postGoPaperless.body should include ("Nearly done...")
 
-      `/preferences/sa/individual/:utr/activations`(utr).put().futureValue.status should be (200)
+      `/preferences/sa/individual/:utr/activations`(utr, authHeader).put().futureValue.status should be (200)
     }
    }
 
@@ -176,12 +177,14 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
   trait NewUserTestCase extends TestCaseWithFrontEndAuthentication {
     import play.api.Play.current
 
-    override val gatewayId: String = "UpgradePreferencesISpec"
     override val utr : String = Math.abs(Random.nextInt()).toString.substring(0, 6)
 
     val email = "a@b.com"
     val returnUrl = "/test/return/url"
-    val authHeader = bearerTokenHeader()
+
+    val authHeader = createGGAuthorisationHeader(SaUtr(utr))
+    override lazy val cookie = cookieForUtr(SaUtr(utr)).futureValue
+
     val url = WS.url(resource("/account/account-details/sa/login-opt-in-email-reminders"))
         .withQueryString("returnUrl" -> ApplicationCrypto.QueryParameterCrypto.encrypt(PlainText(returnUrl)).value)
 
@@ -200,7 +203,6 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
         case None => params
         case Some(emailValue) => params + ("email.main" -> Seq(emailValue), "email.confirm" -> Seq(emailValue), "emailVerified" -> Seq(true.toString))
       }
-
       url.withHeaders(cookie,"Csrf-Token"->"nocheck", authHeader).withFollowRedirects(optIn).post(paramsWithEmail)
     }
   }
@@ -209,12 +211,11 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
     import play.api.Play.current
 
     val returnUrl = "/test/return/url"
-    override def utr: String = "1097172564"
-
-    override val gatewayId: String = "UpgradePreferencesISpec"
-    val authHeader = bearerTokenHeader()
-
     val nino = "CE123457D"
+
+    override val utr: String = "1097172564"
+    val authHeader =  createGGAuthorisationHeader(SaUtr(utr), Nino(nino))
+    override lazy val cookie = cookieForUtrAndNino(SaUtr(utr), Nino(nino)).futureValue
 
     val `/upgrade-email-reminders` = new {
 
@@ -237,4 +238,5 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
       await(`/preferences-admin/sa/process-nino-determination`.post())
     }
   }
+
 }

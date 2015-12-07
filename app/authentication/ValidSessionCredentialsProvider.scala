@@ -1,23 +1,22 @@
 package authentication
 
-import play.api.Logger
 import play.api.mvc.{AnyContent, Request, Results}
-import uk.gov.hmrc.play.frontend.auth.{UserCredentials, AuthenticationProvider}
+import uk.gov.hmrc.play.frontend.auth._
 
 import scala.concurrent.Future
 
-object ValidSessionCredentialsProvider extends AuthenticationProvider with Results {
-  def id: String = "ValidSessionCredentials"
+object ValidSessionCredentialsProvider extends AnyAuthenticationProvider with Results {
 
-  def redirectToLogin(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]) =
-    Future.successful(Unauthorized)
-
-  def handleNotAuthenticated(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]) = {
-    case UserCredentials(None, token) =>
-      Logger.info(s"No userId found - unauthorized. user: None token : $token")
-      Future.successful(Right(Unauthorized))
-    case UserCredentials(Some(userId), None) =>
-      Logger.info(s"No token - unauthorized. user : $userId token : None")
-      Future.successful(Right(Unauthorized))
+  override def ggwAuthenticationProvider: GovernmentGateway = new GovernmentGateway {
+    override def login: String = throw new IllegalStateException("Should be no redirect to login")
+    override def redirectToLogin(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]) = Future.successful(Unauthorized)
   }
+
+  override def verifyAuthenticationProvider: Verify = new Verify {
+    override def login: String = throw new IllegalStateException("Should be no redirect to login")
+    override def redirectToLogin(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]) = Future.successful(Unauthorized)
+  }
+
+  override def redirectToLogin(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]) = Future.successful(Unauthorized)
+  override def login: String = throw new IllegalStateException("Should be no redirect to login")
 }

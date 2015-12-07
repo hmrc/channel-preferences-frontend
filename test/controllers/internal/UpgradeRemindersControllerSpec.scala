@@ -111,9 +111,9 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
   "the upgrade page" should {
 
     "redirect to supplied url when no preference found" in new UpgradeTestCase {
-      when(controller.preferencesConnector.getPreferences(is(utr), is(Some(nino)))(any())).thenReturn(Future.successful(None))
+      when(controller.preferencesConnector.getPreferences(is(utr))(any())).thenReturn(Future.successful(None))
 
-      val result = await(controller._renderUpgradePageIfPreferencesAvailable(utr, Some(nino), Encrypted("someUrl"))(testRequest))
+      val result = await(controller._renderUpgradePageIfPreferencesAvailable(utr, Encrypted("someUrl"))(testRequest))
 
       status(result) shouldBe 303
       header("Location", result).get should include("someUrl")

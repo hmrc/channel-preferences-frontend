@@ -1,5 +1,4 @@
 import org.scalatest.BeforeAndAfterEach
-import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.play.http.test.ResponseMatchers
 
 class PaperlessWarningPartialISpec
@@ -41,7 +40,6 @@ class PaperlessWarningPartialISpec
       val response = `/account/preferences/warnings`.withHeaders(cookie).get()
 
       response should have(status(200))
-      response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("true"))
       response.futureValue.body should include(s"Verify your email address for paperless notifications")
     }
 
@@ -52,7 +50,6 @@ class PaperlessWarningPartialISpec
       val response =`/paperless/warnings`.withHeaders(cookie).get()
 
       response should have(status(200))
-      response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("true"))
       response.futureValue.body should include(s"Verify your email address for paperless notifications")
     }
 
@@ -64,7 +61,6 @@ class PaperlessWarningPartialISpec
       val response =`/paperless/warnings`.withHeaders(cookie).get()
 
       response should have(status(200))
-      response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("true"))
       response.futureValue.body should be("")
     }
 
@@ -76,7 +72,6 @@ class PaperlessWarningPartialISpec
       val response =`/paperless/warnings`.withHeaders(cookie).get()
 
       response should have(status(200))
-      response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("false"))
       response.futureValue.body should be("")
     }
 
@@ -88,7 +83,6 @@ class PaperlessWarningPartialISpec
       val response =`/paperless/warnings`.withHeaders(cookie).get()
 
       response should have(status(200))
-      response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("true"))
       response.futureValue.body should include("Verify your email address for paperless notifications")
     }
 
@@ -111,7 +105,6 @@ class PaperlessWarningPartialISpec
       val response =`/paperless/warnings`.withHeaders(cookie).get()
 
       response should have(status(200))
-      response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("true"))
       response.futureValue.body should include("There's a problem with your paperless notification emails")
     }
 
@@ -124,7 +117,6 @@ class PaperlessWarningPartialISpec
       val response =`/paperless/warnings`.withHeaders(cookie).get()
 
       response should have(status(200))
-      response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("false"))
       response.futureValue.body should be("")
     }
 
@@ -137,7 +129,6 @@ class PaperlessWarningPartialISpec
       val response =`/paperless/warnings`.withHeaders(cookie).get()
 
       response should have(status(200))
-      response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("true"))
       response.futureValue.body should include("Verify your email address for paperless notifications")
     }
 
@@ -150,7 +141,6 @@ class PaperlessWarningPartialISpec
       val response =`/paperless/warnings`.withHeaders(cookie).get()
 
       response should have(status(200))
-      response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("true"))
       response.futureValue.body should include("Verify your email address for paperless notifications")
     }
 
@@ -214,7 +204,6 @@ class PaperlessWarningPartialISpec
       val response = `/paperless/warnings`.withHeaders(cookie).get()
 
       response should have(status(200))
-      response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("false"))
     }
   }
 
@@ -229,7 +218,6 @@ class PaperlessWarningPartialISpec
       val response = `/paperless/warnings`.withHeaders(cookie).get()
 
       response should have(status(200))
-      response.futureValue.allHeaders should contain("X-Opted-In-Email" -> Seq("true"))
       response.futureValue.body should include("There's a problem with your paperless notification emails")
     }
   }

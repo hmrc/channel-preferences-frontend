@@ -41,7 +41,7 @@ private object Dependencies {
     "uk.gov.hmrc"    %% "http-verbs-test"          % "0.1.0"     % "it",
     "uk.gov.hmrc"    %% "sa-e2e-test"              % "1.0"       % "it",
 
-    "uk.gov.hmrc"    %% "auth-test"                % "1.0.0"     % "test, it",
+    "uk.gov.hmrc"    %% "auth-test"                % "2.1.0"     % "test, it",
     "uk.gov.hmrc"    %% "hmrctest"                 % "1.4.0"     % "test, it",
     "org.jsoup"      %  "jsoup"                    % "1.8.3"     % "test, it",
     "org.pegdown"    %  "pegdown"                  % "1.4.2"     % "test, it",
