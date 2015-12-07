@@ -3,6 +3,9 @@ import java.net.URLEncoder
 import com.github.tomakehurst.wiremock.WireMockServer
 import org.openqa.selenium.WebDriver
 import org.scalatest.concurrent.ScalaFutures
+import play.api.http.HeaderNames
+import play.api.libs.ws.WS
+import play.api.mvc.{Session, Cookie, Cookies}
 import play.api.test.TestServer
 import uk.gov.hmrc.crypto.{PlainText, ApplicationCrypto}
 import uk.gov.hmrc.endtoend
@@ -49,8 +52,9 @@ class UpgradeBrowserSpec extends endtoend.sa.Spec with ScalaFutures with Browser
     scenario("Agree to upgrading") {
       Given("I am on the Upgrade Page")
 
-        val session = cookieFor(BearerToken("1234567890")).futureValue
-        addCookie(session._1, session._2)
+        val session = cookieFor(BearerToken("1234567890"), userId = "mo")
+        println(session)
+        addCookie(name = session._1, value = session._2)
 
         stubAuth()
 
@@ -80,10 +84,17 @@ class UpgradeBrowserSpec extends endtoend.sa.Spec with ScalaFutures with Browser
 }
 
 //TODO tidy up creating cookies
-trait BrowserSessionCookie extends FrontendCookieHelper {
-  def authResource(path: String) = ???
+trait BrowserSessionCookie {
 
-  override def userId(bearerToken: String) = Future.successful("mo")
+  def cookieFor(bearerToken: BearerToken, authProvider: String = "GGW", userId: String): (String, String) = {
+    val keyValues = Map(
+      "authToken" -> bearerToken.token,
+      "token" -> "system-assumes-valid-token",
+      "userId" -> userId,
+      "ap" -> authProvider
+    )
+    "mdtp" -> ApplicationCrypto.SessionCookieCrypto.encrypt(PlainText(Session.encode(keyValues))).value
+  }
 }
 
 // TODO: Tidy up into own set of suite classes
