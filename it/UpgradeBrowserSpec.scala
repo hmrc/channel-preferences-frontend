@@ -1,41 +1,16 @@
 import java.net.URLEncoder
 
-import com.github.tomakehurst.wiremock.WireMockServer
 import org.openqa.selenium.WebDriver
 import org.scalatest.concurrent.ScalaFutures
-import play.api.http.HeaderNames
-import play.api.libs.ws.WS
-import play.api.mvc.{Session, Cookie, Cookies}
-import play.api.test.TestServer
-import uk.gov.hmrc.crypto.{PlainText, ApplicationCrypto}
+import play.api.mvc.{Cookie, Cookies, Session}
+import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
 import uk.gov.hmrc.endtoend
 import uk.gov.hmrc.endtoend.sa.config.TestConfig
-//import uk.gov.hmrc.endtoend.sa.page.PreferencesFrontEnd.GenericUpgradePage._
-//import uk.gov.hmrc.endtoend.sa.page.PreferencesFrontEnd._
 import uk.gov.hmrc.endtoend.sa.page.{Page, PreferencesFrontendPage}
-import uk.gov.hmrc.test.it.{BearerToken, FrontendCookieHelper}
-import com.github.tomakehurst.wiremock.client.WireMock._
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
-
-import scala.concurrent.Future
+import uk.gov.hmrc.test.it.BearerToken
 
 //TODO rename Spec & package
-class UpgradeBrowserSpec extends endtoend.sa.Spec with ScalaFutures with BrowserSessionCookie with AuthenticationBaker {
-
-  val t = TestServer(9000)
-
-  override def beforeAll() = {
-    super.beforeAll()
-    t.start()
-
-    val wireMockServer = new WireMockServer(wireMockConfig().port(8080))
-    wireMockServer.start()
-  }
-
-  override def afterAll() = {
-    super.afterAll()
-    t.stop()
-  }
+class UpgradeBrowserSpec extends endtoend.sa.Spec with ScalaFutures with BrowserSessionCookie with Stubs with ServerSetup {
 
   implicit val testConfig = TestConfig(
     frontendBaseUrl = "http://localhost:9000",
@@ -50,19 +25,21 @@ class UpgradeBrowserSpec extends endtoend.sa.Spec with ScalaFutures with Browser
 
   feature("The generic upgrade page") {
     scenario("Agree to upgrading") {
+      val utr = "1111111111"
+
+      Given("I am logged in")
+        Auth.stubLoginPage(cookieFor(BearerToken("1234567890"), userId = "/auth/oid/1234567890"))
+        go to "http://localhost:8080/login"
+      Auth.stubAuth()
+
+      Given("I have my preferences set")
+        Preferences.stubPreference(utr)
+        Redirect.stubRedirectPage
+
       Given("I am on the Upgrade Page")
+        go to GenericUpgradePage
+        GenericUpgradePage should be (displayed)
 
-      val session = cookieFor(BearerToken("1234567890"), userId = "/auth/oid/1234567890")
-      stubLogin(Cookies.encode(Seq(Cookie(session._1, session._2))))
-
-      go to "http://localhost:8080/login"
-
-      stubAuth()
-      stubPreference("1111111111")
-      stubRedirectPage
-
-      go to GenericUpgradePage
-      GenericUpgradePage should be (displayed)
 
       When("I click 'Yes' and then 'Submit")
         click on GenericUpgradePage.`terms and conditions checkbox`
@@ -74,7 +51,7 @@ class UpgradeBrowserSpec extends endtoend.sa.Spec with ScalaFutures with Browser
 
 
       And("My T&Cs have been set to generic=accepted")
-        verifyTermsAndCondition("1111111111")
+        Preferences.verifyPostTermsAndCondition(utr, genericAccepted = true)
     }
   }
 }
@@ -101,77 +78,16 @@ object RedirectedPage extends Page {
 //TODO tidy up creating cookies
 trait BrowserSessionCookie {
 
-  def cookieFor(bearerToken: BearerToken, authProvider: String = "GGW", userId: String): (String, String) = {
+  def cookieFor(bearerToken: BearerToken, authProvider: String = "GGW", userId: String): Cookie = {
     val keyValues = Map(
       "authToken" -> bearerToken.token,
       "token" -> "system-assumes-valid-token",
       "userId" -> userId,
       "ap" -> authProvider
     )
-    "mdtp" -> ApplicationCrypto.SessionCookieCrypto.encrypt(PlainText(Session.encode(keyValues))).value
+    Cookie(name = "mdtp", value = ApplicationCrypto.SessionCookieCrypto.encrypt(PlainText(Session.encode(keyValues))).value)
   }
 }
 
-// TODO: Tidy up into own set of suite classes
-trait AuthenticationBaker {
-  // /preferences/sa/individual/$utr/print-suppression
-  def stubPreference(utr: String) = stubFor(get(urlEqualTo(s"/preferences/sa/individual/$utr/print-suppression"))
-    .willReturn(
-      aResponse()
-        .withStatus(200)
-        .withBody(
-          s"""
-             |{
-             |    "digital": true
-             |}
-            """.stripMargin
-        )))
 
-  def stubLogin(cookieValue: String) =
-    stubFor(get(urlEqualTo("/login"))
-      .willReturn(
-        aResponse()
-          .withHeader(HeaderNames.SET_COOKIE, cookieValue)
-          .withStatus(200)
-      ))
 
-  def stubAuth() =
-    stubFor(get(urlEqualTo("/auth/authority"))
-      .willReturn(
-        aResponse()
-          .withStatus(200)
-          .withBody(
-            s"""
-               |{
-               |    "uri": "/auth/oid/1234567890",
-               |    "loggedInAt": "2014-06-09T14:57:09.522Z",
-               |    "accounts": {
-               |       "sa": {
-               |        "link": "/sa/individual/1111111111",
-               |        "utr": "1111111111"
-               |       }
-               |    },
-               |    "levelOfAssurance": "2",
-               |    "confidenceLevel": 50
-               |}
-            """.stripMargin
-          )))
-
-  def stubRedirectPage = stubFor(get(urlEqualTo(s"/some/other/page"))
-    .willReturn(
-      aResponse()
-        .withStatus(200)
-        .withHeader("X-Title", "Redirected Page")
-        .withBody(
-          "<html><head><title>Redirected Page</title></head></html>"
-        )))
-
-  def verifyTermsAndCondition(utr: String) =
-    verify(postRequestedFor(urlEqualTo(s"/preferences/sa/individual/$utr/terms-and-conditions"))
-      .withRequestBody(equalToJson(
-        s"""{ "generic": {
-           |  "accepted": true
-           |  }
-           |}
-         """.stripMargin)))
-}
