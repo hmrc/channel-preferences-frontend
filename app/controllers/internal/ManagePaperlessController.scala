@@ -52,45 +52,6 @@ object ManagePaperlessController extends ManagePaperlessController with Services
   }
 }
 
-object DeprecatedYTAManagePaperlessController extends ManagePaperlessController with ServicesConfig with Authentication{
-  lazy val auditConnector = Global.auditConnector
-
-  val authConnector = Global.authConnector
-
-  lazy val emailConnector = EmailConnector
-  lazy val preferencesConnector = PreferencesConnector
-
-  implicit val hostContext = HostContext.defaultsForYtaManageAccountPages
-
-  def displayChangeEmailAddress(emailAddress: Option[Encrypted[EmailAddress]]) = authenticated.async { implicit authContext => implicit request =>
-    _displayChangeEmailAddress(emailAddress)
-  }
-
-  def submitChangeEmailAddress = authenticated.async { implicit authContext => implicit request =>
-    _submitChangeEmailAddress
-  }
-
-  def displayChangeEmailAddressConfirmed() = authenticated.async { implicit authContext => implicit request =>
-    _displayChangeEmailAddressConfirmed
-  }
-
-  def displayStopPaperless = authenticated.async { implicit authContext => implicit request =>
-    _displayStopPaperless
-  }
-
-  def submitStopPaperless = authenticated.async { implicit authContext => implicit request =>
-    _submitStopPaperless
-  }
-
-  def displayStopPaperlessConfirmed() = authenticated { implicit authContext => implicit request =>
-    _displayStopPaperlessConfirmed
-  }
-
-  def resendVerificationEmail = authenticated.async { implicit authContext => implicit request =>
-    _resendVerificationEmail
-  }
-}
-
 trait ManagePaperlessController
 extends FrontendController
 with Actions {

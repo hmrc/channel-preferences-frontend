@@ -21,42 +21,6 @@ import uk.gov.hmrc.play.http.HeaderCarrier
 
 import scala.concurrent.Future
 
-object DeprecatedYTAManageAccountChoosePaperlessController extends ChoosePaperlessController with ChoosePaperlessControllerDependencies {
-  implicit val hostContext = HostContext.defaultsForYtaManageAccountPages
-
-  def redirectToDisplayFormWithCohort(emailAddress: Option[Encrypted[EmailAddress]]) = authenticated { implicit authContext => implicit request =>
-    _redirectToDisplayFormWithCohort(emailAddress)
-  }
-
-  def displayForm(cohort: Option[OptInCohort], emailAddress: Option[Encrypted[EmailAddress]]) = authenticated.async { implicit user => implicit request =>
-    _displayForm(AccountDetails, emailAddress, cohort)
-  }
-
-  def submitForm() = authenticated.async { implicit user => implicit request =>
-    _submitForm(AccountDetails)
-  }
-
-  def displayNearlyDone(emailAddress: Option[Encrypted[EmailAddress]]) = authenticated { implicit authContext => implicit request =>
-    _displayNearlyDone(emailAddress)
-  }
-}
-
-object DeprecatedYTALoginChoosePaperlessController extends ChoosePaperlessController with ChoosePaperlessControllerDependencies {
-  implicit val hostContext = HostContext.defaultsForYtaLoginPages
-
-  def redirectToDisplayFormWithCohortIfNotOptedIn = authenticated.async { implicit user => implicit request =>
-    _redirectToDisplayFormWithCohortIfNotOptedIn
-  }
-
-  def displayFormIfNotOptedIn(implicit cohort: Option[OptInCohort]) = authenticated.async { implicit user => implicit request =>
-    _displayFormIfNotOptedIn
-  }
-
-  def submitForm() = authenticated.async { implicit user => implicit request =>
-    _submitForm(Interstitial)
-  }
-}
-
 object ChoosePaperlessController extends ChoosePaperlessController with ChoosePaperlessControllerDependencies {
 
   def redirectToDisplayFormWithCohort(implicit emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = authenticated { implicit authContext => implicit request =>

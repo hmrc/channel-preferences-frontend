@@ -1,6 +1,5 @@
 package controllers.internal
 
-import authentication.SaRegimeWithoutRedirection
 import config.Global
 import connectors._
 import controllers.Authentication
@@ -21,32 +20,6 @@ import uk.gov.hmrc.play.http.HeaderCarrier
 import views.html.sa.prefs.{upgrade_printing_preferences, upgrade_printing_preferences_thank_you}
 
 import scala.concurrent.Future
-
-object DeprecatedYTAUpgradeRemindersController extends UpgradeRemindersController {
-  override def authConnector = Global.authConnector
-  def preferencesConnector = PreferencesConnector
-
-  override def auditConnector: AuditConnector = Global.auditConnector
-
-  def displayUpgradeForm(encryptedReturnUrl: Encrypted[String]): Action[AnyContent] = AuthorisedFor(taxRegime = SaRegimeWithoutRedirection, pageVisibility = GGConfidence).async {
-    authContext => implicit request =>
-      _renderUpgradePageIfPreferencesAvailable(authContext.principal.accounts.sa.get.utr, encryptedReturnUrl)
-  }
-
-  def submitUpgrade(returnUrl: Encrypted[String]) = AuthorisedFor(taxRegime = SaRegimeWithoutRedirection, pageVisibility = GGConfidence).async { authContext => implicit request =>
-    _upgradePreferences(
-      returnUrl = returnUrl.decryptedValue,
-      utr = authContext.principal.accounts.sa.get.utr,
-      maybeNino = authContext.principal.accounts.paye.map(_.nino)
-    )
-  }
-
-  def displayUpgradeConfirmed(returnUrl: Encrypted[String]): Action[AnyContent] = AuthorisedFor(taxRegime = SaRegimeWithoutRedirection, pageVisibility = GGConfidence).async {
-    authContext => implicit request =>
-      _displayConfirm(returnUrl)
-  }
-
-}
 
 
 object UpgradeRemindersController extends UpgradeRemindersController with Authentication{
