@@ -60,8 +60,6 @@ trait PreferencesFrontEndServer extends ServiceSpec {
     val `/paperless/resend-verification-email` = urlWithHostContext("/paperless/resend-verification-email")
     val `/paperless/manage` = urlWithHostContext("/paperless/manage")
 
-    def `/account/account-details/sa/email-reminders-status` = WS.url(resource("/account/account-details/sa/email-reminders-status"))
-
     val payeFormTypeBody = Json.parse(s"""{"active":true}""")
 
     def `/preferences/paye/individual/:nino/activations/notice-of-coding`(nino: String, header: (String, String)) = new {
@@ -132,7 +130,6 @@ trait PreferencesFrontEndServer extends ServiceSpec {
     }
 
     def `/paperless/warnings` = urlWithHostContext("/paperless/warnings")()
-    def `/account/preferences/warnings` = urlWithHostContext("/account/preferences/warnings")()
   }
 
   trait TestCaseWithFrontEndAuthentication extends TestCase with FrontendCookieHelper {

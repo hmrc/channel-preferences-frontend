@@ -32,17 +32,6 @@ class PaperlessWarningPartialISpec
 
   "Paperless warnings partial for verification pending" should {
 
-    // FIXME remove when YTA no longer use these endpoints
-    "be supported on the deprecated URL" in new TestCase with TestCaseWithFrontEndAuthentication {
-      val email = uniqueEmail
-      `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
-
-      val response = `/account/preferences/warnings`.withHeaders(cookie).get()
-
-      response should have(status(200))
-      response.futureValue.body should include(s"Verify your email address for paperless notifications")
-    }
-
     "have a verification warning for the unverified email" in new TestCase with TestCaseWithFrontEndAuthentication {
       val email = uniqueEmail
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
