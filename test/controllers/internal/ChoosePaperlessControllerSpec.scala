@@ -5,7 +5,7 @@ import controllers.AuthorityUtils._
 import controllers.ExternalUrls
 import controllers.internal.EmailOptInJourney._
 import helpers.{TestFixtures, ConfigHelper}
-import model.Encrypted
+import model.{HostContext, Encrypted}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.mockito.ArgumentCaptor
@@ -76,7 +76,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
       val page = controller._redirectToDisplayFormWithCohortIfNotOptedIn(user, request, TestFixtures.sampleHostContext)
 
       status(page) shouldBe 303
-      header("Location", page).get should include(routes.DeprecatedYTALoginChoosePaperlessController.displayFormIfNotOptedIn(Some(assignedCohort)).url)
+      header("Location", page).get should include(routes.ChoosePaperlessController.displayForm(Some(assignedCohort), None, TestFixtures.sampleHostContext).url)
     }
 
     "redirect to login version page for the matching cohort if they are currently opted out" in new ChoosePaperlessControllerSetup {
@@ -86,7 +86,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
       val page = controller._redirectToDisplayFormWithCohortIfNotOptedIn(user, request, TestFixtures.sampleHostContext)
 
       status(page) shouldBe 303
-      header("Location", page).get should include(routes.DeprecatedYTALoginChoosePaperlessController.displayFormIfNotOptedIn(Some(assignedCohort)).url)
+      header("Location", page).get should include(routes.ChoosePaperlessController.displayForm(Some(assignedCohort), None, TestFixtures.sampleHostContext).url)
     }
 
   }

@@ -18,7 +18,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
       `/preferences/paye/individual/:nino/activations/notice-of-coding`(nino,authHeader).put().futureValue.status should be (412)
 
-      val response = `/upgrade-email-reminders`.post(optIn = true, acceptedTandC = Some(true)).futureValue
+      val response = `/paperless/upgrade`.post(optIn = true, acceptedTandC = Some(true)).futureValue
       response should have('status(303))
       response.header("Location").get should be (routes.UpgradeRemindersController.displayUpgradeConfirmed(Encrypted(returnUrl)).toString())
 
@@ -30,7 +30,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
       `/preferences/paye/individual/:nino/activations/notice-of-coding`(nino,authHeader).put().futureValue.status should be (412)
 
-      val response = `/upgrade-email-reminders`.post(optIn = true, acceptedTandC = Some(false)).futureValue
+      val response = `/paperless/upgrade`.post(optIn = true, acceptedTandC = Some(false)).futureValue
       response should have('status(400))
     }
 
@@ -39,7 +39,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
       `/preferences/paye/individual/:nino/activations/notice-of-coding`(nino,authHeader).put().futureValue.status should be (412)
 
-      val response = `/upgrade-email-reminders`.post(optIn = false, acceptedTandC = None).futureValue
+      val response = `/paperless/upgrade`.post(optIn = false, acceptedTandC = None).futureValue
       response should have('status(303))
       response.header("Location") should contain (returnUrl)
 
@@ -72,11 +72,11 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
       (activateResponse.json \ "redirectUserTo").as[JsString].value should include ("/paperless/upgrade")
 
-      val upgradeResponse = `/upgrade-email-reminders`.get().futureValue
+      val upgradeResponse = `/paperless/upgrade`.get().futureValue
       upgradeResponse.status should be (200)
       upgradeResponse.body should include ("Go paperless with HMRC")
 
-      val response = `/upgrade-email-reminders`.post(optIn = true, acceptedTandC = Some(true)).futureValue
+      val response = `/paperless/upgrade`.post(optIn = true, acceptedTandC = Some(true)).futureValue
       response should have('status(303))
       response.header("Location").get should be (routes.UpgradeRemindersController.displayUpgradeConfirmed(Encrypted(returnUrl)).toString())
 
@@ -93,11 +93,11 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
       (activateResponse.json \ "redirectUserTo").as[JsString].value should include ("/paperless/upgrade")
 
-      val upgradeResponse = `/upgrade-email-reminders`.get().futureValue
+      val upgradeResponse = `/paperless/upgrade`.get().futureValue
       upgradeResponse.status should be (200)
       upgradeResponse.body should include ("Go paperless with HMRC")
 
-      val response = `/upgrade-email-reminders`.post(optIn = true, acceptedTandC = Some(true)).futureValue
+      val response = `/paperless/upgrade`.post(optIn = true, acceptedTandC = Some(true)).futureValue
       response should have('status(303))
       response.header("Location").get should be (routes.UpgradeRemindersController.displayUpgradeConfirmed(Encrypted(returnUrl)).toString())
 
@@ -220,7 +220,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
     val authHeader =  createGGAuthorisationHeader(SaUtr(utr), Nino(nino))
     override lazy val cookie = cookieForUtrAndNino(SaUtr(utr), Nino(nino)).futureValue
 
-    val `/upgrade-email-reminders` = new {
+    val `/paperless/upgrade` = new {
 
       val url = WS.url(resource("/paperless/upgrade")).withQueryString("returnUrl" -> ApplicationCrypto.QueryParameterCrypto.encrypt(PlainText(returnUrl)).value)
 
