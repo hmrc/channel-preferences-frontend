@@ -121,8 +121,14 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
 
     "return an email address when there is an email preference" in {
       val preferenceConnector = preferencesConnector(_ => Future.successful(HttpResponse(200, Some(Json.parse(
-        """{
-          |  "email" : "a@b.com"
+        """
+          |{
+          |   "digital": true,
+          |   "email": {
+          |     "email": "a@b.com",
+          |     "status": "verified",
+          |     "mailboxFull": false
+          |   }
           |}
         """.stripMargin)))))
       preferenceConnector.getEmailAddress(SaUtr("1")).futureValue should be(Some("a@b.com"))

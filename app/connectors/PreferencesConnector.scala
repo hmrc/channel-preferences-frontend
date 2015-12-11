@@ -5,6 +5,7 @@ import play.api.Logger
 import play.api.http.Status
 import play.api.libs.json._
 import uk.gov.hmrc.domain.{Nino, SaUtr}
+import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import uk.gov.hmrc.play.http.{NotFoundException, _}
@@ -68,9 +69,11 @@ trait PreferencesConnector extends Status {
     }
   }
 
-  def getEmailAddress(utr: SaUtr)(implicit hc: HeaderCarrier) =
-    http.GET[Option[Email]](url(s"/portal/preferences/sa/individual/$utr/print-suppression/verified-email-address"))
-      .map(_.map(_.email))
+  def getEmailAddress(utr: SaUtr)(implicit hc: HeaderCarrier)  =
+    getPreferences(utr).map {
+      case Some(SaPreference(_, Some(email))) => Option(email.email)
+      case _ => None
+    }
 
   def updateEmailValidationStatusUnsecured(token: String)(implicit hc: HeaderCarrier): Future[EmailVerificationLinkResponse.Value] = {
     responseToEmailVerificationLinkStatus(http.POST(url("/preferences/sa/verify-email"), ValidateEmail(token)))
