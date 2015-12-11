@@ -79,14 +79,14 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
       header("Location", page).get should include(routes.ChoosePaperlessController.displayForm(Some(assignedCohort), None, TestFixtures.sampleHostContext).url)
     }
 
-    "redirect to login version page for the matching cohort if they are currently opted out" in new ChoosePaperlessControllerSetup {
+    "redirect to return URL for the matching cohort if they are currently opted out" in new ChoosePaperlessControllerSetup {
       val preferencesAlreadyCreated = SaPreference(false, None)
       when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Some(preferencesAlreadyCreated))
 
       val page = controller._redirectToDisplayFormWithCohortIfNotOptedIn(user, request, TestFixtures.sampleHostContext)
 
       status(page) shouldBe 303
-      header("Location", page).get should include(routes.ChoosePaperlessController.displayForm(Some(assignedCohort), None, TestFixtures.sampleHostContext).url)
+      header("Location", page).get should be (TestFixtures.sampleHostContext.returnUrl)
     }
 
   }
@@ -122,14 +122,13 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
       allGoPaperlessFormElementsArePresent(Jsoup.parse(contentAsString(page)))
     }
 
-    "render the form in the correct initial state when user is currently opted out" in new ChoosePaperlessControllerSetup {
+    "redirect to return URL the form when user is currently opted out" in new ChoosePaperlessControllerSetup {
       when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Some(SaPreference(false, None)))
 
       val page = controller._displayFormIfNotOptedIn(user, request, Some(assignedCohort), TestFixtures.sampleHostContext)
 
-      status(page) shouldBe 200
-
-      allGoPaperlessFormElementsArePresent(Jsoup.parse(contentAsString(page)))
+      status(page) shouldBe 303
+      header("Location", page).get should be (TestFixtures.sampleHostContext.returnUrl)
     }
 
     "audit the cohort information for IPage" in new ChoosePaperlessControllerSetup {

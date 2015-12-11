@@ -69,14 +69,14 @@ trait ChoosePaperlessController
     }
   }
 
-  private def userAlreadyOptedIn(implicit authContext: AuthContext, headerCarrier: HeaderCarrier) = preferencesConnector.getPreferences(authContext.principal.accounts.sa.get.utr).map {
-    case Some(saPreference) => saPreference.digital
+  private def userHasSelectedPreferences(implicit authContext: AuthContext, headerCarrier: HeaderCarrier) = preferencesConnector.getPreferences(authContext.principal.accounts.sa.get.utr).map {
+    case Some(saPreference) => true
     case Some(_) | None     => false
   }
 
 
   private[controllers] def _redirectToDisplayFormWithCohortIfNotOptedIn(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext) =
-    returnIf(userAlreadyOptedIn) otherwise {
+    returnIf(userHasSelectedPreferences) otherwise {
       Future.successful(Redirect(routes.ChoosePaperlessController.displayForm(cohort = Some(calculateCohort(authContext)), email = None, hostContext = hostContext)))
     }
 
@@ -84,7 +84,7 @@ trait ChoosePaperlessController
     Redirect(routes.ChoosePaperlessController.displayForm(Some(calculateCohort(authContext)), emailAddress, hostContext))
 
   private[controllers] def _displayFormIfNotOptedIn(implicit authContext: AuthContext, request: Request[AnyRef], possibleCohort: Option[OptInCohort], hostContext: HostContext) = {
-    returnIf(userAlreadyOptedIn) otherwise _displayForm(Interstitial, None, possibleCohort)
+    returnIf(userHasSelectedPreferences) otherwise _displayForm(Interstitial, None, possibleCohort)
   }
 
   private[controllers] def _displayForm(journey: Journey, emailAddress: Option[Encrypted[EmailAddress]], possibleCohort: Option[OptInCohort])(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext) = {
