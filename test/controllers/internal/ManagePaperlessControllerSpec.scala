@@ -1,6 +1,6 @@
 package controllers.internal
 
-import connectors.{EmailConnector, PreferencesConnector, SaEmailPreference, SaPreference}
+import connectors._
 import controllers.AuthorityUtils._
 import helpers.{TestFixtures, ConfigHelper}
 import model.Encrypted
@@ -305,7 +305,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar  {
       val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified)))
 
       when(mockPreferencesConnector.getPreferences(is(validUtr))(any())).thenReturn(Future.successful(Some(saPreferences)))
-      when(mockPreferencesConnector.savePreferences(is(validUtr), is(false), is(None))(any())).thenReturn(Future.successful(()))
+      when(mockPreferencesConnector.updateTermsAndConditions(is(validUtr), is(Generic -> TermsAccepted(false)), is(None))(any())).thenReturn(Future.successful(true))
 
       val result = Future.successful(controller._submitStopPaperless(user, request, TestFixtures.sampleHostContext))
 
@@ -313,7 +313,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar  {
       header("Location", result).get should include(routes.ManagePaperlessController.displayStopPaperlessConfirmed(TestFixtures.sampleHostContext).url)
       val page = Jsoup.parse(contentAsString(result))
 
-      verify(mockPreferencesConnector).savePreferences(is(validUtr), is(false), is(None))(any())
+      verify(mockPreferencesConnector).updateTermsAndConditions(is(validUtr), is(Generic -> TermsAccepted(false)), is(None)) (any())
     }
   }
 

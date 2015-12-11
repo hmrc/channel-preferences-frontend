@@ -89,7 +89,7 @@ trait ChoosePaperlessController
       val terms = Generic -> TermsAccepted(digital)
       for {
         _ <- preferencesConnector.saveCohort(utr, calculateCohort(authContext))
-        userCreated <- preferencesConnector.addTermsAndConditions(utr, terms, email)
+        userCreated <- preferencesConnector.updateTermsAndConditions(utr, terms, email)
       } yield {
         auditChoice(utr, journey, cohort, terms, email, userCreated)
         digital match {

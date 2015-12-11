@@ -76,18 +76,10 @@ trait PreferencesConnector extends Status {
     responseToEmailVerificationLinkStatus(http.POST(url("/preferences/sa/verify-email"), ValidateEmail(token)))
   }
 
-  def addTermsAndConditions(utr: SaUtr, termsAccepted: (TermsType, TermsAccepted), email: Option[String]) (implicit hc: HeaderCarrier): Future[Boolean] = {
+  def updateTermsAndConditions(utr: SaUtr, termsAccepted: (TermsType, TermsAccepted), email: Option[String]) (implicit hc: HeaderCarrier): Future[Boolean] = {
     http.POST(url(s"/preferences/sa/individual/$utr/terms-and-conditions"), PreferencesConnector.TermsAndConditionsUpdate.from(termsAccepted, email)).map(_ => true).recover {
       case e =>
         Logger.error("Unable to save upgraded terms and conditions", e)
-        false
-    }
-  }
-
-  def activateUser(utr: SaUtr, returnUrl: String = "") (implicit hc: HeaderCarrier): Future[Boolean] = {
-    http.PUT(url(s"/preferences/sa/individual/$utr/activations/sa-all?returnUrl=$returnUrl"), PreferencesConnector.ActivationStatus(true)).map(_ => true).recover {
-      case e =>
-        Logger.error("Unable to activate new user", e)
         false
     }
   }

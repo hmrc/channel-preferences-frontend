@@ -1,7 +1,7 @@
 package controllers.internal
 
 import config.Global
-import connectors.{EmailConnector, PreferencesConnector, SaPreference}
+import connectors._
 import controllers.AuthContextAvailability._
 import controllers.Authentication
 import model.{Encrypted, HostContext}
@@ -66,7 +66,7 @@ with Actions {
   }
 
   private[controllers] def _submitStopPaperless(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Future[Result] = {
-    preferencesConnector.savePreferences(authContext.principal.accounts.sa.get.utr, false, None).map(_ =>
+    preferencesConnector.updateTermsAndConditions(authContext.principal.accounts.sa.get.utr, (Generic, TermsAccepted(false)), email = None).map(_ =>
       Redirect(routes.ManagePaperlessController.displayStopPaperlessConfirmed(hostContext))
     )
   }

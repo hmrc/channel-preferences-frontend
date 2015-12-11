@@ -89,7 +89,7 @@ trait UpgradeRemindersController extends FrontendController with Actions with Ap
   }
 
   private[controllers] def upgradePaperless(utr: SaUtr, nino: Option[Nino], termsAccepted: (TermsType, TermsAccepted))(implicit request: Request[AnyContent], hc: HeaderCarrier) : Future[Boolean] =
-    preferencesConnector.addTermsAndConditions(utr, termsAccepted, email = None).map { success =>
+    preferencesConnector.updateTermsAndConditions(utr, termsAccepted, email = None).map { success =>
       if (success) auditChoice(utr, nino, termsAccepted)
       success
     }
