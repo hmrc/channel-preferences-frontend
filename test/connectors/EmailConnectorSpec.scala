@@ -25,6 +25,10 @@ class EmailConnectorSpec extends UnitSpec with ScalaFutures {
       connector.isValid(exampleEmailAddress).futureValue shouldBe false
     }
 
+    "returns false if service unavailable" in new ServiceDownTestCase {
+      connector.isValid(exampleEmailAddress).futureValue shouldBe false
+    }
+
     trait TestCase {
       def responseFromEmailService: HttpResponse
       val connector = new EmailConnector with HttpAuditing {
@@ -40,6 +44,22 @@ class EmailConnectorSpec extends UnitSpec with ScalaFutures {
       }
 
       val exampleEmailAddress = "bob@somewhere.com"
+    }
+
+    trait ServiceDownTestCase extends TestCase {
+      def responseFromEmailService = ???
+      override val connector = new EmailConnector with HttpAuditing {
+        protected def serviceUrl = "http://email.service:80"
+
+        protected def doGet(url: String)(implicit hc: HeaderCarrier) = {
+          Future.failed(new Exception("Service down"))
+        }
+
+        val hooks: Seq[HttpHook] = Seq(AuditingHook)
+
+        def auditConnector = ???
+      }
+
     }
   }
 }
