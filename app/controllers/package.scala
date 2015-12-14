@@ -5,7 +5,7 @@ package object controllers {
 
   trait Authentication extends Actions {
     def authenticated =
-      AuthenticatedBy(ValidSessionCredentialsProvider, redirectToOrigin = false, pageVisibility = GGConfidence)
+      AuthenticatedBy(ValidSessionCredentialsProvider, pageVisibility = GGConfidence)
   }
 
 }

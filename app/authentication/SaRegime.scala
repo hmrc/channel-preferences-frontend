@@ -26,10 +26,10 @@ object SaRegimeWithoutRedirection extends TaxRegime with Results {
 
     lazy val login: String = throw new IllegalStateException("Should be no redirect to login")
 
-    def redirectToLogin(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]) =
+    def redirectToLogin (implicit request: Request[_]) =
       Future.successful(Unauthorized)
 
-    def handleNotAuthenticated(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]) = {
+    def handleNotAuthenticated (implicit request: Request[_]) = {
       case UserCredentials(None, token) =>
         Logger.info(s"No userId found - unauthorized. user: None token : $token")
         Future.successful(Right(Unauthorized))

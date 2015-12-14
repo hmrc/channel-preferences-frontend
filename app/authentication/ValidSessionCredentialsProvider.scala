@@ -9,14 +9,14 @@ object ValidSessionCredentialsProvider extends AnyAuthenticationProvider with Re
 
   override def ggwAuthenticationProvider: GovernmentGateway = new GovernmentGateway {
     override def login: String = throw new IllegalStateException("Should be no redirect to login")
-    override def redirectToLogin(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]) = Future.successful(Unauthorized)
+    override def redirectToLogin(implicit request: Request[_]) = Future.successful(Unauthorized)
   }
 
   override def verifyAuthenticationProvider: Verify = new Verify {
     override def login: String = throw new IllegalStateException("Should be no redirect to login")
-    override def redirectToLogin(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]) = Future.successful(Unauthorized)
+    override def redirectToLogin(implicit request: Request[_]) = Future.successful(Unauthorized)
   }
 
-  override def redirectToLogin(redirectToOrigin: Boolean)(implicit request: Request[AnyContent]) = Future.successful(Unauthorized)
+  override def redirectToLogin(implicit request: Request[_]) = Future.successful(Unauthorized)
   override def login: String = throw new IllegalStateException("Should be no redirect to login")
 }
