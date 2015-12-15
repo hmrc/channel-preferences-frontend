@@ -2,12 +2,12 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.http.HeaderNames
 import play.api.mvc.{Session, Cookie, Cookies}
 import uk.gov.hmrc.crypto.{PlainText, ApplicationCrypto}
-import uk.gov.hmrc.endtoend.sa.Page
+import uk.gov.hmrc.endtoend.sa.{ToAbsoluteUrl, Page}
 import uk.gov.hmrc.endtoend.sa.config.UserWithUtr
 import uk.gov.hmrc.test.it.BearerToken
 
 
-object Stub {
+object Stubs {
   object Preferences {
     def `GET /preferences/sa/individual/<utr>/print-suppression`(implicit user: UserWithUtr) =
       get(urlEqualTo(s"/preferences/sa/individual/${user.utr}/print-suppression"))
@@ -80,4 +80,6 @@ object Stub {
 
     override def toString() = name
   }
+
+  implicit def stubbedUrls[T <: Stubs.StubbedPage] = ToAbsoluteUrl.fromRelativeUrl[T](host = "localhost", port = 8080)
 }
