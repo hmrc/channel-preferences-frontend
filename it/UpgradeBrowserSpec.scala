@@ -6,24 +6,24 @@ import org.scalatest.concurrent.ScalaFutures
 import play.api.mvc.{Cookie, Session}
 import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
 import uk.gov.hmrc.endtoend
+import uk.gov.hmrc.endtoend.sa.config.UserWithUtr
 import uk.gov.hmrc.endtoend.sa.{Page, RelativeUrl, ToAbsoluteUrl}
 import uk.gov.hmrc.test.it.BearerToken
 
 //TODO rename Spec & package
-class UpgradeBrowserSpec extends endtoend.sa.Spec with ScalaFutures with BrowserSessionCookie with ServerSetup {
+class UpgradeBrowserSpec extends endtoend.sa.Spec with ScalaFutures with ServerSetup {
   implicit def internalPageUrls[T <: InternalPage] = ToAbsoluteUrl.fromRelativeUrl[T](host = "localhost", port = 9000)
-  implicit def stubbedUrls[T <: Stubbed with RelativeUrl] = ToAbsoluteUrl.fromRelativeUrl[T](host = "localhost", port = 8080)
+  implicit def stubbedUrls[T <: Stub.StubbedPage] = ToAbsoluteUrl.fromRelativeUrl[T](host = "localhost", port = 8080)
+  implicit val user = new UserWithUtr { val utr = "1111111111" }
 
   feature("The generic upgrade page") {
     scenario("Agree to upgrading") {
-      val utr = "1111111111"
-
       Given("I am logged in")
-        go to Stub.Auth.loginPage(cookieFor(BearerToken("1234567890"), userId = "/auth/oid/1234567890"))
+        go to Stub.Auth.loginPage
         givenThat (Stub.Auth.`GET /auth/authority` willReturn (aResponse withStatus 200 withBody Stub.Auth.authorityRecordJson))
 
       And("I have my preferences set")
-        givenThat (Stub.Preferences.`GET /preferences/sa/individual/<utr>/print-suppression`(utr) willReturn (
+        givenThat (Stub.Preferences.`GET /preferences/sa/individual/<utr>/print-suppression` willReturn (
           aResponse withStatus 200 withBody Stub.Preferences.optedInPreferenceJson
         ))
 
@@ -40,15 +40,12 @@ class UpgradeBrowserSpec extends endtoend.sa.Spec with ScalaFutures with Browser
         Stub.Host.ReturnPage should be (displayed)
 
       And("My T&Cs have been set to generic=accepted")
-        verify(Stub.Preferences.`POST /preferences/sa/individual/<utr>/terms-and-conditions`(utr)(
-          genericAccepted = true
-        ))
+        verify(Stub.Preferences.`POST /preferences/sa/individual/<utr>/terms-and-conditions`(genericAccepted = true))
     }
   }
 }
 
 trait InternalPage extends Page
-trait Stubbed
 
 object GenericUpgradePage {
   def apply[T](returnUrl: T)(implicit toAbsoluteUrl: ToAbsoluteUrl[T]) = new InternalPage {
@@ -61,19 +58,5 @@ object GenericUpgradePage {
     def `no ask me later radio button`(implicit driver: WebDriver) = radioButton("opt-in-out").underlying
     def `yes continue electronic comms radio button`(implicit driver: WebDriver) = radioButton("opt-in-in").underlying
     def continue(implicit driver: WebDriver) = id("submitUpgrade")
-  }
-}
-
-//TODO tidy up creating cookies
-trait BrowserSessionCookie {
-
-  def cookieFor(bearerToken: BearerToken, authProvider: String = "GGW", userId: String): Cookie = {
-    val keyValues = Map(
-      "authToken" -> bearerToken.token,
-      "token" -> "system-assumes-valid-token",
-      "userId" -> userId,
-      "ap" -> authProvider
-    )
-    Cookie(name = "mdtp", value = ApplicationCrypto.SessionCookieCrypto.encrypt(PlainText(Session.encode(keyValues))).value)
   }
 }
