@@ -1,7 +1,7 @@
 package controllers.internal
 
 import config.Global
-import connectors.{EmailConnector, PreferencesConnector, SaPreference}
+import connectors._
 import controllers.AuthContextAvailability._
 import controllers.Authentication
 import model.{Encrypted, HostContext}
@@ -52,45 +52,6 @@ object ManagePaperlessController extends ManagePaperlessController with Services
   }
 }
 
-object DeprecatedYTAManagePaperlessController extends ManagePaperlessController with ServicesConfig with Authentication{
-  lazy val auditConnector = Global.auditConnector
-
-  val authConnector = Global.authConnector
-
-  lazy val emailConnector = EmailConnector
-  lazy val preferencesConnector = PreferencesConnector
-
-  implicit val hostContext = HostContext.defaultsForYtaManageAccountPages
-
-  def displayChangeEmailAddress(emailAddress: Option[Encrypted[EmailAddress]]) = authenticated.async { implicit authContext => implicit request =>
-    _displayChangeEmailAddress(emailAddress)
-  }
-
-  def submitChangeEmailAddress = authenticated.async { implicit authContext => implicit request =>
-    _submitChangeEmailAddress
-  }
-
-  def displayChangeEmailAddressConfirmed() = authenticated.async { implicit authContext => implicit request =>
-    _displayChangeEmailAddressConfirmed
-  }
-
-  def displayStopPaperless = authenticated.async { implicit authContext => implicit request =>
-    _displayStopPaperless
-  }
-
-  def submitStopPaperless = authenticated.async { implicit authContext => implicit request =>
-    _submitStopPaperless
-  }
-
-  def displayStopPaperlessConfirmed() = authenticated { implicit authContext => implicit request =>
-    _displayStopPaperlessConfirmed
-  }
-
-  def resendVerificationEmail = authenticated.async { implicit authContext => implicit request =>
-    _resendVerificationEmail
-  }
-}
-
 trait ManagePaperlessController
 extends FrontendController
 with Actions {
@@ -105,7 +66,7 @@ with Actions {
   }
 
   private[controllers] def _submitStopPaperless(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Future[Result] = {
-    preferencesConnector.savePreferences(authContext.principal.accounts.sa.get.utr, false, None).map(_ =>
+    preferencesConnector.updateTermsAndConditions(authContext.principal.accounts.sa.get.utr, (Generic, TermsAccepted(false)), email = None).map(_ =>
       Redirect(routes.ManagePaperlessController.displayStopPaperlessConfirmed(hostContext))
     )
   }

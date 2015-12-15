@@ -21,32 +21,6 @@ import views.html.sa.prefs.{upgrade_printing_preferences, upgrade_printing_prefe
 
 import scala.concurrent.Future
 
-object DeprecatedYTAUpgradeRemindersController extends UpgradeRemindersController with Authentication {
-  override def authConnector = Global.authConnector
-  def preferencesConnector = PreferencesConnector
-
-  override def auditConnector: AuditConnector = Global.auditConnector
-
-  def displayUpgradeForm(encryptedReturnUrl: Encrypted[String]): Action[AnyContent] = authenticated.async {
-    authContext => implicit request =>
-      _renderUpgradePageIfPreferencesAvailable(authContext.principal.accounts.sa.get.utr, encryptedReturnUrl)
-  }
-
-  def submitUpgrade(returnUrl: Encrypted[String]) = authenticated.async { authContext => implicit request =>
-    _upgradePreferences(
-      returnUrl = returnUrl.decryptedValue,
-      utr = authContext.principal.accounts.sa.get.utr,
-      maybeNino = authContext.principal.accounts.paye.map(_.nino)
-    )
-  }
-
-  def displayUpgradeConfirmed(returnUrl: Encrypted[String]): Action[AnyContent] = authenticated.async {
-    authContext => implicit request =>
-      _displayConfirm(returnUrl)
-  }
-
-}
-
 
 object UpgradeRemindersController extends UpgradeRemindersController with Authentication{
   override def authConnector = Global.authConnector
@@ -115,7 +89,7 @@ trait UpgradeRemindersController extends FrontendController with Actions with Ap
   }
 
   private[controllers] def upgradePaperless(utr: SaUtr, nino: Option[Nino], termsAccepted: (TermsType, TermsAccepted))(implicit request: Request[AnyContent], hc: HeaderCarrier) : Future[Boolean] =
-    preferencesConnector.addTermsAndConditions(utr, termsAccepted, email = None).map { success =>
+    preferencesConnector.updateTermsAndConditions(utr, termsAccepted, email = None).map { success =>
       if (success) auditChoice(utr, nino, termsAccepted)
       success
     }

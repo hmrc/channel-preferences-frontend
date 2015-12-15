@@ -15,17 +15,6 @@ object PaperlessPartialController extends PaperlessPartialController {
   lazy val preferencesConnector = PreferencesConnector
 }
 
-// FIXME remove when YTA no longer use these endpoints
-object PaperlessPartialsForDeprecatedYTAEndpointsController extends PaperlessPartialController {
-  lazy val auditConnector = Global.auditConnector
-  lazy val authConnector = Global.authConnector
-  lazy val preferencesConnector = PreferencesConnector
-
-  val displayManagePaperlessPartial: Action[AnyContent] = displayManagePaperlessPartial(HostContext.defaultsForYtaManageAccountPages)
-
-  val displayPaperlessWarningsPartial: Action[AnyContent] = displayPaperlessWarningsPartial(HostContext.defaultsForYtaWarningsPartial)
-}
-
 trait PaperlessPartialController
   extends FrontendController
   with Authentication {
