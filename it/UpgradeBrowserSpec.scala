@@ -1,78 +1,67 @@
 import java.net.URLEncoder
 
+import com.github.tomakehurst.wiremock.client.WireMock._
 import org.openqa.selenium.WebDriver
 import org.scalatest.concurrent.ScalaFutures
-import play.api.mvc.{Cookie, Cookies, Session}
+import play.api.mvc.{Cookie, Session}
 import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
 import uk.gov.hmrc.endtoend
-import uk.gov.hmrc.endtoend.sa.config.TestConfig
-import uk.gov.hmrc.endtoend.sa.page.{Page, PreferencesFrontendPage}
+import uk.gov.hmrc.endtoend.sa.{Page, RelativeUrl, ToAbsoluteUrl}
 import uk.gov.hmrc.test.it.BearerToken
 
 //TODO rename Spec & package
-class UpgradeBrowserSpec extends endtoend.sa.Spec with ScalaFutures with BrowserSessionCookie with Stubs with ServerSetup {
-
-  implicit val testConfig = TestConfig(
-    frontendBaseUrl = "http://localhost:9000",
-    requiresPort = false,
-    //TODO remove all of the following args
-    saUser = null,
-    nonSAUser = null,
-    ninoUser = null,
-    apiBaseUrl = "",
-    mailgunBaseUrl = ""
-  )
+class UpgradeBrowserSpec extends endtoend.sa.Spec with ScalaFutures with BrowserSessionCookie with ServerSetup {
+  implicit def internalPageUrls[T <: InternalPage] = ToAbsoluteUrl.fromRelativeUrl[T](host = "localhost", port = 9000)
+  implicit def stubbedUrls[T <: Stubbed with RelativeUrl] = ToAbsoluteUrl.fromRelativeUrl[T](host = "localhost", port = 8080)
 
   feature("The generic upgrade page") {
     scenario("Agree to upgrading") {
       val utr = "1111111111"
 
       Given("I am logged in")
-        Auth.stubLoginPage(cookieFor(BearerToken("1234567890"), userId = "/auth/oid/1234567890"))
-        go to "http://localhost:8080/login"
-      Auth.stubAuth()
+        go to Stub.Auth.loginPage(cookieFor(BearerToken("1234567890"), userId = "/auth/oid/1234567890"))
+        givenThat (Stub.Auth.`GET /auth/authority` willReturn (aResponse withStatus 200 withBody Stub.Auth.authorityRecordJson))
 
-      Given("I have my preferences set")
-        Preferences.stubPreference(utr)
-        Redirect.stubRedirectPage
+      And("I have my preferences set")
+        givenThat (Stub.Preferences.`GET /preferences/sa/individual/<utr>/print-suppression`(utr) willReturn (
+          aResponse withStatus 200 withBody Stub.Preferences.optedInPreferenceJson
+        ))
 
-      Given("I am on the Upgrade Page")
-        go to GenericUpgradePage
-        GenericUpgradePage should be (displayed)
-
+      And("I am on the Upgrade Page")
+        val upgradePage = GenericUpgradePage(returnUrl = Stub.Host.ReturnPage)
+        go to upgradePage
+        upgradePage should be (displayed)
 
       When("I click 'Yes' and then 'Submit")
-        click on GenericUpgradePage.`terms and conditions checkbox`
-        click on GenericUpgradePage.`continue`
-
+        click on upgradePage.`terms and conditions checkbox`
+        click on upgradePage.`continue`
 
       Then("I am taken back to the return page")
-        RedirectedPage should be (displayed)
-
+        Stub.Host.ReturnPage should be (displayed)
 
       And("My T&Cs have been set to generic=accepted")
-        Preferences.verifyPostTermsAndCondition(utr, genericAccepted = true)
+        verify(Stub.Preferences.`POST /preferences/sa/individual/<utr>/terms-and-conditions`(utr)(
+          genericAccepted = true
+        ))
     }
   }
 }
 
-object GenericUpgradePage extends PreferencesFrontendPage {
-  val title = "Go paperless with HMRC"
-  def relativeUrl(implicit testConfig: TestConfig) = "account/account-details/sa/upgrade-email-reminders?returnUrl=" +
-    URLEncoder.encode(ApplicationCrypto.QueryParameterCrypto.encrypt(PlainText("http://localhost:8080/some/other/page")).value, "utf8")
+trait InternalPage extends Page
+trait Stubbed
 
-  def `terms and conditions checkbox`(implicit driver: WebDriver) =              checkbox("accept-tc").underlying
-  def `no ask me later radio button`(implicit driver: WebDriver) =               radioButton("opt-in-out").underlying
-  def `yes continue electronic comms radio button`(implicit driver: WebDriver) = radioButton("opt-in-in").underlying
-  def continue(implicit driver: WebDriver) =                                     id("submitUpgrade")
-}
+object GenericUpgradePage {
+  def apply[T](returnUrl: T)(implicit toAbsoluteUrl: ToAbsoluteUrl[T]) = new InternalPage {
+    val title = "Go paperless with HMRC"
 
-object RedirectedPage extends Page {
-  val title = "Redirected Page"
+    def relativeUrl = "account/account-details/sa/upgrade-email-reminders?returnUrl=" +
+      URLEncoder.encode(ApplicationCrypto.QueryParameterCrypto.encrypt(PlainText(toAbsoluteUrl.absoluteUrl(returnUrl))).value, "utf8")
 
-  def relativeUrl(implicit testConfig: TestConfig) = "/some/other/page"
-
-  def port = 8080
+    def `terms and conditions checkbox`(implicit driver: WebDriver) = checkbox("accept-tc").underlying
+    def `no ask me later radio button`(implicit driver: WebDriver) = radioButton("opt-in-out").underlying
+    def `yes continue electronic comms radio button`(implicit driver: WebDriver) = radioButton("opt-in-in").underlying
+    def continue(implicit driver: WebDriver) = id("submitUpgrade")
+  }
 }
 
 //TODO tidy up creating cookies
@@ -88,6 +77,3 @@ trait BrowserSessionCookie {
     Cookie(name = "mdtp", value = ApplicationCrypto.SessionCookieCrypto.encrypt(PlainText(Session.encode(keyValues))).value)
   }
 }
-
-
-

@@ -1,5 +1,6 @@
 import play.PlayImport.PlayKeys._
 import play.PlayImport._
+import sbt.Keys._
 import sbt._
 
 import scala.util.Properties._
@@ -39,8 +40,8 @@ private object Dependencies {
     "org.mockito"             %  "mockito-all"              % "1.10.19"   % "test",
 
     "uk.gov.hmrc"             %% "http-verbs-test"          % "0.1.0"     % "it",
-    "uk.gov.hmrc"             %% "sa-e2e-test"              % "1.0"       % "it",
-    "com.github.tomakehurst"  % "wiremock"  % "1.58"        % "it",
+    "uk.gov.hmrc"             %% "browser-test"             % "0.1"       % "it",
+    "com.github.tomakehurst"  %  "wiremock"                 % "1.58"      % "it",
 
     "uk.gov.hmrc"             %% "auth-test"                % "2.1.0"     % "test, it",
     "uk.gov.hmrc"             %% "hmrctest"                 % "1.4.0"     % "test, it",
