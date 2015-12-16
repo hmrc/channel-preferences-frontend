@@ -69,11 +69,9 @@ trait PreferencesConnector extends Status {
     }
   }
 
-  def getEmailAddress(utr: SaUtr)(implicit hc: HeaderCarrier)  =
-    getPreferences(utr).map {
-      case Some(SaPreference(_, Some(email))) => Option(email.email)
-      case _ => None
-    }
+  def getEmailAddress(utr: SaUtr)(implicit hc: HeaderCarrier) =
+    http.GET[Option[Email]](url(s"/portal/preferences/sa/individual/$utr/print-suppression/verified-email-address"))
+      .map(_.map(_.email))
 
   def updateEmailValidationStatusUnsecured(token: String)(implicit hc: HeaderCarrier): Future[EmailVerificationLinkResponse.Value] = {
     responseToEmailVerificationLinkStatus(http.POST(url("/preferences/sa/verify-email"), ValidateEmail(token)))
