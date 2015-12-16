@@ -80,7 +80,7 @@ trait PreferencesConnector extends Status {
   def updateTermsAndConditions(utr: SaUtr, termsAccepted: (TermsType, TermsAccepted), email: Option[String]) (implicit hc: HeaderCarrier): Future[Boolean] = {
     http.POST(url(s"/preferences/sa/individual/$utr/terms-and-conditions"), PreferencesConnector.TermsAndConditionsUpdate.from(termsAccepted, email)).map(_ => true).recover {
       case e =>
-        Logger.error("Unable to save upgraded terms and conditions", e)
+        Logger.error("Unabl to save upgraded terms and conditions", e)
         false
     }
   }
