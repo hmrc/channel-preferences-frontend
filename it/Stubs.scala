@@ -55,7 +55,8 @@ object Stubs {
                 }
              },
              "levelOfAssurance": "2",
-             "confidenceLevel": 50
+             "confidenceLevel": 50,
+             "credentialStrength": "weak"
          }"""
   }
 

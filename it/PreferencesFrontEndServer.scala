@@ -64,24 +64,22 @@ trait PreferencesFrontEndServer extends ServiceSpec {
     val `/paperless/resend-verification-email` = urlWithHostContext("/paperless/resend-verification-email")
     val `/paperless/manage` = urlWithHostContext("/paperless/manage")
 
-    def `/account/account-details/sa/email-reminders-status` = WS.url(resource("/account/account-details/sa/email-reminders-status"))
-
     val payeFormTypeBody = Json.parse(s"""{"active":true}""")
 
-    def `/preferences/paye/individual/:nino/activations/paye`(nino: String, header: (String, String)) = new {
+    def `/preferences/paye/individual/:nino/activations/notice-of-coding`(nino: String, header: (String, String)) = new {
 
-      def put() = WS.url(server.externalResource("preferences", s"/preferences/paye/individual/$nino/activations/paye")).withQueryString("returnUrl" -> "/some/return/url")
+      def put() = WS.url(server.externalResource("preferences", s"/preferences/paye/individual/$nino/activations/notice-of-coding")).withQueryString("returnUrl" -> "/some/return/url")
         .withHeaders(header)
         .put(payeFormTypeBody)
-
-      val resource = WS.url(server.externalResource("preferences", s"/preferences/paye/individual/$nino/activations/paye"))
     }
 
-    def `/preferences/sa/individual/:utr/activations`(utr: String, header: (String, String)) = new {
+    def `/preferences/sa/individual/:utr/activations/sa-all`(utr: String, header: (String, String)) = new {
       def put() =
-        WS.url(server.externalResource("preferences", s"/preferences/sa/individual/$utr/activations"))
+        WS.url(server.externalResource("preferences", s"/preferences/sa/individual/$utr/activations/sa-all"))
           .withHeaders(header)
-          .withQueryString("returnUrl" -> "/some/return/url").put(payeFormTypeBody)
+          .withQueryString("returnUrl" -> "/some/return/url")
+          .withQueryString("returnLinkText" -> "Go-somewhere")
+          .put(payeFormTypeBody)
     }
 
     val `/portal/preferences/sa/individual` = new {
@@ -136,7 +134,6 @@ trait PreferencesFrontEndServer extends ServiceSpec {
     }
 
     def `/paperless/warnings` = urlWithHostContext("/paperless/warnings")()
-    def `/account/preferences/warnings` = urlWithHostContext("/account/preferences/warnings")()
   }
 
   trait TestCaseWithFrontEndAuthentication extends TestCase with FrontendCookieHelper {

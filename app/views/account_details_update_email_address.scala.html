@@ -1,5 +1,6 @@
 @(currentEmail : String, emailForm: Form[_])(implicit context: Option[uk.gov.hmrc.play.frontend.auth.AuthContext], request: Request[_], hostContext: model.HostContext)
 
+@import uk.gov.hmrc.urls.Link
 @import uk.gov.hmrc.play.views.html.helpers._
 
 @main_with_headers(title = "Change your email address") {
@@ -30,7 +31,7 @@
 
         <div class="form-field">
             <button id="submit-email-button" class="button" type="submit">Change email address</button>
+            <p>@Link.toInternalPage(id = Some("cancel-link"), url = hostContext.returnUrl, value = Some("Cancel")).toHtml</p>
         </div>
-
     }
 }

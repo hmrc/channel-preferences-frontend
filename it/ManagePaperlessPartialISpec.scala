@@ -23,17 +23,6 @@ class ManagePaperlessPartialISpec
         not include "You need to verify"
       )
     }
-
-    // FIXME remove when YTA no longer use these endpoints
-    "be supported on the deprecated URL" in new TestCaseWithFrontEndAuthentication {
-      private val request = `/account/account-details/sa/email-reminders-status`.withHeaders(cookie)
-      val response = request.get()
-      response should have(status(200))
-      response.futureValue.body should (
-        include("Sign up for paperless notifications") and
-        not include "You need to verify"
-      )
-    }
   }
 
   "Manage Paperless partial for pending verification" should {

@@ -188,20 +188,20 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
     "send accepted true and return true if terms and conditions are accepted and updated" in new PayloadCheck {
       override val expectedPayload = TermsAndConditionsUpdate(TermsAccepted(true), email = None)
 
-      connector.addTermsAndConditions(SaUtr("testing"), Generic -> TermsAccepted(true), email = None).futureValue should be (true)
+      connector.updateTermsAndConditions(SaUtr("testing"), Generic -> TermsAccepted(true), email = None).futureValue should be (true)
     }
 
     "send accepted false and return true if terms and conditions are not accepted and updated" in new PayloadCheck {
       override val expectedPayload = TermsAndConditionsUpdate(TermsAccepted(false), email = None)
 
-      connector.addTermsAndConditions(SaUtr("testing"), Generic -> TermsAccepted(false), email = None).futureValue should be (true)
+      connector.updateTermsAndConditions(SaUtr("testing"), Generic -> TermsAccepted(false), email = None).futureValue should be (true)
     }
 
     "return false if any problems" in new PayloadCheck {
       override val status = 401
       override val expectedPayload = TermsAndConditionsUpdate(TermsAccepted(true), email = None)
 
-      connector.addTermsAndConditions(SaUtr("testing"), Generic -> TermsAccepted(true), email = None).futureValue should be (false)
+      connector.updateTermsAndConditions(SaUtr("testing"), Generic -> TermsAccepted(true), email = None).futureValue should be (false)
     }
   }
 
@@ -223,13 +223,13 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
     "send accepted true with email" in new NewUserPayloadCheck {
       override def expectedPayload = TermsAndConditionsUpdate(TermsAccepted(true), Some(email))
 
-      connector.addTermsAndConditions(SaUtr("test"), Generic -> TermsAccepted(true), Some(email)).futureValue should be (true)
+      connector.updateTermsAndConditions(SaUtr("test"), Generic -> TermsAccepted(true), Some(email)).futureValue should be (true)
     }
 
     "send accepted false with no email" in new NewUserPayloadCheck {
       override def expectedPayload = TermsAndConditionsUpdate(TermsAccepted(false), None)
 
-      connector.addTermsAndConditions(SaUtr("test"), Generic -> TermsAccepted(false), None).futureValue should be (true)
+      connector.updateTermsAndConditions(SaUtr("test"), Generic -> TermsAccepted(false), None).futureValue should be (true)
     }
 
     "try and send accepted true with email where preferences not working" in new NewUserPayloadCheck {
@@ -237,7 +237,7 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
 
       override def status: Int = 401
 
-      connector.addTermsAndConditions(SaUtr("test"), Generic -> TermsAccepted(true), Some(email)).futureValue should be (false)
+      connector.updateTermsAndConditions(SaUtr("test"), Generic -> TermsAccepted(true), Some(email)).futureValue should be (false)
     }
   }
 
@@ -254,15 +254,6 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
         putPayload(requestBody.asInstanceOf[ActivationStatus])
         Future.successful(HttpResponse(status))
       }
-    }
-
-    "activate user when preferences working" in new ActivateUserPayloadCheck {
-      connector.activateUser(SaUtr("test"), returnUrl).futureValue should be(true)
-    }
-
-    "try and activate user when preferences not working" in new ActivateUserPayloadCheck {
-      override def status: Int = 401
-      connector.activateUser(SaUtr("test"), returnUrl).futureValue should be(false)
     }
   }
 }

@@ -12,8 +12,7 @@ object InternalPages {
     def apply[T](returnUrl: T)(implicit toAbsoluteUrl: ToAbsoluteUrl[T]) = new InternalPage {
       val title = "Go paperless with HMRC"
 
-      def relativeUrl = "account/account-details/sa/upgrade-email-reminders?returnUrl=" +
-        URLEncoder.encode(ApplicationCrypto.QueryParameterCrypto.encrypt(PlainText(toAbsoluteUrl.absoluteUrl(returnUrl))).value, "utf8")
+      def relativeUrl = "paperless/upgrade?returnUrl=" + URLEncoder.encode(ApplicationCrypto.QueryParameterCrypto.encrypt(PlainText(toAbsoluteUrl.absoluteUrl(returnUrl))).value, "utf8")
 
       def `terms and conditions checkbox`(implicit driver: WebDriver) = checkbox("accept-tc").underlying
       def `no ask me later radio button`(implicit driver: WebDriver) = radioButton("opt-in-out").underlying
