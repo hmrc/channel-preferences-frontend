@@ -40,7 +40,7 @@ private object Dependencies {
     "org.mockito"             %  "mockito-all"              % "1.10.19"   % "test",
 
     "uk.gov.hmrc"             %% "http-verbs-test"          % "0.1.0"     % "it",
-    "uk.gov.hmrc"             %% "browser-test"             % "0.1"       % "it",
+    "uk.gov.hmrc"             %% "browser-test"             % "1.0.0"     % "it",
     "com.github.tomakehurst"  %  "wiremock"                 % "1.58"      % "it",
 
     "uk.gov.hmrc"             %% "auth-test"                % "2.1.0"     % "test, it",

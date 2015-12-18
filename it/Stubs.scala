@@ -81,5 +81,6 @@ object Stubs {
     override def toString() = name
   }
 
-  implicit def stubbedUrls[T <: Stubs.StubbedPage] = ToAbsoluteUrl.fromRelativeUrl[T](host = "localhost", port = 8080)
+  implicit def stubbedUrls[T <: Stubs.StubbedPage]: ToAbsoluteUrl[T] =
+    ToAbsoluteUrl.fromRelativeUrl[T](host = "localhost", port = 8080)
 }

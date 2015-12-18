@@ -3,7 +3,7 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
 import org.scalatest.{Suite, BeforeAndAfterAll}
 import play.api.test.TestServer
 
-trait ServerSetup extends BeforeAndAfterAll {
+trait WiremockStubSetup extends BeforeAndAfterAll {
   this: Suite =>
 
   val t = TestServer(9000)
