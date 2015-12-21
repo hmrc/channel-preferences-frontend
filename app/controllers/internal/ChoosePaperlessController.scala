@@ -91,7 +91,7 @@ trait ChoosePaperlessController
         _ <- preferencesConnector.saveCohort(utr, calculateCohort(authContext))
         userCreated <- preferencesConnector.updateTermsAndConditions(utr, terms, email)
       } yield {
-        auditChoice(utr, journey, cohort, terms, email, userCreated)
+        auditChoice(utr, journey, cohort, terms, email, true)
         digital match {
           case true  => Redirect(routes.ChoosePaperlessController.displayNearlyDone(email map (emailAddress => Encrypted(EmailAddress(emailAddress))), hostContext))
           case false => Redirect(hostContext.returnUrl)

@@ -21,6 +21,11 @@ object Email {
 sealed trait TermsType
 case object Generic extends TermsType
 
+sealed trait PreferencesStatus
+case object PreferencesExists extends PreferencesStatus
+case object PreferencesCreated extends PreferencesStatus
+case object PreferencesFailure extends PreferencesStatus
+
 case class TermsAccepted(accepted: Boolean)
 object TermsAccepted {
   implicit val format = Json.format[TermsAccepted]
@@ -77,14 +82,14 @@ trait PreferencesConnector extends Status {
     responseToEmailVerificationLinkStatus(http.POST(url("/preferences/sa/verify-email"), ValidateEmail(token)))
   }
 
-  def updateTermsAndConditions(utr: SaUtr, termsAccepted: (TermsType, TermsAccepted), email: Option[String]) (implicit hc: HeaderCarrier): Future[Int] = {
-    http.POST(url(s"/preferences/sa/individual/$utr/terms-and-conditions"), PreferencesConnector.TermsAndConditionsUpdate.from(termsAccepted, email)).map(_.status).recover {
-      case e: Upstream4xxResponse =>
+  def updateTermsAndConditions(utr: SaUtr, termsAccepted: (TermsType, TermsAccepted), email: Option[String]) (implicit hc: HeaderCarrier): Future[PreferencesStatus] = {
+    http.POST(url(s"/preferences/sa/individual/$utr/terms-and-conditions"), PreferencesConnector.TermsAndConditionsUpdate.from(termsAccepted, email)).map(_.status).map {
+      case OK => PreferencesExists
+      case CREATED => PreferencesCreated
+    }.recover {
+      case e =>
         Logger.error("Unable to save upgraded terms and conditions", e)
-        e.upstreamResponseCode
-      case e: Upstream5xxResponse =>
-        Logger.error("Unable to save upgraded terms and conditions", e)
-        e.upstreamResponseCode
+        PreferencesFailure
     }
   }
 
