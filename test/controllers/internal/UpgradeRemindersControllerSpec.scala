@@ -22,8 +22,6 @@ import scala.concurrent.Future
 
 class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication {
 
-
-
   "create an audit event with positive upgrade decision" in new UpgradeTestCase {
     val event = upgradeAndCaptureAuditEvent(Generic -> TermsAccepted(true)).getValue
 
@@ -38,6 +36,7 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
     event.detail \ "journey" shouldBe JsString("")
     event.detail \ "digital" shouldBe JsString("true")
     event.detail \ "cohort" shouldBe JsString("")
+    event.detail \ "newUserPreferencesCreated" shouldBe JsString("false")
   }
 
   "create an audit event with negative upgrade decision" in new UpgradeTestCase {
@@ -54,7 +53,7 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
     event.detail \ "journey" shouldBe JsString("")
     event.detail \ "digital" shouldBe JsString("false")
     event.detail \ "cohort" shouldBe JsString("")
-
+    event.detail \ "newUserPreferencesCreated" shouldBe JsString("false")
   }
 
   "the posting upgrade form" should {
@@ -147,7 +146,7 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
     }
 
     def upgradeAndCaptureAuditEvent(digital: (TermsType, TermsAccepted)):ArgumentCaptor[ExtendedDataEvent] = {
-      when(controller.preferencesConnector.updateTermsAndConditions(is(utr), is(digital), email = is(None))(any())).thenReturn(Future.successful(PreferencesCreated))
+      when(controller.preferencesConnector.updateTermsAndConditions(is(utr), is(digital), email = is(None))(any())).thenReturn(Future.successful(PreferencesExists))
       await(controller.upgradePaperless(utr, Some(nino), digital))
       val eventArg : ArgumentCaptor[ExtendedDataEvent] = ArgumentCaptor.forClass(classOf[ExtendedDataEvent])
       verify(controller.auditConnector).sendEvent(eventArg.capture())(any(), any())

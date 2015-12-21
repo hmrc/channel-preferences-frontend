@@ -89,9 +89,9 @@ trait ChoosePaperlessController
       val terms = Generic -> TermsAccepted(digital)
       for {
         _ <- preferencesConnector.saveCohort(utr, calculateCohort(authContext))
-        userCreated <- preferencesConnector.updateTermsAndConditions(utr, terms, email)
+        preferencesStatus <- preferencesConnector.updateTermsAndConditions(utr, terms, email)
       } yield {
-        auditChoice(utr, journey, cohort, terms, email, true)
+        auditChoice(utr, journey, cohort, terms, email, preferencesStatus)
         digital match {
           case true  => Redirect(routes.ChoosePaperlessController.displayNearlyDone(email map (emailAddress => Encrypted(EmailAddress(emailAddress))), hostContext))
           case false => Redirect(hostContext.returnUrl)
@@ -133,10 +133,10 @@ trait ChoosePaperlessController
         "journey" -> journey.toString,
         "cohort" -> cohort.toString))))
 
-  private def auditChoice(utr: SaUtr, journey: Journey, cohort: OptInCohort, terms: (TermsType, TermsAccepted), emailOption: Option[String], userCreated: Boolean)(implicit request: Request[_], hc: HeaderCarrier) =
+  private def auditChoice(utr: SaUtr, journey: Journey, cohort: OptInCohort, terms: (TermsType, TermsAccepted), emailOption: Option[String], preferencesStatus: PreferencesStatus)(implicit request: Request[_], hc: HeaderCarrier) =
     auditConnector.sendEvent(ExtendedDataEvent(
       auditSource = appName,
-      auditType = if (!userCreated) EventTypes.Failed else EventTypes.Succeeded,
+      auditType = if (preferencesStatus == PreferencesFailure) EventTypes.Failed else EventTypes.Succeeded,
       tags = hc.toAuditTags("Set Print Preference", request.path),
       detail = Json.toJson(hc.toAuditDetails(
         "client" -> "YTA",
@@ -147,7 +147,7 @@ trait ChoosePaperlessController
         "TandCsScope" -> terms._1.toString.toLowerCase,
         "userConfirmedReadTandCs" -> terms._2.accepted.toString,
         "email" -> emailOption.getOrElse(""),
-        "userCreated" -> userCreated.toString))))
+        "newUserPreferencesCreated" -> (preferencesStatus == PreferencesCreated).toString))))
 
   protected def _displayNearlyDone(emailAddress: Option[Encrypted[EmailAddress]])(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Result = {
     Ok(views.html.account_details_printing_preference_confirm(calculateCohort(authContext), emailAddress.map(_.decryptedValue)))

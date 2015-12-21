@@ -197,20 +197,6 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
       connector.updateTermsAndConditions(SaUtr("testing"), Generic -> TermsAccepted(false), email = None).futureValue should be (PreferencesExists)
     }
 
-    "send accepted true and return preferences exists if terms and conditions are accepted and updated and preferences updated" in new PayloadCheck {
-      override def status = 201
-      override val expectedPayload = TermsAndConditionsUpdate(TermsAccepted(true), email = None)
-
-      connector.updateTermsAndConditions(SaUtr("testing"), Generic -> TermsAccepted(true), email = None).futureValue should be (PreferencesCreated)
-    }
-
-    "send accepted false and return preferences exists if terms and conditions are not accepted and updated and preferences updated" in new PayloadCheck {
-      override def status = 201
-      override val expectedPayload = TermsAndConditionsUpdate(TermsAccepted(false), email = None)
-
-      connector.updateTermsAndConditions(SaUtr("testing"), Generic -> TermsAccepted(false), email = None).futureValue should be (PreferencesCreated)
-    }
-
     "return failure if any problems" in new PayloadCheck {
       override val status = 401
       override val expectedPayload = TermsAndConditionsUpdate(TermsAccepted(true), email = None)
