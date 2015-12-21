@@ -364,7 +364,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
       value.detail \ "userCreated" shouldBe JsString("true")
     }
 
-    "be created as EventTypes.Succeeded when choosing to not opt out" in new ChoosePaperlessControllerSetup {
+    "be created as EventTypes.Succeeded when choosing to not opt in" in new ChoosePaperlessControllerSetup {
 
       override def assignedCohort = IPage
       when(mockPreferencesConnector.updateTermsAndConditions(

@@ -77,11 +77,14 @@ trait PreferencesConnector extends Status {
     responseToEmailVerificationLinkStatus(http.POST(url("/preferences/sa/verify-email"), ValidateEmail(token)))
   }
 
-  def updateTermsAndConditions(utr: SaUtr, termsAccepted: (TermsType, TermsAccepted), email: Option[String]) (implicit hc: HeaderCarrier): Future[Boolean] = {
-    http.POST(url(s"/preferences/sa/individual/$utr/terms-and-conditions"), PreferencesConnector.TermsAndConditionsUpdate.from(termsAccepted, email)).map(_ => true).recover {
-      case e =>
+  def updateTermsAndConditions(utr: SaUtr, termsAccepted: (TermsType, TermsAccepted), email: Option[String]) (implicit hc: HeaderCarrier): Future[Int] = {
+    http.POST(url(s"/preferences/sa/individual/$utr/terms-and-conditions"), PreferencesConnector.TermsAndConditionsUpdate.from(termsAccepted, email)).map(_.status).recover {
+      case e: Upstream4xxResponse =>
         Logger.error("Unable to save upgraded terms and conditions", e)
-        false
+        e.upstreamResponseCode
+      case e: Upstream5xxResponse =>
+        Logger.error("Unable to save upgraded terms and conditions", e)
+        e.upstreamResponseCode
     }
   }
 
