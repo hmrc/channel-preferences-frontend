@@ -92,8 +92,11 @@ trait PreferencesFrontEndServer extends ServiceSpec {
       def postOptOut(utr: String) = WS.url(server.externalResource("preferences",
         s"/portal/preferences/sa/individual/$utr/print-suppression")).post(Json.parse( s"""{"digital": false}"""))
 
-      def postLegacyOptOut(utr: String) = WS.url(server.externalResource("preferences",
-        s"/preferences-admin/sa/individual/$utr/legacy-opt-out")).post(Json.parse("{}"))
+      def postLegacyOptOut(utr: String)(implicit header: (String, String)) = {
+        WS.url(server.externalResource("preferences", path = s"/preferences-admin/sa/individual/$utr/legacy-opt-out"))
+          .withHeaders(header)
+          .post(Json.parse("{}"))
+      }
 
       def get(utr: String) = WS.url(server.externalResource("preferences", s"/portal/preferences/sa/individual/$utr/print-suppression")).get()
       }

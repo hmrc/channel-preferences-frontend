@@ -182,7 +182,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
     val email = "a@b.com"
     val returnUrl = "/test/return/url"
 
-    val authHeader = createGGAuthorisationHeader(SaUtr(utr))
+    implicit val authHeader = createGGAuthorisationHeader(SaUtr(utr))
     override lazy val cookie = cookieForUtr(SaUtr(utr)).futureValue
 
     val url = WS.url(resource("/paperless/choose"))
