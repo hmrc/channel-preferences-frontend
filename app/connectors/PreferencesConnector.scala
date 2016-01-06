@@ -1,9 +1,10 @@
 package connectors
 
 import controllers.internal.OptInCohort
-import play.api.Logger
+import play.api.{Play, Logger}
 import play.api.http.Status
 import play.api.libs.json._
+import uk.gov.hmrc.circuitbreaker.{CircuitBreakerConfig, UsingCircuitBreaker}
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.config.ServicesConfig
@@ -48,9 +49,24 @@ object PreferencesConnector extends PreferencesConnector with ServicesConfig {
       case (termsType, _) => throw new IllegalArgumentException(s"Could not work with termsType=$termsType")
     }
   }
+
 }
 
-trait PreferencesConnector extends Status {
+trait PreferencesConnector extends Status with UsingCircuitBreaker with ServicesConfig {
+  val serviceName = "preferences"
+
+  def circuitBreakerConfig : CircuitBreakerConfig = CircuitBreakerConfig(
+    serviceName = serviceName,
+    numberOfCallsToTriggerStateChange = config(serviceName).getInt("circuitBreaker.numberOfCallsToTriggerStateChange"),
+    unavailablePeriodDuration = config(serviceName).getInt("circuitBreaker.unavailablePeriodDurationInSeconds"),
+    unstablePeriodDuration = config(serviceName).getInt("circuitBreaker.unstablePeriodDurationInSeconds")
+  )
+
+  override protected def breakOnException(t: Throwable): Boolean = t match {
+    case (_: Upstream4xxResponse | _: NotFoundException | _: BadRequestException) => false
+    case e: Upstream5xxResponse => true
+    case _:Throwable => true
+  }
 
   def http: HttpGet with HttpPost with HttpPut
 
@@ -59,46 +75,41 @@ trait PreferencesConnector extends Status {
   def url(path: String) = s"$serviceUrl$path"
 
   def savePreferences(utr: SaUtr, digital: Boolean, email: Option[String])(implicit hc: HeaderCarrier): Future[Any] =
-    http.POST(url(s"/preferences/sa/individual/$utr/print-suppression"), UpdateEmail(digital, email))
+    withCircuitBreaker(http.POST(url(s"/preferences/sa/individual/$utr/print-suppression"), UpdateEmail(digital, email)))
 
-  def getPreferences(utr: SaUtr)(implicit headerCarrier: HeaderCarrier): Future[Option[SaPreference]] = {
-    http.GET[Option[SaPreference]](url(s"/preferences/sa/individual/$utr/print-suppression")).recover {
-      case response: Upstream4xxResponse if response.upstreamResponseCode == GONE => None
-      case e: NotFoundException => None
-    }
-  }
+  def getPreferences(utr: SaUtr)(implicit headerCarrier: HeaderCarrier): Future[Option[SaPreference]] =
+    withCircuitBreaker(http.GET[Option[SaPreference]](url(s"/preferences/sa/individual/$utr/print-suppression")))
+      .recover {
+        case response: Upstream4xxResponse if response.upstreamResponseCode == GONE => None
+        case e: NotFoundException => None
+      }
 
-  def saveCohort(utr: SaUtr, cohort: OptInCohort)(implicit hc: HeaderCarrier): Future[Any] = {
-    http.PUT(url(s"/a-b-testing/cohort/email-opt-in/sa/$utr"), Json.obj("cohort" -> cohort.name)).recover {
-      case e: NotFoundException => Logger.warn("Cannot save cohort for opt-in-email")
-    }
-  }
+  def saveCohort(utr: SaUtr, cohort: OptInCohort)(implicit hc: HeaderCarrier): Future[Any] =
+    withCircuitBreaker(http.PUT(url(s"/a-b-testing/cohort/email-opt-in/sa/$utr"), Json.obj("cohort" -> cohort.name)))
+      .recover {
+        case e: NotFoundException => Logger.warn("Cannot save cohort for opt-in-email")
+      }
 
   def getEmailAddress(utr: SaUtr)(implicit hc: HeaderCarrier) =
-    http.GET[Option[Email]](url(s"/portal/preferences/sa/individual/$utr/print-suppression/verified-email-address"))
+    withCircuitBreaker(http.GET[Option[Email]](url(s"/portal/preferences/sa/individual/$utr/print-suppression/verified-email-address")))
       .map(_.map(_.email))
 
   def updateEmailValidationStatusUnsecured(token: String)(implicit hc: HeaderCarrier): Future[EmailVerificationLinkResponse.Value] = {
-    responseToEmailVerificationLinkStatus(http.POST(url("/preferences/sa/verify-email"), ValidateEmail(token)))
+    responseToEmailVerificationLinkStatus(withCircuitBreaker(http.POST(url("/preferences/sa/verify-email"), ValidateEmail(token))))
   }
 
-  def updateTermsAndConditions(utr: SaUtr, termsAccepted: (TermsType, TermsAccepted), email: Option[String]) (implicit hc: HeaderCarrier): Future[PreferencesStatus] = {
-    http.POST(url(s"/preferences/sa/individual/$utr/terms-and-conditions"), PreferencesConnector.TermsAndConditionsUpdate.from(termsAccepted, email)).map(_.status).map {
-      case OK => PreferencesExists
-      case CREATED => PreferencesCreated
-    }.recover {
-      case e =>
-        Logger.error("Unable to save upgraded terms and conditions", e)
-        PreferencesFailure
+  def updateTermsAndConditions(utr: SaUtr, termsAccepted: (TermsType, TermsAccepted), email: Option[String]) (implicit hc: HeaderCarrier): Future[PreferencesStatus] =
+    withCircuitBreaker(http.POST(url(s"/preferences/sa/individual/$utr/terms-and-conditions"), PreferencesConnector.TermsAndConditionsUpdate.from(termsAccepted, email)))
+      .map(_.status).map {
+        case OK => PreferencesExists
+        case CREATED => PreferencesCreated
     }
-  }
 
-  private[connectors] def responseToEmailVerificationLinkStatus(response: Future[HttpResponse])(implicit hc: HeaderCarrier) = {
+  private[connectors] def responseToEmailVerificationLinkStatus(response: Future[HttpResponse])(implicit hc: HeaderCarrier) =
     response.map(_ => EmailVerificationLinkResponse.Ok)
       .recover {
       case Upstream4xxResponse(_, GONE, _, _) => EmailVerificationLinkResponse.Expired
       case Upstream4xxResponse(_, CONFLICT, _, _) => EmailVerificationLinkResponse.WrongToken
       case (_: Upstream4xxResponse | _: NotFoundException | _: BadRequestException) => EmailVerificationLinkResponse.Error
     }
-  }
 }

@@ -2,8 +2,9 @@ package config
 
 import com.kenshoo.play.metrics.{MetricsFilter, MetricsRegistry}
 import connectors.WsHttp
+import controllers.filters.ExceptionHandlingFilter
 import controllers.internal.OptInCohortConfigurationValues
-import play.api.mvc.Request
+import play.api.mvc.{WithFilters, EssentialFilter, Request}
 import play.api.{Application, Configuration}
 import play.twirl.api.Html
 import uk.gov.hmrc.crypto.ApplicationCrypto
@@ -17,6 +18,8 @@ import uk.gov.hmrc.play.http.HttpGet
 import uk.gov.hmrc.play.http.logging.filters.FrontendLoggingFilter
 
 object Global extends DefaultFrontendGlobal with RunMode with ServicesConfig {
+
+  override def frontendFilters: Seq[EssentialFilter] = super.frontendFilters.+:(ExceptionHandlingFilter)
 
   override val auditConnector = Audit
 
@@ -49,7 +52,8 @@ object Global extends DefaultFrontendGlobal with RunMode with ServicesConfig {
     )
   }
 
-  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: Request[_]): Html = Html("")
+  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: Request[_]): Html =
+    views.html.error_template(pageTitle, heading, message)
 
 }
 

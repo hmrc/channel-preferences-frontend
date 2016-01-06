@@ -65,11 +65,10 @@ with Actions {
     Ok(views.html.opted_back_into_paper_thank_you())
   }
 
-  private[controllers] def _submitStopPaperless(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Future[Result] = {
+  private[controllers] def _submitStopPaperless(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Future[Result] =
     preferencesConnector.updateTermsAndConditions(authContext.principal.accounts.sa.get.utr, (Generic, TermsAccepted(false)), email = None).map(_ =>
       Redirect(routes.ManagePaperlessController.displayStopPaperlessConfirmed(hostContext))
     )
-  }
 
   private[controllers] def _resendVerificationEmail(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Future[Result] = {
     lookupCurrentEmail { email =>
