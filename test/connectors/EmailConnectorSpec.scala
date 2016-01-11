@@ -3,13 +3,14 @@ package connectors
 import org.scalatest.concurrent.ScalaFutures
 import play.api.libs.json.Json
 import uk.gov.hmrc.play.audit.http.HttpAuditing
+import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http.hooks.HttpHook
 import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test._
 
 import scala.concurrent.Future
 
-class EmailConnectorSpec extends UnitSpec with ScalaFutures {
+class EmailConnectorSpec extends UnitSpec with ScalaFutures with WithFakeApplication {
 
   implicit val hc = HeaderCarrier()
 
@@ -31,7 +32,7 @@ class EmailConnectorSpec extends UnitSpec with ScalaFutures {
 
     trait TestCase {
       def responseFromEmailService: HttpResponse
-      val connector = new EmailConnector with HttpAuditing {
+      val connector = new EmailConnector with HttpAuditing with ServicesConfig {
         protected def serviceUrl = "http://email.service:80"
 
         protected def doGet(url: String)(implicit hc: HeaderCarrier) = {
@@ -48,7 +49,7 @@ class EmailConnectorSpec extends UnitSpec with ScalaFutures {
 
     trait ServiceDownTestCase extends TestCase {
       def responseFromEmailService = ???
-      override val connector = new EmailConnector with HttpAuditing {
+      override val connector = new EmailConnector with HttpAuditing with ServicesConfig {
         protected def serviceUrl = "http://email.service:80"
 
         protected def doGet(url: String)(implicit hc: HeaderCarrier) = {

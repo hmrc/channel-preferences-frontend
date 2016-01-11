@@ -1,12 +1,11 @@
 package connectors
 
+import config.ServicesCircuitBreaker
 import controllers.internal.OptInCohort
-import play.api.{Play, Logger}
+import play.api.Logger
 import play.api.http.Status
 import play.api.libs.json._
-import uk.gov.hmrc.circuitbreaker.{CircuitBreakerConfig, UsingCircuitBreaker}
-import uk.gov.hmrc.domain.{Nino, SaUtr}
-import uk.gov.hmrc.emailaddress.EmailAddress
+import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import uk.gov.hmrc.play.http.{NotFoundException, _}
@@ -52,21 +51,8 @@ object PreferencesConnector extends PreferencesConnector with ServicesConfig {
 
 }
 
-trait PreferencesConnector extends Status with UsingCircuitBreaker with ServicesConfig {
-  val serviceName = "preferences"
-
-  def circuitBreakerConfig : CircuitBreakerConfig = CircuitBreakerConfig(
-    serviceName = serviceName,
-    numberOfCallsToTriggerStateChange = config(serviceName).getInt("circuitBreaker.numberOfCallsToTriggerStateChange"),
-    unavailablePeriodDuration = config(serviceName).getInt("circuitBreaker.unavailablePeriodDurationInSeconds"),
-    unstablePeriodDuration = config(serviceName).getInt("circuitBreaker.unstablePeriodDurationInSeconds")
-  )
-
-  override protected def breakOnException(t: Throwable): Boolean = t match {
-    case (_: Upstream4xxResponse | _: NotFoundException | _: BadRequestException) => false
-    case e: Upstream5xxResponse => true
-    case _:Throwable => true
-  }
+trait PreferencesConnector extends Status with ServicesCircuitBreaker { this: ServicesConfig =>
+  val externalServiceName = "preferences"
 
   def http: HttpGet with HttpPost with HttpPut
 

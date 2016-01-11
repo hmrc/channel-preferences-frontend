@@ -6,7 +6,7 @@ import play.api.libs.json.{Json, Writes}
 import uk.gov.hmrc.play.test.WithFakeApplication
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.play.audit.http.HttpAuditing
-import uk.gov.hmrc.play.config.AppName
+import uk.gov.hmrc.play.config.{ServicesConfig, AppName}
 import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.http.hooks.HttpHook
 import uk.gov.hmrc.play.test.UnitSpec
@@ -31,7 +31,7 @@ class PreferencesConnectorSpec extends UnitSpec with ScalaFutures with WithFakeA
     (a, b) => Future.successful(HttpResponse(200))
   }
 
-  class TestPreferencesConnector extends PreferencesConnector {
+  class TestPreferencesConnector extends PreferencesConnector with ServicesConfig {
 
     override def serviceUrl: String = "http://preferences.service/"
 
