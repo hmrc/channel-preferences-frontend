@@ -1,10 +1,9 @@
 package connectors
 
 import connectors.SaEmailPreference.Status
-import helpers.ConfigHelper
 import org.scalatest.concurrent.ScalaFutures
 import play.api.libs.json.{Json, Writes}
-import play.api.test.WithApplication
+import uk.gov.hmrc.play.test.WithFakeApplication
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.play.audit.http.HttpAuditing
 import uk.gov.hmrc.play.config.AppName
@@ -14,7 +13,7 @@ import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 
-class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) with UnitSpec with ScalaFutures {
+class PreferencesConnectorSpec extends UnitSpec with ScalaFutures with WithFakeApplication {
 
   implicit val hc = new HeaderCarrier
 
@@ -201,7 +200,9 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
       override val status = 401
       override val expectedPayload = TermsAndConditionsUpdate(TermsAccepted(true), email = None)
 
-      connector.updateTermsAndConditions(SaUtr("testing"), Generic -> TermsAccepted(true), email = None).futureValue should be (PreferencesFailure)
+      whenReady(connector.updateTermsAndConditions(SaUtr("testing"), Generic -> TermsAccepted(true), email = None).failed) {
+        case e => e shouldBe an[Upstream4xxResponse]
+      }
     }
   }
 
@@ -237,7 +238,9 @@ class PreferencesConnectorSpec extends WithApplication(ConfigHelper.fakeApp) wit
 
       override def status: Int = 401
 
-      connector.updateTermsAndConditions(SaUtr("test"), Generic -> TermsAccepted(true), Some(email)).futureValue should be (PreferencesFailure)
+      whenReady(connector.updateTermsAndConditions(SaUtr("test"), Generic -> TermsAccepted(true), Some(email)).failed) {
+        case e => e shouldBe an[Upstream4xxResponse]
+      }
     }
   }
 
