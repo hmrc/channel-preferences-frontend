@@ -51,7 +51,7 @@ object PreferencesConnector extends PreferencesConnector with ServicesConfig {
 
 }
 
-trait PreferencesConnector extends Status with ServicesConfig with ServicesCircuitBreaker {
+trait PreferencesConnector extends Status with ServicesCircuitBreaker { this: ServicesConfig =>
   val externalServiceName = "preferences"
 
   def http: HttpGet with HttpPost with HttpPut

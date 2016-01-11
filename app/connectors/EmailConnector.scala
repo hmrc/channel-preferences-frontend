@@ -14,7 +14,7 @@ import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
 import scala.concurrent.Future
 
-trait EmailConnector extends HttpGet with ServicesConfig with AppName with ServicesCircuitBreaker {
+trait EmailConnector extends HttpGet with AppName with ServicesCircuitBreaker { this: ServicesConfig =>
   protected def serviceUrl: String
 
   override val externalServiceName = "email"
@@ -30,7 +30,7 @@ trait EmailConnector extends HttpGet with ServicesConfig with AppName with Servi
   }
 }
 
-object EmailConnector extends EmailConnector with HttpAuditing with WSGet{
+object EmailConnector extends EmailConnector with HttpAuditing with ServicesConfig with WSGet {
   val serviceUrl = baseUrl("email")
 
   override val hooks: Seq[HttpHook] = Seq(AuditingHook)
