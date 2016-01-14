@@ -1,3 +1,6 @@
 ->        /                                  preferences_frontend.Routes
 ->        /                                  health.Routes
 ->        /template                          template.Routes
+
+#metrics
+GET         /admin/metrics  com.kenshoo.play.metrics.MetricsController.metrics
