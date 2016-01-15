@@ -155,6 +155,7 @@ trait PreferencesFrontEndServer extends ServiceSpec {
 
     def cookieForUtr(utr: SaUtr) = cookieFor(ggAuthorisationHeader.createBearerToken(List(utr)).futureValue)
     def cookieForUtrAndNino(utr: SaUtr, nino: Nino) = cookieFor(ggAuthorisationHeader.createBearerToken(List(utr, nino)).futureValue)
+    def cookieForTaxIdentifiers(taxIdentifiers: TaxIdentifier*) = cookieFor(ggAuthorisationHeader.createBearerToken(taxIdentifiers.toList).futureValue).futureValue
   }
 
 }

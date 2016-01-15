@@ -13,7 +13,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
   "Upgrading preferences for paye" should {
 
-    "set upgraded to paperless and allow subsequent activation"  in new UpgradeTestCase  {
+    "set upgraded to paperless and allow subsequent activation" in new UpgradeTestCase {
       createOptedInVerifiedPreferenceWithNino()
 
       `/preferences/paye/individual/:nino/activations/notice-of-coding`(nino,authHeader).put().futureValue.status should be (412)
@@ -53,8 +53,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
       `/portal/preferences/sa/individual`.postOptOut(utr).futureValue.status should be (201)
 
-      val activateResponse = `/preferences/sa/individual/:utr/activations/sa-all`(utr, authHeader).put().futureValue
-      activateResponse.status should be (409)
+      `/preferences/sa/individual/:utr/activations/sa-all`(utr, authHeader).put().futureValue.status should be (409)
     }
   }
 

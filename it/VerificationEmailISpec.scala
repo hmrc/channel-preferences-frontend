@@ -1,5 +1,3 @@
-import java.net.URLEncoder
-
 import EmailSupport.Email
 import org.jsoup.Jsoup
 import org.scalatest.concurrent.Eventually
@@ -7,12 +5,10 @@ import org.scalatest.matchers.{HavePropertyMatchResult, HavePropertyMatcher, Mat
 import play.api.Play.current
 import play.api.libs.json.Json
 import play.api.libs.ws.{WS, WSResponse}
-import uk.gov.hmrc.crypto.{PlainText, ApplicationCrypto}
 
 import scala.concurrent.Future
 
-class VerificationEmailISpec
-  extends PreferencesFrontEndServer  {
+class VerificationEmailISpec extends PreferencesFrontEndServer  {
 
   "Verification email confirmation" should {
     "confirm email has been sent to the users verification email address" in new VerificationEmailTestCase with TestCaseWithFrontEndAuthentication {

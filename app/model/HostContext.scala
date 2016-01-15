@@ -3,7 +3,7 @@ package model
 import controllers.ExternalUrls
 import play.api.Logger
 import play.api.mvc.QueryStringBindable
-import play.twirl.api.{Html, HtmlFormat}
+import play.twirl.api.Html
 
 case class HostContext(returnUrl: String, returnLinkText: String, headers: HostContext.Headers)
 

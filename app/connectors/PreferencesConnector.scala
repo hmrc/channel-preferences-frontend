@@ -1,7 +1,10 @@
 package connectors
 
+import java.net.URLEncoder
+
 import config.ServicesCircuitBreaker
 import controllers.internal.OptInCohort
+import model.{FormType, HostContext, NoticeOfCoding, SaAll}
 import play.api.Logger
 import play.api.http.Status
 import play.api.libs.json._
@@ -29,6 +32,14 @@ case object PreferencesFailure extends PreferencesStatus
 case class TermsAccepted(accepted: Boolean)
 object TermsAccepted {
   implicit val format = Json.format[TermsAccepted]
+}
+
+case class ActivationResponse(status: Int, body: String)
+
+object ActivationResponse {
+  implicit val reads: HttpReads[ActivationResponse] = new HttpReads[ActivationResponse] with RawReads {
+    def read(method: String, url: String, response: HttpResponse) = ActivationResponse(response.status, response.body)
+  }
 }
 
 object PreferencesConnector extends PreferencesConnector with ServicesConfig {
@@ -59,6 +70,28 @@ trait PreferencesConnector extends Status with ServicesCircuitBreaker { this: Se
   def serviceUrl: String
 
   def url(path: String) = s"$serviceUrl$path"
+
+  def activate(formType: FormType,
+               taxIdentifier: String,
+               hostContext: HostContext,
+               payload: JsValue)
+              (implicit hc: HeaderCarrier): Future[ActivationResponse] = {
+    def urlEncode(text: String) = URLEncoder.encode(text, "UTF-8")
+
+    def activationUrl(formType: FormType) = {
+      val hostContextQueryParams = s"returnUrl=${urlEncode(hostContext.returnUrl)}&returnLinkText=${urlEncode(hostContext.returnLinkText)}"
+      formType match {
+        case SaAll          => url(s"/preferences/sa/individual/$taxIdentifier/activations/${formType.value}?$hostContextQueryParams")
+        case NoticeOfCoding => url(s"/preferences/paye/individual/$taxIdentifier/activations/${formType.value}?$hostContextQueryParams")
+      }
+    }
+
+    withCircuitBreaker {
+      http.PUT[JsValue, ActivationResponse](
+        url = activationUrl(formType),
+        body = payload
+    )}
+  }
 
   def savePreferences(utr: SaUtr, digital: Boolean, email: Option[String])(implicit hc: HeaderCarrier): Future[Any] =
     withCircuitBreaker(http.POST(url(s"/preferences/sa/individual/$utr/print-suppression"), UpdateEmail(digital, email)))

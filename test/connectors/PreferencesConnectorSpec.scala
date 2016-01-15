@@ -1,15 +1,18 @@
 package connectors
 
+import java.net.URLEncoder
+
 import connectors.SaEmailPreference.Status
+import model.HostContext.Headers.Blank
+import model.{HostContext, NoticeOfCoding, SaAll}
 import org.scalatest.concurrent.ScalaFutures
 import play.api.libs.json.{Json, Writes}
-import uk.gov.hmrc.play.test.WithFakeApplication
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.play.audit.http.HttpAuditing
-import uk.gov.hmrc.play.config.{ServicesConfig, AppName}
+import uk.gov.hmrc.play.config.{AppName, ServicesConfig}
 import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.http.hooks.HttpHook
-import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.Future
 
@@ -57,6 +60,53 @@ class PreferencesConnectorSpec extends UnitSpec with ScalaFutures with WithFakeA
       val hooks: Seq[HttpHook] = Seq(AuditingHook)
 
       def auditConnector = ???
+    }
+  }
+
+  "activate" should {
+
+    def urlEncode(text: String) = URLEncoder.encode(text, "UTF-8")
+
+    def toUrlParams(hostContext: HostContext) = s"returnUrl=${urlEncode(hostContext.returnUrl)}&returnLinkText=${urlEncode(hostContext.returnLinkText)}"
+
+    "proxy to the /preferences/sa/individual/:utr/activations/sa-all if sa-all form type given" in {
+      implicit val hc = HeaderCarrier()
+
+      val utr = "12345"
+      val hostContext = HostContext(returnUrl = "some/return/url", returnLinkText = "continue", headers = Blank)
+      val payload = """{"active":true}"""
+
+      val preferenceResponseStatus = PRECONDITION_FAILED
+      val preferenceResponseBody = "link/to/preferences-frontend"
+
+      val connector = preferencesConnector(
+        returnFromDoPut = (url, body) => {
+          url should include(s"/preferences/sa/individual/$utr/activations/sa-all?${toUrlParams(hostContext)}")
+          body.toString should be (payload)
+          Future.successful(HttpResponse(responseStatus = preferenceResponseStatus, responseString = Some(preferenceResponseBody)))
+      })
+
+      connector.activate(SaAll, utr, hostContext, Json.parse(payload)).futureValue should be (ActivationResponse(preferenceResponseStatus, preferenceResponseBody))
+    }
+
+    "proxy to the /preferences/paye/individual/:nino/activations/notice-of-coding if notice-of-coding form type given" in {
+      implicit val hc = HeaderCarrier()
+
+      val nino = "ABCD"
+      val hostContext = HostContext(returnUrl = "some/return/url", returnLinkText = "continue", headers = Blank)
+      val payload = """{"active":true}"""
+
+      val preferenceResponseStatus = PRECONDITION_FAILED
+      val preferenceResponseBody = "link/to/preferences-frontend"
+
+      val connector = preferencesConnector(
+        returnFromDoPut = (url, body) => {
+          url should include(s"/preferences/paye/individual/$nino/activations/notice-of-coding?${toUrlParams(hostContext)}")
+          body.toString should be (payload)
+          Future.successful(HttpResponse(responseStatus = preferenceResponseStatus, responseString = Some(preferenceResponseBody)))
+      })
+
+      connector.activate(NoticeOfCoding, nino, hostContext, Json.parse(payload)).futureValue should be (ActivationResponse(preferenceResponseStatus, preferenceResponseBody))
     }
   }
 
