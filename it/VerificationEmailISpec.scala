@@ -28,7 +28,6 @@ class VerificationEmailISpec extends PreferencesFrontEndServer  {
   "Attempt to verify an email" should {
 
     "display success message if the email link is valid" in new VerificationEmailTestCase {
-
       val email = uniqueEmail
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
 
@@ -44,7 +43,6 @@ class VerificationEmailISpec extends PreferencesFrontEndServer  {
     }
 
     "display expiry message if the link has expired" in new VerificationEmailTestCase {
-
       val email = uniqueEmail
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
 
@@ -62,10 +60,8 @@ class VerificationEmailISpec extends PreferencesFrontEndServer  {
     }
 
     "display already verified message if the email has been verified already" in new VerificationEmailTestCase {
-
       val email = uniqueEmail
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
-
 
       aVerificationEmailIsReceivedFor(email)
 
@@ -99,7 +95,6 @@ class VerificationEmailISpec extends PreferencesFrontEndServer  {
   "Attempt to verify a change of address with an old link" should {
 
     "display expired old email address message if the old email is verified and new email has been verified" in new VerificationEmailTestCase {
-
       val email = uniqueEmail
       val newEmail = uniqueEmail
 
@@ -123,7 +118,6 @@ class VerificationEmailISpec extends PreferencesFrontEndServer  {
     }
 
     "display expired old email address message if the old email is verified and the new email has not been verified" in new VerificationEmailTestCase {
-
       val email = uniqueEmail
       val newEmail = uniqueEmail
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
@@ -139,7 +133,6 @@ class VerificationEmailISpec extends PreferencesFrontEndServer  {
     }
 
     "display expired old email address message if the old email is not verified and the new email has not been verified" in new VerificationEmailTestCase {
-
       val email = uniqueEmail
       val newEmail = uniqueEmail
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
@@ -154,7 +147,6 @@ class VerificationEmailISpec extends PreferencesFrontEndServer  {
     }
 
     "display expired old email address message if the old email is not verified and the new email is verified" in new VerificationEmailTestCase {
-
       val email = uniqueEmail
       val newEmail = uniqueEmail
       `/portal/preferences/sa/individual`.postPendingEmail(utr, email) should have(status(201))
@@ -175,7 +167,6 @@ class VerificationEmailISpec extends PreferencesFrontEndServer  {
     }
 
     "display expired old email address message if another old email is verified and the new email is verified" in new VerificationEmailTestCase {
-
       val firstEmail = uniqueEmail
       val newEmail = uniqueEmail
       val secondEmail = uniqueEmail
@@ -203,7 +194,6 @@ class VerificationEmailISpec extends PreferencesFrontEndServer  {
     }
 
     "display expired old email address message if another old email is verified and the new email has not been verified" in new VerificationEmailTestCase {
-
       val firstEmail = uniqueEmail
       val secondEmail = uniqueEmail
       val newEmail = uniqueEmail

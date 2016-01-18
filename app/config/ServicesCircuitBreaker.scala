@@ -18,12 +18,8 @@ trait ServicesCircuitBreaker extends UsingCircuitBreaker {
   )
 
   override protected def breakOnException(t: Throwable): Boolean = t match {
-    case t: Upstream4xxResponse if t.httpCodeIsNot(BAD_REQUEST, UNAUTHORIZED, FORBIDDEN) => false
+    case t: Upstream4xxResponse => t.upstreamResponseCode == BAD_REQUEST
     case _: Upstream5xxResponse => true
-    case _ => true
-  }
-
-  private implicit class Upstream4xxResponseExtension(ex: Upstream4xxResponse) {
-    def httpCodeIsNot(statuses: Int*): Boolean = statuses.contains(ex.upstreamResponseCode)
+    case _                      => true
   }
 }
