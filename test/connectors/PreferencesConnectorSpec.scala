@@ -108,6 +108,18 @@ class PreferencesConnectorSpec extends UnitSpec with ScalaFutures with WithFakeA
 
       connector.activate(NoticeOfCoding, nino, hostContext, Json.parse(payload)).futureValue should be (ActivationResponse(preferenceResponseStatus, preferenceResponseBody))
     }
+
+    "return ActivationResponse if exception thrown on PUT" in {
+      implicit val hc = HeaderCarrier()
+
+      val nino = "ABCD"
+      val hostContext = HostContext(returnUrl = "some/return/url", returnLinkText = "continue", headers = Blank)
+      val payload = """{"active":true}"""
+
+      val connector = preferencesConnector(returnFromDoPut = (url, body) => Future.failed(new InternalServerException("some exception")))
+
+      connector.activate(NoticeOfCoding, nino, hostContext, Json.parse(payload)).futureValue.status should be (INTERNAL_SERVER_ERROR)
+    }
   }
 
   "The getPreferences method" should {

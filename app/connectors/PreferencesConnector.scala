@@ -22,14 +22,19 @@ object Email {
 }
 
 sealed trait TermsType
+
 case object Generic extends TermsType
 
 sealed trait PreferencesStatus
+
 case object PreferencesExists extends PreferencesStatus
+
 case object PreferencesCreated extends PreferencesStatus
+
 case object PreferencesFailure extends PreferencesStatus
 
 case class TermsAccepted(accepted: Boolean)
+
 object TermsAccepted {
   implicit val format = Json.format[TermsAccepted]
 }
@@ -37,7 +42,7 @@ object TermsAccepted {
 case class ActivationResponse(status: Int, body: String)
 
 object ActivationResponse {
-  implicit val reads: HttpReads[ActivationResponse] = new HttpReads[ActivationResponse] with RawReads {
+  implicit val reads: HttpReads[ActivationResponse] = new HttpReads[ActivationResponse] {
     def read(method: String, url: String, response: HttpResponse) = ActivationResponse(response.status, response.body)
   }
 }
@@ -48,9 +53,13 @@ object PreferencesConnector extends PreferencesConnector with ServicesConfig {
   override def http = WsHttp
 
   protected[connectors] case class ActivationStatus(active: Boolean)
-  protected[connectors] object ActivationStatus { implicit val format = Json.format[ActivationStatus]}
+
+  protected[connectors] object ActivationStatus {
+    implicit val format = Json.format[ActivationStatus]
+  }
 
   protected[connectors] case class TermsAndConditionsUpdate(generic: TermsAccepted, email: Option[String])
+
   protected[connectors] object TermsAndConditionsUpdate {
     implicit val format = Json.format[TermsAndConditionsUpdate]
 
@@ -62,7 +71,8 @@ object PreferencesConnector extends PreferencesConnector with ServicesConfig {
 
 }
 
-trait PreferencesConnector extends Status with ServicesCircuitBreaker { this: ServicesConfig =>
+trait PreferencesConnector extends Status with ServicesCircuitBreaker {
+  this: ServicesConfig =>
   val externalServiceName = "preferences"
 
   def http: HttpGet with HttpPost with HttpPut
@@ -81,7 +91,7 @@ trait PreferencesConnector extends Status with ServicesCircuitBreaker { this: Se
     def activationUrl(formType: FormType) = {
       val hostContextQueryParams = s"returnUrl=${urlEncode(hostContext.returnUrl)}&returnLinkText=${urlEncode(hostContext.returnLinkText)}"
       formType match {
-        case SaAll          => url(s"/preferences/sa/individual/$taxIdentifier/activations/${formType.value}?$hostContextQueryParams")
+        case SaAll => url(s"/preferences/sa/individual/$taxIdentifier/activations/${formType.value}?$hostContextQueryParams")
         case NoticeOfCoding => url(s"/preferences/paye/individual/$taxIdentifier/activations/${formType.value}?$hostContextQueryParams")
       }
     }
@@ -90,7 +100,10 @@ trait PreferencesConnector extends Status with ServicesCircuitBreaker { this: Se
       http.PUT[JsValue, ActivationResponse](
         url = activationUrl(formType),
         body = payload
-    )}
+      )
+    } recoverWith {
+      case t: Throwable => Future.successful(ActivationResponse(INTERNAL_SERVER_ERROR, s"Could not activate: ${t.getMessage}"))
+    }
   }
 
   def savePreferences(utr: SaUtr, digital: Boolean, email: Option[String])(implicit hc: HeaderCarrier): Future[Any] =
@@ -117,18 +130,18 @@ trait PreferencesConnector extends Status with ServicesCircuitBreaker { this: Se
     responseToEmailVerificationLinkStatus(withCircuitBreaker(http.POST(url("/preferences/sa/verify-email"), ValidateEmail(token))))
   }
 
-  def updateTermsAndConditions(utr: SaUtr, termsAccepted: (TermsType, TermsAccepted), email: Option[String]) (implicit hc: HeaderCarrier): Future[PreferencesStatus] =
+  def updateTermsAndConditions(utr: SaUtr, termsAccepted: (TermsType, TermsAccepted), email: Option[String])(implicit hc: HeaderCarrier): Future[PreferencesStatus] =
     withCircuitBreaker(http.POST(url(s"/preferences/sa/individual/$utr/terms-and-conditions"), PreferencesConnector.TermsAndConditionsUpdate.from(termsAccepted, email)))
       .map(_.status).map {
-        case OK => PreferencesExists
-        case CREATED => PreferencesCreated
+      case OK => PreferencesExists
+      case CREATED => PreferencesCreated
     }
 
   private[connectors] def responseToEmailVerificationLinkStatus(response: Future[HttpResponse])(implicit hc: HeaderCarrier) =
     response.map(_ => EmailVerificationLinkResponse.Ok)
       .recover {
-      case Upstream4xxResponse(_, GONE, _, _) => EmailVerificationLinkResponse.Expired
-      case Upstream4xxResponse(_, CONFLICT, _, _) => EmailVerificationLinkResponse.WrongToken
-      case (_: Upstream4xxResponse | _: NotFoundException | _: BadRequestException) => EmailVerificationLinkResponse.Error
-    }
+        case Upstream4xxResponse(_, GONE, _, _) => EmailVerificationLinkResponse.Expired
+        case Upstream4xxResponse(_, CONFLICT, _, _) => EmailVerificationLinkResponse.WrongToken
+        case (_: Upstream4xxResponse | _: NotFoundException | _: BadRequestException) => EmailVerificationLinkResponse.Error
+      }
 }

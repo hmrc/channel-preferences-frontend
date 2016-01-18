@@ -1,16 +1,16 @@
 package config
 
-import javassist.NotFoundException
-
-import uk.gov.hmrc.circuitbreaker.{UsingCircuitBreaker, CircuitBreakerConfig}
+import play.mvc.Http.Status._
+import uk.gov.hmrc.circuitbreaker.{CircuitBreakerConfig, UsingCircuitBreaker}
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http.{Upstream5xxResponse, BadRequestException, Upstream4xxResponse}
+import uk.gov.hmrc.play.http.{Upstream4xxResponse, Upstream5xxResponse}
 
-trait ServicesCircuitBreaker extends UsingCircuitBreaker { this: ServicesConfig =>
+trait ServicesCircuitBreaker extends UsingCircuitBreaker {
+  this: ServicesConfig =>
 
   val externalServiceName: String
 
-  override def circuitBreakerConfig : CircuitBreakerConfig = CircuitBreakerConfig(
+  override def circuitBreakerConfig = CircuitBreakerConfig(
     serviceName = externalServiceName,
     numberOfCallsToTriggerStateChange = config(externalServiceName).getInt("circuitBreaker.numberOfCallsToTriggerStateChange"),
     unavailablePeriodDuration = config(externalServiceName).getInt("circuitBreaker.unavailablePeriodDurationInSeconds"),
@@ -18,8 +18,12 @@ trait ServicesCircuitBreaker extends UsingCircuitBreaker { this: ServicesConfig 
   )
 
   override protected def breakOnException(t: Throwable): Boolean = t match {
-    case (_: Upstream4xxResponse | _: NotFoundException | _: BadRequestException) => false
-    case e: Upstream5xxResponse => true
-    case _:Throwable => true
+    case t: Upstream4xxResponse if t.httpCodeIsNot(BAD_REQUEST, UNAUTHORIZED, FORBIDDEN) => false
+    case _: Upstream5xxResponse => true
+    case _ => true
+  }
+
+  private implicit class Upstream4xxResponseExtension(ex: Upstream4xxResponse) {
+    def httpCodeIsNot(statuses: Int*): Boolean = statuses.contains(ex.upstreamResponseCode)
   }
 }
