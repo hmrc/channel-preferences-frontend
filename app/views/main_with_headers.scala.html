@@ -3,12 +3,12 @@
   sidebarLinks: Option[Html] = None,
   contentHeader: Option[Html] = None,
   bodyClasses: Option[String] = None,
-  mainClass: Option[String] = None)(mainContent: Html)(implicit authContext: Option[uk.gov.hmrc.play.frontend.auth.AuthContext] = None, request : Request[_], hostContext: model.HostContext)
+  mainClass: Option[String] = None)(mainContent: Html)(implicit authContext: Option[uk.gov.hmrc.play.frontend.auth.AuthContext] = None, request : Request[_])
 
 @main(
   title = title,
-  navTitle = hostContext.headers.navTitle,
-  navLinks = hostContext.headers.navLinks,
+  navTitle = "",
+  navLinks = views.html.includes.header_nav_links(),
   betaBanner = betaBanner,
   sidebarLinks = sidebarLinks,
   contentHeader = contentHeader,

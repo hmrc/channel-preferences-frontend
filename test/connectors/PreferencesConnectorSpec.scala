@@ -3,7 +3,6 @@ package connectors
 import java.net.URLEncoder
 
 import connectors.SaEmailPreference.Status
-import model.HostContext.Headers.Blank
 import model.{HostContext, NoticeOfCoding, SaAll}
 import org.scalatest.concurrent.ScalaFutures
 import play.api.libs.json.{Json, Writes}
@@ -73,7 +72,7 @@ class PreferencesConnectorSpec extends UnitSpec with ScalaFutures with WithFakeA
       implicit val hc = HeaderCarrier()
 
       val utr = "12345"
-      val hostContext = HostContext(returnUrl = "some/return/url", returnLinkText = "continue", headers = Blank)
+      val hostContext = HostContext(returnUrl = "some/return/url", returnLinkText = "continue")
       val payload = """{"active":true}"""
 
       val preferenceResponseStatus = PRECONDITION_FAILED
@@ -93,7 +92,7 @@ class PreferencesConnectorSpec extends UnitSpec with ScalaFutures with WithFakeA
       implicit val hc = HeaderCarrier()
 
       val nino = "ABCD"
-      val hostContext = HostContext(returnUrl = "some/return/url", returnLinkText = "continue", headers = Blank)
+      val hostContext = HostContext(returnUrl = "some/return/url", returnLinkText = "continue")
       val payload = """{"active":true}"""
 
       val preferenceResponseStatus = PRECONDITION_FAILED
@@ -113,7 +112,7 @@ class PreferencesConnectorSpec extends UnitSpec with ScalaFutures with WithFakeA
       implicit val hc = HeaderCarrier()
 
       val nino = "ABCD"
-      val hostContext = HostContext(returnUrl = "some/return/url", returnLinkText = "continue", headers = Blank)
+      val hostContext = HostContext(returnUrl = "some/return/url", returnLinkText = "continue")
       val payload = """{"active":true}"""
 
       val connector = preferencesConnector(returnFromDoPut = (url, body) => Future.failed(new InternalServerException("some exception")))
