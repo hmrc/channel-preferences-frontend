@@ -8,9 +8,9 @@ import uk.gov.hmrc.play.http.{Upstream4xxResponse, Upstream5xxResponse}
 trait ServicesCircuitBreaker extends UsingCircuitBreaker {
   this: ServicesConfig =>
 
-  val externalServiceName: String
+  protected val externalServiceName: String
 
-  override def circuitBreakerConfig = CircuitBreakerConfig(
+  override protected def circuitBreakerConfig = CircuitBreakerConfig(
     serviceName = externalServiceName,
     numberOfCallsToTriggerStateChange = config(externalServiceName).getInt("circuitBreaker.numberOfCallsToTriggerStateChange"),
     unavailablePeriodDuration = config(externalServiceName).getInt("circuitBreaker.unavailablePeriodDurationInSeconds"),
