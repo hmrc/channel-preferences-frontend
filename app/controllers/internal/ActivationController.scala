@@ -9,7 +9,7 @@ import uk.gov.hmrc.play.frontend.auth.Actions
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 
-object ActivationController extends ActivationController{
+object ActivationController extends ActivationController {
 
   override val preferenceConnector: PreferencesConnector = PreferencesConnector
 

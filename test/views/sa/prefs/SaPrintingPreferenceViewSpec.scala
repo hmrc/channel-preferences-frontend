@@ -17,7 +17,7 @@ class SaPrintingPreferenceViewSpec extends UnitSpec with WithFakeApplication {
         emailForm = EmailForm(),
         submitPrefsFormAction = Call("GET", "/"),
         cohort = IPage
-      )(FakeRequest("GET", "/"), TestFixtures.sampleHostContext).toString())
+      )(FakeRequest("GET", "/")).toString())
 
       document.getElementById("opt-in-in").hasAttr("checked") shouldBe true
     }

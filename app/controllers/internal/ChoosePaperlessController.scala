@@ -21,38 +21,15 @@ import uk.gov.hmrc.play.http.HeaderCarrier
 
 import scala.concurrent.Future
 
-object ChoosePaperlessController extends ChoosePaperlessController with ChoosePaperlessControllerDependencies {
+object ChoosePaperlessController extends ChoosePaperlessController with Authentication with Actions {
 
-  def redirectToDisplayFormWithCohort(implicit emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = authenticated { implicit authContext => implicit request =>
-    _redirectToDisplayFormWithCohort(emailAddress)
-  }
-
-  def displayForm(implicit cohort: Option[OptInCohort], emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = authenticated.async { implicit user => implicit request =>
-    _displayForm(AccountDetails, emailAddress, cohort)
-  }
-
-  def submitForm(implicit hostContext: HostContext) = authenticated.async { implicit user => implicit request =>
-    _submitForm(AccountDetails)
-  }
-
-  def displayNearlyDone(implicit emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = authenticated { implicit authContext => implicit request =>
-    _displayNearlyDone(emailAddress)
-  }
+  val auditConnector = Global.auditConnector
+  val preferencesConnector = PreferencesConnector
+  val emailConnector = EmailConnector
+  protected implicit def authConnector: AuthConnector = Global.authConnector
 }
 
-trait ChoosePaperlessControllerDependencies extends AppName with OptInCohortCalculator with Authentication{
-  this: ChoosePaperlessController =>
-
-  override val auditConnector = Global.auditConnector
-  override val preferencesConnector = PreferencesConnector
-  override val emailConnector = EmailConnector
-  override protected implicit def authConnector: AuthConnector = Global.authConnector
-}
-
-trait ChoosePaperlessController
-  extends FrontendController
-  with Actions
-  with AppName {
+trait ChoosePaperlessController extends FrontendController with OptInCohortCalculator with Authentication with Actions with AppName {
 
   def preferencesConnector: PreferencesConnector
   def emailConnector: EmailConnector
@@ -60,40 +37,43 @@ trait ChoosePaperlessController
 
   def calculateCohort(authContext: AuthContext): OptInCohort
 
-  private[controllers] def _redirectToDisplayFormWithCohort(emailAddress: Option[Encrypted[EmailAddress]])(implicit authContext: AuthContext, hostContext: HostContext) =
+  def redirectToDisplayFormWithCohort(emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = authenticated { implicit authContext => implicit request =>
+    createRedirectToDisplayFormWithCohort(emailAddress, hostContext)
+  }
+
+  private def createRedirectToDisplayFormWithCohort(emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext)(implicit authContext: AuthContext) =
     Redirect(routes.ChoosePaperlessController.displayForm(Some(calculateCohort(authContext)), emailAddress, hostContext))
 
-  private[controllers] def _displayForm(journey: Journey, emailAddress: Option[Encrypted[EmailAddress]], possibleCohort: Option[OptInCohort])(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext) = {
+  def displayForm(implicit cohort: Option[OptInCohort], emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = authenticated.async { implicit authContext => implicit request =>
     val saUtr = authContext.principal.accounts.sa.get.utr
-    possibleCohort.fold(ifEmpty = Future.successful(_redirectToDisplayFormWithCohort(emailAddress))) { cohort =>
+    cohort.fold(ifEmpty = Future.successful(createRedirectToDisplayFormWithCohort(emailAddress, hostContext))) { cohort =>
       preferencesConnector.saveCohort(saUtr, calculateCohort(authContext)).map { case _ =>
-        auditPageShown(saUtr, journey, cohort)
+        auditPageShown(saUtr, AccountDetails, cohort)
         val email = emailAddress.map(_.decryptedValue)
-        Ok(
-          views.html.sa.prefs.sa_printing_preference(
-            emailForm = OptInDetailsForm().fill(OptInDetailsForm.Data(emailAddress = email, preference = email.map(_ => OptInDetailsForm.Data.PaperlessChoice.OptedIn), acceptedTcs = Some(false))),
-            submitPrefsFormAction = internal.routes.ChoosePaperlessController.submitForm(hostContext),
-            cohort = cohort
-          )
-        )
+        Ok(views.html.sa.prefs.sa_printing_preference(
+          emailForm = OptInDetailsForm().fill(OptInDetailsForm.Data(emailAddress = email, preference = email.map(_ => OptInDetailsForm.Data.PaperlessChoice.OptedIn), acceptedTcs = Some(false))),
+          submitPrefsFormAction = internal.routes.ChoosePaperlessController.submitForm(hostContext),
+          cohort = cohort
+        ))
       }
     }
   }
 
-  private[controllers] def _submitForm(journey: Journey)(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext) = {
+  def submitForm(implicit hostContext: HostContext) = authenticated.async { implicit authContext => implicit request =>
     val cohort = calculateCohort(authContext)
     val saUtr = authContext.principal.accounts.sa.get.utr
 
-    def saveAndAuditPreferences(utr:SaUtr, digital: Boolean, email: Option[String], hc: HeaderCarrier): Future[Result] = {
-      implicit val headerCarrier = hc
+    def saveAndAuditPreferences(utr:SaUtr, digital: Boolean, email: Option[String])(implicit hc: HeaderCarrier): Future[Result] = {
       val terms = Generic -> TermsAccepted(digital)
       for {
         _ <- preferencesConnector.saveCohort(utr, calculateCohort(authContext))
         preferencesStatus <- preferencesConnector.updateTermsAndConditions(utr, terms, email)
       } yield {
-        auditChoice(utr, journey, cohort, terms, email, preferencesStatus)
+        auditChoice(utr, AccountDetails, cohort, terms, email, preferencesStatus)
         digital match {
-          case true  => Redirect(routes.ChoosePaperlessController.displayNearlyDone(email map (emailAddress => Encrypted(EmailAddress(emailAddress))), hostContext))
+          case true  =>
+            val encryptedEmail = email map (emailAddress => Encrypted(EmailAddress(emailAddress)))
+            Redirect(routes.ChoosePaperlessController.displayNearlyDone(encryptedEmail, hostContext))
           case false => Redirect(hostContext.returnUrl)
         }
       }
@@ -104,7 +84,7 @@ trait ChoosePaperlessController
     OptInOrOutForm().bindFromRequest.fold[Future[Result]](
       hasErrors = returnToFormWithErrors,
       happyForm =>
-        if (happyForm.optedIn.contains(false)) saveAndAuditPreferences(saUtr, false, None, hc)
+        if (happyForm.optedIn.contains(false)) saveAndAuditPreferences(saUtr, digital = false, email = None)
         else OptInDetailsForm().bindFromRequest.fold[Future[Result]](
           hasErrors = returnToFormWithErrors,
           success = {
@@ -114,7 +94,7 @@ trait ChoosePaperlessController
                 else emailConnector.isValid(emailAddress)
 
               emailVerificationStatus.flatMap {
-                case true => saveAndAuditPreferences(saUtr, true, Some(emailAddress), hc)
+                case true => saveAndAuditPreferences(saUtr, digital = true, email = Some(emailAddress))
                 case false => Future.successful(Ok(views.html.sa_printing_preference_verify_email(emailAddress, cohort)))
               }
             case _ => returnToFormWithErrors(OptInDetailsForm().bindFromRequest)
@@ -131,7 +111,9 @@ trait ChoosePaperlessController
       detail = Json.toJson(hc.toAuditDetails(
         "utr" -> utr.toString,
         "journey" -> journey.toString,
-        "cohort" -> cohort.toString))))
+        "cohort" -> cohort.toString
+      ))
+    ))
 
   private def auditChoice(utr: SaUtr, journey: Journey, cohort: OptInCohort, terms: (TermsType, TermsAccepted), emailOption: Option[String], preferencesStatus: PreferencesStatus)(implicit request: Request[_], hc: HeaderCarrier) =
     auditConnector.sendEvent(ExtendedDataEvent(
@@ -147,10 +129,12 @@ trait ChoosePaperlessController
         "TandCsScope" -> terms._1.toString.toLowerCase,
         "userConfirmedReadTandCs" -> terms._2.accepted.toString,
         "email" -> emailOption.getOrElse(""),
-        "newUserPreferencesCreated" -> (preferencesStatus == PreferencesCreated).toString))))
+        "newUserPreferencesCreated" -> (preferencesStatus == PreferencesCreated).toString
+      ))
+    ))
 
-  protected def _displayNearlyDone(emailAddress: Option[Encrypted[EmailAddress]])(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Result = {
-    Ok(views.html.account_details_printing_preference_confirm(calculateCohort(authContext), emailAddress.map(_.decryptedValue)))
+  def displayNearlyDone(emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = authenticated { implicit authContext => implicit request =>
+    Ok(views.html.account_details_printing_preference_confirm(calculateCohort(authContext), emailAddress.map(_.decryptedValue))(request, hostContext))
   }
 }
 
