@@ -56,7 +56,7 @@ class VerificationEmailISpec extends PreferencesFrontEndServer  {
         have(bodyWith("This link has expired")) and
         have(bodyWith("Sign into your HMRC online account")) and
         have(bodyWith( """href="https://online.hmrc.gov.uk"""")) and
-        have(bodyWith("go to your HMRC account to request a new verification link")))
+        have(bodyWith("request a new verification link")))
     }
 
     "display already verified message if the email has been verified already" in new VerificationEmailTestCase {
