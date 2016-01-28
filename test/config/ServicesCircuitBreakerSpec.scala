@@ -4,20 +4,20 @@ import java.net.ConnectException
 
 import play.mvc.Http.Status._
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http.{Upstream5xxResponse, Upstream4xxResponse}
+import uk.gov.hmrc.play.http.{NotFoundException, BadRequestException, Upstream5xxResponse, Upstream4xxResponse}
 import uk.gov.hmrc.play.test.UnitSpec
 
 class ServicesCircuitBreakerSpec extends UnitSpec {
 
   "ServicesCircuitBreaker" should {
-    "count BAD_REQUEST Upstream exception" in new TestCase {
-      val exception = new Upstream4xxResponse(
-        message = "",
-        upstreamResponseCode = BAD_REQUEST,
-        reportAs = BAD_REQUEST,
-        headers = Map.empty
-      )
-      circuitBreaker.breakOnExceptionDelegate(exception) should be (true)
+    "doesn't count BAD_REQUEST Upstream exception" in new TestCase {
+      val exception = new BadRequestException("bad request")
+      circuitBreaker.breakOnExceptionDelegate(exception) should be (false)
+    }
+
+    "doesn't count NOT_FOUND Upstream exception" in new TestCase {
+      val exception = new NotFoundException("not found")
+      circuitBreaker.breakOnExceptionDelegate(exception) should be (false)
     }
 
     "doesn't count any Upstream4xx exception different than BAD_REQUEST" in new TestCase {
