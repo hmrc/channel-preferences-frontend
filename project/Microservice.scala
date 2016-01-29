@@ -33,6 +33,14 @@ trait MicroService {
       fork in Test := false,
       retrieveManaged := true
     )
+    .settings(inConfig(FunctionalTest)(Defaults.testSettings): _*)
+    .configs(FunctionalTest)
+    .settings(
+      unmanagedSourceDirectories in FunctionalTest <<= (baseDirectory in FunctionalTest)(base => Seq(base / "functional")),
+      Keys.fork in FunctionalTest := false,
+      parallelExecution in FunctionalTest := false,
+      addTestReportOption(FunctionalTest, "functional-test-reports")
+    )
     .settings(Repositories.playPublishingSettings : _*)
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
     .configs(IntegrationTest)
@@ -51,8 +59,10 @@ private object TestPhases {
 
   val allPhases = "tt->test;test->test;test->compile;compile->compile"
   val allItPhases = "tit->it;it->it;it->compile;compile->compile"
+  val allFunctionalPhases = "func->functional;functional->functional;functional->compile;compile->compile"
 
   lazy val TemplateTest = config("tt") extend Test
+  lazy val FunctionalTest = config("functional") extend Test
   lazy val TemplateItTest = config("tit") extend IntegrationTest
 
   def oneForkedJvmPerTest(tests: Seq[TestDefinition]) =

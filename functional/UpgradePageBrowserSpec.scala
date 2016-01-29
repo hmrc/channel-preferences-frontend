@@ -1,12 +1,12 @@
 import com.github.tomakehurst.wiremock.client.WireMock._
+import conf.ServerSetup
 import org.scalatest.concurrent.ScalaFutures
+import pages._
 import uk.gov.hmrc.endtoend
 import uk.gov.hmrc.endtoend.sa.config.UserWithUtr
 
-//TODO rename Spec & package
-class UpgradeBrowserSpec extends endtoend.sa.Spec with ScalaFutures with WiremockStubSetup {
-  import InternalPages._
-  import Stubs._
+class UpgradePageBrowserSpec extends endtoend.sa.Spec with ScalaFutures with ServerSetup {
+  import stubs._
 
   implicit val user = new UserWithUtr { val utr = "1111111111" }
 
@@ -27,8 +27,16 @@ class UpgradeBrowserSpec extends endtoend.sa.Spec with ScalaFutures with Wiremoc
         upgradePage should be (displayed)
 
       When("I click 'Yes' and then 'Submit")
+        givenThat(post(urlMatching(s"/preferences/sa/individual/${user.utr}/terms-and-conditions")) willReturn (aResponse withStatus 200))
         click on upgradePage.`terms and conditions checkbox`
         click on upgradePage.`continue`
+
+      Then("I am taken to the you're signed up page")
+        val genericUpgradeConfirmationPage = GenericUpgradeConfirmationPage(Host.ReturnPage)
+        genericUpgradeConfirmationPage should be (displayed)
+
+      When("I click on continue button")
+        click on genericUpgradeConfirmationPage.`continue button`
 
       Then("I am taken back to the return page")
         Host.ReturnPage should be (displayed)
