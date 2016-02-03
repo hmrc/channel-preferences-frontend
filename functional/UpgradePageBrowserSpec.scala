@@ -27,7 +27,7 @@ class UpgradePageBrowserSpec extends endtoend.sa.Spec with ScalaFutures with Ser
         upgradePage should be (displayed)
 
       When("I click 'Yes' and then 'Submit")
-        givenThat(post(urlMatching(s"/preferences/sa/individual/${user.utr}/terms-and-conditions")) willReturn (aResponse withStatus 200))
+        givenThat(Preferences.`POST /preferences/sa/individual/<utr>/terms-and-conditions` willReturn (aResponse withStatus 200))
         click on upgradePage.`terms and conditions checkbox`
         click on upgradePage.`continue`
 

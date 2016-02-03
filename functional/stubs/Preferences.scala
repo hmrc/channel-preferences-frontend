@@ -16,6 +16,10 @@ object Preferences {
       equalToJson(s"""{ "generic": { "accepted": $genericAccepted } } """)
     )
 
+  def `POST /preferences/sa/individual/<utr>/terms-and-conditions`(implicit user: UserWithUtr) =
+    post(urlMatching(s"/preferences/sa/individual/${user.utr}/terms-and-conditions"))
+
+
   val optedInPreferenceJson =
     s"""
        |{
