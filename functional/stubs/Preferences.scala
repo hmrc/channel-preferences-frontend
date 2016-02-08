@@ -20,10 +20,15 @@ object Preferences {
     post(urlMatching(s"/preferences/sa/individual/${user.utr}/terms-and-conditions"))
 
 
-  val optedInPreferenceJson =
+  def optedInPreferenceJson(email: String) =
     s"""
        |{
-       |    "digital": true
+       |    "digital": true,
+       |    "email": {
+       |        "email": "$email",
+       |        "status": "verified",
+       |        "mailboxFull": false
+       |    }
        |}""".stripMargin
 
   val optedOutPreferenceJson =
@@ -37,5 +42,4 @@ object Preferences {
        |{
        |    "email": "some@email.com"
        |}""".stripMargin
-
 }

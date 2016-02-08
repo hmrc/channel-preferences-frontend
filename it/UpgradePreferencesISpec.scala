@@ -106,7 +106,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
     "show go paperless and allow subsequent activation when legacy user is opted out" in new NewUserTestCase  {
       await(`/preferences-admin/sa/individual`.delete(utr))
 
-      `/portal/preferences/sa/individual`.postLegacyOptOut(utr).futureValue.status should be (200)
+      `/preferences-admin/sa/individual`.postLegacyOptOut(utr).futureValue.status should be (200)
 
       val activateResponse = `/preferences/sa/individual/:utr/activations/sa-all`(utr, authHeader).put().futureValue
       activateResponse.status should be (412)
@@ -172,6 +172,18 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
     }
   }
 
+  "Upgrade preferences page" should {
+    "receive a digital true response from get preference call for legacy opted in user" in new NewUserTestCase {
+      val pendingEmail = "some@email.com"
+      await(`/preferences-admin/sa/individual`.delete(utr))
+
+      `/preferences-admin/sa/individual`.postLegacyOptIn(utr, pendingEmail).futureValue.status should be (200)
+      val preferencesResponse = `/preferences/sa/individual/utr/print-suppression`(authHeader).getPreference(utr).futureValue
+      preferencesResponse should have ('status(200))
+      preferencesResponse.body should include(""""digital":true""")
+      preferencesResponse.body should include(s"""email":"$pendingEmail"""")
+    }
+  }
 
   trait NewUserTestCase extends TestCaseWithFrontEndAuthentication {
     import play.api.Play.current

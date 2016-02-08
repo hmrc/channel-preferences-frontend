@@ -82,6 +82,13 @@ trait PreferencesFrontEndServer extends ServiceSpec {
           .put(payeFormTypeBody)
     }
 
+    def `/preferences/sa/individual/utr/print-suppression`(header: (String, String)) = new {
+      def getPreference(utr: String) = WS.url(server.externalResource("preferences",
+        s"/preferences/sa/individual/${utr}/print-suppression"))
+        .withHeaders(header)
+        .get
+    }
+
     val `/portal/preferences/sa/individual` = new {
       def postPendingEmail(utr: String, pendingEmail: String) = WS.url(server.externalResource("preferences",
         s"/portal/preferences/sa/individual/$utr/print-suppression")).post(Json.parse( s"""{"digital": true, "email":"$pendingEmail"}"""))
@@ -91,12 +98,6 @@ trait PreferencesFrontEndServer extends ServiceSpec {
 
       def postOptOut(utr: String) = WS.url(server.externalResource("preferences",
         s"/portal/preferences/sa/individual/$utr/print-suppression")).post(Json.parse( s"""{"digital": false}"""))
-
-      def postLegacyOptOut(utr: String)(implicit header: (String, String)) = {
-        WS.url(server.externalResource("preferences", path = s"/preferences-admin/sa/individual/$utr/legacy-opt-out"))
-          .withHeaders(header)
-          .post(Json.parse("{}"))
-      }
 
       def get(utr: String) = WS.url(server.externalResource("preferences", s"/portal/preferences/sa/individual/$utr/print-suppression")).get()
       }
@@ -114,6 +115,17 @@ trait PreferencesFrontEndServer extends ServiceSpec {
       def deleteAll() = WS.url(server.externalResource("preferences",
         "/preferences-admin/sa/individual/print-suppression")).delete()
 
+      def postLegacyOptOut(utr: String)(implicit header: (String, String)) = {
+        WS.url(server.externalResource("preferences", path = s"/preferences-admin/sa/individual/$utr/legacy-opt-out"))
+          .withHeaders(header)
+          .post(Json.parse("{}"))
+      }
+
+      def postLegacyOptIn(utr: String, email: String)(implicit header: (String, String)) = {
+        WS.url(server.externalResource("preferences", path = s"/preferences-admin/sa/individual/${utr}/legacy-opt-in/${email}"))
+          .withHeaders(header)
+          .post(Json.parse("{}"))
+      }
     }
 
     val `/preferences-admin/sa/process-nino-determination` = new {
