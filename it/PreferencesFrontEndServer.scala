@@ -82,6 +82,13 @@ trait PreferencesFrontEndServer extends ServiceSpec {
           .put(payeFormTypeBody)
     }
 
+    def `/preferences/sa/individual/utr/print-suppression`(header: (String, String)) = new {
+      def getPreference(utr: String) = WS.url(server.externalResource("preferences",
+        s"/preferences/sa/individual/${utr}/print-suppression"))
+        .withHeaders(header)
+        .get
+    }
+
     val `/portal/preferences/sa/individual` = new {
       def postPendingEmail(utr: String, pendingEmail: String) = WS.url(server.externalResource("preferences",
         s"/portal/preferences/sa/individual/$utr/print-suppression")).post(Json.parse( s"""{"digital": true, "email":"$pendingEmail"}"""))
