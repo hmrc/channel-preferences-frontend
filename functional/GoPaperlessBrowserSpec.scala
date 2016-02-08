@@ -15,13 +15,8 @@ class GoPaperlessBrowserSpec extends endtoend.sa.Spec with ScalaFutures with Ser
         Given("I am logged in")
           go to Auth.loginPage
 
-        And("I have my preferences set as opted out")
+        When("I am on opt in to paperless Page")
           givenThat (Auth.`GET /auth/authority` willReturn (aResponse withStatus 200 withBody Auth.authorityRecordJson))
-          givenThat (Preferences.`GET /preferences/sa/individual/<utr>/print-suppression` willReturn (
-            aResponse withStatus 200 withBody Preferences.optedOutPreferenceJson
-            ))
-
-        When("I go to the opt in to paperless Page")
           val goPaperlessPage = GoPaperlessPage(returnUrl = Host.ReturnPage, Host.returnLinkText)
           go to goPaperlessPage
           goPaperlessPage should be (displayed)
@@ -44,13 +39,8 @@ class GoPaperlessBrowserSpec extends endtoend.sa.Spec with ScalaFutures with Ser
         Given("I am logged in")
           go to Auth.loginPage
 
-        And("I have my preferences set as opted out")
+        And("I am on opt in to paperless Page")
           givenThat (Auth.`GET /auth/authority` willReturn (aResponse withStatus 200 withBody Auth.authorityRecordJson))
-          givenThat (Preferences.`GET /preferences/sa/individual/<utr>/print-suppression` willReturn (
-            aResponse withStatus 200 withBody Preferences.optedOutPreferenceJson
-            ))
-
-        When("I go to the opt in to paperless Page")
           val goPaperlessPage = GoPaperlessPage(returnUrl = Host.ReturnPage, Host.returnLinkText)
           go to goPaperlessPage
           goPaperlessPage should be (displayed)
@@ -74,13 +64,8 @@ class GoPaperlessBrowserSpec extends endtoend.sa.Spec with ScalaFutures with Ser
         Given("I am logged in")
           go to Auth.loginPage
 
-        And("I have my preferences set as opted out")
+        When("I am on opt in to paperless Page")
           givenThat (Auth.`GET /auth/authority` willReturn (aResponse withStatus 200 withBody Auth.authorityRecordJson))
-          givenThat (Preferences.`GET /preferences/sa/individual/<utr>/print-suppression` willReturn (
-            aResponse withStatus 200 withBody Preferences.optedOutPreferenceJson
-            ))
-
-        When("I go to the opt in to paperless Page")
           val goPaperlessPage = GoPaperlessPage(returnUrl = Host.ReturnPage, Host.returnLinkText)
           go to goPaperlessPage
           goPaperlessPage should be (displayed)
@@ -103,13 +88,8 @@ class GoPaperlessBrowserSpec extends endtoend.sa.Spec with ScalaFutures with Ser
         Given("I am logged in")
           go to Auth.loginPage
 
-        And("I have my preferences set as opted out")
-          givenThat(Auth.`GET /auth/authority` willReturn (aResponse withStatus 200 withBody Auth.authorityRecordJson))
-          givenThat(Preferences.`GET /preferences/sa/individual/<utr>/print-suppression` willReturn (
-            aResponse withStatus 200 withBody Preferences.optedOutPreferenceJson
-            ))
-
-        And("I go to the opt in to paperless Page")
+        And("I am on opt in to paperless Page")
+          givenThat (Auth.`GET /auth/authority` willReturn (aResponse withStatus 200 withBody Auth.authorityRecordJson))
           val goPaperlessPage = GoPaperlessPage(returnUrl = Host.ReturnPage, Host.returnLinkText)
           go to goPaperlessPage
           goPaperlessPage should be(displayed)
@@ -119,7 +99,6 @@ class GoPaperlessBrowserSpec extends endtoend.sa.Spec with ScalaFutures with Ser
 
         Then("I receive a validation error informing me I haven't agreed to the terms")
           goPaperlessPage.`go paperless validation message` should include("You must accept the terms and conditions")
-
 
         When("I enter a valid email address but don't select T's and C's checkbox")
           goPaperlessPage.completeForm(TestEmailAddresses.generateSafe, TsAndCsSelected = false)
