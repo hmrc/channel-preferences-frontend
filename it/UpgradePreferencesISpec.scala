@@ -173,7 +173,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
   }
 
   "Upgrade preferences page" should {
-    "receive a digital true response from get preference call" in new NewUserTestCase {
+    "receive a digital true response from get preference call for legacy opted in user" in new NewUserTestCase {
       val pendingEmail = "some@email.com"
       await(`/preferences-admin/sa/individual`.delete(utr))
 
@@ -181,10 +181,8 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
       val preferencesResponse = `/preferences/sa/individual/utr/print-suppression`(authHeader).getPreference(utr).futureValue
       preferencesResponse should have ('status(200))
       preferencesResponse.body should include(""""digital":true""")
-
     }
   }
-
 
   trait NewUserTestCase extends TestCaseWithFrontEndAuthentication {
     import play.api.Play.current

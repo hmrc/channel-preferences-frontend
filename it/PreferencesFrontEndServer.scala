@@ -37,7 +37,6 @@ trait PreferencesFrontEndServer extends ServiceSpec {
       "external-government-gateway",
       "government-gateway",
       "auth",
-      "datastream",
       "message",
       "mailgun",
       "hmrc-deskpro",
