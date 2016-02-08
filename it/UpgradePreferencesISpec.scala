@@ -181,6 +181,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
       val preferencesResponse = `/preferences/sa/individual/utr/print-suppression`(authHeader).getPreference(utr).futureValue
       preferencesResponse should have ('status(200))
       preferencesResponse.body should include(""""digital":true""")
+      preferencesResponse.body should include(s"""email":"$pendingEmail"""")
     }
   }
 

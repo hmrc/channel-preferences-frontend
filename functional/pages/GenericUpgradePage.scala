@@ -16,5 +16,6 @@ object GenericUpgradePage {
     def `no ask me later radio button`(implicit driver: WebDriver) = radioButton("opt-in-out").underlying
     def `yes continue electronic comms radio button`(implicit driver: WebDriver) = radioButton("opt-in-in").underlying
     def continue(implicit driver: WebDriver) = id("submitUpgrade")
+    def `provided email address`(implicit driver: WebDriver) = id("opted-in-email").element.text
   }
 }
