@@ -1,6 +1,6 @@
 package controllers.external
 
-import connectors.{EmailVerificationLinkResponse, PreferencesConnector}
+import connectors.{EmailVerificationLinkResponse, EntityResolverConnector}
 import play.api.mvc.Action
 import uk.gov.hmrc.play.frontend.auth.AuthContext
 import uk.gov.hmrc.play.frontend.controller.FrontendController
@@ -9,7 +9,7 @@ import scala.concurrent.Future
 
 class EmailValidationController extends FrontendController {
 
-  implicit lazy val preferencesMicroService :PreferencesConnector = PreferencesConnector
+  implicit lazy val preferencesMicroService :EntityResolverConnector = EntityResolverConnector
 
   val regex = "([0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12})".r
 

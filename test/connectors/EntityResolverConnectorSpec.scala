@@ -15,11 +15,11 @@ import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.Future
 
-class PreferencesConnectorSpec extends UnitSpec with ScalaFutures with WithFakeApplication {
+class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with WithFakeApplication {
 
   implicit val hc = new HeaderCarrier
 
-  import PreferencesConnector._
+  import EntityResolverConnector._
 
   private def defaultGetHandler: (String) => Future[AnyRef with HttpResponse] = {
     _ => Future.successful(HttpResponse(200))
@@ -33,16 +33,16 @@ class PreferencesConnectorSpec extends UnitSpec with ScalaFutures with WithFakeA
     (a, b) => Future.successful(HttpResponse(200))
   }
 
-  class TestPreferencesConnector extends PreferencesConnector with ServicesConfig {
+  class TestPreferencesConnector extends EntityResolverConnector with ServicesConfig {
 
-    override def serviceUrl: String = "http://preferences.service/"
+    override def serviceUrl: String = "http://entity-resolver.service/"
 
     override def http: HttpGet with HttpPost with HttpPut = ???
   }
 
-  def preferencesConnector(returnFromDoGet: String => Future[HttpResponse] = defaultGetHandler,
-                           returnFromDoPost: (String, Any) => Future[HttpResponse] = defaultPostHandler,
-                           returnFromDoPut: (String, Any) => Future[HttpResponse] = defaultPutHandler) = new TestPreferencesConnector {
+  def entityResolverConnector(returnFromDoGet: String => Future[HttpResponse] = defaultGetHandler,
+                              returnFromDoPost: (String, Any) => Future[HttpResponse] = defaultPostHandler,
+                              returnFromDoPut: (String, Any) => Future[HttpResponse] = defaultPutHandler) = new TestPreferencesConnector {
     override def http = new HttpGet with HttpPost with HttpPut with AppName with HttpAuditing {
       override protected def doGet(url: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = returnFromDoGet(url)
 
@@ -78,7 +78,7 @@ class PreferencesConnectorSpec extends UnitSpec with ScalaFutures with WithFakeA
       val preferenceResponseStatus = PRECONDITION_FAILED
       val preferenceResponseBody = "link/to/preferences-frontend"
 
-      val connector = preferencesConnector(
+      val connector = entityResolverConnector(
         returnFromDoPut = (url, body) => {
           url should include(s"/preferences/sa/individual/$utr/activations/sa-all?${toUrlParams(hostContext)}")
           body.toString should be (payload)
@@ -98,7 +98,7 @@ class PreferencesConnectorSpec extends UnitSpec with ScalaFutures with WithFakeA
       val preferenceResponseStatus = PRECONDITION_FAILED
       val preferenceResponseBody = "link/to/preferences-frontend"
 
-      val connector = preferencesConnector(
+      val connector = entityResolverConnector(
         returnFromDoPut = (url, body) => {
           url should include(s"/preferences/paye/individual/$nino/activations/notice-of-coding?${toUrlParams(hostContext)}")
           body.toString should be (payload)
@@ -115,7 +115,7 @@ class PreferencesConnectorSpec extends UnitSpec with ScalaFutures with WithFakeA
       val hostContext = HostContext(returnUrl = "some/return/url", returnLinkText = "continue")
       val payload = """{"active":true}"""
 
-      val connector = preferencesConnector(returnFromDoPut = (url, body) => Future.failed(new InternalServerException("some exception")))
+      val connector = entityResolverConnector(returnFromDoPut = (url, body) => Future.failed(new InternalServerException("some exception")))
 
       connector.activate(NoticeOfCoding, nino, hostContext, Json.parse(payload)).futureValue.status should be (INTERNAL_SERVER_ERROR)
     }
@@ -125,7 +125,7 @@ class PreferencesConnectorSpec extends UnitSpec with ScalaFutures with WithFakeA
     val nino = Nino("CE123457D")
 
     "return the preferences for utr only" in {
-      val preferenceConnector = preferencesConnector { url =>
+      val preferenceConnector = entityResolverConnector { url =>
         url should not include nino.value
 
         Future.successful(HttpResponse(200, Some(Json.parse(
@@ -151,7 +151,7 @@ class PreferencesConnectorSpec extends UnitSpec with ScalaFutures with WithFakeA
     }
 
     "return None for a 404" in {
-      val preferenceConnector = preferencesConnector(_ => Future.successful(HttpResponse(404, None)))
+      val preferenceConnector = entityResolverConnector(_ => Future.successful(HttpResponse(404, None)))
 
       val preferences = preferenceConnector.getPreferences(SaUtr("1")).futureValue
 
@@ -159,7 +159,7 @@ class PreferencesConnectorSpec extends UnitSpec with ScalaFutures with WithFakeA
     }
 
     "return None for a 410" in {
-      val preferenceConnector = preferencesConnector(_ => Future.successful(HttpResponse(410, None)))
+      val preferenceConnector = entityResolverConnector(_ => Future.successful(HttpResponse(410, None)))
 
       val preferences = preferenceConnector.getPreferences(SaUtr("1")).futureValue
 
@@ -169,18 +169,18 @@ class PreferencesConnectorSpec extends UnitSpec with ScalaFutures with WithFakeA
 
   "The getEmailAddress method" should {
     "return None for a 404" in {
-      val preferenceConnector = preferencesConnector(_ => Future.successful(
+      val preferenceConnector = entityResolverConnector(_ => Future.successful(
         HttpResponse(responseStatus = 404, responseJson = Some(Json.obj("reason" -> "EMAIL_ADDRESS_NOT_VERIFIED")))))
       preferenceConnector.getEmailAddress(SaUtr("1")).futureValue should be(None)
     }
 
     "return Error for other status code" in {
-      val preferenceConnector = preferencesConnector(_ => Future.successful(HttpResponse(400)))
+      val preferenceConnector = entityResolverConnector(_ => Future.successful(HttpResponse(400)))
       preferenceConnector.getEmailAddress(SaUtr("1")).failed.futureValue should be(an[Exception])
     }
 
     "return an email address when there is an email preference" in {
-      val preferenceConnector = preferencesConnector(_ => Future.successful(HttpResponse(200, Some(Json.parse(
+      val preferenceConnector = entityResolverConnector(_ => Future.successful(HttpResponse(200, Some(Json.parse(
         """{
           |  "email" : "a@b.com"
           |}
@@ -237,7 +237,7 @@ class PreferencesConnectorSpec extends UnitSpec with ScalaFutures with WithFakeA
       def expectedPayload: TermsAndConditionsUpdate
       def postedPayload(payload: TermsAndConditionsUpdate) = payload should be (expectedPayload)
 
-      val connector = preferencesConnector(returnFromDoPost = checkPayloadAndReturn)
+      val connector = entityResolverConnector(returnFromDoPost = checkPayloadAndReturn)
 
       def checkPayloadAndReturn(url: String, requestBody: Any): Future[HttpResponse] = {
         postedPayload(requestBody.asInstanceOf[TermsAndConditionsUpdate])
@@ -274,7 +274,7 @@ class PreferencesConnectorSpec extends UnitSpec with ScalaFutures with WithFakeA
       def postedPayload(payload: TermsAndConditionsUpdate) = payload should be (expectedPayload)
       val email = "test@test.com"
 
-      val connector = preferencesConnector(returnFromDoPost = checkPayloadAndReturn)
+      val connector = entityResolverConnector(returnFromDoPost = checkPayloadAndReturn)
 
       def checkPayloadAndReturn(url: String, requestBody: Any): Future[HttpResponse] = {
         postedPayload(requestBody.asInstanceOf[TermsAndConditionsUpdate])
@@ -311,7 +311,7 @@ class PreferencesConnectorSpec extends UnitSpec with ScalaFutures with WithFakeA
       def expectedPayload: ActivationStatus = ActivationStatus(true)
       def putPayload(payload: ActivationStatus) = payload should be(expectedPayload)
 
-      val connector = preferencesConnector(returnFromDoPut = checkPayloadAndReturn)
+      val connector = entityResolverConnector(returnFromDoPut = checkPayloadAndReturn)
       val returnUrl = "/any/old/url"
 
       def checkPayloadAndReturn(url: String, requestBody: Any): Future[HttpResponse] = {

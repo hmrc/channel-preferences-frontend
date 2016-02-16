@@ -21,7 +21,7 @@ object ManagePaperlessController extends ManagePaperlessController with Services
   val authConnector = Global.authConnector
 
   lazy val emailConnector = EmailConnector
-  lazy val preferencesConnector = PreferencesConnector
+  lazy val preferencesConnector = EntityResolverConnector
 
   def displayChangeEmailAddress(implicit emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = authenticated.async { implicit authContext => implicit request =>
     _displayChangeEmailAddress(emailAddress)
@@ -59,7 +59,7 @@ with Actions {
   val auditConnector: AuditConnector
   val authConnector: AuthConnector
   val emailConnector: EmailConnector
-  val preferencesConnector: PreferencesConnector
+  val preferencesConnector: EntityResolverConnector
 
   private[controllers] def _displayStopPaperlessConfirmed(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Result = {
     Ok(views.html.opted_back_into_paper_thank_you())

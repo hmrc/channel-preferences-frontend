@@ -21,7 +21,7 @@ import scala.concurrent.Future
 abstract class Setup extends WithApplication(ConfigHelper.fakeApp) with MockitoSugar {
   val mockAuditConnector = mock[AuditConnector]
   val mockAuthConnector = mock[AuthConnector]
-  val mockPreferencesConnector = mock[PreferencesConnector]
+  val mockPreferencesConnector = mock[EntityResolverConnector]
   val mockEmailConnector = mock[EmailConnector]
 
   val controller = new ManagePaperlessController {

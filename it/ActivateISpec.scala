@@ -19,7 +19,7 @@ class ActivateISpec extends PreferencesFrontEndServer with EmailSupport with Moc
       val nino = Generate.nino
       val saUtr = Generate.utr
       val response = `/paperless/activate/:form-type/:tax-identifier`("notice-of-coding", nino)(saUtr).put().futureValue
-      response.status should be (NOT_FOUND)
+      response.status should be (PRECONDITION_FAILED)
     }
   }
 

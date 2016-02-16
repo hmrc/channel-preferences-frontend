@@ -24,14 +24,14 @@ import scala.concurrent.Future
 object ChoosePaperlessController extends ChoosePaperlessController with Authentication with Actions {
 
   val auditConnector = Global.auditConnector
-  val preferencesConnector = PreferencesConnector
+  val preferencesConnector = EntityResolverConnector
   val emailConnector = EmailConnector
   protected implicit def authConnector: AuthConnector = Global.authConnector
 }
 
 trait ChoosePaperlessController extends FrontendController with OptInCohortCalculator with Authentication with Actions with AppName {
 
-  def preferencesConnector: PreferencesConnector
+  def preferencesConnector: EntityResolverConnector
   def emailConnector: EmailConnector
   def auditConnector: AuditConnector
 

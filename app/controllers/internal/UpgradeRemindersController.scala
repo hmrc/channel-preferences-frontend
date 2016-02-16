@@ -24,7 +24,7 @@ import scala.concurrent.Future
 
 object UpgradeRemindersController extends UpgradeRemindersController with Authentication{
   override def authConnector = Global.authConnector
-  def preferencesConnector = PreferencesConnector
+  def preferencesConnector = EntityResolverConnector
 
   override def auditConnector: AuditConnector = Global.auditConnector
 
@@ -59,7 +59,7 @@ object UpgradeRemindersForm {
 trait UpgradeRemindersController extends FrontendController with Actions with AppName {
 
   def authConnector: AuthConnector
-  def preferencesConnector: PreferencesConnector
+  def preferencesConnector: EntityResolverConnector
   def auditConnector: AuditConnector
 
   private[controllers] def _renderUpgradePageIfPreferencesAvailable(utr: SaUtr, encryptedReturnUrl: Encrypted[String])(implicit request: Request[AnyContent]): Future[Result] = {

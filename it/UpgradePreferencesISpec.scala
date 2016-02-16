@@ -16,19 +16,19 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
     "set upgraded to paperless and allow subsequent activation" in new UpgradeTestCase {
       createOptedInVerifiedPreferenceWithNino()
 
-      `/preferences/paye/individual/:nino/activations/notice-of-coding`(nino,authHeader).put().futureValue.status should be (412)
+      `/preferences/paye/individual/:nino/activations/notice-of-coding`(nino.value,authHeader).put().futureValue.status should be (412)
 
       val response = `/paperless/upgrade`.post(optIn = true, acceptedTandC = Some(true)).futureValue
       response should have('status(303))
       response.header("Location").get should be (routes.UpgradeRemindersController.displayUpgradeConfirmed(Encrypted(returnUrl)).toString())
 
-      `/preferences/paye/individual/:nino/activations/notice-of-coding`(nino, authHeader).put().futureValue.status should be (200)
+      `/preferences/paye/individual/:nino/activations/notice-of-coding`(nino.value, authHeader).put().futureValue.status should be (200)
     }
 
     "return bad request if T&Cs not accepted"  in new UpgradeTestCase  {
       createOptedInVerifiedPreferenceWithNino()
 
-      `/preferences/paye/individual/:nino/activations/notice-of-coding`(nino,authHeader).put().futureValue.status should be (412)
+      `/preferences/paye/individual/:nino/activations/notice-of-coding`(nino.value,authHeader).put().futureValue.status should be (412)
 
       val response = `/paperless/upgrade`.post(optIn = true, acceptedTandC = Some(false)).futureValue
       response should have('status(400))
@@ -37,13 +37,13 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
     "set not upgraded to paperless and don't allow subsequent activation"  in new UpgradeTestCase  {
       createOptedInVerifiedPreferenceWithNino()
 
-      `/preferences/paye/individual/:nino/activations/notice-of-coding`(nino,authHeader).put().futureValue.status should be (412)
+      `/preferences/paye/individual/:nino/activations/notice-of-coding`(nino.value,authHeader).put().futureValue.status should be (412)
 
       val response = `/paperless/upgrade`.post(optIn = false, acceptedTandC = None).futureValue
       response should have('status(303))
       response.header("Location") should contain (returnUrl)
 
-      `/preferences/paye/individual/:nino/activations/notice-of-coding`(nino, authHeader).put().futureValue.status should be (409)
+      `/preferences/paye/individual/:nino/activations/notice-of-coding`(nino.value, authHeader).put().futureValue.status should be (409)
     }
   }
 
@@ -150,9 +150,10 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
   "New user preferences" should {
     "set generic terms and conditions as true including email address" in new NewUserTestCase {
+      println("*" * 20 + utr)
       val response = post(true, Some(email), true).futureValue
       response.status should be (200)
-
+      println("*" * 20 + utr)
       val preferencesResponse =  `/portal/preferences/sa/individual`.get(utr)
       preferencesResponse should have(status(200))
       val body = preferencesResponse.futureValue.body
@@ -225,11 +226,11 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
     import play.api.Play.current
 
     val returnUrl = "/test/return/url"
-    val nino = "CE123457D"
+    val nino = GenerateRandom.nino()
 
-    override val utr: String = "1097172564"
-    val authHeader =  createGGAuthorisationHeader(SaUtr(utr), Nino(nino))
-    override lazy val cookie = cookieForUtrAndNino(SaUtr(utr), Nino(nino)).futureValue
+    override val utr: String = GenerateRandom.utr().value
+    val authHeader =  createGGAuthorisationHeader(SaUtr(utr), nino)
+    override lazy val cookie = cookieForUtrAndNino(SaUtr(utr), nino).futureValue
 
     val `/paperless/upgrade` = new {
 

@@ -1,6 +1,6 @@
 package controllers.external
 
-import connectors.PreferencesConnector
+import connectors.EntityResolverConnector
 import helpers.ConfigHelper
 import org.jsoup.Jsoup
 import org.mockito.Matchers.{any, eq => meq}
@@ -18,7 +18,7 @@ class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar
   import connectors.EmailVerificationLinkResponse._
 
   def createController = new EmailValidationController {
-    override lazy val preferencesMicroService = mock[PreferencesConnector]
+    override lazy val preferencesMicroService = mock[EntityResolverConnector]
   }
 
   val wellFormattedToken: String = "12345678-abcd-4abc-abcd-123456789012"

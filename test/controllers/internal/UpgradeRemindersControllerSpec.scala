@@ -140,7 +140,7 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
 
 
     val controller = new UpgradeRemindersController {
-      override val preferencesConnector: PreferencesConnector = mock[PreferencesConnector]
+      override val preferencesConnector: EntityResolverConnector = mock[EntityResolverConnector]
       override val authConnector: AuthConnector = mock[AuthConnector]
       override val auditConnector: AuditConnector = mock[AuditConnector]
     }

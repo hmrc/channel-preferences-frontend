@@ -34,7 +34,7 @@ abstract class ChoosePaperlessControllerSetup extends WithApplication(ConfigHelp
   def assignedCohort: OptInCohort = IPage
 
   val mockAuditConnector = mock[AuditConnector]
-  val mockPreferencesConnector = mock[PreferencesConnector]
+  val mockPreferencesConnector = mock[EntityResolverConnector]
   val mockAuthConnector = mock[AuthConnector]
   val mockEmailConnector = mock[EmailConnector]
 
@@ -42,7 +42,7 @@ abstract class ChoosePaperlessControllerSetup extends WithApplication(ConfigHelp
 
     override def calculateCohort(user: AuthContext) = assignedCohort
 
-    override def preferencesConnector: PreferencesConnector = mockPreferencesConnector
+    override def preferencesConnector: EntityResolverConnector = mockPreferencesConnector
 
     override def emailConnector: EmailConnector = mockEmailConnector
 

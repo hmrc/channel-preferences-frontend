@@ -24,7 +24,7 @@ trait TestUser {
 }
 
 trait PreferencesFrontEndServer extends ServiceSpec {
-  protected val server = new PreferencesFrontendIntegrationServer("AccountDetailPartialISpec")
+  protected val server = new PreferencesFrontendIntegrationServer("PreferencesFrontEndServer")
 
   class PreferencesFrontendIntegrationServer(override val testName: String) extends MicroServiceEmbeddedServer {
     override protected val externalServices: Seq[ExternalService] = externalServiceNames.map(ExternalService.runFromJar(_))
@@ -43,6 +43,7 @@ trait PreferencesFrontEndServer extends ServiceSpec {
       "ca-frontend",
       "email",
       "cid",
+//      "entity-resolver",
       "preferences"
     )
   }
