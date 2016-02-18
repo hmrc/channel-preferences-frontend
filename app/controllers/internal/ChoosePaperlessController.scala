@@ -24,14 +24,14 @@ import scala.concurrent.Future
 object ChoosePaperlessController extends ChoosePaperlessController with Authentication with Actions {
 
   val auditConnector = Global.auditConnector
-  val preferencesConnector = EntityResolverConnector
+  val entityResolverConnector = EntityResolverConnector
   val emailConnector = EmailConnector
   protected implicit def authConnector: AuthConnector = Global.authConnector
 }
 
 trait ChoosePaperlessController extends FrontendController with OptInCohortCalculator with Authentication with Actions with AppName {
 
-  def preferencesConnector: EntityResolverConnector
+  def entityResolverConnector: EntityResolverConnector
   def emailConnector: EmailConnector
   def auditConnector: AuditConnector
 
@@ -47,7 +47,7 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
   def displayForm(implicit cohort: Option[OptInCohort], emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = authenticated.async { implicit authContext => implicit request =>
     val saUtr = authContext.principal.accounts.sa.get.utr
     cohort.fold(ifEmpty = Future.successful(createRedirectToDisplayFormWithCohort(emailAddress, hostContext))) { cohort =>
-      preferencesConnector.saveCohort(saUtr, calculateCohort(authContext)).map { case _ =>
+      entityResolverConnector.saveCohort(saUtr, calculateCohort(authContext)).map { case _ =>
         auditPageShown(saUtr, AccountDetails, cohort)
         val email = emailAddress.map(_.decryptedValue)
         Ok(views.html.sa.prefs.sa_printing_preference(
@@ -66,8 +66,8 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
     def saveAndAuditPreferences(utr:SaUtr, digital: Boolean, email: Option[String])(implicit hc: HeaderCarrier): Future[Result] = {
       val terms = Generic -> TermsAccepted(digital)
       for {
-        _ <- preferencesConnector.saveCohort(utr, calculateCohort(authContext))
-        preferencesStatus <- preferencesConnector.updateTermsAndConditions(utr, terms, email)
+        _ <- entityResolverConnector.saveCohort(utr, calculateCohort(authContext))
+        preferencesStatus <- entityResolverConnector.updateTermsAndConditions(utr, terms, email)
       } yield {
         auditChoice(utr, AccountDetails, cohort, terms, email, preferencesStatus)
         digital match {

@@ -51,9 +51,9 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
     "not be redirected to go paperless if they have already opted-out of generic terms" in new NewUserTestCase {
       await(`/preferences-admin/sa/individual`.delete(utr))
 
-      `/portal/preferences/sa/individual`.postOptOut(utr).futureValue.status should be (201)
+      `/preferences/sa/individual/utr/terms-and-conditions`(ggAuthHeader).postOptOut(utr).futureValue.status should be (201)
 
-      `/preferences/sa/individual/:utr/activations/sa-all`(utr, authHeader).put().futureValue.status should be (409)
+      `/preferences/sa/individual/:utr/activations/sa-all`(utr, ggAuthHeader).put().futureValue.status should be (409)
     }
   }
 
@@ -63,7 +63,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
     "set upgraded to paperless and allow subsequent activation when legacy user is verified" in new UpgradeTestCase {
       await(`/preferences-admin/sa/individual`.delete(utr))
 
-      `/portal/preferences/sa/individual`.postPendingEmail(utr, pendingEmail).futureValue.status should be (201)
+      `/preferences-admin/sa/individual`.postLegacyOptIn(utr, pendingEmail).futureValue.status should be (200)
       `/preferences-admin/sa/individual`.verifyEmailFor(utr).futureValue.status should be (204)
 
       val activateResponse = `/preferences/sa/individual/:utr/activations/sa-all`(utr, authHeader).put().futureValue
@@ -85,7 +85,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
     "set upgraded to paperless and allow subsequent activation when legacy user is pending verification" in new UpgradeTestCase {
       await(`/preferences-admin/sa/individual`.delete(utr))
 
-      `/portal/preferences/sa/individual`.postPendingEmail(utr, pendingEmail).futureValue.status should be (201)
+      `/preferences-admin/sa/individual`.postLegacyOptIn(utr, pendingEmail).futureValue.status should be (200)
 
       val activateResponse = `/preferences/sa/individual/:utr/activations/sa-all`(utr, authHeader).put().futureValue
       activateResponse.status should be (412)
@@ -128,7 +128,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
       await(`/preferences-admin/sa/individual`.delete(utr))
 
       val a = `/portal/preferences/sa/individual`
-      a.postPendingEmail(utr, pendingEmail).futureValue.status should be (201)
+      `/preferences/sa/individual/utr/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, pendingEmail).futureValue.status should be (201)
       a.postDeEnrolling(utr).futureValue.status should be (200)
 
       val activateResponse = `/preferences/sa/individual/:utr/activations/sa-all`(utr, authHeader).put().futureValue
@@ -246,11 +246,11 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
     }
 
     def createOptedInVerifiedPreferenceWithNino() : WSResponse = {
+      val legacySupport = `/preferences-admin/sa/individual`
+      await(legacySupport.delete(utr))
+      await(legacySupport.postLegacyOptIn(utr, uniqueEmail))
+      await(legacySupport.verifyEmailFor(utr))
 
-      await(`/preferences-admin/sa/individual`.delete(utr))
-      `/portal/preferences/sa/individual`.postPendingEmail(utr, uniqueEmail) should (have(status(200)) or have(status(201)))
-      `/preferences-admin/sa/individual`.verifyEmailFor(utr)
-      await(`/preferences-admin/sa/process-nino-determination`.post())
     }
   }
 

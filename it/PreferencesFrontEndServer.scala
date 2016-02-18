@@ -27,7 +27,7 @@ trait PreferencesFrontEndServer extends ServiceSpec {
   protected val server = new PreferencesFrontendIntegrationServer("PreferencesFrontEndServer")
 
   class PreferencesFrontendIntegrationServer(override val testName: String) extends MicroServiceEmbeddedServer {
-    override protected val externalServices: Seq[ExternalService] = externalServiceNames.map(ExternalService.runFromJar(_))
+    override protected val externalServices: Seq[ExternalService] = externalServiceNames.map(ExternalService.runFromJar(_)) ++ Seq(ExternalService.runFromSource("entity-resolver"))
 
     override protected def startTimeout: Duration = 300.seconds
   }
@@ -91,17 +91,20 @@ trait PreferencesFrontEndServer extends ServiceSpec {
     }
 
     val `/portal/preferences/sa/individual` = new {
-      def postPendingEmail(utr: String, pendingEmail: String) = WS.url(server.externalResource("preferences",
-        s"/portal/preferences/sa/individual/$utr/print-suppression")).post(Json.parse( s"""{"digital": true, "email":"$pendingEmail"}"""))
 
       def postDeEnrolling(utr: String) = WS.url(server.externalResource("preferences",
         s"/portal/preferences/sa/individual/$utr/print-suppression")).post(Json.parse(s"""{"de-enrolling": true, "reason": "Pour le-test"}"""))
 
-      def postOptOut(utr: String) = WS.url(server.externalResource("preferences",
-        s"/portal/preferences/sa/individual/$utr/print-suppression")).post(Json.parse( s"""{"digital": false}"""))
-
       def get(utr: String) = WS.url(server.externalResource("preferences", s"/portal/preferences/sa/individual/$utr/print-suppression")).get()
       }
+
+    def `/preferences/sa/individual/utr/terms-and-conditions`(header: (String, String)) = new {
+      def postPendingEmail(utr: String, pendingEmail: String) = WS.url(server.externalResource("entity-resolver",
+        s"/preferences/sa/individual/$utr/terms-and-conditions")).withHeaders(header).post(Json.parse(s"""{"generic":{"accepted":true}, "email":"$pendingEmail"}"""))
+
+      def postOptOut(utr: String) = WS.url(server.externalResource("entity-resolver",
+        s"/preferences/sa/individual/$utr/terms-and-conditions")).withHeaders(header).post(Json.parse("""{"generic":{"accepted":false}}"""))
+    }
 
     val `/preferences-admin/sa/individual` = new {
       def verifyEmailFor(utr: String) = WS.url(server.externalResource("preferences",
@@ -116,22 +119,15 @@ trait PreferencesFrontEndServer extends ServiceSpec {
       def deleteAll() = WS.url(server.externalResource("preferences",
         "/preferences-admin/sa/individual/print-suppression")).delete()
 
-      def postLegacyOptOut(utr: String)(implicit header: (String, String)) = {
+      def postLegacyOptOut(utr: String) = {
         WS.url(server.externalResource("preferences", path = s"/preferences-admin/sa/individual/$utr/legacy-opt-out"))
-          .withHeaders(header)
           .post(Json.parse("{}"))
       }
 
-      def postLegacyOptIn(utr: String, email: String)(implicit header: (String, String)) = {
+      def postLegacyOptIn(utr: String, email: String) = {
         WS.url(server.externalResource("preferences", path = s"/preferences-admin/sa/individual/${utr}/legacy-opt-in/${email}"))
-          .withHeaders(header)
           .post(Json.parse("{}"))
       }
-    }
-
-    val `/preferences-admin/sa/process-nino-determination` = new {
-      def post() = WS.url(server.externalResource("preferences",
-        "/preferences-admin/sa/process-nino-determination")).post(EmptyContent())
     }
 
     val `/preferences-admin/sa/bounce-email` = new {
@@ -157,6 +153,8 @@ trait PreferencesFrontEndServer extends ServiceSpec {
     implicit val hc = HeaderCarrier()
 
     def authResource(path: String) = server.externalResource("auth", path)
+
+    val ggAuthHeader = createGGAuthorisationHeader(SaUtr(utr))
 
     private lazy val ggAuthorisationHeader = AuthorisationHeader.forGovernmentGateway(authResource)
     private lazy val verifyAuthorisationHeader = AuthorisationHeader.forVerify(authResource)

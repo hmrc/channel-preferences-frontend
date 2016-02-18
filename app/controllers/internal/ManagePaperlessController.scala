@@ -21,7 +21,7 @@ object ManagePaperlessController extends ManagePaperlessController with Services
   val authConnector = Global.authConnector
 
   lazy val emailConnector = EmailConnector
-  lazy val preferencesConnector = EntityResolverConnector
+  lazy val entityResolverConnector = EntityResolverConnector
 
   def displayChangeEmailAddress(implicit emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = authenticated.async { implicit authContext => implicit request =>
     _displayChangeEmailAddress(emailAddress)
@@ -59,20 +59,20 @@ with Actions {
   val auditConnector: AuditConnector
   val authConnector: AuthConnector
   val emailConnector: EmailConnector
-  val preferencesConnector: EntityResolverConnector
+  val entityResolverConnector: EntityResolverConnector
 
   private[controllers] def _displayStopPaperlessConfirmed(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Result = {
     Ok(views.html.opted_back_into_paper_thank_you())
   }
 
   private[controllers] def _submitStopPaperless(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Future[Result] =
-    preferencesConnector.updateTermsAndConditions(authContext.principal.accounts.sa.get.utr, (Generic, TermsAccepted(false)), email = None).map(_ =>
+    entityResolverConnector.updateTermsAndConditions(authContext.principal.accounts.sa.get.utr, (Generic, TermsAccepted(false)), email = None).map(_ =>
       Redirect(routes.ManagePaperlessController.displayStopPaperlessConfirmed(hostContext))
     )
 
   private[controllers] def _resendVerificationEmail(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Future[Result] = {
     lookupCurrentEmail { email =>
-      preferencesConnector.savePreferences(authContext.principal.accounts.sa.get.utr, true, Some(email)).map(_ =>
+      entityResolverConnector.savePreferences(authContext.principal.accounts.sa.get.utr, true, Some(email)).map(_ =>
         Ok(views.html.account_details_verification_email_resent_confirmation(email))
       )
     }
@@ -85,7 +85,7 @@ with Actions {
     lookupCurrentEmail(email => Future.successful(Ok(views.html.account_details_update_email_address(email, EmailForm().fill(EmailForm.Data(emailAddress.map(_.decryptedValue)))))))
 
   private def lookupCurrentEmail(func: (EmailAddress) => Future[Result])(implicit authContext: AuthContext, request: Request[AnyRef]): Future[Result] = {
-    preferencesConnector.getPreferences(authContext.principal.accounts.sa.get.utr).flatMap {
+    entityResolverConnector.getPreferences(authContext.principal.accounts.sa.get.utr).flatMap {
         case Some(SaPreference(true, Some(email))) => func(EmailAddress(email.email))
         case _ => Future.successful(BadRequest("Could not find existing preferences."))
     }
@@ -102,7 +102,7 @@ with Actions {
               else emailConnector.isValid(emailForm.mainEmail)
 
             emailVerificationStatus.flatMap {
-              case true => preferencesConnector.savePreferences(
+              case true => entityResolverConnector.savePreferences(
                 utr = authContext.principal.accounts.sa.get.utr,
                 digital = true,
                 email = Some(emailForm.mainEmail)
