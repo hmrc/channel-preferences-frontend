@@ -27,7 +27,7 @@ trait PreferencesFrontEndServer extends ServiceSpec {
   protected val server = new PreferencesFrontendIntegrationServer("PreferencesFrontEndServer")
 
   class PreferencesFrontendIntegrationServer(override val testName: String) extends MicroServiceEmbeddedServer {
-    override protected val externalServices: Seq[ExternalService] = externalServiceNames.map(ExternalService.runFromJar(_)) ++ Seq(ExternalService.runFromSource("entity-resolver"))
+    override protected val externalServices: Seq[ExternalService] = externalServiceNames.map(ExternalService.runFromJar(_))
 
     override protected def startTimeout: Duration = 300.seconds
   }
@@ -43,7 +43,7 @@ trait PreferencesFrontEndServer extends ServiceSpec {
       "ca-frontend",
       "email",
       "cid",
-//      "entity-resolver",
+      "entity-resolver",
       "preferences"
     )
   }
@@ -154,7 +154,7 @@ trait PreferencesFrontEndServer extends ServiceSpec {
 
     def authResource(path: String) = server.externalResource("auth", path)
 
-    val ggAuthHeader = createGGAuthorisationHeader(SaUtr(utr))
+    lazy val ggAuthHeader = createGGAuthorisationHeader(SaUtr(utr))
 
     private lazy val ggAuthorisationHeader = AuthorisationHeader.forGovernmentGateway(authResource)
     private lazy val verifyAuthorisationHeader = AuthorisationHeader.forVerify(authResource)

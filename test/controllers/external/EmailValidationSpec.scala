@@ -18,7 +18,7 @@ class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar
   import connectors.EmailVerificationLinkResponse._
 
   def createController = new EmailValidationController {
-    override lazy val preferencesMicroService = mock[EntityResolverConnector]
+    override lazy val entityResolverConnector = mock[EntityResolverConnector]
   }
 
   val wellFormattedToken: String = "12345678-abcd-4abc-abcd-123456789012"
@@ -32,7 +32,7 @@ class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar
     "call the sa micro service and update the email verification status of the user" in new WithApplication(ConfigHelper.fakeApp) {
       val controller = createController
       val token = wellFormattedToken
-      when(controller.preferencesMicroService.updateEmailValidationStatusUnsecured(meq(token))).thenReturn(Future.successful(Ok))
+      when(controller.entityResolverConnector.updateEmailValidationStatusUnsecured(meq(token))).thenReturn(Future.successful(Ok))
 
       val response = controller.verify(token)(request)
 
@@ -43,7 +43,7 @@ class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar
     "display an error when the sa micro service fails to update a users email verification status" in new WithApplication(ConfigHelper.fakeApp) {
       val controller = createController
       val token = wellFormattedToken
-      when(controller.preferencesMicroService.updateEmailValidationStatusUnsecured(meq(token))).thenReturn(Future.successful(Error))
+      when(controller.entityResolverConnector.updateEmailValidationStatusUnsecured(meq(token))).thenReturn(Future.successful(Error))
       val response = controller.verify(token)(request)
       contentAsString(response) shouldNot include("portalHomeLink/home")
       status(response) shouldBe 400
@@ -52,7 +52,7 @@ class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar
     "display an error if the email verification token is out of date" in new WithApplication(ConfigHelper.fakeApp) {
       val controller = createController
       val token = wellFormattedToken
-      when(controller.preferencesMicroService.updateEmailValidationStatusUnsecured(meq(token))).thenReturn(Future.successful(Expired))
+      when(controller.entityResolverConnector.updateEmailValidationStatusUnsecured(meq(token))).thenReturn(Future.successful(Expired))
 
       val response = controller.verify(token)(request)
 
@@ -66,7 +66,7 @@ class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar
     "display an error if the email verification token is not for the email pending verification" in new WithApplication(ConfigHelper.fakeApp) {
       val controller = createController
       val token = wellFormattedToken
-      when(controller.preferencesMicroService.updateEmailValidationStatusUnsecured(meq(token))).thenReturn(Future.successful(WrongToken))
+      when(controller.entityResolverConnector.updateEmailValidationStatusUnsecured(meq(token))).thenReturn(Future.successful(WrongToken))
 
       val response = controller.verify(token)(request)
 
@@ -83,7 +83,7 @@ class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar
       val response = controller.verify(token)(request)
       contentAsString(response) shouldNot include("portalHomeLink/home")
       status(response) shouldBe 400
-      verify(controller.preferencesMicroService, never()).updateEmailValidationStatusUnsecured(meq(token))
+      verify(controller.entityResolverConnector, never()).updateEmailValidationStatusUnsecured(meq(token))
     }
 
     "display an error if the token is not in a valid uuid format (extra characters) without calling the service" in new WithApplication(ConfigHelper.fakeApp) {
@@ -92,7 +92,7 @@ class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar
       val response = controller.verify(token)(request)
       contentAsString(response) shouldNot include("portalHomeLink/home")
       status(response) shouldBe 400
-      verify(controller.preferencesMicroService, never()).updateEmailValidationStatusUnsecured(meq(token))
+      verify(controller.entityResolverConnector, never()).updateEmailValidationStatusUnsecured(meq(token))
     }
 
   }

@@ -127,7 +127,7 @@ trait EntityResolverConnector extends Status with ServicesCircuitBreaker {
       .map(_.map(_.email))
 
   def updateEmailValidationStatusUnsecured(token: String)(implicit hc: HeaderCarrier): Future[EmailVerificationLinkResponse.Value] = {
-    responseToEmailVerificationLinkStatus(withCircuitBreaker(http.POST(url("/preferences/sa/verify-email"), ValidateEmail(token))))
+    responseToEmailVerificationLinkStatus(withCircuitBreaker(http.PUT(url("/portal/preferences/email"), ValidateEmail(token))))
   }
 
   def updateTermsAndConditions(utr: SaUtr, termsAccepted: (TermsType, TermsAccepted), email: Option[String])(implicit hc: HeaderCarrier): Future[PreferencesStatus] =

@@ -29,6 +29,8 @@ class VerificationEmailISpec extends PreferencesFrontEndServer  {
 
     "display success message if the email link is valid" in new VerificationEmailTestCase {
       val email = uniqueEmail
+      override val utr =
+        GenerateRandom.utr().value
       `/preferences/sa/individual/utr/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(201))
 
       aVerificationEmailIsReceivedFor(email)
