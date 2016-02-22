@@ -20,8 +20,8 @@ class UpgradePageBrowserSpec extends endtoend.sa.Spec with ScalaFutures with Ser
 
       And("I have my preferences set")
         givenThat (Auth.`GET /auth/authority` willReturn (aResponse withStatus 200 withBody Auth.authorityRecordJson))
-        givenThat (Preferences.`GET /preferences/sa/individual/<utr>/print-suppression` willReturn (
-          aResponse withStatus 200 withBody Preferences.optedInPreferenceJson(validEmailAddress)
+        givenThat (EntityResolver.`GET /preferences/sa/individual/<utr>/print-suppression` willReturn (
+          aResponse withStatus 200 withBody EntityResolver.optedInPreferenceJson(validEmailAddress)
         ))
 
       When("I go to the Upgrade Page")
@@ -33,7 +33,7 @@ class UpgradePageBrowserSpec extends endtoend.sa.Spec with ScalaFutures with Ser
         upgradePage.`provided email address` should include (validEmailAddress)
 
       When("I click 'Yes' and then 'Submit")
-        givenThat(Preferences.`POST /preferences/sa/individual/<utr>/terms-and-conditions` willReturn (aResponse withStatus 200))
+        givenThat(EntityResolver.`POST /preferences/sa/individual/<utr>/terms-and-conditions` willReturn (aResponse withStatus 200))
         click on upgradePage.`terms and conditions checkbox`
         click on upgradePage.`continue`
 
@@ -48,7 +48,7 @@ class UpgradePageBrowserSpec extends endtoend.sa.Spec with ScalaFutures with Ser
         Host.ReturnPage should be (displayed)
 
       And("My T&Cs have been set to generic=accepted")
-        verify(Preferences.`POST /preferences/sa/individual/<utr>/terms-and-conditions`(genericAccepted = true))
+        verify(EntityResolver.`POST /preferences/sa/individual/<utr>/terms-and-conditions`(genericAccepted = true))
     }
   }
 }

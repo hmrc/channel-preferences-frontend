@@ -150,10 +150,8 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
   "New user preferences" should {
     "set generic terms and conditions as true including email address" in new NewUserTestCase {
-      println("*" * 20 + utr)
       val response = post(true, Some(email), true).futureValue
       response.status should be (200)
-      println("*" * 20 + utr)
       val preferencesResponse =  `/portal/preferences/sa/individual`.get(utr)
       preferencesResponse should have(status(200))
       val body = preferencesResponse.futureValue.body
