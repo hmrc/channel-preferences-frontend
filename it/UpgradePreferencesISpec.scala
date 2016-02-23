@@ -190,7 +190,6 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
     override val utr : String = Math.abs(Random.nextInt()).toString.substring(0, 6)
 
     val email = "a@b.com"
-    val returnUrl = "/test/return/url"
 
     implicit val authHeader = createGGAuthorisationHeader(SaUtr(utr))
     override lazy val cookie = cookieForUtr(SaUtr(utr)).futureValue
@@ -223,7 +222,6 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
   trait UpgradeTestCase extends TestCaseWithFrontEndAuthentication {
     import play.api.Play.current
 
-    val returnUrl = "/test/return/url"
     val nino = GenerateRandom.nino()
 
     override val utr: String = GenerateRandom.utr().value

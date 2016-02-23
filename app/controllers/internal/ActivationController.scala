@@ -2,7 +2,8 @@ package controllers.internal
 
 import config.Global
 import connectors.EntityResolverConnector
-import model.{FormType, HostContext}
+import model.{Encrypted, FormType, HostContext}
+import play.api.libs.json.{JsString, Json}
 import play.api.mvc.Action
 import uk.gov.hmrc.play.config.AppName
 import uk.gov.hmrc.play.frontend.auth.Actions
@@ -22,7 +23,12 @@ trait ActivationController extends FrontendController with Actions with AppName 
 
   def activate(formType: FormType, taxIdentifier: String, hostContext: HostContext) = Action.async(parse.json) { implicit request =>
     entityResolverConnector.activate(formType, taxIdentifier, hostContext, request.body) map { result =>
-      Status(result.status)(result.body)
+
+      val redirectUrl: String = result.body match {
+        case "OptInRequired" => controllers.internal.routes.ChoosePaperlessController.redirectToDisplayFormWithCohort(None, hostContext).url
+        case "UpgradeRequired" => controllers.internal.routes.UpgradeRemindersController.displayUpgradeForm(Encrypted(hostContext.returnUrl)).url
+      }
+      Status(result.status)(Json.obj("redirectUserTo" -> redirectUrl))
     }
   }
 }
