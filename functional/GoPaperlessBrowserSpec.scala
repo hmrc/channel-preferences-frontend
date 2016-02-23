@@ -1,11 +1,11 @@
 import com.github.tomakehurst.wiremock.client.WireMock._
 import conf.ServerSetup
-import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.concurrent.{Eventually, ScalaFutures}
 import pages.GoPaperlessPage
 import uk.gov.hmrc.endtoend
 import uk.gov.hmrc.endtoend.sa.config.{TestEmailAddresses, UserWithUtr}
 
-class GoPaperlessBrowserSpec extends endtoend.sa.Spec with ScalaFutures with ServerSetup {
+class GoPaperlessBrowserSpec extends endtoend.sa.Spec with ScalaFutures with ServerSetup with Eventually{
   import stubs._
 
   implicit val user = new UserWithUtr { val utr = "1111111111" }
@@ -13,8 +13,9 @@ class GoPaperlessBrowserSpec extends endtoend.sa.Spec with ScalaFutures with Ser
   feature("Opting in a user") {
       scenario("I enter an invalid email address, am asked to re-enter it and then I opt-in") {
         Given("I am logged in")
-          go to Auth.loginPage
-
+          eventually {
+            go to Auth.loginPage
+          }
         When("I am on opt in to paperless Page")
           givenThat (Auth.`GET /auth/authority` willReturn (aResponse withStatus 200 withBody Auth.authorityRecordJson))
           val goPaperlessPage = GoPaperlessPage(returnUrl = Host.ReturnPage, Host.returnLinkText)
