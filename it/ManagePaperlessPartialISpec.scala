@@ -112,11 +112,6 @@ class ManagePaperlessPartialISpec
 
   }
 
-  override def beforeEach() = {
-    val testCase = new TestCase()
-    testCase.`/preferences-admin/sa/individual`.deleteAll should have(status(200))
-  }
-
   def checkForChangedEmailDetailsInResponse(response: String, oldEmail: String, newEmail: String, currentFormattedDate: String) = {
     response should (
       include(s"You need to verify your email address.") and

@@ -8,18 +8,22 @@ import play.api.libs.ws.{WS, WSResponse}
 
 import scala.concurrent.Future
 
-class VerificationEmailISpec extends PreferencesFrontEndServer  {
+class VerificationEmailISpec extends PreferencesFrontEndServer {
 
   "Verification email confirmation" should {
-    "confirm email has been sent to the users verification email address" in new VerificationEmailTestCase with TestCaseWithFrontEndAuthentication {
+    "confirm email has been sent to the users verification email address" in new VerificationEmailTestCase with TestCaseWithFrontEndAuthentication with Eventually {
       val email = uniqueEmail
-      `/preferences/sa/individual/utr/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(201))
 
-      val response = `/paperless/resend-verification-email`().withHeaders(cookie).post(emptyJsonValue)
-      response should have(status(200))
+      val result = `/preferences/sa/individual/utr/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email).futureValue
+      result.status should be(201)
 
+      val response = eventually {
+        val result = `/paperless/resend-verification-email`().withHeaders(cookie).post(emptyJsonValue).futureValue
+        result.status should be(200)
+        result
+      }
       val page = Jsoup.parse(response.body)
-      val emailConfirmation = response.futureValue.body
+      val emailConfirmation = response.body
       emailConfirmation should include("Verification email sent")
       emailConfirmation should include(s"A new email has been sent to $email")
     }
@@ -84,8 +88,8 @@ class VerificationEmailISpec extends PreferencesFrontEndServer  {
 
       withReceivedEmails(1) { case List(mail) =>
         mail should have(
-          'to(Some(email)),
-          'subject("HMRC paperless notifications: verify your email address"))
+          'to (Some(email)),
+          'subject ("HMRC paperless notifications: verify your email address"))
       }
 
       `/preferences/sa/individual/utr/terms-and-conditions`(ggAuthHeader).postOptOut(utr) should have(status(200))
@@ -217,7 +221,7 @@ class VerificationEmailISpec extends PreferencesFrontEndServer  {
 
   trait VerificationEmailTestCase extends TestCaseWithFrontEndAuthentication with EmailSupport with Eventually {
     clearEmails()
-    `/preferences-admin/sa/individual`.delete(utr) should have(status(200))
+    //    `/preferences-admin/sa/individual`.delete(utr) should have(status(200))
 
     val emptyJsonValue = Json.parse("{}")
 
@@ -237,8 +241,8 @@ class VerificationEmailISpec extends PreferencesFrontEndServer  {
     def aVerificationEmailIsReceivedFor(email: String) {
       withReceivedEmails(1) { case List(mail) =>
         mail should have(
-          'to(Some(email)),
-          'subject("HMRC paperless notifications: verify your email address")
+          'to (Some(email)),
+          'subject ("HMRC paperless notifications: verify your email address")
         )
       }
     }
@@ -246,8 +250,8 @@ class VerificationEmailISpec extends PreferencesFrontEndServer  {
     def aVerificationEmailIsReceivedForNewEmail(email: String) {
       withReceivedEmails(2) { case List(mail) =>
         mail should have(
-          'to(Some(email)),
-          'subject("Self Assessment reminders: verify your new email address")
+          'to (Some(email)),
+          'subject ("Self Assessment reminders: verify your new email address")
         )
       }
     }

@@ -21,7 +21,7 @@ trait TestUser {
 
   val password = "testing123"
 
-  def utr = "1555369043"
+  val utr = GenerateRandom.utr().value
 }
 
 trait PreferencesFrontEndServer extends ServiceSpec {
@@ -44,7 +44,8 @@ trait PreferencesFrontEndServer extends ServiceSpec {
       "ca-frontend",
       "email",
       "cid",
-      "entity-resolver"
+      "entity-resolver",
+      "preferences"
     )
   }
 
@@ -66,22 +67,6 @@ trait PreferencesFrontEndServer extends ServiceSpec {
     val `/paperless/manage` = urlWithHostContext("/paperless/manage")
 
     val payeFormTypeBody = Json.parse(s"""{"active":true}""")
-
-    def `/preferences/paye/individual/:nino/activations/notice-of-coding`(nino: String, header: (String, String)) = new {
-
-      def put() = WS.url(server.externalResource("entity-resolver", s"/preferences/paye/individual/$nino/activations/notice-of-coding")).withQueryString("returnUrl" -> "/some/return/url")
-        .withHeaders(header)
-        .put(payeFormTypeBody)
-    }
-
-    def `/preferences/sa/individual/:utr/activations/sa-all`(utr: String, header: (String, String)) = new {
-      def put() =
-        WS.url(server.externalResource("entity-resolver", s"/preferences/sa/individual/$utr/activations/sa-all"))
-          .withHeaders(header)
-          .withQueryString("returnUrl" -> "/some/return/url")
-          .withQueryString("returnLinkText" -> "Go-somewhere")
-          .put(payeFormTypeBody)
-    }
 
     def `/preferences/sa/individual/utr/print-suppression`(header: (String, String)) = new {
       def getPreference(utr: String) = WS.url(server.externalResource("entity-resolver",
@@ -107,39 +92,32 @@ trait PreferencesFrontEndServer extends ServiceSpec {
     }
 
     val `/preferences-admin/sa/individual` = new {
-      def verifyEmailFor(utr: String) = WS.url(server.externalResource("entity-resolver",
-        s"/portal/preferences/$utr/verified-email-address?formType=sa-all")).post(EmptyContent())
+      def verifyEmailFor(utr: String) = WS.url(server.externalResource("preferences",
+        s"/preferences-admin/sa/individual/$utr/verify-email")).post(EmptyContent())
 
-
-      def postExpireVerificationLink(utr:String) = WS.url(server.externalResource("entity-resolver",
+      def postExpireVerificationLink(utr:String) = WS.url(server.externalResource("preferences",
         s"/preferences-admin/sa/individual/$utr/expire-email-verification-link")).post(EmptyContent())
 
-      def delete(utr: String) = WS.url(server.externalResource("entity-resolver",
-        s"/preferences-admin/sa/individual/$utr/print-suppression")).delete()
-
-      def deleteAll() = WS.url(server.externalResource("entity-resolver",
-        "/preferences-admin/sa/individual/print-suppression")).delete()
-
       def postLegacyOptOut(utr: String) = {
-        WS.url(server.externalResource("entity-resolver", path = s"/preferences-admin/sa/individual/$utr/legacy-opt-out"))
+        WS.url(server.externalResource("preferences", path = s"/preferences-admin/sa/individual/$utr/legacy-opt-out"))
           .post(Json.parse("{}"))
       }
 
       def postLegacyOptIn(utr: String, email: String) = {
-        WS.url(server.externalResource("entity-resolver", path = s"/preferences-admin/sa/individual/${utr}/legacy-opt-in/${email}"))
+        WS.url(server.externalResource("preferences", path = s"/preferences-admin/sa/individual/${utr}/legacy-opt-in/${email}"))
           .post(Json.parse("{}"))
       }
     }
 
     val `/preferences-admin/sa/bounce-email` = new {
-      def post(emailAddress: String) = WS.url(server.externalResource("entity-resolver",
+      def post(emailAddress: String) = WS.url(server.externalResource("preferences",
         "/preferences-admin/sa/bounce-email")).post(Json.parse( s"""{
              |"emailAddress": "$emailAddress"
              |}""".stripMargin))
     }
 
     val `/preferences-admin/sa/bounce-email-inbox-full` = new {
-      def post(emailAddress: String) = WS.url(server.externalResource("entity-resolver",
+      def post(emailAddress: String) = WS.url(server.externalResource("preferences",
         "/preferences-admin/sa/bounce-email")).post(Json.parse( s"""{
              |"emailAddress": "$emailAddress",
              |"code": 552

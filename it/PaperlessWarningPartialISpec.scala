@@ -15,8 +15,6 @@ class PaperlessWarningPartialISpec
     }
 
     "be not found if the user has no preferences" in new TestCaseWithFrontEndAuthentication {
-      `/preferences-admin/sa/individual`.delete(utr) should have(status(200))
-
       val response = `/paperless/warnings`.withHeaders(cookie).get()
 
       response should have(status(404))
@@ -212,10 +210,5 @@ class PaperlessWarningPartialISpec
       response should have(status(200))
       response.futureValue.body should include("There's a problem with your paperless notification emails")
     }
-  }
-
-  override def beforeEach() = {
-    val testCase = new TestCase()
-    testCase.`/preferences-admin/sa/individual`.deleteAll should have(status(200))
   }
 }
