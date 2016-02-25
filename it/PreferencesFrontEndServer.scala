@@ -137,7 +137,7 @@ trait PreferencesFrontEndServer extends ServiceSpec {
 
     lazy val ggAuthHeader = createGGAuthorisationHeader(SaUtr(utr))
 
-    private lazy val ggAuthorisationHeader = AuthorisationHeader.forGovernmentGateway(authResource)
+    private lazy val ggAuthorisationHeader = AuthorisationHeader.forGovernmentGateway(authResource, s"utr-${utr}")
     private lazy val verifyAuthorisationHeader = AuthorisationHeader.forVerify(authResource)
 
     def createGGAuthorisationHeader(ids: TaxIdentifier*): (String, String) = ggAuthorisationHeader.create(ids.toList).futureValue

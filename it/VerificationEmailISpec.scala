@@ -11,17 +11,15 @@ import scala.concurrent.Future
 class VerificationEmailISpec extends PreferencesFrontEndServer {
 
   "Verification email confirmation" should {
-    "confirm email has been sent to the users verification email address" in new VerificationEmailTestCase with TestCaseWithFrontEndAuthentication with Eventually {
+    "confirm email has been sent to the users verification email address" in new VerificationEmailTestCase with TestCaseWithFrontEndAuthentication {
       val email = uniqueEmail
 
       val result = `/preferences/sa/individual/utr/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email).futureValue
       result.status should be(201)
 
-      val response = eventually {
-        val result = `/paperless/resend-verification-email`().withHeaders(cookie).post(emptyJsonValue).futureValue
-        result.status should be(200)
-        result
-      }
+      val response = `/paperless/resend-verification-email`().withHeaders(cookie).post(emptyJsonValue).futureValue
+      response.status should be(200)
+
       val page = Jsoup.parse(response.body)
       val emailConfirmation = response.body
       emailConfirmation should include("Verification email sent")
