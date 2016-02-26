@@ -47,8 +47,8 @@ object ActivationResponse {
   }
 }
 
-object PreferencesConnector extends PreferencesConnector with ServicesConfig {
-  override val serviceUrl = baseUrl("preferences")
+object EntityResolverConnector extends EntityResolverConnector with ServicesConfig {
+  override val serviceUrl = baseUrl("entity-resolver")
 
   override def http = WsHttp
 
@@ -71,9 +71,9 @@ object PreferencesConnector extends PreferencesConnector with ServicesConfig {
 
 }
 
-trait PreferencesConnector extends Status with ServicesCircuitBreaker {
+trait EntityResolverConnector extends Status with ServicesCircuitBreaker {
   this: ServicesConfig =>
-  val externalServiceName = "preferences"
+  val externalServiceName = "entity-resolver"
 
   def http: HttpGet with HttpPost with HttpPut
 
@@ -127,11 +127,11 @@ trait PreferencesConnector extends Status with ServicesCircuitBreaker {
       .map(_.map(_.email))
 
   def updateEmailValidationStatusUnsecured(token: String)(implicit hc: HeaderCarrier): Future[EmailVerificationLinkResponse.Value] = {
-    responseToEmailVerificationLinkStatus(withCircuitBreaker(http.POST(url("/preferences/sa/verify-email"), ValidateEmail(token))))
+    responseToEmailVerificationLinkStatus(withCircuitBreaker(http.PUT(url("/portal/preferences/email"), ValidateEmail(token))))
   }
 
   def updateTermsAndConditions(utr: SaUtr, termsAccepted: (TermsType, TermsAccepted), email: Option[String])(implicit hc: HeaderCarrier): Future[PreferencesStatus] =
-    withCircuitBreaker(http.POST(url(s"/preferences/sa/individual/$utr/terms-and-conditions"), PreferencesConnector.TermsAndConditionsUpdate.from(termsAccepted, email)))
+    withCircuitBreaker(http.POST(url(s"/preferences/sa/individual/$utr/terms-and-conditions"), EntityResolverConnector.TermsAndConditionsUpdate.from(termsAccepted, email)))
       .map(_.status).map {
       case OK => PreferencesExists
       case CREATED => PreferencesCreated

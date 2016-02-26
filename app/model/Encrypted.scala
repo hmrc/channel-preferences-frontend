@@ -1,6 +1,5 @@
 package model
 
-import play.api.Logger
 import play.api.mvc.QueryStringBindable
 import uk.gov.hmrc.crypto._
 import uk.gov.hmrc.emailaddress.EmailAddress

@@ -1,45 +1,22 @@
-import org.scalatest.mock.MockitoSugar
-import play.api.http.Status._
-import play.api.libs.json.Json
-import play.api.libs.ws.WS
-import uk.gov.hmrc.crypto.ApplicationCrypto.QueryParameterCrypto
-import uk.gov.hmrc.crypto.PlainText
-import uk.gov.hmrc.domain.TaxIdentifier
+import play.api.test.Helpers._
+import uk.gov.hmrc.domain.SaUtr
 
-class ActivateISpec extends PreferencesFrontEndServer with EmailSupport with MockitoSugar {
+class ActivateISpec extends PreferencesFrontEndServer {
 
   "activate" should {
-    "return neither BAD_REQUEST nor 5xx if activating sa-all" in new TestCase {
-      val saUtr = Generate.utr
-      val response = `/paperless/activate/:form-type/:tax-identifier`("sa-all", saUtr)().put().futureValue
-      response.status should (not be BAD_REQUEST and not be NOT_FOUND and be < 500)
+    "return PRECONDITION_FAILED with redirectUserTo link if activating sa-all for a new user" in new TestCaseWithFrontEndAuthentication {
+
+      val response = `/paperless/activate/:form-type/:tax-identifier`("sa-all", SaUtr(utr))().put().futureValue
+      response.status should be (PRECONDITION_FAILED)
+
+      (response.json \ "redirectUserTo").as[String] should be (s"http://localhost:9024/paperless/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
     }
 
-    "return NOT_FOUND if no preferences for a given utr and nino if activating notice-of-coding" in new TestCase {
+    "return PRECONDITION_FAILED with redirectUserTo link if activating notice-of-coding for a new user with given utr and nino" in new TestCaseWithFrontEndAuthentication {
       val nino = Generate.nino
-      val saUtr = Generate.utr
-      val response = `/paperless/activate/:form-type/:tax-identifier`("notice-of-coding", nino)(saUtr).put().futureValue
-      response.status should be (NOT_FOUND)
-    }
-  }
-
-  trait TestCase extends TestCaseWithFrontEndAuthentication {
-    import play.api.Play.current
-
-    val returnUrl = "/test/return/url"
-    val returnLinkText = "Continue"
-
-    def `/paperless/activate/:form-type/:tax-identifier`(formType: String, taxIdentifier: TaxIdentifier)(additionalUserTaxIdentifiers: TaxIdentifier*) = new {
-      private val url = WS.url(resource(s"/paperless/activate/$formType/${taxIdentifier.value}"))
-        .withHeaders(createGGAuthorisationHeader(taxIdentifier +: additionalUserTaxIdentifiers: _*), cookieForTaxIdentifiers(taxIdentifier +: additionalUserTaxIdentifiers: _*))
-        .withQueryString(
-          "returnUrl" -> QueryParameterCrypto.encrypt(PlainText(returnUrl)).value,
-          "returnLinkText" -> QueryParameterCrypto.encrypt(PlainText(returnLinkText)).value
-        )
-
-      private val formTypeBody = Json.parse("""{"active":true}""")
-
-      def put() = url.put(formTypeBody)
+      val response = `/paperless/activate/:form-type/:tax-identifier`("notice-of-coding", nino)(SaUtr(utr)).put().futureValue
+      response.status should be (PRECONDITION_FAILED)
+      (response.json \ "redirectUserTo").as[String] should be (s"http://localhost:9024/paperless/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
     }
   }
 }

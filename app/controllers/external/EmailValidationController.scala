@@ -1,6 +1,6 @@
 package controllers.external
 
-import connectors.{EmailVerificationLinkResponse, PreferencesConnector}
+import connectors.{EmailVerificationLinkResponse, EntityResolverConnector}
 import play.api.mvc.Action
 import uk.gov.hmrc.play.frontend.auth.AuthContext
 import uk.gov.hmrc.play.frontend.controller.FrontendController
@@ -9,7 +9,7 @@ import scala.concurrent.Future
 
 class EmailValidationController extends FrontendController {
 
-  implicit lazy val preferencesMicroService :PreferencesConnector = PreferencesConnector
+  implicit lazy val entityResolverConnector :EntityResolverConnector = EntityResolverConnector
 
   val regex = "([0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12})".r
 
@@ -17,7 +17,7 @@ class EmailValidationController extends FrontendController {
     implicit request =>
       token match {
         case regex(_) =>
-          preferencesMicroService.updateEmailValidationStatusUnsecured(token) map {
+          entityResolverConnector.updateEmailValidationStatusUnsecured(token) map {
             case EmailVerificationLinkResponse.Ok => Ok(views.html.sa.prefs.sa_printing_preference_verify_email())
             case EmailVerificationLinkResponse.Expired => Ok(views.html.sa.prefs.sa_printing_preference_expired_email())
             case EmailVerificationLinkResponse.WrongToken => Ok(views.html.sa.prefs.sa_printing_preference_wrong_token())

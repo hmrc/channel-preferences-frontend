@@ -2,7 +2,7 @@ package controllers.filing
 
 import java.net.URLEncoder.{encode => urlEncode}
 
-import connectors.PreferencesConnector
+import connectors.EntityResolverConnector
 import helpers.ConfigHelper
 import model.Encrypted
 import org.joda.time.{DateTime, DateTimeZone}
@@ -90,7 +90,7 @@ class FilingInterceptControllerSpec extends WordSpec with ShouldMatchers with Mo
     implicit def toCrypted(encryted: String): Crypted =  Crypted(encryted)
     implicit def toPlainText(plaintext: String): PlainText =  PlainText(plaintext)
 
-    val preferencesConnector = mock[PreferencesConnector]
+    val preferencesConnector = mock[EntityResolverConnector]
     val controller = new FilingInterceptController(whiteList = Set("localhost"), preferencesConnector)
 
     val emailAddress = "foo@bar.com"

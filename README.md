@@ -46,3 +46,12 @@ Takes the following parameters:
 | ---------------- | ----------- |
 | `returnUrl`      | The URL that the user will be redirected to at the end of any journeys starting from this partial |
 | `returnLinkText` | The text that will be used to display the return URL |
+
+
+
+Run functional test
+===================
+
+`sm --start ASSETS_FRONTEND -f`
+
+`sbt functional:test`

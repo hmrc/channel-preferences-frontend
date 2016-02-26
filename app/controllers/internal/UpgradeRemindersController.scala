@@ -24,7 +24,7 @@ import scala.concurrent.Future
 
 object UpgradeRemindersController extends UpgradeRemindersController with Authentication{
   override def authConnector = Global.authConnector
-  def preferencesConnector = PreferencesConnector
+  def entityResolverConnector = EntityResolverConnector
 
   override def auditConnector: AuditConnector = Global.auditConnector
 
@@ -59,7 +59,7 @@ object UpgradeRemindersForm {
 trait UpgradeRemindersController extends FrontendController with Actions with AppName {
 
   def authConnector: AuthConnector
-  def preferencesConnector: PreferencesConnector
+  def entityResolverConnector: EntityResolverConnector
   def auditConnector: AuditConnector
 
   private[controllers] def _renderUpgradePageIfPreferencesAvailable(utr: SaUtr, encryptedReturnUrl: Encrypted[String])(implicit request: Request[AnyContent]): Future[Result] = {
@@ -82,14 +82,14 @@ trait UpgradeRemindersController extends FrontendController with Actions with Ap
   }
 
   private def decideRoutingFromPreference(utr: SaUtr, encryptedReturnUrl: Encrypted[String], tandcForm:Form[UpgradeRemindersForm.Data])(implicit request: Request[AnyContent]) = {
-    preferencesConnector.getPreferences(utr).map {
+    entityResolverConnector.getPreferences(utr).map {
       case Some(prefs) => Ok(upgrade_printing_preferences(prefs.email.map(e => e.email), encryptedReturnUrl, tandcForm))
       case None => Redirect(encryptedReturnUrl.decryptedValue)
     }
   }
 
   private[controllers] def upgradePaperless(utr: SaUtr, nino: Option[Nino], termsAccepted: (TermsType, TermsAccepted))(implicit request: Request[AnyContent], hc: HeaderCarrier) : Future[Boolean] =
-    preferencesConnector.updateTermsAndConditions(utr, termsAccepted, email = None).map { status =>
+    entityResolverConnector.updateTermsAndConditions(utr, termsAccepted, email = None).map { status =>
       val isSuccessful = status != PreferencesFailure
       if (isSuccessful) auditChoice(utr, nino, termsAccepted, status)
       isSuccessful

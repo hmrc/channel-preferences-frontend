@@ -5,6 +5,7 @@ import play.api.Play.current
 import play.api.libs.json.Json
 import play.api.libs.ws.WS
 import play.api.mvc.Results.EmptyContent
+import uk.gov.hmrc.crypto.ApplicationCrypto._
 import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
 import uk.gov.hmrc.domain.{Nino, SaUtr, TaxIdentifier}
 import uk.gov.hmrc.play.http.HeaderCarrier
@@ -20,11 +21,11 @@ trait TestUser {
 
   val password = "testing123"
 
-  def utr = "1555369043"
+  val utr = GenerateRandom.utr().value
 }
 
 trait PreferencesFrontEndServer extends ServiceSpec {
-  protected val server = new PreferencesFrontendIntegrationServer("AccountDetailPartialISpec")
+  protected val server = new PreferencesFrontendIntegrationServer("PreferencesFrontEndServer")
 
   class PreferencesFrontendIntegrationServer(override val testName: String) extends MicroServiceEmbeddedServer {
     override protected val externalServices: Seq[ExternalService] = externalServiceNames.map(ExternalService.runFromJar(_))
@@ -43,6 +44,7 @@ trait PreferencesFrontEndServer extends ServiceSpec {
       "ca-frontend",
       "email",
       "cid",
+      "entity-resolver",
       "preferences"
     )
   }
@@ -66,41 +68,28 @@ trait PreferencesFrontEndServer extends ServiceSpec {
 
     val payeFormTypeBody = Json.parse(s"""{"active":true}""")
 
-    def `/preferences/paye/individual/:nino/activations/notice-of-coding`(nino: String, header: (String, String)) = new {
-
-      def put() = WS.url(server.externalResource("preferences", s"/preferences/paye/individual/$nino/activations/notice-of-coding")).withQueryString("returnUrl" -> "/some/return/url")
-        .withHeaders(header)
-        .put(payeFormTypeBody)
-    }
-
-    def `/preferences/sa/individual/:utr/activations/sa-all`(utr: String, header: (String, String)) = new {
-      def put() =
-        WS.url(server.externalResource("preferences", s"/preferences/sa/individual/$utr/activations/sa-all"))
-          .withHeaders(header)
-          .withQueryString("returnUrl" -> "/some/return/url")
-          .withQueryString("returnLinkText" -> "Go-somewhere")
-          .put(payeFormTypeBody)
-    }
-
     def `/preferences/sa/individual/utr/print-suppression`(header: (String, String)) = new {
-      def getPreference(utr: String) = WS.url(server.externalResource("preferences",
+      def getPreference(utr: String) = WS.url(server.externalResource("entity-resolver",
         s"/preferences/sa/individual/${utr}/print-suppression"))
         .withHeaders(header)
         .get
     }
 
     val `/portal/preferences/sa/individual` = new {
-      def postPendingEmail(utr: String, pendingEmail: String) = WS.url(server.externalResource("preferences",
-        s"/portal/preferences/sa/individual/$utr/print-suppression")).post(Json.parse( s"""{"digital": true, "email":"$pendingEmail"}"""))
 
-      def postDeEnrolling(utr: String) = WS.url(server.externalResource("preferences",
+      def postDeEnrolling(utr: String) = WS.url(server.externalResource("entity-resolver",
         s"/portal/preferences/sa/individual/$utr/print-suppression")).post(Json.parse(s"""{"de-enrolling": true, "reason": "Pour le-test"}"""))
 
-      def postOptOut(utr: String) = WS.url(server.externalResource("preferences",
-        s"/portal/preferences/sa/individual/$utr/print-suppression")).post(Json.parse( s"""{"digital": false}"""))
-
-      def get(utr: String) = WS.url(server.externalResource("preferences", s"/portal/preferences/sa/individual/$utr/print-suppression")).get()
+      def get(utr: String) = WS.url(server.externalResource("entity-resolver", s"/portal/preferences/sa/individual/$utr/print-suppression")).get()
       }
+
+    def `/preferences/sa/individual/utr/terms-and-conditions`(header: (String, String)) = new {
+      def postPendingEmail(utr: String, pendingEmail: String) = WS.url(server.externalResource("entity-resolver",
+        s"/preferences/sa/individual/$utr/terms-and-conditions")).withHeaders(header).post(Json.parse(s"""{"generic":{"accepted":true}, "email":"$pendingEmail"}"""))
+
+      def postOptOut(utr: String) = WS.url(server.externalResource("entity-resolver",
+        s"/preferences/sa/individual/$utr/terms-and-conditions")).withHeaders(header).post(Json.parse("""{"generic":{"accepted":false}}"""))
+    }
 
     val `/preferences-admin/sa/individual` = new {
       def verifyEmailFor(utr: String) = WS.url(server.externalResource("preferences",
@@ -109,28 +98,15 @@ trait PreferencesFrontEndServer extends ServiceSpec {
       def postExpireVerificationLink(utr:String) = WS.url(server.externalResource("preferences",
         s"/preferences-admin/sa/individual/$utr/expire-email-verification-link")).post(EmptyContent())
 
-      def delete(utr: String) = WS.url(server.externalResource("preferences",
-        s"/preferences-admin/sa/individual/$utr/print-suppression")).delete()
-
-      def deleteAll() = WS.url(server.externalResource("preferences",
-        "/preferences-admin/sa/individual/print-suppression")).delete()
-
-      def postLegacyOptOut(utr: String)(implicit header: (String, String)) = {
+      def postLegacyOptOut(utr: String) = {
         WS.url(server.externalResource("preferences", path = s"/preferences-admin/sa/individual/$utr/legacy-opt-out"))
-          .withHeaders(header)
           .post(Json.parse("{}"))
       }
 
-      def postLegacyOptIn(utr: String, email: String)(implicit header: (String, String)) = {
+      def postLegacyOptIn(utr: String, email: String) = {
         WS.url(server.externalResource("preferences", path = s"/preferences-admin/sa/individual/${utr}/legacy-opt-in/${email}"))
-          .withHeaders(header)
           .post(Json.parse("{}"))
       }
-    }
-
-    val `/preferences-admin/sa/process-nino-determination` = new {
-      def post() = WS.url(server.externalResource("preferences",
-        "/preferences-admin/sa/process-nino-determination")).post(EmptyContent())
     }
 
     val `/preferences-admin/sa/bounce-email` = new {
@@ -153,11 +129,15 @@ trait PreferencesFrontEndServer extends ServiceSpec {
 
   trait TestCaseWithFrontEndAuthentication extends TestCase with FrontendCookieHelper {
 
+    import play.api.Play.current
+
     implicit val hc = HeaderCarrier()
 
     def authResource(path: String) = server.externalResource("auth", path)
 
-    private lazy val ggAuthorisationHeader = AuthorisationHeader.forGovernmentGateway(authResource)
+    lazy val ggAuthHeader = createGGAuthorisationHeader(SaUtr(utr))
+
+    private lazy val ggAuthorisationHeader = AuthorisationHeader.forGovernmentGateway(authResource, s"utr-${utr}")
     private lazy val verifyAuthorisationHeader = AuthorisationHeader.forVerify(authResource)
 
     def createGGAuthorisationHeader(ids: TaxIdentifier*): (String, String) = ggAuthorisationHeader.create(ids.toList).futureValue
@@ -168,6 +148,27 @@ trait PreferencesFrontEndServer extends ServiceSpec {
     def cookieForUtr(utr: SaUtr) = cookieFor(ggAuthorisationHeader.createBearerToken(List(utr)).futureValue)
     def cookieForUtrAndNino(utr: SaUtr, nino: Nino) = cookieFor(ggAuthorisationHeader.createBearerToken(List(utr, nino)).futureValue)
     def cookieForTaxIdentifiers(taxIdentifiers: TaxIdentifier*) = cookieFor(ggAuthorisationHeader.createBearerToken(taxIdentifiers.toList).futureValue).futureValue
+
+
+    val returnUrl = "/test/return/url"
+    val returnLinkText = "Continue"
+
+    val encryptedReturnUrl = URLEncoder.encode(QueryParameterCrypto.encrypt(PlainText(returnUrl)).value, "UTF-8")
+    val encryptedReturnText = URLEncoder.encode(QueryParameterCrypto.encrypt(PlainText(returnLinkText)).value, "UTF-8")
+
+    def `/paperless/activate/:form-type/:tax-identifier`(formType: String, taxIdentifier: TaxIdentifier)(additionalUserTaxIdentifiers: TaxIdentifier*) = new {
+
+      private val url = WS.url(resource(s"/paperless/activate/$formType/${taxIdentifier.value}"))
+        .withHeaders(createGGAuthorisationHeader(taxIdentifier +: additionalUserTaxIdentifiers: _*), cookieForTaxIdentifiers(taxIdentifier +: additionalUserTaxIdentifiers: _*))
+        .withQueryString(
+          "returnUrl" -> QueryParameterCrypto.encrypt(PlainText(returnUrl)).value,
+          "returnLinkText" -> QueryParameterCrypto.encrypt(PlainText(returnLinkText)).value
+        )
+
+      private val formTypeBody = Json.parse("""{"active":true}""")
+
+      def put() = url.put(formTypeBody)
+    }
   }
 
 }

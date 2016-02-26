@@ -3,7 +3,7 @@ package stubs
 import com.github.tomakehurst.wiremock.client.WireMock._
 import uk.gov.hmrc.endtoend.sa.config.UserWithUtr
 
-object Preferences {
+object EntityResolver {
 
   def `GET /preferences/sa/individual/<utr>/print-suppression`(implicit user: UserWithUtr) =
     get(urlEqualTo(s"/preferences/sa/individual/${user.utr}/print-suppression"))

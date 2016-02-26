@@ -5,7 +5,7 @@ import java.util.Collections
 import com.netaporter.uri.config.UriConfig
 import com.netaporter.uri.dsl._
 import com.netaporter.uri.encoding._
-import connectors.PreferencesConnector
+import connectors.EntityResolverConnector
 import model.Encrypted
 import play.api.Play
 import play.api.Play.current
@@ -16,12 +16,12 @@ import uk.gov.hmrc.play.config.{RunMode, ServicesConfig}
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import scala.collection.JavaConversions._
 
-class FilingInterceptController(whiteList: Set[String], preferencesConnector: PreferencesConnector) extends FrontendController {
+class FilingInterceptController(whiteList: Set[String], preferencesConnector: EntityResolverConnector) extends FrontendController {
 
   implicit val wl: Set[String] = whiteList
   implicit val config = UriConfig(encoder = percentEncode)
 
-  def this() = this(FilingInterceptController.redirectDomainWhiteList, PreferencesConnector)
+  def this() = this(FilingInterceptController.redirectDomainWhiteList, EntityResolverConnector)
 
   def redirectWithEmailAddress(encryptedToken: String, encodedReturnUrl: String, emailAddressToPrefill: Option[Encrypted[EmailAddress]]) =
     DecodeAndWhitelist(encodedReturnUrl) { returnUrl =>
