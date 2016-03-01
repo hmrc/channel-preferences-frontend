@@ -13,8 +13,8 @@ trait ServicesCircuitBreaker extends UsingCircuitBreaker {
   override protected def circuitBreakerConfig = CircuitBreakerConfig(
     serviceName = externalServiceName,
     numberOfCallsToTriggerStateChange = config(externalServiceName).getInt("circuitBreaker.numberOfCallsToTriggerStateChange"),
-    unavailablePeriodDuration = config(externalServiceName).getInt("circuitBreaker.unavailablePeriodDurationInSeconds"),
-    unstablePeriodDuration = config(externalServiceName).getInt("circuitBreaker.unstablePeriodDurationInSeconds")
+    unavailablePeriodDuration = config(externalServiceName).getInt("circuitBreaker.unavailablePeriodDurationInSeconds") map (_ * 1000),
+    unstablePeriodDuration = config(externalServiceName).getInt("circuitBreaker.unstablePeriodDurationInSeconds") map (_ * 1000)
   )
 
   override protected def breakOnException(t: Throwable): Boolean = t match {

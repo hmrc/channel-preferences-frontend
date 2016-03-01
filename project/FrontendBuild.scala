@@ -35,7 +35,7 @@ private object Dependencies {
     "uk.gov.hmrc"             %% "play-ui"                  % "4.2.0",
     "com.netaporter"          %% "scala-uri"                % "0.4.10",
     "uk.gov.hmrc"             %% "url-builder"              % "1.0.0",
-    "uk.gov.hmrc"             %% "reactive-circuit-breaker" % "1.3.0",
+    "uk.gov.hmrc"             %% "reactive-circuit-breaker" % "1.7.0",
     "org.mockito"             %  "mockito-all"              % "1.10.19"   % "test",
 
     "uk.gov.hmrc"             %% "http-verbs-test"          % "0.1.0"     % "it",

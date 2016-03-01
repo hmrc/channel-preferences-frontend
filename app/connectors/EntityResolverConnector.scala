@@ -8,6 +8,7 @@ import model.{FormType, HostContext, NoticeOfCoding, SaAll}
 import play.api.Logger
 import play.api.http.Status
 import play.api.libs.json._
+import uk.gov.hmrc.circuitbreaker.UnhealthyServiceException
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
