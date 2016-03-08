@@ -6,12 +6,12 @@ import org.openqa.selenium.WebDriver
 import pages.InternalPagesSetup.InternalPage
 import uk.gov.hmrc.crypto.ApplicationCrypto.QueryParameterCrypto
 import uk.gov.hmrc.crypto.PlainText
-import uk.gov.hmrc.endtoend.sa.ToAbsoluteUrl
+import uk.gov.hmrc.endtoend.sa.AbsoluteUrl
 
 object GoPaperlessPage {
-  def apply[T](returnUrl: T, returnLinkText: String)(implicit toAbsoluteUrl: ToAbsoluteUrl[T]) = new InternalPage {
+  def apply[T](returnUrl: T, returnLinkText: String)(implicit toAbsoluteUrl: AbsoluteUrl[T]) = new InternalPage {
     val title = "Go paperless with HMRC"
-    def relativeUrl = "paperless/choose/8?returnUrl=" + URLEncoder.encode(QueryParameterCrypto.encrypt(PlainText(toAbsoluteUrl.absoluteUrl(returnUrl))).value, "utf8") + "&returnLinkText=" +
+    def relativeUrl = "paperless/choose/8?returnUrl=" + URLEncoder.encode(QueryParameterCrypto.encrypt(PlainText(toAbsoluteUrl(returnUrl))).value, "utf8") + "&returnLinkText=" +
       URLEncoder.encode(QueryParameterCrypto.encrypt(PlainText(returnLinkText)).value, "utf8")
 
     def `email textbox`(implicit driver: WebDriver) = emailField("email.main")

@@ -1,7 +1,7 @@
 package stubs
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import uk.gov.hmrc.endtoend.sa.{ToAbsoluteUrl, Page}
+import uk.gov.hmrc.endtoend.sa.{RelativeUrl, AbsoluteUrl, Page}
 
 object Page {
 
@@ -9,7 +9,7 @@ object Page {
                          relativeUrl: String,
                          name: String,
                          responseBody: String,
-                         responseHeader: (String, String)*) extends Page {
+                         responseHeader: (String, String)*) extends Page with RelativeUrl {
     stubFor(get(urlEqualTo(s"/$relativeUrl")).willReturn {
       val resp = aResponse withStatus 200 withBody responseBody
       responseHeader.foldLeft(resp) { (r, h) => r.withHeader(h._1, h._2) }
@@ -18,7 +18,7 @@ object Page {
     override def toString() = name
   }
 
-  implicit def stubbedUrls[T <: Page.StubbedPage]: ToAbsoluteUrl[T] =
-    ToAbsoluteUrl.fromRelativeUrl[T](host = "localhost", port = 8080)
+  implicit def stubbedUrls[T <: Page.StubbedPage]: AbsoluteUrl[T] =
+    AbsoluteUrl.fromRelativeUrl[T](host = "localhost", port = 8080)
 
 }

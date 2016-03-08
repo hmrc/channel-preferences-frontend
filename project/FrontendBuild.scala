@@ -45,7 +45,7 @@ private object Dependencies {
     "org.pegdown"             %  "pegdown"                  % "1.4.2"     % "test, it",
     "org.scalatest"           %% "scalatest"                % "2.2.5"     % "test, it, functional",
 
-    "uk.gov.hmrc"             %% "browser-test"             % "1.0.0"     % "functional",
+    "uk.gov.hmrc"             %% "browser-test"             % "1.2.0"     % "functional",
     "com.github.tomakehurst"  %  "wiremock"                 % "1.58"      % "functional"
   )
 }
