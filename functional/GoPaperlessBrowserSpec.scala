@@ -82,6 +82,12 @@ class GoPaperlessBrowserSpec extends endtoend.sa.Spec with ScalaFutures with Ser
 
         Then("I receive a validation error and I stay on the page")
           goPaperlessPage.`go paperless validation message` should include ("Check your email addresses - they don’t match.")
+
+        When("I attempt to log in with matching but invalid email addresses")
+          goPaperlessPage.completeForm(TestEmailAddresses.invalidlyFormatted, confirmEmail= Some(TestEmailAddresses.invalidlyFormatted))
+
+        Then("I receive a validation error and I stay on the page")
+          goPaperlessPage.`go paperless validation message` should include ("Enter a valid email address.")
       }
 
 
