@@ -5,6 +5,7 @@ import pages._
 import uk.gov.hmrc.emailaddress.StringValue
 import uk.gov.hmrc.endtoend
 import uk.gov.hmrc.endtoend.sa.config.{TestEmailAddresses, UserWithUtr}
+import utils.UserSetupHelper
 
 class UpgradePageBrowserSpec extends endtoend.sa.Spec with ScalaFutures with ServerSetup {
   import stubs._
@@ -19,10 +20,7 @@ class UpgradePageBrowserSpec extends endtoend.sa.Spec with ScalaFutures with Ser
         go to Auth.loginPage
 
       And("I have my preferences set")
-        givenThat (Auth.`GET /auth/authority` willReturn (aResponse withStatus 200 withBody Auth.authorityRecordJson))
-        givenThat (EntityResolver.`GET /preferences/sa/individual/<utr>/print-suppression` willReturn (
-          aResponse withStatus 200 withBody EntityResolver.optedInPreferenceJson(validEmailAddress)
-        ))
+        UserSetupHelper.setUserAsOptedIn(validEmailAddress)
 
       When("I go to the Upgrade Page")
         val upgradePage = GenericUpgradePage(returnUrl = Host.ReturnPage)
