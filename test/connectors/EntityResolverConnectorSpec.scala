@@ -6,6 +6,7 @@ import connectors.SaEmailPreference.Status
 import model.{HostContext, NoticeOfCoding, SaAll}
 import org.scalatest.concurrent.ScalaFutures
 import play.api.libs.json.{Json, Writes}
+import uk.gov.hmrc.circuitbreaker.{CircuitBreakerConfig, UnhealthyServiceException}
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.play.audit.http.HttpAuditing
 import uk.gov.hmrc.play.config.{AppName, ServicesConfig}
@@ -34,27 +35,25 @@ class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with WithFa
   }
 
   class TestPreferencesConnector extends EntityResolverConnector with ServicesConfig {
-
-    override def serviceUrl: String = "http://entity-resolver.service/"
-
-    override def http: HttpGet with HttpPost with HttpPut = ???
+    val serviceUrl = "http://entity-resolver.service/"
+    def http: HttpGet with HttpPost with HttpPut = ???
   }
 
   def entityResolverConnector(returnFromDoGet: String => Future[HttpResponse] = defaultGetHandler,
                               returnFromDoPost: (String, Any) => Future[HttpResponse] = defaultPostHandler,
                               returnFromDoPut: (String, Any) => Future[HttpResponse] = defaultPutHandler) = new TestPreferencesConnector {
-    override def http = new HttpGet with HttpPost with HttpPut with AppName with HttpAuditing {
-      override protected def doGet(url: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = returnFromDoGet(url)
+    override val http = new HttpGet with HttpPost with HttpPut with AppName with HttpAuditing {
+      protected def doGet(url: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = returnFromDoGet(url)
 
-      override protected def doPostString(url: String, body: String, headers: Seq[(String, String)])(implicit hc: HeaderCarrier): Future[HttpResponse] = ???
+      protected def doPostString(url: String, body: String, headers: Seq[(String, String)])(implicit hc: HeaderCarrier): Future[HttpResponse] = ???
 
-      override protected def doFormPost(url: String, body: Map[String, Seq[String]])(implicit hc: HeaderCarrier): Future[HttpResponse] = ???
+      protected def doFormPost(url: String, body: Map[String, Seq[String]])(implicit hc: HeaderCarrier): Future[HttpResponse] = ???
 
-      override protected def doPost[A](url: String, body: A, headers: Seq[(String, String)])(implicit rds: Writes[A], hc: HeaderCarrier): Future[HttpResponse] = returnFromDoPost(url, body)
+      protected def doPost[A](url: String, body: A, headers: Seq[(String, String)])(implicit rds: Writes[A], hc: HeaderCarrier): Future[HttpResponse] = returnFromDoPost(url, body)
 
-      override protected def doEmptyPost[A](url: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = ???
+      protected def doEmptyPost[A](url: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = ???
 
-      override protected def doPut[A](url: String, body: A)(implicit rds: Writes[A], hc: HeaderCarrier): Future[HttpResponse] = returnFromDoPut(url, body)
+      protected def doPut[A](url: String, body: A)(implicit rds: Writes[A], hc: HeaderCarrier): Future[HttpResponse] = returnFromDoPut(url, body)
 
       val hooks: Seq[HttpHook] = Seq(AuditingHook)
 
@@ -64,60 +63,56 @@ class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with WithFa
 
   "activate" should {
 
+    implicit val hc = HeaderCarrier()
+
+    val hostContext = HostContext(returnUrl = "some/return/url", returnLinkText = "continue")
+    val payload = Json.parse("""{"active":true}""")
+
     def urlEncode(text: String) = URLEncoder.encode(text, "UTF-8")
 
     def toUrlParams(hostContext: HostContext) = s"returnUrl=${urlEncode(hostContext.returnUrl)}&returnLinkText=${urlEncode(hostContext.returnLinkText)}"
 
     "proxy to the /preferences/sa/individual/:utr/activations/sa-all if sa-all form type given" in {
-      implicit val hc = HeaderCarrier()
-
       val utr = "12345"
-      val hostContext = HostContext(returnUrl = "some/return/url", returnLinkText = "continue")
-      val payload = """{"active":true}"""
-
       val preferenceResponseStatus = PRECONDITION_FAILED
       val preferenceResponseBody = "link/to/preferences-frontend"
 
       val connector = entityResolverConnector(
         returnFromDoPut = (url, body) => {
           url should include(s"/preferences/sa/individual/$utr/activations/sa-all?${toUrlParams(hostContext)}")
-          body.toString should be (payload)
+          body should be (payload)
           Future.successful(HttpResponse(responseStatus = preferenceResponseStatus, responseString = Some(preferenceResponseBody)))
       })
 
-      connector.activate(SaAll, utr, hostContext, Json.parse(payload)).futureValue should be (ActivationResponse(preferenceResponseStatus, preferenceResponseBody))
+      connector.activate(SaAll, utr, hostContext, payload).futureValue should be (ActivationResponse(preferenceResponseStatus, preferenceResponseBody))
     }
 
     "proxy to the /preferences/paye/individual/:nino/activations/notice-of-coding if notice-of-coding form type given" in {
-      implicit val hc = HeaderCarrier()
-
       val nino = "ABCD"
-      val hostContext = HostContext(returnUrl = "some/return/url", returnLinkText = "continue")
-      val payload = """{"active":true}"""
-
       val preferenceResponseStatus = PRECONDITION_FAILED
       val preferenceResponseBody = "link/to/preferences-frontend"
 
       val connector = entityResolverConnector(
         returnFromDoPut = (url, body) => {
           url should include(s"/preferences/paye/individual/$nino/activations/notice-of-coding?${toUrlParams(hostContext)}")
-          body.toString should be (payload)
+          body should be (payload)
           Future.successful(HttpResponse(responseStatus = preferenceResponseStatus, responseString = Some(preferenceResponseBody)))
       })
 
-      connector.activate(NoticeOfCoding, nino, hostContext, Json.parse(payload)).futureValue should be (ActivationResponse(preferenceResponseStatus, preferenceResponseBody))
+      connector.activate(NoticeOfCoding, nino, hostContext, payload).futureValue should be (ActivationResponse(preferenceResponseStatus, preferenceResponseBody))
     }
 
-    "return ActivationResponse if exception thrown on PUT" in {
-      implicit val hc = HeaderCarrier()
-
+    "circuit breaker configuration should be applied and unhealthy service exception will kick in after 5th failed call to preferences" in {
       val nino = "ABCD"
-      val hostContext = HostContext(returnUrl = "some/return/url", returnLinkText = "continue")
-      val payload = """{"active":true}"""
 
-      val connector = entityResolverConnector(returnFromDoPut = (url, body) => Future.failed(new InternalServerException("some exception")))
+      val connector = entityResolverConnector(
+        returnFromDoPut = (_, _) => Future.successful(HttpResponse(INTERNAL_SERVER_ERROR))
+      )
 
-      connector.activate(NoticeOfCoding, nino, hostContext, Json.parse(payload)).futureValue.status should be (INTERNAL_SERVER_ERROR)
+      1 to 5 foreach { _ =>
+        connector.activate(NoticeOfCoding, nino, hostContext, payload).failed.futureValue shouldBe an[Upstream5xxResponse]
+      }
+      connector.activate(NoticeOfCoding, nino, hostContext, payload).failed.futureValue shouldBe an[UnhealthyServiceException]
     }
   }
 
@@ -164,6 +159,17 @@ class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with WithFa
       val preferences = preferenceConnector.getPreferences(SaUtr("1")).futureValue
 
       preferences shouldBe None
+    }
+
+    "circuit breaker configuration should be applied and unhealthy service exception will kick in after 5th failed call to preferences" in {
+      val connector = entityResolverConnector(
+        returnFromDoGet = _ => Future.failed(new InternalServerException("some exception"))
+      )
+
+      1 to 5 foreach { _ =>
+        connector.getPreferences(SaUtr("1")).failed.futureValue shouldBe an[InternalServerException]
+      }
+      connector.getPreferences(SaUtr("1")).failed.futureValue shouldBe an[UnhealthyServiceException]
     }
   }
 

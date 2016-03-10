@@ -43,8 +43,12 @@ object TermsAccepted {
 case class ActivationResponse(status: Int, body: String)
 
 object ActivationResponse {
-  implicit val reads: HttpReads[ActivationResponse] = new HttpReads[ActivationResponse] {
-    def read(method: String, url: String, response: HttpResponse) = ActivationResponse(response.status, response.body)
+  implicit val reads: HttpReads[ActivationResponse] = new HttpReads[ActivationResponse] with HttpErrorFunctions {
+    def read(method: String, url: String, response: HttpResponse) = response.status match {
+      case status if status < 500 => ActivationResponse(response.status, response.body)
+      case status if is5xx(status) => throw new Upstream5xxResponse(upstreamResponseMessage(method, url, status, response.body), status, 502)
+      case status => throw new Exception(s"$method to $url failed with status $status. Response body: '${response.body}'")
+    }
   }
 }
 
@@ -74,6 +78,7 @@ object EntityResolverConnector extends EntityResolverConnector with ServicesConf
 
 trait EntityResolverConnector extends Status with ServicesCircuitBreaker {
   this: ServicesConfig =>
+
   val externalServiceName = "entity-resolver"
 
   def http: HttpGet with HttpPost with HttpPut
@@ -102,8 +107,6 @@ trait EntityResolverConnector extends Status with ServicesCircuitBreaker {
         url = activationUrl(formType),
         body = payload
       )
-    } recoverWith {
-      case t: Throwable => Future.successful(ActivationResponse(INTERNAL_SERVER_ERROR, s"Could not activate: ${t.getMessage}"))
     }
   }
 
