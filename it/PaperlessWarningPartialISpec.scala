@@ -22,8 +22,8 @@ class PaperlessWarningPartialISpec
 
     "be not found if the user is de-enrolled" in new TestCaseWithFrontEndAuthentication {
       val email = uniqueEmail
-      `/preferences/sa/individual/utr/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(201))
-      `/portal/preferences/sa/individual`.postDeEnrolling(utr) should have(status(200))
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(201))
+      `/portal/preferences`.postDeEnrolling(utr) should have(status(200))
 
       val response = `/paperless/warnings`.withHeaders(cookie).get()
 
@@ -35,7 +35,7 @@ class PaperlessWarningPartialISpec
 
     "have a verification warning for the unverified email" in new TestCaseWithFrontEndAuthentication {
       val email = uniqueEmail
-      `/preferences/sa/individual/utr/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have (status(201))
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have (status(201))
 
       val response =`/paperless/warnings`.withHeaders(cookie).get()
 
@@ -45,8 +45,8 @@ class PaperlessWarningPartialISpec
 
     "have no warning if user then verifies email" in new TestCaseWithFrontEndAuthentication {
       val email = uniqueEmail
-      `/preferences/sa/individual/utr/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(201))
-      `/preferences-admin/sa/individual`.verifyEmailFor(utr) should have(status(204))
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(201))
+      `/preferences-admin/sa/individual`.verifyEmailFor(`/entity-resolver-admin/sa/:utr`(utr)) should have(status(204))
 
       val response =`/paperless/warnings`.withHeaders(cookie).get()
 
@@ -56,8 +56,8 @@ class PaperlessWarningPartialISpec
 
     "have no warning if user then opts out" in new TestCaseWithFrontEndAuthentication {
       val email = uniqueEmail
-      `/preferences/sa/individual/utr/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(201))
-      `/preferences/sa/individual/utr/terms-and-conditions`(ggAuthHeader).postOptOut(utr) should have(status(200))
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(201))
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postOptOut(utr) should have(status(200))
 
       val response =`/paperless/warnings`.withHeaders(cookie).get()
 
@@ -67,8 +67,8 @@ class PaperlessWarningPartialISpec
 
     "have verification warning if user then changes email" in new TestCaseWithFrontEndAuthentication {
       val email = uniqueEmail
-      `/preferences/sa/individual/utr/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(201))
-      `/preferences/sa/individual/utr/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, changedUniqueEmail) should have(status(200))
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(201))
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, changedUniqueEmail) should have(status(200))
 
       val response =`/paperless/warnings`.withHeaders(cookie).get()
 
@@ -78,8 +78,8 @@ class PaperlessWarningPartialISpec
 
     "be not found if user is then de-enrolled" in new TestCaseWithFrontEndAuthentication {
       val email = uniqueEmail
-      `/preferences/sa/individual/utr/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(201))
-      `/portal/preferences/sa/individual`.postDeEnrolling(utr)
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(201))
+      `/portal/preferences`.postDeEnrolling(utr)
 
       `/paperless/warnings`.withHeaders(cookie).get() should have(status(404))
     }
@@ -89,7 +89,7 @@ class PaperlessWarningPartialISpec
 
     "have a bounced warning" in new TestCaseWithFrontEndAuthentication {
       val email = uniqueEmail
-      `/preferences/sa/individual/utr/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(201))
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(201))
       `/preferences-admin/sa/bounce-email`.post(email) should have(status(204))
 
       val response =`/paperless/warnings`.withHeaders(cookie).get()
@@ -100,9 +100,9 @@ class PaperlessWarningPartialISpec
 
     "have no warning if user then opts out" in new TestCaseWithFrontEndAuthentication {
       val email = uniqueEmail
-      `/preferences/sa/individual/utr/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(201))
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(201))
       `/preferences-admin/sa/bounce-email`.post(email) should have(status(204))
-      `/preferences/sa/individual/utr/terms-and-conditions`(ggAuthHeader).postOptOut(utr)
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postOptOut(utr)
 
       val response =`/paperless/warnings`.withHeaders(cookie).get()
 
@@ -112,9 +112,9 @@ class PaperlessWarningPartialISpec
 
     "have a verification warning if user then successfully sends verification link to same address" in new TestCaseWithFrontEndAuthentication {
       val email = uniqueEmail
-      `/preferences/sa/individual/utr/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(201))
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(201))
       `/preferences-admin/sa/bounce-email`.post(email) should have(status(204))
-      `/preferences/sa/individual/utr/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(200))
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(200))
 
       val response =`/paperless/warnings`.withHeaders(cookie).get()
 
@@ -124,9 +124,9 @@ class PaperlessWarningPartialISpec
 
     "have verification warning if user then changes email" in new TestCaseWithFrontEndAuthentication {
       val email = uniqueEmail
-      `/preferences/sa/individual/utr/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(201))
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(201))
       `/preferences-admin/sa/bounce-email`.post(email) should have(status(204))
-      `/preferences/sa/individual/utr/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, changedUniqueEmail) should have(status(200))
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, changedUniqueEmail) should have(status(200))
 
       val response =`/paperless/warnings`.withHeaders(cookie).get()
 
@@ -136,9 +136,9 @@ class PaperlessWarningPartialISpec
 
     "be not found if user is then de-enrolled" in new TestCaseWithFrontEndAuthentication {
       val email = uniqueEmail
-      `/preferences/sa/individual/utr/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(201))
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(201))
       `/preferences-admin/sa/bounce-email`.post(email) should have(status(204))
-      `/portal/preferences/sa/individual`.postDeEnrolling(utr) should have(status(200))
+      `/portal/preferences`.postDeEnrolling(utr) should have(status(200))
 
       val response =`/paperless/warnings`.withHeaders(cookie).get()
 
@@ -147,10 +147,10 @@ class PaperlessWarningPartialISpec
 
     "have no warning if user is then de-enrolled followed by a re-enrol" in new TestCaseWithFrontEndAuthentication {
       val email = uniqueEmail
-      `/preferences/sa/individual/utr/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(201))
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(201))
       `/preferences-admin/sa/bounce-email`.post(email) should have(status(204))
-      `/portal/preferences/sa/individual`.postDeEnrolling(utr) should have(status(200))
-      `/preferences/sa/individual/utr/terms-and-conditions`(ggAuthHeader).postOptOut(utr) should have(status(200))
+      `/portal/preferences`.postDeEnrolling(utr) should have(status(200))
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postOptOut(utr) should have(status(200))
 
       val response =`/paperless/warnings`.withHeaders(cookie).get()
 
@@ -160,10 +160,10 @@ class PaperlessWarningPartialISpec
 
     "have no warning if user successfully resends link and verifies" in new TestCaseWithFrontEndAuthentication {
       val email = uniqueEmail
-      `/preferences/sa/individual/utr/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(201))
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(201))
       `/preferences-admin/sa/bounce-email`.post(email) should have(status(204))
-      `/preferences/sa/individual/utr/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(200))
-      `/preferences-admin/sa/individual`.verifyEmailFor(utr) should have(status(204))
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(200))
+      `/preferences-admin/sa/individual`.verifyEmailFor(`/entity-resolver-admin/sa/:utr`(utr)) should have(status(204))
 
       val response =`/paperless/warnings`.withHeaders(cookie).get()
 
@@ -173,9 +173,9 @@ class PaperlessWarningPartialISpec
 
     "have inbox full warning if user resends link and their inbox is full" in new TestCaseWithFrontEndAuthentication {
       val email = uniqueEmail
-      `/preferences/sa/individual/utr/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(201))
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(201))
       `/preferences-admin/sa/bounce-email`.post(email) should have(status(204))
-      `/preferences/sa/individual/utr/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(200))
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(200))
       `/preferences-admin/sa/bounce-email-inbox-full`.post(email) should have(status(204))
 
       val response =`/paperless/warnings`.withHeaders(cookie).get()
@@ -189,7 +189,7 @@ class PaperlessWarningPartialISpec
   "Paperless warnings partial for opted out user" should {
 
     "be empty" in new TestCaseWithFrontEndAuthentication {
-      `/preferences/sa/individual/utr/terms-and-conditions`(ggAuthHeader).postOptOut(utr) should have(status(201))
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postOptOut(utr) should have(status(201))
 
       val response = `/paperless/warnings`.withHeaders(cookie).get()
 
@@ -201,8 +201,8 @@ class PaperlessWarningPartialISpec
 
     "have a bounced warning" in new TestCaseWithFrontEndAuthentication {
       val email = uniqueEmail
-      `/preferences/sa/individual/utr/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(201))
-      `/preferences-admin/sa/individual`.verifyEmailFor(utr) should have(status(204))
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(201))
+      `/preferences-admin/sa/individual`.verifyEmailFor(`/entity-resolver-admin/sa/:utr`(utr)) should have(status(204))
       `/preferences-admin/sa/bounce-email`.post(email) should have(status(204))
 
       val response = `/paperless/warnings`.withHeaders(cookie).get()

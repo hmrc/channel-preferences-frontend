@@ -49,7 +49,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
   "An existing user" should {
     "not be redirected to go paperless if they have already opted-out of generic terms" in new NewUserTestCase {
-      `/preferences/sa/individual/utr/terms-and-conditions`(ggAuthHeader).postOptOut(utr).futureValue.status should be (201)
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postOptOut(utr).futureValue.status should be (201)
 
       `/paperless/activate/:form-type/:tax-identifier`("sa-all", SaUtr(utr))().put().futureValue.status should be (409)
     }
@@ -59,9 +59,10 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
     val pendingEmail = "some@email.com"
 
     "set upgraded to paperless and allow subsequent activation when legacy user is verified" in new UpgradeTestCase {
+      val entityId = `/entity-resolver-admin/sa/:utr`(utr, true)
 
-      `/preferences-admin/sa/individual`.postLegacyOptIn(utr, pendingEmail).futureValue.status should be (200)
-      `/preferences-admin/sa/individual`.verifyEmailFor(utr).futureValue.status should be (204)
+      `/preferences-admin/sa/individual`.postLegacyOptIn(entityId, pendingEmail).futureValue.status should be (200)
+      `/preferences-admin/sa/individual`.verifyEmailFor(entityId).futureValue.status should be (204)
 
       val activateResponse = `/paperless/activate/:form-type/:tax-identifier`("sa-all", SaUtr(utr))().put().futureValue
       activateResponse.status should be (412)
@@ -80,7 +81,8 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
     }
 
     "set upgraded to paperless and allow subsequent activation when legacy user is pending verification" in new UpgradeTestCase {
-      `/preferences-admin/sa/individual`.postLegacyOptIn(utr, pendingEmail).futureValue.status should be (200)
+      val entityId = `/entity-resolver-admin/sa/:utr`(utr, true)
+      `/preferences-admin/sa/individual`.postLegacyOptIn(entityId, pendingEmail).futureValue.status should be (200)
 
       val activateResponse = `/paperless/activate/:form-type/:tax-identifier`("sa-all", SaUtr(utr))().put().futureValue
       activateResponse.status should be (412)
@@ -99,7 +101,8 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
     }
 
     "show go paperless and allow subsequent activation when legacy user is opted out" in new NewUserTestCase  {
-      `/preferences-admin/sa/individual`.postLegacyOptOut(utr).futureValue.status should be (200)
+      val entityId = `/entity-resolver-admin/sa/:utr`(utr, true)
+      `/preferences-admin/sa/individual`.postLegacyOptOut(entityId).futureValue.status should be (200)
 
       val activateResponse = `/paperless/activate/:form-type/:tax-identifier`("sa-all", SaUtr(utr))().put().futureValue
       activateResponse.status should be (412)
@@ -118,8 +121,8 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
     }
 
     "show go paperless and allow subsequent activation when legacy user is de-enrolled" in new NewUserTestCase {
-      val a = `/portal/preferences/sa/individual`
-      `/preferences/sa/individual/utr/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, pendingEmail).futureValue.status should be (201)
+      val a = `/portal/preferences`
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, pendingEmail).futureValue.status should be (201)
       a.postDeEnrolling(utr).futureValue.status should be (200)
 
       val activateResponse = `/paperless/activate/:form-type/:tax-identifier`("sa-all", SaUtr(utr))().put().futureValue
@@ -143,7 +146,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
     "set generic terms and conditions as true including email address" in new NewUserTestCase {
       val response = post(true, Some(email), true).futureValue
       response.status should be (200)
-      val preferencesResponse =  `/portal/preferences/sa/individual`.get(utr)
+      val preferencesResponse =  `/portal/preferences`.get(utr)
       preferencesResponse should have(status(200))
       val body = preferencesResponse.futureValue.body
       body should include(""""digital":true""")
@@ -154,7 +157,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
       val response = post(false, None, false).futureValue
       response.status should be (303)
 
-      val preferencesResponse =  `/portal/preferences/sa/individual`.get(utr)
+      val preferencesResponse =  `/portal/preferences`.get(utr)
       preferencesResponse should have(status(200))
       val body = preferencesResponse.futureValue.body
       body should include(""""digital":false""")
@@ -165,9 +168,9 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
   "Upgrade preferences page" should {
     "receive a digital true response from get preference call for legacy opted in user" in new NewUserTestCase {
       val pendingEmail = "some@email.com"
-
-      `/preferences-admin/sa/individual`.postLegacyOptIn(utr, pendingEmail).futureValue.status should be (200)
-      val preferencesResponse = `/preferences/sa/individual/utr/print-suppression`(authHeader).getPreference(utr).futureValue
+      val entityId = `/entity-resolver-admin/sa/:utr`(utr, true)
+      `/preferences-admin/sa/individual`.postLegacyOptIn(entityId, pendingEmail).futureValue.status should be (200)
+      val preferencesResponse = `/preferences/taxIdentifier`(authHeader).getPreference(utr).futureValue
       preferencesResponse should have ('status(200))
       preferencesResponse.body should include(""""digital":true""")
       preferencesResponse.body should include(s"""email":"$pendingEmail"""")
@@ -231,9 +234,10 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
     }
 
     def createOptedInVerifiedPreferenceWithNino() : WSResponse = {
+      val entityId = `/entity-resolver-admin/paye/:nino`(nino.value, true)
       val legacySupport = `/preferences-admin/sa/individual`
-      await(legacySupport.postLegacyOptIn(utr, uniqueEmail))
-      await(legacySupport.verifyEmailFor(utr))
+      await(legacySupport.postLegacyOptIn(entityId, uniqueEmail))
+      await(legacySupport.verifyEmailFor(entityId))
 
     }
   }

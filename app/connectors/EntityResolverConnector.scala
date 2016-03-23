@@ -9,7 +9,7 @@ import play.api.Logger
 import play.api.http.Status
 import play.api.libs.json._
 import uk.gov.hmrc.circuitbreaker.UnhealthyServiceException
-import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.domain.{Nino, TaxIdentifier, SaUtr}
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import uk.gov.hmrc.play.http.{NotFoundException, _}
@@ -110,32 +110,32 @@ trait EntityResolverConnector extends Status with ServicesCircuitBreaker {
     }
   }
 
-  def savePreferences(utr: SaUtr, digital: Boolean, email: Option[String])(implicit hc: HeaderCarrier): Future[Any] =
-    withCircuitBreaker(http.POST(url(s"/preferences/sa/individual/$utr/print-suppression"), UpdateEmail(digital, email)))
+  def savePreferences(taxIdentifier: TaxIdentifier, digital: Boolean, email: Option[String])(implicit hc: HeaderCarrier): Future[Any] =
+    withCircuitBreaker(http.POST(url(s"/preferences/$taxIdentifier"), UpdateEmail(digital, email)))
 
-  def getPreferences(utr: SaUtr)(implicit headerCarrier: HeaderCarrier): Future[Option[SaPreference]] =
-    withCircuitBreaker(http.GET[Option[SaPreference]](url(s"/preferences/sa/individual/$utr/print-suppression")))
+  def getPreferences(taxIdentifier: TaxIdentifier)(implicit headerCarrier: HeaderCarrier): Future[Option[SaPreference]] =
+    withCircuitBreaker(http.GET[Option[SaPreference]](url(s"/preferences/$taxIdentifier")))
       .recover {
         case response: Upstream4xxResponse if response.upstreamResponseCode == GONE => None
         case e: NotFoundException => None
       }
 
-  def saveCohort(utr: SaUtr, cohort: OptInCohort)(implicit hc: HeaderCarrier): Future[Any] =
-    withCircuitBreaker(http.PUT(url(s"/a-b-testing/cohort/email-opt-in/sa/$utr"), Json.obj("cohort" -> cohort.name)))
-      .recover {
-        case e: NotFoundException => Logger.warn("Cannot save cohort for opt-in-email")
-      }
+  def saveCohort(utr: SaUtr, cohort: OptInCohort)(implicit hc: HeaderCarrier): Future[Any] = Future.successful(true)
 
   def getEmailAddress(utr: SaUtr)(implicit hc: HeaderCarrier) =
     withCircuitBreaker(http.GET[Option[Email]](url(s"/portal/preferences/sa/individual/$utr/print-suppression/verified-email-address")))
+      .map(_.map(_.email))
+
+  def getEmailAddress(nino: Nino)(implicit hc: HeaderCarrier) =
+    withCircuitBreaker(http.GET[Option[Email]](url(s"/portal/preferences/paye/individual/$nino/print-suppression/verified-email-address")))
       .map(_.map(_.email))
 
   def updateEmailValidationStatusUnsecured(token: String)(implicit hc: HeaderCarrier): Future[EmailVerificationLinkResponse.Value] = {
     responseToEmailVerificationLinkStatus(withCircuitBreaker(http.PUT(url("/portal/preferences/email"), ValidateEmail(token))))
   }
 
-  def updateTermsAndConditions(utr: SaUtr, termsAccepted: (TermsType, TermsAccepted), email: Option[String])(implicit hc: HeaderCarrier): Future[PreferencesStatus] =
-    withCircuitBreaker(http.POST(url(s"/preferences/sa/individual/$utr/terms-and-conditions"), EntityResolverConnector.TermsAndConditionsUpdate.from(termsAccepted, email)))
+  def updateTermsAndConditions(taxIdentifier: TaxIdentifier, termsAccepted: (TermsType, TermsAccepted), email: Option[String])(implicit hc: HeaderCarrier): Future[PreferencesStatus] =
+    withCircuitBreaker(http.POST(url(s"/preferences/$taxIdentifier/terms-and-conditions"), EntityResolverConnector.TermsAndConditionsUpdate.from(termsAccepted, email)))
       .map(_.status).map {
       case OK => PreferencesExists
       case CREATED => PreferencesCreated

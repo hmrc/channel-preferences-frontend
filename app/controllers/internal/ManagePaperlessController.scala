@@ -3,7 +3,7 @@ package controllers.internal
 import config.Global
 import connectors._
 import controllers.AuthContextAvailability._
-import controllers.Authentication
+import controllers.{FindTaxIdentifier, Authentication}
 import model.{Encrypted, HostContext}
 import play.api.mvc.{Request, Result}
 import uk.gov.hmrc.emailaddress.EmailAddress
@@ -54,7 +54,8 @@ object ManagePaperlessController extends ManagePaperlessController with Services
 
 trait ManagePaperlessController
 extends FrontendController
-with Actions {
+with Actions
+with FindTaxIdentifier {
 
   val auditConnector: AuditConnector
   val authConnector: AuthConnector
@@ -66,13 +67,13 @@ with Actions {
   }
 
   private[controllers] def _submitStopPaperless(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Future[Result] =
-    entityResolverConnector.updateTermsAndConditions(authContext.principal.accounts.sa.get.utr, (Generic, TermsAccepted(false)), email = None).map(_ =>
+    entityResolverConnector.updateTermsAndConditions(findTaxIdentifier(authContext), (Generic, TermsAccepted(false)), email = None).map(_ =>
       Redirect(routes.ManagePaperlessController.displayStopPaperlessConfirmed(hostContext))
     )
 
   private[controllers] def _resendVerificationEmail(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Future[Result] = {
     lookupCurrentEmail { email =>
-      entityResolverConnector.savePreferences(authContext.principal.accounts.sa.get.utr, true, Some(email)).map(_ =>
+      entityResolverConnector.savePreferences(findTaxIdentifier(authContext), true, Some(email)).map(_ =>
         Ok(views.html.account_details_verification_email_resent_confirmation(email))
       )
     }
@@ -85,7 +86,7 @@ with Actions {
     lookupCurrentEmail(email => Future.successful(Ok(views.html.account_details_update_email_address(email, EmailForm().fill(EmailForm.Data(emailAddress.map(_.decryptedValue)))))))
 
   private def lookupCurrentEmail(func: (EmailAddress) => Future[Result])(implicit authContext: AuthContext, request: Request[AnyRef]): Future[Result] = {
-    entityResolverConnector.getPreferences(authContext.principal.accounts.sa.get.utr).flatMap {
+    entityResolverConnector.getPreferences(findTaxIdentifier(authContext)).flatMap {
         case Some(SaPreference(true, Some(email))) => func(EmailAddress(email.email))
         case _ => Future.successful(BadRequest("Could not find existing preferences."))
     }
@@ -103,7 +104,7 @@ with Actions {
 
             emailVerificationStatus.flatMap {
               case true => entityResolverConnector.savePreferences(
-                utr = authContext.principal.accounts.sa.get.utr,
+                taxIdentifier = findTaxIdentifier(authContext),
                 digital = true,
                 email = Some(emailForm.mainEmail)
               ).map(_ => Redirect(routes.ManagePaperlessController.displayChangeEmailAddressConfirmed(hostContext)))

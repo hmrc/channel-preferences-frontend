@@ -28,7 +28,7 @@ trait PreferencesFrontEndServer extends ServiceSpec {
   protected val server = new PreferencesFrontendIntegrationServer("PreferencesFrontEndServer")
 
   class PreferencesFrontendIntegrationServer(override val testName: String) extends MicroServiceEmbeddedServer {
-    override protected val externalServices: Seq[ExternalService] = externalServiceNames.map(ExternalService.runFromJar(_))
+    override protected val externalServices: Seq[ExternalService] = externalServiceNames.map(ExternalService.runFromJar(_)) ++ Seq(ExternalService.runFromSource("entity-resolver"))
 
     override protected def startTimeout: Duration = 300.seconds
   }
@@ -44,7 +44,6 @@ trait PreferencesFrontEndServer extends ServiceSpec {
       "ca-frontend",
       "email",
       "cid",
-      "entity-resolver",
       "preferences"
     )
   }
@@ -68,43 +67,56 @@ trait PreferencesFrontEndServer extends ServiceSpec {
 
     val payeFormTypeBody = Json.parse(s"""{"active":true}""")
 
-    def `/preferences/sa/individual/utr/print-suppression`(header: (String, String)) = new {
+    def `/preferences/taxIdentifier`(header: (String, String)) = new {
       def getPreference(utr: String) = WS.url(server.externalResource("entity-resolver",
-        s"/preferences/sa/individual/${utr}/print-suppression"))
+        s"/preferences/$utr"))
         .withHeaders(header)
         .get
     }
 
-    val `/portal/preferences/sa/individual` = new {
+    val `/portal/preferences` = new {
 
       def postDeEnrolling(utr: String) = WS.url(server.externalResource("entity-resolver",
-        s"/portal/preferences/sa/individual/$utr/print-suppression")).post(Json.parse(s"""{"de-enrolling": true, "reason": "Pour le-test"}"""))
+        s"/portal/preferences/sa/$utr")).post(Json.parse(s"""{"de-enrolling": true, "reason": "Pour le-test"}"""))
 
-      def get(utr: String) = WS.url(server.externalResource("entity-resolver", s"/portal/preferences/sa/individual/$utr/print-suppression")).get()
+      def get(utr: String) = WS.url(server.externalResource("entity-resolver", s"/portal/preferences/sa/$utr")).get()
       }
 
-    def `/preferences/sa/individual/utr/terms-and-conditions`(header: (String, String)) = new {
+    def `/preferences/taxIdentifier/terms-and-conditions`(header: (String, String)) = new {
       def postPendingEmail(utr: String, pendingEmail: String) = WS.url(server.externalResource("entity-resolver",
-        s"/preferences/sa/individual/$utr/terms-and-conditions")).withHeaders(header).post(Json.parse(s"""{"generic":{"accepted":true}, "email":"$pendingEmail"}"""))
+        s"/preferences/$utr/terms-and-conditions")).withHeaders(header).post(Json.parse(s"""{"generic":{"accepted":true}, "email":"$pendingEmail"}"""))
 
       def postOptOut(utr: String) = WS.url(server.externalResource("entity-resolver",
-        s"/preferences/sa/individual/$utr/terms-and-conditions")).withHeaders(header).post(Json.parse("""{"generic":{"accepted":false}}"""))
+        s"/preferences/$utr/terms-and-conditions")).withHeaders(header).post(Json.parse("""{"generic":{"accepted":false}}"""))
     }
 
+    def `/entity-resolver-admin/sa/:utr`(utr: String, create: Boolean = false) = {
+      val response = WS.url(server.externalResource("entity-resolver", path = s"/entity-resolver-admin/sa/$utr")).get().futureValue
+      if (create) response.status should be (201) else response.status should be (200)
+      response.body
+    }
+
+    def `/entity-resolver-admin/paye/:nino`(nino: String, create: Boolean = false) = {
+      val response = WS.url(server.externalResource("entity-resolver", path = s"/entity-resolver-admin/paye/$nino")).get().futureValue
+      if (create) response.status should be (201) else response.status should be (200)
+      response.body
+    }
+
+
     val `/preferences-admin/sa/individual` = new {
-      def verifyEmailFor(utr: String) = WS.url(server.externalResource("preferences",
-        s"/preferences-admin/sa/individual/$utr/verify-email")).post(EmptyContent())
+      def verifyEmailFor(entityId: String) = WS.url(server.externalResource("preferences",
+        s"/preferences-admin/$entityId/verify-email")).post(EmptyContent())
 
-      def postExpireVerificationLink(utr:String) = WS.url(server.externalResource("preferences",
-        s"/preferences-admin/sa/individual/$utr/expire-email-verification-link")).post(EmptyContent())
+      def postExpireVerificationLink(entityId:String) = WS.url(server.externalResource("preferences",
+        s"/preferences-admin/$entityId/expire-email-verification-link")).post(EmptyContent())
 
-      def postLegacyOptOut(utr: String) = {
-        WS.url(server.externalResource("preferences", path = s"/preferences-admin/sa/individual/$utr/legacy-opt-out"))
+      def postLegacyOptOut(entityId: String) = {
+        WS.url(server.externalResource("preferences", path = s"/preferences-admin/$entityId/legacy-opt-out"))
           .post(Json.parse("{}"))
       }
 
-      def postLegacyOptIn(utr: String, email: String) = {
-        WS.url(server.externalResource("preferences", path = s"/preferences-admin/sa/individual/${utr}/legacy-opt-in/${email}"))
+      def postLegacyOptIn(entityId: String, email: String) = {
+        WS.url(server.externalResource("preferences", path = s"/preferences-admin/${entityId}/legacy-opt-in/${email}"))
           .post(Json.parse("{}"))
       }
     }
