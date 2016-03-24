@@ -22,13 +22,14 @@ trait TestUser {
   val password = "testing123"
 
   val utr = GenerateRandom.utr().value
+  val nino = GenerateRandom.nino()
 }
 
 trait PreferencesFrontEndServer extends ServiceSpec {
-  protected val server = new PreferencesFrontendIntegrationServer("PreferencesFrontEndServer")
+  protected val server = new PreferencesFrontendIntegrationServer("PREFERENCES_FRONTEND_IT_TESTS")
 
   class PreferencesFrontendIntegrationServer(override val testName: String) extends MicroServiceEmbeddedServer {
-    override protected val externalServices: Seq[ExternalService] = externalServiceNames.map(ExternalService.runFromJar(_)) ++ Seq(ExternalService.runFromSource("entity-resolver"))
+    override protected val externalServices: Seq[ExternalService] = externalServiceNames.map(ExternalService.runFromJar(_))
 
     override protected def startTimeout: Duration = 300.seconds
   }
@@ -39,6 +40,7 @@ trait PreferencesFrontEndServer extends ServiceSpec {
       "government-gateway",
       "auth",
       "message",
+      "entity-resolver",
       "mailgun",
       "hmrc-deskpro",
       "ca-frontend",
@@ -76,18 +78,23 @@ trait PreferencesFrontEndServer extends ServiceSpec {
 
     val `/portal/preferences` = new {
 
-      def postDeEnrolling(utr: String) = WS.url(server.externalResource("entity-resolver",
+      def postDeEnrollingForUtr(utr: String) = WS.url(server.externalResource("entity-resolver",
         s"/portal/preferences/sa/$utr")).post(Json.parse(s"""{"de-enrolling": true, "reason": "Pour le-test"}"""))
 
-      def get(utr: String) = WS.url(server.externalResource("entity-resolver", s"/portal/preferences/sa/$utr")).get()
-      }
+      def getForUtr(utr: String) = WS.url(server.externalResource("entity-resolver", s"/portal/preferences/sa/$utr")).get()
+
+      def postDeEnrollingForNino(nino: String) = WS.url(server.externalResource("entity-resolver",
+        s"/portal/preferences/paye/$nino")).post(Json.parse(s"""{"de-enrolling": true, "reason": "Pour le-test"}"""))
+
+      def getForNino(nino: String) = WS.url(server.externalResource("entity-resolver", s"/portal/preferences/paye/$nino")).get()
+    }
 
     def `/preferences/taxIdentifier/terms-and-conditions`(header: (String, String)) = new {
-      def postPendingEmail(utr: String, pendingEmail: String) = WS.url(server.externalResource("entity-resolver",
-        s"/preferences/$utr/terms-and-conditions")).withHeaders(header).post(Json.parse(s"""{"generic":{"accepted":true}, "email":"$pendingEmail"}"""))
+      def postPendingEmail(taxId: String, pendingEmail: String) = WS.url(server.externalResource("entity-resolver",
+        s"/preferences/$taxId/terms-and-conditions")).withHeaders(header).post(Json.parse(s"""{"generic":{"accepted":true}, "email":"$pendingEmail"}"""))
 
-      def postOptOut(utr: String) = WS.url(server.externalResource("entity-resolver",
-        s"/preferences/$utr/terms-and-conditions")).withHeaders(header).post(Json.parse("""{"generic":{"accepted":false}}"""))
+      def postOptOut(taxId: String) = WS.url(server.externalResource("entity-resolver",
+        s"/preferences/$taxId/terms-and-conditions")).withHeaders(header).post(Json.parse("""{"generic":{"accepted":false}}"""))
     }
 
     def `/entity-resolver-admin/sa/:utr`(utr: String, create: Boolean = false) = {
@@ -121,16 +128,16 @@ trait PreferencesFrontEndServer extends ServiceSpec {
       }
     }
 
-    val `/preferences-admin/sa/bounce-email` = new {
+    val `/preferences-admin/bounce-email` = new {
       def post(emailAddress: String) = WS.url(server.externalResource("preferences",
-        "/preferences-admin/sa/bounce-email")).post(Json.parse( s"""{
+        "/preferences-admin/bounce-email")).post(Json.parse( s"""{
              |"emailAddress": "$emailAddress"
              |}""".stripMargin))
     }
 
     val `/preferences-admin/sa/bounce-email-inbox-full` = new {
       def post(emailAddress: String) = WS.url(server.externalResource("preferences",
-        "/preferences-admin/sa/bounce-email")).post(Json.parse( s"""{
+        "/preferences-admin/bounce-email")).post(Json.parse( s"""{
              |"emailAddress": "$emailAddress",
              |"code": 552
              |}""".stripMargin))
@@ -147,19 +154,28 @@ trait PreferencesFrontEndServer extends ServiceSpec {
 
     def authResource(path: String) = server.externalResource("auth", path)
 
-    lazy val ggAuthHeader = createGGAuthorisationHeader(SaUtr(utr))
+    lazy val ggAuthHeaderWithUtr = createGGAuthorisationHeaderWithUtr(SaUtr(utr))
+    lazy val ggAuthHeaderWithUtrAndNino = createGGAuthorisationHeaderWithUtr(SaUtr(utr), nino)
+    lazy val ggAuthHeaderWithNino = createGGAuthorisationHeaderWithNino(nino)
 
-    private lazy val ggAuthorisationHeader = AuthorisationHeader.forGovernmentGateway(authResource, s"utr-${utr}")
+    private lazy val ggAuthorisationHeaderWithUtr = AuthorisationHeader.forGovernmentGateway(authResource, s"utr-$utr")
+    private lazy val ggAuthorisationHeaderWithNino = AuthorisationHeader.forGovernmentGateway(authResource, s"nino-${nino.value}")
+    private lazy val ggAuthorisationHeaderWithUtrAndNino = AuthorisationHeader.forGovernmentGateway(authResource, s"utr-$utr--nino-${nino.value}")
+
     private lazy val verifyAuthorisationHeader = AuthorisationHeader.forVerify(authResource)
 
-    def createGGAuthorisationHeader(ids: TaxIdentifier*): (String, String) = ggAuthorisationHeader.create(ids.toList).futureValue
+    def createGGAuthorisationHeaderWithUtr(ids: TaxIdentifier*): (String, String) = ggAuthorisationHeaderWithUtr.create(ids.toList).futureValue
+    def createGGAuthorisationHeaderWithNino(ids: TaxIdentifier*): (String, String) = ggAuthorisationHeaderWithNino.create(ids.toList).futureValue
+    def createGGAuthorisationHeaderWithUtrAndNino(ids: TaxIdentifier*): (String, String) = ggAuthorisationHeaderWithUtrAndNino.create(ids.toList).futureValue
     def createVerifyAuthorisationHeader(utr: TaxIdentifier): (String, String) = verifyAuthorisationHeader.create(utr).futureValue
 
-    lazy val cookie = cookieFor(ggAuthorisationHeader.createBearerToken(List(SaUtr(utr))).futureValue).futureValue
+    lazy val cookieWithUtr = cookieFor(ggAuthorisationHeaderWithUtr.createBearerToken(List(SaUtr(utr))).futureValue).futureValue
+    lazy val cookieWithUtrAndNino = cookieFor(ggAuthorisationHeaderWithUtrAndNino.createBearerToken(List(SaUtr(utr), nino)).futureValue).futureValue
+    lazy val cookieWithNino = cookieFor(ggAuthorisationHeaderWithUtr.createBearerToken(List(nino)).futureValue).futureValue
 
-    def cookieForUtr(utr: SaUtr) = cookieFor(ggAuthorisationHeader.createBearerToken(List(utr)).futureValue)
-    def cookieForUtrAndNino(utr: SaUtr, nino: Nino) = cookieFor(ggAuthorisationHeader.createBearerToken(List(utr, nino)).futureValue)
-    def cookieForTaxIdentifiers(taxIdentifiers: TaxIdentifier*) = cookieFor(ggAuthorisationHeader.createBearerToken(taxIdentifiers.toList).futureValue).futureValue
+    def cookieForUtr(utr: SaUtr) = cookieFor(ggAuthorisationHeaderWithUtr.createBearerToken(List(utr)).futureValue)
+    def cookieForUtrAndNino(utr: SaUtr, nino: Nino) = cookieFor(ggAuthorisationHeaderWithUtr.createBearerToken(List(utr, nino)).futureValue)
+    def cookieForTaxIdentifiers(taxIdentifiers: TaxIdentifier*) = cookieFor(ggAuthorisationHeaderWithUtr.createBearerToken(taxIdentifiers.toList).futureValue).futureValue
 
 
     val returnUrl = "/test/return/url"
@@ -171,7 +187,7 @@ trait PreferencesFrontEndServer extends ServiceSpec {
     def `/paperless/activate/:form-type/:tax-identifier`(formType: String, taxIdentifier: TaxIdentifier)(additionalUserTaxIdentifiers: TaxIdentifier*) = new {
 
       private val url = WS.url(resource(s"/paperless/activate/$formType/${taxIdentifier.value}"))
-        .withHeaders(createGGAuthorisationHeader(taxIdentifier +: additionalUserTaxIdentifiers: _*), cookieForTaxIdentifiers(taxIdentifier +: additionalUserTaxIdentifiers: _*))
+        .withHeaders(createGGAuthorisationHeaderWithUtr(taxIdentifier +: additionalUserTaxIdentifiers: _*), cookieForTaxIdentifiers(taxIdentifier +: additionalUserTaxIdentifiers: _*))
         .withQueryString(
           "returnUrl" -> QueryParameterCrypto.encrypt(PlainText(returnUrl)).value,
           "returnLinkText" -> QueryParameterCrypto.encrypt(PlainText(returnLinkText)).value

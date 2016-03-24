@@ -18,7 +18,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
       `/paperless/activate/:form-type/:tax-identifier`("notice-of-coding", nino)(SaUtr(utr)).put().futureValue.status should be (412)
 
-      val response = `/paperless/upgrade`.post(optIn = true, acceptedTandC = Some(true)).futureValue
+      val response = `/paperless/upgrade`.post(optIn = true, acceptedTandC = Some(true), cookieWithUtrAndNino).futureValue
       response should have('status(303))
       response.header("Location").get should be (routes.UpgradeRemindersController.displayUpgradeConfirmed(Encrypted(returnUrl)).toString())
 
@@ -30,7 +30,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
       `/paperless/activate/:form-type/:tax-identifier`("notice-of-coding", nino)(SaUtr(utr)).put().futureValue.status should be (412)
 
-      val response = `/paperless/upgrade`.post(optIn = true, acceptedTandC = Some(false)).futureValue
+      val response = `/paperless/upgrade`.post(optIn = true, acceptedTandC = Some(false), cookieWithUtrAndNino).futureValue
       response should have('status(400))
     }
 
@@ -39,7 +39,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
       `/paperless/activate/:form-type/:tax-identifier`("notice-of-coding", nino)(SaUtr(utr)).put().futureValue.status should be (412)
 
-      val response = `/paperless/upgrade`.post(optIn = false, acceptedTandC = None).futureValue
+      val response = `/paperless/upgrade`.post(optIn = false, acceptedTandC = None, cookieWithUtrAndNino).futureValue
       response should have('status(303))
       response.header("Location") should contain (returnUrl)
 
@@ -49,7 +49,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
   "An existing user" should {
     "not be redirected to go paperless if they have already opted-out of generic terms" in new NewUserTestCase {
-      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postOptOut(utr).futureValue.status should be (201)
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeaderWithUtr).postOptOut(utr).futureValue.status should be (201)
 
       `/paperless/activate/:form-type/:tax-identifier`("sa-all", SaUtr(utr))().put().futureValue.status should be (409)
     }
@@ -122,8 +122,8 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
     "show go paperless and allow subsequent activation when legacy user is de-enrolled" in new NewUserTestCase {
       val a = `/portal/preferences`
-      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, pendingEmail).futureValue.status should be (201)
-      a.postDeEnrolling(utr).futureValue.status should be (200)
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(utr, pendingEmail).futureValue.status should be (201)
+      a.postDeEnrollingForUtr(utr).futureValue.status should be (200)
 
       val activateResponse = `/paperless/activate/:form-type/:tax-identifier`("sa-all", SaUtr(utr))().put().futureValue
       activateResponse.status should be (412)
@@ -143,10 +143,20 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
    }
 
   "New user preferences" should {
-    "set generic terms and conditions as true including email address" in new NewUserTestCase {
+    "set generic terms and conditions as true including email address for utr only" in new NewUserTestCase {
       val response = post(true, Some(email), true).futureValue
       response.status should be (200)
-      val preferencesResponse =  `/portal/preferences`.get(utr)
+      val preferencesResponse =  `/portal/preferences`.getForUtr(utr)
+      preferencesResponse should have(status(200))
+      val body = preferencesResponse.futureValue.body
+      body should include(""""digital":true""")
+      body should include(s""""email":"$email""")
+    }
+
+    "set generic terms and conditions as true including email address for nino only" in new NewUserTestCase {
+      val response = post(true, Some(email), true, cookie = cookieWithNino, authHeader = ggAuthHeaderWithNino).futureValue
+      response.status should be (200)
+      val preferencesResponse =  `/portal/preferences`.getForNino(nino.value)
       preferencesResponse should have(status(200))
       val body = preferencesResponse.futureValue.body
       body should include(""""digital":true""")
@@ -157,7 +167,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
       val response = post(false, None, false).futureValue
       response.status should be (303)
 
-      val preferencesResponse =  `/portal/preferences`.get(utr)
+      val preferencesResponse =  `/portal/preferences`.getForUtr(utr)
       preferencesResponse should have(status(200))
       val body = preferencesResponse.futureValue.body
       body should include(""""digital":false""")
@@ -170,7 +180,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
       val pendingEmail = "some@email.com"
       val entityId = `/entity-resolver-admin/sa/:utr`(utr, true)
       `/preferences-admin/sa/individual`.postLegacyOptIn(entityId, pendingEmail).futureValue.status should be (200)
-      val preferencesResponse = `/preferences/taxIdentifier`(authHeader).getPreference(utr).futureValue
+      val preferencesResponse = `/preferences/taxIdentifier`(ggAuthHeaderWithUtrAndNino).getPreference(utr).futureValue
       preferencesResponse should have ('status(200))
       preferencesResponse.body should include(""""digital":true""")
       preferencesResponse.body should include(s"""email":"$pendingEmail"""")
@@ -184,9 +194,6 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
     val email = "a@b.com"
 
-    implicit val authHeader = createGGAuthorisationHeader(SaUtr(utr))
-    override lazy val cookie = cookieForUtr(SaUtr(utr)).futureValue
-
     val url = WS.url(resource("/paperless/choose"))
         .withQueryString("returnUrl" -> ApplicationCrypto.QueryParameterCrypto.encrypt(PlainText(returnUrl)).value)
         .withQueryString("returnLinkText" -> ApplicationCrypto.QueryParameterCrypto.encrypt(PlainText("Go-somewhere")).value)
@@ -195,14 +202,14 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
       val url = WS.url(resource(s"/paperless/choose/$cohort"))
         .withQueryString("returnUrl" -> ApplicationCrypto.QueryParameterCrypto.encrypt(PlainText(returnUrl)).value)
         .withQueryString("returnLinkText" -> ApplicationCrypto.QueryParameterCrypto.encrypt(PlainText("Go-somewhere")).value)
-        .withHeaders(cookie,"Csrf-Token"->"nocheck", authHeader).withFollowRedirects(false)
+        .withHeaders(cookieWithUtr,"Csrf-Token"->"nocheck", ggAuthHeaderWithUtrAndNino).withFollowRedirects(false)
 
       def get() = {
         url.get().futureValue
       }
     }
 
-    def post(optIn:Boolean, email: Option[String], acceptTAndC: Boolean): Future[WSResponse] = {
+    def post(optIn:Boolean, email: Option[String], acceptTAndC: Boolean, cookie : (String, String) = cookieWithUtrAndNino, authHeader : (String, String) = ggAuthHeaderWithUtrAndNino ): Future[WSResponse] = {
       val params = Map("opt-in" -> Seq(optIn.toString), "accept-tc" -> Seq(acceptTAndC.toString))
       val paramsWithEmail = email match {
         case None => params
@@ -215,22 +222,17 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
   trait UpgradeTestCase extends TestCaseWithFrontEndAuthentication {
     import play.api.Play.current
 
-    val nino = GenerateRandom.nino()
-
-    val authHeader =  createGGAuthorisationHeader(SaUtr(utr), nino)
-    override lazy val cookie = cookieForUtrAndNino(SaUtr(utr), nino).futureValue
-
     val `/paperless/upgrade` = new {
 
       val url = WS.url(resource("/paperless/upgrade")).withQueryString("returnUrl" -> ApplicationCrypto.QueryParameterCrypto.encrypt(PlainText(returnUrl)).value)
 
-      def post(optIn: Boolean, acceptedTandC: Option[Boolean]) = {
+      def post(optIn: Boolean, acceptedTandC: Option[Boolean], cookie : (String, String) = cookieWithUtr) = {
         url.withHeaders(cookie,"Csrf-Token"->"nocheck").withFollowRedirects(false).post(
           Seq(Some("opt-in" -> Seq(optIn.toString)), acceptedTandC.map(a => "accept-tc" -> Seq(a.toString))).flatten.toMap
         )
       }
 
-      def get() = url.withHeaders(cookie).get()
+      def get(cookie : (String, String) = cookieWithUtr) = url.withHeaders(cookie).get()
     }
 
     def createOptedInVerifiedPreferenceWithNino() : WSResponse = {

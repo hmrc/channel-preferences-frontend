@@ -2,12 +2,13 @@ package controllers.internal
 
 import config.Global
 import connectors._
-import controllers.Authentication
+import controllers.{FindTaxIdentifier, Authentication}
 import model.Encrypted
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, Request, Result}
+import uk.gov.hmrc.domain.TaxIds.TaxIdWithName
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.play.audit.AuditExtensions._
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
@@ -30,7 +31,7 @@ object UpgradeRemindersController extends UpgradeRemindersController with Authen
 
   def displayUpgradeForm(encryptedReturnUrl: Encrypted[String]): Action[AnyContent] = authenticated.async {
     authContext => implicit request =>
-      _renderUpgradePageIfPreferencesAvailable(authContext.principal.accounts.sa.get.utr, encryptedReturnUrl)
+      _renderUpgradePageIfPreferencesAvailable(findTaxIdentifier(authContext), encryptedReturnUrl)
   }
 
   def submitUpgrade(returnUrl: Encrypted[String]) = authenticated.async { authContext => implicit request =>
@@ -56,14 +57,14 @@ object UpgradeRemindersForm {
   case class Data(optIn: Boolean, acceptTandC: Boolean)
 }
 
-trait UpgradeRemindersController extends FrontendController with Actions with AppName {
+trait UpgradeRemindersController extends FrontendController with Actions with AppName with FindTaxIdentifier {
 
   def authConnector: AuthConnector
   def entityResolverConnector: EntityResolverConnector
   def auditConnector: AuditConnector
 
-  private[controllers] def _renderUpgradePageIfPreferencesAvailable(utr: SaUtr, encryptedReturnUrl: Encrypted[String])(implicit request: Request[AnyContent]): Future[Result] = {
-    decideRoutingFromPreference(utr, encryptedReturnUrl, UpgradeRemindersForm())
+  private[controllers] def _renderUpgradePageIfPreferencesAvailable(taxId: TaxIdWithName, encryptedReturnUrl: Encrypted[String])(implicit request: Request[AnyContent]): Future[Result] = {
+    decideRoutingFromPreference(taxId, encryptedReturnUrl, UpgradeRemindersForm())
   }
 
   private[controllers] def _upgradePreferences(returnUrl:String, utr: SaUtr, maybeNino: Option[Nino])(implicit request: Request[AnyContent]): Future[Result] = {
@@ -81,8 +82,8 @@ trait UpgradeRemindersController extends FrontendController with Actions with Ap
     )
   }
 
-  private def decideRoutingFromPreference(utr: SaUtr, encryptedReturnUrl: Encrypted[String], tandcForm:Form[UpgradeRemindersForm.Data])(implicit request: Request[AnyContent]) = {
-    entityResolverConnector.getPreferences(utr).map {
+  private def decideRoutingFromPreference(taxId: TaxIdWithName, encryptedReturnUrl: Encrypted[String], tandcForm:Form[UpgradeRemindersForm.Data])(implicit request: Request[AnyContent]) = {
+    entityResolverConnector.getPreferences(taxId).map {
       case Some(prefs) => Ok(upgrade_printing_preferences(prefs.email.map(e => e.email), encryptedReturnUrl, tandcForm))
       case None => Redirect(encryptedReturnUrl.decryptedValue)
     }

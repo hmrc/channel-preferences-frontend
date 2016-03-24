@@ -9,6 +9,7 @@ import play.api.Logger
 import play.api.http.Status
 import play.api.libs.json._
 import uk.gov.hmrc.circuitbreaker.UnhealthyServiceException
+import uk.gov.hmrc.domain.TaxIds.TaxIdWithName
 import uk.gov.hmrc.domain.{Nino, TaxIdentifier, SaUtr}
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
@@ -120,7 +121,7 @@ trait EntityResolverConnector extends Status with ServicesCircuitBreaker {
         case e: NotFoundException => None
       }
 
-  def saveCohort(utr: SaUtr, cohort: OptInCohort)(implicit hc: HeaderCarrier): Future[Any] = Future.successful(true)
+  def saveCohort(taxId: TaxIdWithName, cohort: OptInCohort)(implicit hc: HeaderCarrier): Future[Any] = Future.successful(true)
 
   def getEmailAddress(utr: SaUtr)(implicit hc: HeaderCarrier) =
     withCircuitBreaker(http.GET[Option[Email]](url(s"/portal/preferences/sa/individual/$utr/print-suppression/verified-email-address")))

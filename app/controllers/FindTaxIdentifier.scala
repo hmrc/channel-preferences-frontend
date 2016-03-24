@@ -4,5 +4,9 @@ import uk.gov.hmrc.play.frontend.auth.AuthContext
 
 trait FindTaxIdentifier {
   def findTaxIdentifier(authContext: AuthContext) =
-    if(authContext.principal.accounts.sa.isDefined) authContext.principal.accounts.sa.get.utr else authContext.principal.accounts.paye.get.nino
+    (authContext.principal.accounts.sa.isDefined, authContext.principal.accounts.paye.isDefined) match {
+      case (true, _) => authContext.principal.accounts.sa.get.utr
+      case (_, true) => authContext.principal.accounts.paye.get.nino
+      case _ => throw new RuntimeException("No supported tax regimes present i.e, SA or Paye")
+    }
 }

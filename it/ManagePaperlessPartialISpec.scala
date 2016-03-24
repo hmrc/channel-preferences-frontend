@@ -15,7 +15,7 @@ class ManagePaperlessPartialISpec
     }
 
     "return opted out details when no preference is set" in new TestCaseWithFrontEndAuthentication {
-      private val request = `/paperless/manage`(returnUrl = "http://some/other/url", returnLinkText = "Continue").withHeaders(cookie)
+      private val request = `/paperless/manage`(returnUrl = "http://some/other/url", returnLinkText = "Continue").withHeaders(cookieWithNino)
       val response = request.get()
       response should have(status(200))
       response.futureValue.body should (
@@ -29,9 +29,9 @@ class ManagePaperlessPartialISpec
 
     "contain pending email verification details" in new TestCaseWithFrontEndAuthentication {
       val email = s"${UUID.randomUUID().toString}@email.com"
-      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(201))
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeaderWithNino).postPendingEmail(nino.value, email) should have(status(201))
 
-      val response = `/paperless/manage`(returnUrl = "http://some/other/url", returnLinkText = "Continue").withHeaders(cookie).get()
+      val response = `/paperless/manage`(returnUrl = "http://some/other/url", returnLinkText = "Continue").withHeaders(cookieWithNino).get()
       response should have(status(200))
       response.futureValue.body should include(s"You need to verify")
     }
@@ -39,18 +39,18 @@ class ManagePaperlessPartialISpec
     "contain new email details for a subsequent change email" in new TestCaseWithFrontEndAuthentication {
       val email = s"${UUID.randomUUID().toString}@email.com"
       val newEmail = s"${UUID.randomUUID().toString}@email.com"
-      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(201))
-      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, newEmail) should have(status(200))
-      val response = `/paperless/manage`(returnUrl = "http://some/other/url", returnLinkText = "Continue").withHeaders(cookie).get()
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(utr, email) should have(status(201))
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(utr, newEmail) should have(status(200))
+      val response = `/paperless/manage`(returnUrl = "http://some/other/url", returnLinkText = "Continue").withHeaders(cookieWithUtr).get()
       response should have(status(200))
       checkForChangedEmailDetailsInResponse(response.futureValue.body, email, newEmail, todayDate)
     }
 
     "contain sign up details for a subsequent opt out" in new TestCase with TestCaseWithFrontEndAuthentication {
       val email = s"${UUID.randomUUID().toString}@email.com"
-      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(201))
-      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postOptOut(utr) should have(status(200))
-      val response = `/paperless/manage`(returnUrl = "http://some/other/url", returnLinkText = "Continue").withHeaders(cookie).get()
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(utr, email) should have(status(201))
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeaderWithUtr).postOptOut(utr) should have(status(200))
+      val response = `/paperless/manage`(returnUrl = "http://some/other/url", returnLinkText = "Continue").withHeaders(cookieWithUtr).get()
       response should have(status(200))
       response.futureValue.body should (
         not include email and
@@ -64,20 +64,20 @@ class ManagePaperlessPartialISpec
     "contain new email details for a subsequent change email" in new TestCaseWithFrontEndAuthentication {
       val email = s"${UUID.randomUUID().toString}@email.com"
       val newEmail = s"${UUID.randomUUID().toString}@email.com"
-      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(201))
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(utr, email) should have(status(201))
       `/preferences-admin/sa/individual`.verifyEmailFor(`/entity-resolver-admin/sa/:utr`(utr)) should have(status(204))
-      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, newEmail) should have(status(200))
-      val response = `/paperless/manage`(returnUrl = "http://some/other/url", returnLinkText = "Continue").withHeaders(cookie).get()
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(utr, newEmail) should have(status(200))
+      val response = `/paperless/manage`(returnUrl = "http://some/other/url", returnLinkText = "Continue").withHeaders(cookieWithUtr).get()
       response should have(status(200))
       checkForChangedEmailDetailsInResponse(response.futureValue.body, email, newEmail, todayDate)
     }
 
     "contain sign up details for a subsequent opt out" in new TestCaseWithFrontEndAuthentication {
       val email = s"${UUID.randomUUID().toString}@email.com"
-      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(201))
-      `/preferences-admin/sa/individual`.verifyEmailFor(`/entity-resolver-admin/sa/:utr`(utr)) should have(status(204))
-      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postOptOut(utr) should have(status(200))
-      val response = `/paperless/manage`(returnUrl = "http://some/other/url", returnLinkText = "Continue").withHeaders(cookie).get()
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeaderWithNino).postPendingEmail(nino.value, email) should have(status(201))
+      `/preferences-admin/sa/individual`.verifyEmailFor(`/entity-resolver-admin/paye/:nino`(nino.value)) should have(status(204))
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeaderWithNino).postOptOut(nino.value) should have(status(200))
+      val response = `/paperless/manage`(returnUrl = "http://some/other/url", returnLinkText = "Continue").withHeaders(cookieWithNino).get()
       response should have(status(200))
       response.futureValue.body should (
         not include email and
@@ -90,20 +90,20 @@ class ManagePaperlessPartialISpec
     "contain new email details for a subsequent change email" in new TestCaseWithFrontEndAuthentication {
       val email = s"${UUID.randomUUID().toString}@email.com"
       val newEmail = s"${UUID.randomUUID().toString}@email.com"
-      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(201))
-      `/preferences-admin/sa/bounce-email`.post(email) should have(status(204))
-      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, newEmail) should have(status(200))
-      val response = `/paperless/manage`(returnUrl = "http://some/other/url", returnLinkText = "Continue").withHeaders(cookie).get()
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(utr, email) should have(status(201))
+      `/preferences-admin/bounce-email`.post(email) should have(status(204))
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(utr, newEmail) should have(status(200))
+      val response = `/paperless/manage`(returnUrl = "http://some/other/url", returnLinkText = "Continue").withHeaders(cookieWithUtr).get()
       response should have(status(200))
       checkForChangedEmailDetailsInResponse(response.futureValue.body, email, newEmail, todayDate)
     }
 
     "contain sign up details for a subsequent opt out" in new TestCaseWithFrontEndAuthentication {
       val email = s"${UUID.randomUUID().toString}@email.com"
-      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postPendingEmail(utr, email) should have(status(201))
-      `/preferences-admin/sa/bounce-email`.post(email) should have(status(204))
-      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeader).postOptOut(utr) should have(status(200))
-      val response = `/paperless/manage`(returnUrl = "http://some/other/url", returnLinkText = "Continue").withHeaders(cookie).get()
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(utr, email) should have(status(201))
+      `/preferences-admin/bounce-email`.post(email) should have(status(204))
+      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeaderWithUtr).postOptOut(utr) should have(status(200))
+      val response = `/paperless/manage`(returnUrl = "http://some/other/url", returnLinkText = "Continue").withHeaders(cookieWithUtr).get()
       response should have(status(200))
       response.futureValue.body should (
         not include email and
