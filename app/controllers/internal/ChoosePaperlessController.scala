@@ -110,7 +110,8 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
       auditType = EventTypes.Succeeded,
       tags = hc.toAuditTags("Show Print Preference Option", request.path),
       detail = Json.toJson(hc.toAuditDetails(
-        "utr" -> taxId.toString,
+        "taxId" -> taxId.toString,
+        "taxIdType" -> taxId.name,
         "journey" -> journey.toString,
         "cohort" -> cohort.toString
       ))
@@ -123,7 +124,8 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
       tags = hc.toAuditTags("Set Print Preference", request.path),
       detail = Json.toJson(hc.toAuditDetails(
         "client" -> "YTA",
-        "utr" -> taxId.toString,
+        "taxId" -> taxId.toString,
+        "taxIdType" -> taxId.name,
         "journey" -> journey.toString,
         "digital" -> terms._2.accepted.toString,
         "cohort" -> cohort.toString,
