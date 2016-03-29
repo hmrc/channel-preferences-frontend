@@ -3,12 +3,11 @@ package controllers.internal
 import config.Global
 import connectors._
 import controllers.internal.EmailOptInJourney._
-import controllers.{FindTaxIdentifier, Authentication, internal}
+import controllers.{Authentication, FindTaxIdentifier, internal}
 import model.{Encrypted, HostContext}
 import play.api.data.Form
 import play.api.libs.json.Json
 import play.api.mvc._
-import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.domain.TaxIds.TaxIdWithName
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.audit.AuditExtensions._
@@ -49,7 +48,7 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
     val taxId = findTaxIdentifier(authContext)
     cohort.fold(ifEmpty = Future.successful(createRedirectToDisplayFormWithCohort(emailAddress, hostContext))) { cohort =>
       entityResolverConnector.saveCohort(taxId, calculateCohort(authContext)).map { case _ =>
-        auditPageShown(taxId, AccountDetails, cohort)
+        auditPageShown(authContext, AccountDetails, cohort)
         val email = emailAddress.map(_.decryptedValue)
         Ok(views.html.sa.prefs.sa_printing_preference(
           emailForm = OptInDetailsForm().fill(OptInDetailsForm.Data(emailAddress = email, preference = email.map(_ => OptInDetailsForm.Data.PaperlessChoice.OptedIn), acceptedTcs = Some(false))),
@@ -70,7 +69,7 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
         _ <- entityResolverConnector.saveCohort(taxId, calculateCohort(authContext))
         preferencesStatus <- entityResolverConnector.updateTermsAndConditions(taxId, terms, email)
       } yield {
-        auditChoice(taxId, AccountDetails, cohort, terms, email, preferencesStatus)
+        auditChoice(authContext, AccountDetails, cohort, terms, email, preferencesStatus)
         digital match {
           case true  =>
             val encryptedEmail = email map (emailAddress => Encrypted(EmailAddress(emailAddress)))
@@ -104,28 +103,28 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
     )
   }
 
-  private def auditPageShown(taxId: TaxIdWithName, journey: Journey, cohort: OptInCohort)(implicit request: Request[_], hc: HeaderCarrier) =
+  private def auditPageShown(authContext: AuthContext, journey: Journey, cohort: OptInCohort)(implicit request: Request[_], hc: HeaderCarrier) =
     auditConnector.sendEvent(ExtendedDataEvent(
       auditSource = appName,
       auditType = EventTypes.Succeeded,
       tags = hc.toAuditTags("Show Print Preference Option", request.path),
       detail = Json.toJson(hc.toAuditDetails(
-        "taxId" -> taxId.toString,
-        "taxIdType" -> taxId.name,
+        "utr" -> findUtr(authContext).map(_.utr).getOrElse("N/A"),
+        "nino" -> findNino(authContext).map(_.nino).getOrElse("N/A"),
         "journey" -> journey.toString,
         "cohort" -> cohort.toString
       ))
     ))
 
-  private def auditChoice(taxId: TaxIdWithName, journey: Journey, cohort: OptInCohort, terms: (TermsType, TermsAccepted), emailOption: Option[String], preferencesStatus: PreferencesStatus)(implicit request: Request[_], hc: HeaderCarrier) =
+  private def auditChoice(authContext: AuthContext, journey: Journey, cohort: OptInCohort, terms: (TermsType, TermsAccepted), emailOption: Option[String], preferencesStatus: PreferencesStatus)(implicit request: Request[_], hc: HeaderCarrier) =
     auditConnector.sendEvent(ExtendedDataEvent(
       auditSource = appName,
       auditType = if (preferencesStatus == PreferencesFailure) EventTypes.Failed else EventTypes.Succeeded,
       tags = hc.toAuditTags("Set Print Preference", request.path),
       detail = Json.toJson(hc.toAuditDetails(
         "client" -> "YTA",
-        "taxId" -> taxId.toString,
-        "taxIdType" -> taxId.name,
+        "utr" -> findUtr(authContext).map(_.utr).getOrElse("N/A"),
+        "nino" -> findNino(authContext).map(_.nino).getOrElse("N/A"),
         "journey" -> journey.toString,
         "digital" -> terms._2.accepted.toString,
         "cohort" -> cohort.toString,

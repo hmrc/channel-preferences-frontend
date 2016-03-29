@@ -1,6 +1,7 @@
 package controllers.internal
 
 import connectors._
+import controllers.AuthorityUtils._
 import model.Encrypted
 import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
@@ -14,6 +15,7 @@ import play.api.test.{FakeApplication, FakeRequest}
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.{EventTypes, ExtendedDataEvent}
+import uk.gov.hmrc.play.frontend.auth.AuthContext
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
@@ -29,8 +31,8 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
     event.auditType shouldBe EventTypes.Succeeded
     event.tags should contain ("transactionName" -> "Set Print Preference")
     event.detail \ "client" shouldBe JsString("")
-    event.detail \ "taxIdType" shouldBe JsString("sautr")
-    event.detail \ "taxId" shouldBe JsString(utr.utr)
+    event.detail \ "nino" shouldBe JsString(nino.value)
+    event.detail \ "utr" shouldBe JsString(utr.utr)
     event.detail \ "TandCsScope" shouldBe JsString("generic")
     event.detail \ "userConfirmedReadTandCs" shouldBe JsString("true")
     event.detail \ "journey" shouldBe JsString("")
@@ -46,8 +48,8 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
     event.auditType shouldBe EventTypes.Succeeded
     event.tags should contain ("transactionName" -> "Set Print Preference")
     event.detail \ "client" shouldBe JsString("")
-    event.detail \ "taxIdType" shouldBe JsString("sautr")
-    event.detail \ "taxId" shouldBe JsString(utr.utr)
+    event.detail \ "nino" shouldBe JsString(nino.value)
+    event.detail \ "utr" shouldBe JsString(utr.utr)
     event.detail \ "TandCsScope" shouldBe JsString("generic")
     event.detail \ "userConfirmedReadTandCs" shouldBe JsString("false")
     event.detail \ "journey" shouldBe JsString("")
@@ -61,7 +63,7 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
 
       when(controller.entityResolverConnector.updateTermsAndConditions(is(utr), is(Generic -> TermsAccepted(true)), email = is(None))(any())).thenReturn(Future.successful(PreferencesCreated))
 
-      val result = await(controller._upgradePreferences("someUrl", utr)(testRequest.withFormUrlEncodedBody("opt-in" -> "true", "accept-tc" -> "true")))
+      val result = await(controller._upgradePreferences("someUrl", authContext)(testRequest.withFormUrlEncodedBody("opt-in" -> "true", "accept-tc" -> "true")))
 
       status(result) shouldBe 303
       header("Location", result).get should be(routes.UpgradeRemindersController.displayUpgradeConfirmed(Encrypted[String]("someUrl")).url)
@@ -71,7 +73,7 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
 
       when(controller.entityResolverConnector.updateTermsAndConditions(is(utr), is(Generic -> TermsAccepted(true)), email = is(None))(any())).thenReturn(Future.successful(PreferencesCreated))
 
-      val result = await(controller._upgradePreferences("someUrl", utr)(testRequest.withFormUrlEncodedBody("opt-in" -> "true", "accept-tc" -> "false")))
+      val result = await(controller._upgradePreferences("someUrl", authContext)(testRequest.withFormUrlEncodedBody("opt-in" -> "true", "accept-tc" -> "false")))
 
       status(result) shouldBe 400
       Jsoup.parse(contentAsString(result)).select(".error-notification").text shouldBe "You must accept the terms and conditions"
@@ -82,7 +84,7 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
 
       when(controller.entityResolverConnector.updateTermsAndConditions(is(utr), is(Generic -> TermsAccepted(false)), email = is(None))(any())).thenReturn(Future.successful(PreferencesCreated))
 
-      val result = await(controller._upgradePreferences("someUrl", utr)(testRequest.withFormUrlEncodedBody("opt-in" -> "false")))
+      val result = await(controller._upgradePreferences("someUrl", authContext)(testRequest.withFormUrlEncodedBody("opt-in" -> "false")))
 
       status(result) shouldBe 303
       header("Location", result).get should be("someUrl")
@@ -91,7 +93,7 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
     "redirect to supplied url when digital true and no preference found" in new UpgradeTestCase {
       when(controller.entityResolverConnector.updateTermsAndConditions(is(utr), is(Generic -> TermsAccepted(true)), email = is(None))(any())).thenReturn(Future.successful(PreferencesFailure))
 
-      val result = await(controller._upgradePreferences("someUrl", utr)(testRequest.withFormUrlEncodedBody("opt-in" -> "true", "accept-tc" -> "true")))
+      val result = await(controller._upgradePreferences("someUrl", authContext)(testRequest.withFormUrlEncodedBody("opt-in" -> "true", "accept-tc" -> "true")))
 
       status(result) shouldBe 303
       header("Location", result).get should include("someUrl")
@@ -100,7 +102,7 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
     "redirect to supplied url when digital false and no preference found" in new UpgradeTestCase {
       when(controller.entityResolverConnector.updateTermsAndConditions(is(utr), is(Generic -> TermsAccepted(false)), email = is(None))(any())).thenReturn(Future.successful(PreferencesFailure))
 
-      val result = await(controller._upgradePreferences("someUrl", utr)(testRequest.withFormUrlEncodedBody("opt-in" -> "false")))
+      val result = await(controller._upgradePreferences("someUrl", authContext)(testRequest.withFormUrlEncodedBody("opt-in" -> "false")))
 
       status(result) shouldBe 303
       header("Location", result).get should include("someUrl")
@@ -112,7 +114,7 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
     "redirect to supplied url when no preference found" in new UpgradeTestCase {
       when(controller.entityResolverConnector.getPreferences(is(utr))(any())).thenReturn(Future.successful(None))
 
-      val result = await(controller._renderUpgradePageIfPreferencesAvailable(utr, Encrypted("someUrl"))(testRequest))
+      val result = await(controller._renderUpgradePageIfPreferencesAvailable(authContext, Encrypted("someUrl"))(testRequest))
 
       status(result) shouldBe 303
       header("Location", result).get should include("someUrl")
@@ -139,6 +141,7 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
     val emailAddress = "someone@something.com"
     val email = SaEmailPreference(emailAddress, SaEmailPreference.Status.Pending, false, None, None)
 
+    val authContext = AuthContext(authority = ninoAndPayeAuthority("userId", utr.value, nino.value), nameFromSession = Some("Ciccio"), governmentGatewayToken = None)
 
     val controller = new UpgradeRemindersController {
       override val entityResolverConnector: EntityResolverConnector = mock[EntityResolverConnector]
@@ -148,7 +151,7 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
 
     def upgradeAndCaptureAuditEvent(digital: (TermsType, TermsAccepted)):ArgumentCaptor[ExtendedDataEvent] = {
       when(controller.entityResolverConnector.updateTermsAndConditions(is(utr), is(digital), email = is(None))(any())).thenReturn(Future.successful(PreferencesExists))
-      await(controller.upgradePaperless(utr, digital))
+      await(controller.upgradePaperless(authContext, digital))
       val eventArg : ArgumentCaptor[ExtendedDataEvent] = ArgumentCaptor.forClass(classOf[ExtendedDataEvent])
       verify(controller.auditConnector).sendEvent(eventArg.capture())(any(), any())
       eventArg

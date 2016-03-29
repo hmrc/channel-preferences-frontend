@@ -1,5 +1,6 @@
 package controllers
 
+import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.play.frontend.auth.AuthContext
 
 trait FindTaxIdentifier {
@@ -8,5 +9,17 @@ trait FindTaxIdentifier {
       case (true, _) => authContext.principal.accounts.sa.get.utr
       case (_, true) => authContext.principal.accounts.paye.get.nino
       case _ => throw new RuntimeException("No supported tax regimes present i.e, SA or Paye")
+    }
+
+  def findUtr(authContext: AuthContext) : Option[SaUtr] =
+    (authContext.principal.accounts.sa.isDefined) match {
+      case true => Some(authContext.principal.accounts.sa.get.utr)
+      case _ => None
+    }
+
+  def findNino(authContext: AuthContext) : Option[Nino] =
+    (authContext.principal.accounts.paye.isDefined) match {
+      case true => Some(authContext.principal.accounts.paye.get.nino)
+      case _ => None
     }
 }
