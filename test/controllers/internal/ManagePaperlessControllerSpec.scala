@@ -14,6 +14,7 @@ import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.frontend.auth.AuthContext
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
+import uk.gov.hmrc.play.http.HttpResponse
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
@@ -93,7 +94,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar  {
       val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Pending)))
 
       when(mockEntityResolverConnector.getPreferences(is(validUtr))(any())).thenReturn(Future.successful(Some(saPreferences)))
-      when(mockEntityResolverConnector.savePreferences(is(validUtr), is(true), is(Some("test@test.com")))(any())).thenReturn(Future.successful(()))
+      when(mockEntityResolverConnector.savePreferences(is(validUtr), is(true), is(Some("test@test.com")))(any())).thenReturn(Future.successful((HttpResponse(OK))))
 
       val page = Future.successful(controller._resendVerificationEmail(user, FakeRequest(), TestFixtures.sampleHostContext))
 
@@ -132,7 +133,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar  {
 
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(true)
       when(mockEntityResolverConnector.getPreferences(is(validUtr))(any())).thenReturn(Future.successful(Some(saPreferences)))
-      when(mockEntityResolverConnector.savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())).thenReturn(Future.successful(None))
+      when(mockEntityResolverConnector.savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND)))
 
       val page = Future.successful(controller._submitChangeEmailAddress(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress),("email.confirm", emailAddress)), TestFixtures.sampleHostContext))
 
@@ -212,7 +213,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar  {
       val saPreferences = SaPreference(true, Some(SaEmailPreference("oldEmailAddress@test.com", SaEmailPreference.Status.Verified)))
 
       when(mockEntityResolverConnector.getPreferences(is(validUtr))(any())).thenReturn(Future.successful(Some(saPreferences)))
-      when(mockEntityResolverConnector.savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())).thenReturn(Future.successful(None))
+      when(mockEntityResolverConnector.savePreferences(is(validUtr), is(true), is(Some(emailAddress)))(any())).thenReturn(Future.successful(HttpResponse(OK)))
 
       val page = Future.successful(controller._submitChangeEmailAddress(user, FakeRequest().withFormUrlEncodedBody
         (("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "true")), TestFixtures.sampleHostContext))

@@ -111,7 +111,7 @@ trait EntityResolverConnector extends Status with ServicesCircuitBreaker {
     }
   }
 
-  def savePreferences(taxIdentifier: TaxIdentifier, digital: Boolean, email: Option[String])(implicit hc: HeaderCarrier): Future[Any] =
+  def savePreferences(taxIdentifier: TaxIdentifier, digital: Boolean, email: Option[String])(implicit hc: HeaderCarrier): Future[HttpResponse] =
     withCircuitBreaker(http.POST(url(s"/preferences/$taxIdentifier"), UpdateEmail(digital, email)))
 
   def getPreferences(taxIdentifier: TaxIdentifier)(implicit headerCarrier: HeaderCarrier): Future[Option[SaPreference]] =
@@ -123,14 +123,14 @@ trait EntityResolverConnector extends Status with ServicesCircuitBreaker {
 
   def saveCohort(taxId: TaxIdWithName, cohort: OptInCohort)(implicit hc: HeaderCarrier): Future[Any] = Future.successful(true)
 
-  def getEmailAddress(utr: SaUtr)(implicit hc: HeaderCarrier) =
-    withCircuitBreaker(http.GET[Option[Email]](url(s"/portal/preferences/sa/individual/$utr/print-suppression/verified-email-address")))
-      .map(_.map(_.email))
-
-  def getEmailAddress(nino: Nino)(implicit hc: HeaderCarrier) =
-    withCircuitBreaker(http.GET[Option[Email]](url(s"/portal/preferences/paye/individual/$nino/print-suppression/verified-email-address")))
-      .map(_.map(_.email))
-
+  def getEmailAddress(taxId: TaxIdentifier)(implicit hc: HeaderCarrier) = {
+    def basedOnTaxIdType = taxId match {
+      case SaUtr(utr) => s"/portal/preferences/sa/individual/$utr/print-suppression/verified-email-address"
+      case Nino(nino) => s"/portal/preferences/paye/individual/$nino/print-suppression/verified-email-address"
+    }
+    withCircuitBreaker(http.GET[Option[Email]](url(basedOnTaxIdType))).map(_.map(_.email))
+  }
+  
   def updateEmailValidationStatusUnsecured(token: String)(implicit hc: HeaderCarrier): Future[EmailVerificationLinkResponse.Value] = {
     responseToEmailVerificationLinkStatus(withCircuitBreaker(http.PUT(url("/portal/preferences/email"), ValidateEmail(token))))
   }
