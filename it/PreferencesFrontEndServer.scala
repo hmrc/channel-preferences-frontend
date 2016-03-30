@@ -22,10 +22,11 @@ trait TestUser {
   val password = "testing123"
 
   val utr = GenerateRandom.utr().value
+  val nino = GenerateRandom.nino()
 }
 
 trait PreferencesFrontEndServer extends ServiceSpec {
-  protected val server = new PreferencesFrontendIntegrationServer("PreferencesFrontEndServer")
+  protected val server = new PreferencesFrontendIntegrationServer("PREFERENCES_FRONTEND_IT_TESTS")
 
   class PreferencesFrontendIntegrationServer(override val testName: String) extends MicroServiceEmbeddedServer {
     override protected val externalServices: Seq[ExternalService] = externalServiceNames.map(ExternalService.runFromJar(_))
@@ -39,12 +40,12 @@ trait PreferencesFrontEndServer extends ServiceSpec {
       "government-gateway",
       "auth",
       "message",
+      "entity-resolver",
       "mailgun",
       "hmrc-deskpro",
       "ca-frontend",
       "email",
       "cid",
-      "entity-resolver",
       "preferences"
     )
   }
@@ -68,57 +69,75 @@ trait PreferencesFrontEndServer extends ServiceSpec {
 
     val payeFormTypeBody = Json.parse(s"""{"active":true}""")
 
-    def `/preferences/sa/individual/utr/print-suppression`(header: (String, String)) = new {
+    def `/preferences/taxIdentifier`(header: (String, String)) = new {
       def getPreference(utr: String) = WS.url(server.externalResource("entity-resolver",
-        s"/preferences/sa/individual/${utr}/print-suppression"))
+        s"/preferences/$utr"))
         .withHeaders(header)
         .get
     }
 
-    val `/portal/preferences/sa/individual` = new {
+    val `/portal/preferences` = new {
 
-      def postDeEnrolling(utr: String) = WS.url(server.externalResource("entity-resolver",
-        s"/portal/preferences/sa/individual/$utr/print-suppression")).post(Json.parse(s"""{"de-enrolling": true, "reason": "Pour le-test"}"""))
+      def postDeEnrollingForUtr(utr: String) = WS.url(server.externalResource("entity-resolver",
+        s"/portal/preferences/sa/$utr")).post(Json.parse(s"""{"de-enrolling": true, "reason": "Pour le-test"}"""))
 
-      def get(utr: String) = WS.url(server.externalResource("entity-resolver", s"/portal/preferences/sa/individual/$utr/print-suppression")).get()
-      }
+      def getForUtr(utr: String) = WS.url(server.externalResource("entity-resolver", s"/portal/preferences/sa/$utr")).get()
 
-    def `/preferences/sa/individual/utr/terms-and-conditions`(header: (String, String)) = new {
-      def postPendingEmail(utr: String, pendingEmail: String) = WS.url(server.externalResource("entity-resolver",
-        s"/preferences/sa/individual/$utr/terms-and-conditions")).withHeaders(header).post(Json.parse(s"""{"generic":{"accepted":true}, "email":"$pendingEmail"}"""))
+      def postDeEnrollingForNino(nino: String) = WS.url(server.externalResource("entity-resolver",
+        s"/portal/preferences/paye/$nino")).post(Json.parse(s"""{"de-enrolling": true, "reason": "Pour le-test"}"""))
 
-      def postOptOut(utr: String) = WS.url(server.externalResource("entity-resolver",
-        s"/preferences/sa/individual/$utr/terms-and-conditions")).withHeaders(header).post(Json.parse("""{"generic":{"accepted":false}}"""))
+      def getForNino(nino: String) = WS.url(server.externalResource("entity-resolver", s"/portal/preferences/paye/$nino")).get()
     }
+
+    def `/preferences/taxIdentifier/terms-and-conditions`(header: (String, String)) = new {
+      def postPendingEmail(taxId: String, pendingEmail: String) = WS.url(server.externalResource("entity-resolver",
+        s"/preferences/$taxId/terms-and-conditions")).withHeaders(header).post(Json.parse(s"""{"generic":{"accepted":true}, "email":"$pendingEmail"}"""))
+
+      def postOptOut(taxId: String) = WS.url(server.externalResource("entity-resolver",
+        s"/preferences/$taxId/terms-and-conditions")).withHeaders(header).post(Json.parse("""{"generic":{"accepted":false}}"""))
+    }
+
+    def `/entity-resolver-admin/sa/:utr`(utr: String, create: Boolean = false) = {
+      val response = WS.url(server.externalResource("entity-resolver", path = s"/entity-resolver-admin/sa/$utr")).get().futureValue
+      if (create) response.status should be (201) else response.status should be (200)
+      response.body
+    }
+
+    def `/entity-resolver-admin/paye/:nino`(nino: String, create: Boolean = false) = {
+      val response = WS.url(server.externalResource("entity-resolver", path = s"/entity-resolver-admin/paye/$nino")).get().futureValue
+      if (create) response.status should be (201) else response.status should be (200)
+      response.body
+    }
+
 
     val `/preferences-admin/sa/individual` = new {
-      def verifyEmailFor(utr: String) = WS.url(server.externalResource("preferences",
-        s"/preferences-admin/sa/individual/$utr/verify-email")).post(EmptyContent())
+      def verifyEmailFor(entityId: String) = WS.url(server.externalResource("preferences",
+        s"/preferences-admin/$entityId/verify-email")).post(EmptyContent())
 
-      def postExpireVerificationLink(utr:String) = WS.url(server.externalResource("preferences",
-        s"/preferences-admin/sa/individual/$utr/expire-email-verification-link")).post(EmptyContent())
+      def postExpireVerificationLink(entityId:String) = WS.url(server.externalResource("preferences",
+        s"/preferences-admin/$entityId/expire-email-verification-link")).post(EmptyContent())
 
-      def postLegacyOptOut(utr: String) = {
-        WS.url(server.externalResource("preferences", path = s"/preferences-admin/sa/individual/$utr/legacy-opt-out"))
+      def postLegacyOptOut(entityId: String) = {
+        WS.url(server.externalResource("preferences", path = s"/preferences-admin/$entityId/legacy-opt-out"))
           .post(Json.parse("{}"))
       }
 
-      def postLegacyOptIn(utr: String, email: String) = {
-        WS.url(server.externalResource("preferences", path = s"/preferences-admin/sa/individual/${utr}/legacy-opt-in/${email}"))
+      def postLegacyOptIn(entityId: String, email: String) = {
+        WS.url(server.externalResource("preferences", path = s"/preferences-admin/${entityId}/legacy-opt-in/${email}"))
           .post(Json.parse("{}"))
       }
     }
 
-    val `/preferences-admin/sa/bounce-email` = new {
+    val `/preferences-admin/bounce-email` = new {
       def post(emailAddress: String) = WS.url(server.externalResource("preferences",
-        "/preferences-admin/sa/bounce-email")).post(Json.parse( s"""{
+        "/preferences-admin/bounce-email")).post(Json.parse( s"""{
              |"emailAddress": "$emailAddress"
              |}""".stripMargin))
     }
 
     val `/preferences-admin/sa/bounce-email-inbox-full` = new {
       def post(emailAddress: String) = WS.url(server.externalResource("preferences",
-        "/preferences-admin/sa/bounce-email")).post(Json.parse( s"""{
+        "/preferences-admin/bounce-email")).post(Json.parse( s"""{
              |"emailAddress": "$emailAddress",
              |"code": 552
              |}""".stripMargin))
@@ -135,19 +154,28 @@ trait PreferencesFrontEndServer extends ServiceSpec {
 
     def authResource(path: String) = server.externalResource("auth", path)
 
-    lazy val ggAuthHeader = createGGAuthorisationHeader(SaUtr(utr))
+    lazy val ggAuthHeaderWithUtr = createGGAuthorisationHeaderWithUtr(SaUtr(utr))
+    lazy val ggAuthHeaderWithUtrAndNino = createGGAuthorisationHeaderWithUtr(SaUtr(utr), nino)
+    lazy val ggAuthHeaderWithNino = createGGAuthorisationHeaderWithNino(nino)
 
-    private lazy val ggAuthorisationHeader = AuthorisationHeader.forGovernmentGateway(authResource, s"utr-${utr}")
+    private lazy val ggAuthorisationHeaderWithUtr = AuthorisationHeader.forGovernmentGateway(authResource, s"utr-$utr")
+    private lazy val ggAuthorisationHeaderWithNino = AuthorisationHeader.forGovernmentGateway(authResource, s"nino-${nino.value}")
+    private lazy val ggAuthorisationHeaderWithUtrAndNino = AuthorisationHeader.forGovernmentGateway(authResource, s"utr-$utr--nino-${nino.value}")
+
     private lazy val verifyAuthorisationHeader = AuthorisationHeader.forVerify(authResource)
 
-    def createGGAuthorisationHeader(ids: TaxIdentifier*): (String, String) = ggAuthorisationHeader.create(ids.toList).futureValue
+    def createGGAuthorisationHeaderWithUtr(ids: TaxIdentifier*): (String, String) = ggAuthorisationHeaderWithUtr.create(ids.toList).futureValue
+    def createGGAuthorisationHeaderWithNino(ids: TaxIdentifier*): (String, String) = ggAuthorisationHeaderWithNino.create(ids.toList).futureValue
+    def createGGAuthorisationHeaderWithUtrAndNino(ids: TaxIdentifier*): (String, String) = ggAuthorisationHeaderWithUtrAndNino.create(ids.toList).futureValue
     def createVerifyAuthorisationHeader(utr: TaxIdentifier): (String, String) = verifyAuthorisationHeader.create(utr).futureValue
 
-    lazy val cookie = cookieFor(ggAuthorisationHeader.createBearerToken(List(SaUtr(utr))).futureValue).futureValue
+    lazy val cookieWithUtr = cookieFor(ggAuthorisationHeaderWithUtr.createBearerToken(List(SaUtr(utr))).futureValue).futureValue
+    lazy val cookieWithUtrAndNino = cookieFor(ggAuthorisationHeaderWithUtrAndNino.createBearerToken(List(SaUtr(utr), nino)).futureValue).futureValue
+    lazy val cookieWithNino = cookieFor(ggAuthorisationHeaderWithUtr.createBearerToken(List(nino)).futureValue).futureValue
 
-    def cookieForUtr(utr: SaUtr) = cookieFor(ggAuthorisationHeader.createBearerToken(List(utr)).futureValue)
-    def cookieForUtrAndNino(utr: SaUtr, nino: Nino) = cookieFor(ggAuthorisationHeader.createBearerToken(List(utr, nino)).futureValue)
-    def cookieForTaxIdentifiers(taxIdentifiers: TaxIdentifier*) = cookieFor(ggAuthorisationHeader.createBearerToken(taxIdentifiers.toList).futureValue).futureValue
+    def cookieForUtr(utr: SaUtr) = cookieFor(ggAuthorisationHeaderWithUtr.createBearerToken(List(utr)).futureValue)
+    def cookieForUtrAndNino(utr: SaUtr, nino: Nino) = cookieFor(ggAuthorisationHeaderWithUtr.createBearerToken(List(utr, nino)).futureValue)
+    def cookieForTaxIdentifiers(taxIdentifiers: TaxIdentifier*) = cookieFor(ggAuthorisationHeaderWithUtr.createBearerToken(taxIdentifiers.toList).futureValue).futureValue
 
 
     val returnUrl = "/test/return/url"
@@ -159,7 +187,7 @@ trait PreferencesFrontEndServer extends ServiceSpec {
     def `/paperless/activate/:form-type/:tax-identifier`(formType: String, taxIdentifier: TaxIdentifier)(additionalUserTaxIdentifiers: TaxIdentifier*) = new {
 
       private val url = WS.url(resource(s"/paperless/activate/$formType/${taxIdentifier.value}"))
-        .withHeaders(createGGAuthorisationHeader(taxIdentifier +: additionalUserTaxIdentifiers: _*), cookieForTaxIdentifiers(taxIdentifier +: additionalUserTaxIdentifiers: _*))
+        .withHeaders(createGGAuthorisationHeaderWithUtr(taxIdentifier +: additionalUserTaxIdentifiers: _*), cookieForTaxIdentifiers(taxIdentifier +: additionalUserTaxIdentifiers: _*))
         .withQueryString(
           "returnUrl" -> QueryParameterCrypto.encrypt(PlainText(returnUrl)).value,
           "returnLinkText" -> QueryParameterCrypto.encrypt(PlainText(returnLinkText)).value

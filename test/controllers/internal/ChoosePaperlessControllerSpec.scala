@@ -120,6 +120,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
       value.detail \ "cohort" shouldBe JsString(assignedCohort.toString)
       value.detail \ "journey" shouldBe JsString("AccountDetails")
       value.detail \ "utr" shouldBe JsString(validUtr.value)
+      value.detail \ "nino" shouldBe JsString("N/A")
     }
 
     "redirect to a re-calculated cohort when no cohort is supplied" in new ChoosePaperlessControllerSetup {
@@ -374,6 +375,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
       value.detail \ "cohort" shouldBe JsString("IPage")
       value.detail \ "journey" shouldBe JsString("AccountDetails")
       value.detail \ "utr" shouldBe JsString(validUtr.value)
+      value.detail \ "nino" shouldBe JsString("N/A")
       value.detail \ "email" shouldBe JsString("someone@email.com")
       value.detail \ "digital" shouldBe JsString("true")
       value.detail \ "userConfirmedReadTandCs" shouldBe JsString("true")
@@ -402,6 +404,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
       value.detail \ "cohort" shouldBe JsString("IPage")
       value.detail \ "journey" shouldBe JsString("AccountDetails")
       value.detail \ "utr" shouldBe JsString(validUtr.value)
+      value.detail \ "nino" shouldBe JsString("N/A")
       value.detail \ "email" shouldBe JsString("someone@email.com")
       value.detail \ "digital" shouldBe JsString("true")
       value.detail \ "userConfirmedReadTandCs" shouldBe JsString("true")
@@ -431,6 +434,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
       value.detail \ "cohort" shouldBe JsString("IPage")
       value.detail \ "journey" shouldBe JsString("AccountDetails")
       value.detail \ "utr" shouldBe JsString(validUtr.value)
+      value.detail \ "nino" shouldBe JsString("N/A")
       value.detail \ "email" shouldBe JsString("")
       value.detail \ "digital" shouldBe JsString("false")
       value.detail \ "userConfirmedReadTandCs" shouldBe JsString("false")

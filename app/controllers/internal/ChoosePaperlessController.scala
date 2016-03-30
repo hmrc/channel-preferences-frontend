@@ -3,12 +3,12 @@ package controllers.internal
 import config.Global
 import connectors._
 import controllers.internal.EmailOptInJourney._
-import controllers.{Authentication, internal}
+import controllers.{Authentication, FindTaxIdentifier, internal}
 import model.{Encrypted, HostContext}
 import play.api.data.Form
 import play.api.libs.json.Json
 import play.api.mvc._
-import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.domain.TaxIds.TaxIdWithName
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.audit.AuditExtensions._
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
@@ -29,7 +29,7 @@ object ChoosePaperlessController extends ChoosePaperlessController with Authenti
   protected implicit def authConnector: AuthConnector = Global.authConnector
 }
 
-trait ChoosePaperlessController extends FrontendController with OptInCohortCalculator with Authentication with Actions with AppName {
+trait ChoosePaperlessController extends FrontendController with OptInCohortCalculator with Authentication with Actions with AppName with FindTaxIdentifier {
 
   def entityResolverConnector: EntityResolverConnector
   def emailConnector: EmailConnector
@@ -45,10 +45,10 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
     Redirect(routes.ChoosePaperlessController.displayForm(Some(calculateCohort(authContext)), emailAddress, hostContext))
 
   def displayForm(implicit cohort: Option[OptInCohort], emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = authenticated.async { implicit authContext => implicit request =>
-    val saUtr = authContext.principal.accounts.sa.get.utr
+    val taxId = findTaxIdentifier(authContext)
     cohort.fold(ifEmpty = Future.successful(createRedirectToDisplayFormWithCohort(emailAddress, hostContext))) { cohort =>
-      entityResolverConnector.saveCohort(saUtr, calculateCohort(authContext)).map { case _ =>
-        auditPageShown(saUtr, AccountDetails, cohort)
+      entityResolverConnector.saveCohort(taxId, calculateCohort(authContext)).map { case _ =>
+        auditPageShown(authContext, AccountDetails, cohort)
         val email = emailAddress.map(_.decryptedValue)
         Ok(views.html.sa.prefs.sa_printing_preference(
           emailForm = OptInDetailsForm().fill(OptInDetailsForm.Data(emailAddress = email, preference = email.map(_ => OptInDetailsForm.Data.PaperlessChoice.OptedIn), acceptedTcs = Some(false))),
@@ -61,15 +61,15 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
 
   def submitForm(implicit hostContext: HostContext) = authenticated.async { implicit authContext => implicit request =>
     val cohort = calculateCohort(authContext)
-    val saUtr = authContext.principal.accounts.sa.get.utr
+    val taxId = findTaxIdentifier(authContext)
 
-    def saveAndAuditPreferences(utr:SaUtr, digital: Boolean, email: Option[String])(implicit hc: HeaderCarrier): Future[Result] = {
+    def saveAndAuditPreferences(taxId:TaxIdWithName, digital: Boolean, email: Option[String])(implicit hc: HeaderCarrier): Future[Result] = {
       val terms = Generic -> TermsAccepted(digital)
       for {
-        _ <- entityResolverConnector.saveCohort(utr, calculateCohort(authContext))
-        preferencesStatus <- entityResolverConnector.updateTermsAndConditions(utr, terms, email)
+        _ <- entityResolverConnector.saveCohort(taxId, calculateCohort(authContext))
+        preferencesStatus <- entityResolverConnector.updateTermsAndConditions(taxId, terms, email)
       } yield {
-        auditChoice(utr, AccountDetails, cohort, terms, email, preferencesStatus)
+        auditChoice(authContext, AccountDetails, cohort, terms, email, preferencesStatus)
         digital match {
           case true  =>
             val encryptedEmail = email map (emailAddress => Encrypted(EmailAddress(emailAddress)))
@@ -84,7 +84,7 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
     OptInOrOutForm().bindFromRequest.fold[Future[Result]](
       hasErrors = returnToFormWithErrors,
       happyForm =>
-        if (happyForm.optedIn.contains(false)) saveAndAuditPreferences(saUtr, digital = false, email = None)
+        if (happyForm.optedIn.contains(false)) saveAndAuditPreferences(taxId, digital = false, email = None)
         else OptInDetailsForm().bindFromRequest.fold[Future[Result]](
           hasErrors = returnToFormWithErrors,
           success = {
@@ -94,7 +94,7 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
                 else emailConnector.isValid(emailAddress)
 
               emailVerificationStatus.flatMap {
-                case true => saveAndAuditPreferences(saUtr, digital = true, email = Some(emailAddress))
+                case true => saveAndAuditPreferences(taxId, digital = true, email = Some(emailAddress))
                 case false => Future.successful(Ok(views.html.sa_printing_preference_verify_email(emailAddress, cohort)))
               }
             case _ => returnToFormWithErrors(OptInDetailsForm().bindFromRequest)
@@ -103,26 +103,28 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
     )
   }
 
-  private def auditPageShown(utr: SaUtr, journey: Journey, cohort: OptInCohort)(implicit request: Request[_], hc: HeaderCarrier) =
+  private def auditPageShown(authContext: AuthContext, journey: Journey, cohort: OptInCohort)(implicit request: Request[_], hc: HeaderCarrier) =
     auditConnector.sendEvent(ExtendedDataEvent(
       auditSource = appName,
       auditType = EventTypes.Succeeded,
       tags = hc.toAuditTags("Show Print Preference Option", request.path),
       detail = Json.toJson(hc.toAuditDetails(
-        "utr" -> utr.toString,
+        "utr" -> findUtr(authContext).map(_.utr).getOrElse("N/A"),
+        "nino" -> findNino(authContext).map(_.nino).getOrElse("N/A"),
         "journey" -> journey.toString,
         "cohort" -> cohort.toString
       ))
     ))
 
-  private def auditChoice(utr: SaUtr, journey: Journey, cohort: OptInCohort, terms: (TermsType, TermsAccepted), emailOption: Option[String], preferencesStatus: PreferencesStatus)(implicit request: Request[_], hc: HeaderCarrier) =
+  private def auditChoice(authContext: AuthContext, journey: Journey, cohort: OptInCohort, terms: (TermsType, TermsAccepted), emailOption: Option[String], preferencesStatus: PreferencesStatus)(implicit request: Request[_], hc: HeaderCarrier) =
     auditConnector.sendEvent(ExtendedDataEvent(
       auditSource = appName,
       auditType = if (preferencesStatus == PreferencesFailure) EventTypes.Failed else EventTypes.Succeeded,
       tags = hc.toAuditTags("Set Print Preference", request.path),
       detail = Json.toJson(hc.toAuditDetails(
         "client" -> "YTA",
-        "utr" -> utr.toString,
+        "utr" -> findUtr(authContext).map(_.utr).getOrElse("N/A"),
+        "nino" -> findNino(authContext).map(_.nino).getOrElse("N/A"),
         "journey" -> journey.toString,
         "digital" -> terms._2.accepted.toString,
         "cohort" -> cohort.toString,
