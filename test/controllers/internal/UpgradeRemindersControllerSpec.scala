@@ -61,7 +61,7 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
   "the posting upgrade form" should {
     "redirect to thank you page with supplied redirect url if digital button is pressed and t&cs checked" in new UpgradeTestCase {
 
-      when(controller.entityResolverConnector.updateTermsAndConditions(is(utr), is(Generic -> TermsAccepted(true)), email = is(None))(any())).thenReturn(Future.successful(PreferencesCreated))
+      when(controller.entityResolverConnector.updateTermsAndConditions(is(Generic -> TermsAccepted(true)), email = is(None))(any())).thenReturn(Future.successful(PreferencesCreated))
 
       val result = await(controller._upgradePreferences("someUrl", authContext)(testRequest.withFormUrlEncodedBody("opt-in" -> "true", "accept-tc" -> "true")))
 
@@ -71,7 +71,7 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
 
     "return the page with an error if if digital button is pressed but t&cs unchecked" in new UpgradeTestCase {
 
-      when(controller.entityResolverConnector.updateTermsAndConditions(is(utr), is(Generic -> TermsAccepted(true)), email = is(None))(any())).thenReturn(Future.successful(PreferencesCreated))
+      when(controller.entityResolverConnector.updateTermsAndConditions(is(Generic -> TermsAccepted(true)), email = is(None))(any())).thenReturn(Future.successful(PreferencesCreated))
 
       val result = await(controller._upgradePreferences("someUrl", authContext)(testRequest.withFormUrlEncodedBody("opt-in" -> "true", "accept-tc" -> "false")))
 
@@ -82,7 +82,7 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
 
     "redirect to supplied url if non-digital button pressed " in new UpgradeTestCase {
 
-      when(controller.entityResolverConnector.updateTermsAndConditions(is(utr), is(Generic -> TermsAccepted(false)), email = is(None))(any())).thenReturn(Future.successful(PreferencesCreated))
+      when(controller.entityResolverConnector.updateTermsAndConditions(is(Generic -> TermsAccepted(false)), email = is(None))(any())).thenReturn(Future.successful(PreferencesCreated))
 
       val result = await(controller._upgradePreferences("someUrl", authContext)(testRequest.withFormUrlEncodedBody("opt-in" -> "false")))
 
@@ -91,7 +91,7 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
     }
 
     "redirect to supplied url when digital true and no preference found" in new UpgradeTestCase {
-      when(controller.entityResolverConnector.updateTermsAndConditions(is(utr), is(Generic -> TermsAccepted(true)), email = is(None))(any())).thenReturn(Future.successful(PreferencesFailure))
+      when(controller.entityResolverConnector.updateTermsAndConditions(is(Generic -> TermsAccepted(true)), email = is(None))(any())).thenReturn(Future.successful(PreferencesFailure))
 
       val result = await(controller._upgradePreferences("someUrl", authContext)(testRequest.withFormUrlEncodedBody("opt-in" -> "true", "accept-tc" -> "true")))
 
@@ -100,7 +100,7 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
     }
 
     "redirect to supplied url when digital false and no preference found" in new UpgradeTestCase {
-      when(controller.entityResolverConnector.updateTermsAndConditions(is(utr), is(Generic -> TermsAccepted(false)), email = is(None))(any())).thenReturn(Future.successful(PreferencesFailure))
+      when(controller.entityResolverConnector.updateTermsAndConditions(is(Generic -> TermsAccepted(false)), email = is(None))(any())).thenReturn(Future.successful(PreferencesFailure))
 
       val result = await(controller._upgradePreferences("someUrl", authContext)(testRequest.withFormUrlEncodedBody("opt-in" -> "false")))
 
@@ -112,7 +112,7 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
   "the upgrade page" should {
 
     "redirect to supplied url when no preference found" in new UpgradeTestCase {
-      when(controller.entityResolverConnector.getPreferences(is(utr))(any())).thenReturn(Future.successful(None))
+      when(controller.entityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(None))
 
       val result = await(controller._renderUpgradePageIfPreferencesAvailable(authContext, Encrypted("someUrl"))(testRequest))
 
@@ -150,7 +150,7 @@ class UpgradeRemindersControllerSpec extends UnitSpec with MockitoSugar with Wit
     }
 
     def upgradeAndCaptureAuditEvent(digital: (TermsType, TermsAccepted)):ArgumentCaptor[ExtendedDataEvent] = {
-      when(controller.entityResolverConnector.updateTermsAndConditions(is(utr), is(digital), email = is(None))(any())).thenReturn(Future.successful(PreferencesExists))
+      when(controller.entityResolverConnector.updateTermsAndConditions(is(digital), email = is(None))(any())).thenReturn(Future.successful(PreferencesExists))
       await(controller.upgradePaperless(authContext, digital))
       val eventArg : ArgumentCaptor[ExtendedDataEvent] = ArgumentCaptor.forClass(classOf[ExtendedDataEvent])
       verify(controller.auditConnector).sendEvent(eventArg.capture())(any(), any())

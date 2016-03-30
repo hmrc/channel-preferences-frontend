@@ -20,7 +20,7 @@ object ExceptionHandlingFilter extends Filter with Results {
         val urlBinder = implicitly[QueryStringBindable[Encrypted[String]]]
         urlBinder.bind("returnUrl", rh.queryString) match {
           case Some(Right(encryptedUrl)) =>
-            Logger.error(message = "An error occurred when calling preferences, redirecting to returnUrl.", error = e)
+            Logger.error(message = "An error occurred when calling entity-resolver, redirecting to returnUrl.", error = e)
             Future.successful(Results.Redirect(encryptedUrl.decryptedValue))
           case _ => Future.failed(e)
         }

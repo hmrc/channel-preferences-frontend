@@ -49,7 +49,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
   "An existing user" should {
     "not be redirected to go paperless if they have already opted-out of generic terms" in new NewUserTestCase {
-      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeaderWithUtr).postOptOut(utr).futureValue.status should be (201)
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postOptOut.futureValue.status should be (201)
 
       `/paperless/activate/:form-type/:tax-identifier`("sa-all", SaUtr(utr))().put().futureValue.status should be (409)
     }
@@ -122,7 +122,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
     "show go paperless and allow subsequent activation when legacy user is de-enrolled" in new NewUserTestCase {
       val a = `/portal/preferences`
-      `/preferences/taxIdentifier/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(utr, pendingEmail).futureValue.status should be (201)
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(pendingEmail).futureValue.status should be (201)
       a.postDeEnrollingForUtr(utr).futureValue.status should be (200)
 
       val activateResponse = `/paperless/activate/:form-type/:tax-identifier`("sa-all", SaUtr(utr))().put().futureValue
@@ -180,7 +180,7 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
       val pendingEmail = "some@email.com"
       val entityId = `/entity-resolver-admin/sa/:utr`(utr, true)
       `/preferences-admin/sa/individual`.postLegacyOptIn(entityId, pendingEmail).futureValue.status should be (200)
-      val preferencesResponse = `/preferences/taxIdentifier`(ggAuthHeaderWithUtrAndNino).getPreference(utr).futureValue
+      val preferencesResponse = `/preferences`(ggAuthHeaderWithUtrAndNino).getPreference.futureValue
       preferencesResponse should have ('status(200))
       preferencesResponse.body should include(""""digital":true""")
       preferencesResponse.body should include(s"""email":"$pendingEmail"""")

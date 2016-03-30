@@ -29,6 +29,11 @@ trait PreferencesFrontEndServer extends ServiceSpec {
   protected val server = new PreferencesFrontendIntegrationServer("PREFERENCES_FRONTEND_IT_TESTS")
 
   class PreferencesFrontendIntegrationServer(override val testName: String) extends MicroServiceEmbeddedServer {
+
+    override protected def additionalConfig = Map(
+      "Dev.auditing.consumer.baseUri.port" -> externalServicePorts("datastream")
+    )
+
     override protected val externalServices: Seq[ExternalService] = externalServiceNames.map(ExternalService.runFromJar(_))
 
     override protected def startTimeout: Duration = 300.seconds
@@ -36,6 +41,7 @@ trait PreferencesFrontEndServer extends ServiceSpec {
 
   def externalServiceNames: Seq[String] = {
     Seq(
+      "datastream",
       "external-government-gateway",
       "government-gateway",
       "auth",
@@ -69,9 +75,8 @@ trait PreferencesFrontEndServer extends ServiceSpec {
 
     val payeFormTypeBody = Json.parse(s"""{"active":true}""")
 
-    def `/preferences/taxIdentifier`(header: (String, String)) = new {
-      def getPreference(utr: String) = WS.url(server.externalResource("entity-resolver",
-        s"/preferences/$utr"))
+    def `/preferences`(header: (String, String)) = new {
+      def getPreference = WS.url(server.externalResource("entity-resolver", "/preferences"))
         .withHeaders(header)
         .get
     }
@@ -89,12 +94,12 @@ trait PreferencesFrontEndServer extends ServiceSpec {
       def getForNino(nino: String) = WS.url(server.externalResource("entity-resolver", s"/portal/preferences/paye/$nino")).get()
     }
 
-    def `/preferences/taxIdentifier/terms-and-conditions`(header: (String, String)) = new {
-      def postPendingEmail(taxId: String, pendingEmail: String) = WS.url(server.externalResource("entity-resolver",
-        s"/preferences/$taxId/terms-and-conditions")).withHeaders(header).post(Json.parse(s"""{"generic":{"accepted":true}, "email":"$pendingEmail"}"""))
+    def `/preferences/terms-and-conditions`(header: (String, String)) = new {
+      def postPendingEmail(pendingEmail: String) = WS.url(server.externalResource("entity-resolver",
+        s"/preferences/terms-and-conditions")).withHeaders(header).post(Json.parse(s"""{"generic":{"accepted":true}, "email":"$pendingEmail"}"""))
 
-      def postOptOut(taxId: String) = WS.url(server.externalResource("entity-resolver",
-        s"/preferences/$taxId/terms-and-conditions")).withHeaders(header).post(Json.parse("""{"generic":{"accepted":false}}"""))
+      def postOptOut = WS.url(server.externalResource("entity-resolver",
+        s"/preferences/terms-and-conditions")).withHeaders(header).post(Json.parse("""{"generic":{"accepted":false}}"""))
     }
 
     def `/entity-resolver-admin/sa/:utr`(utr: String, create: Boolean = false) = {

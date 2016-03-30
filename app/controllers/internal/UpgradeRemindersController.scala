@@ -79,14 +79,14 @@ trait UpgradeRemindersController extends FrontendController with Actions with Ap
   }
 
   private def decideRoutingFromPreference(authContext: AuthContext, encryptedReturnUrl: Encrypted[String], tandcForm:Form[UpgradeRemindersForm.Data])(implicit request: Request[AnyContent]) = {
-    entityResolverConnector.getPreferences(findTaxIdentifier(authContext)).map {
+    entityResolverConnector.getPreferences().map {
       case Some(prefs) => Ok(upgrade_printing_preferences(prefs.email.map(e => e.email), encryptedReturnUrl, tandcForm))
       case None => Redirect(encryptedReturnUrl.decryptedValue)
     }
   }
 
   private[controllers] def upgradePaperless(authContext: AuthContext, termsAccepted: (TermsType, TermsAccepted))(implicit request: Request[AnyContent], hc: HeaderCarrier) : Future[Boolean] =
-    entityResolverConnector.updateTermsAndConditions(findTaxIdentifier(authContext), termsAccepted, email = None).map { status =>
+    entityResolverConnector.updateTermsAndConditions(termsAccepted, email = None).map { status =>
       val isSuccessful = status != PreferencesFailure
       if (isSuccessful) auditChoice(authContext, termsAccepted, status)
       isSuccessful

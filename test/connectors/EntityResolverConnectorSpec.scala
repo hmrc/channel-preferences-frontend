@@ -6,7 +6,7 @@ import connectors.SaEmailPreference.Status
 import model.{HostContext, NoticeOfCoding, SaAll}
 import org.scalatest.concurrent.ScalaFutures
 import play.api.libs.json.{Json, Writes}
-import uk.gov.hmrc.circuitbreaker.{CircuitBreakerConfig, UnhealthyServiceException}
+import uk.gov.hmrc.circuitbreaker.UnhealthyServiceException
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.play.audit.http.HttpAuditing
 import uk.gov.hmrc.play.config.{AppName, ServicesConfig}
@@ -79,7 +79,7 @@ class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with WithFa
 
       val connector = entityResolverConnector(
         returnFromDoPut = (url, body) => {
-          url should include(s"/preferences/sa/individual/$utr/activations/sa-all?${toUrlParams(hostContext)}")
+          url should include(s"/preferences/activate?${toUrlParams(hostContext)}")
           body should be (payload)
           Future.successful(HttpResponse(responseStatus = preferenceResponseStatus, responseString = Some(preferenceResponseBody)))
       })
@@ -94,7 +94,7 @@ class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with WithFa
 
       val connector = entityResolverConnector(
         returnFromDoPut = (url, body) => {
-          url should include(s"/preferences/paye/individual/$nino/activations/notice-of-coding?${toUrlParams(hostContext)}")
+          url should include(s"/preferences/activate?${toUrlParams(hostContext)}")
           body should be (payload)
           Future.successful(HttpResponse(responseStatus = preferenceResponseStatus, responseString = Some(preferenceResponseBody)))
       })
@@ -136,7 +136,7 @@ class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with WithFa
           """.stripMargin))))
       }
 
-      val preferences = preferenceConnector.getPreferences(SaUtr("1")).futureValue
+      val preferences = preferenceConnector.getPreferences().futureValue
 
       preferences shouldBe Some(SaPreference(
         digital = true, email = Some(SaEmailPreference(
@@ -148,7 +148,7 @@ class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with WithFa
     "return None for a 404" in {
       val preferenceConnector = entityResolverConnector(_ => Future.successful(HttpResponse(404, None)))
 
-      val preferences = preferenceConnector.getPreferences(SaUtr("1")).futureValue
+      val preferences = preferenceConnector.getPreferences().futureValue
 
       preferences shouldBe None
     }
@@ -156,7 +156,7 @@ class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with WithFa
     "return None for a 410" in {
       val preferenceConnector = entityResolverConnector(_ => Future.successful(HttpResponse(410, None)))
 
-      val preferences = preferenceConnector.getPreferences(SaUtr("1")).futureValue
+      val preferences = preferenceConnector.getPreferences().futureValue
 
       preferences shouldBe None
     }
@@ -167,9 +167,9 @@ class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with WithFa
       )
 
       1 to 5 foreach { _ =>
-        connector.getPreferences(SaUtr("1")).failed.futureValue shouldBe an[InternalServerException]
+        connector.getPreferences().failed.futureValue shouldBe an[InternalServerException]
       }
-      connector.getPreferences(SaUtr("1")).failed.futureValue shouldBe an[UnhealthyServiceException]
+      connector.getPreferences().failed.futureValue shouldBe an[UnhealthyServiceException]
     }
   }
 
@@ -254,20 +254,20 @@ class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with WithFa
     "send accepted true and return preferences created if terms and conditions are accepted and updated and preferences created" in new PayloadCheck {
       override val expectedPayload = TermsAndConditionsUpdate(TermsAccepted(true), email = None)
 
-      connector.updateTermsAndConditions(SaUtr("testing"), Generic -> TermsAccepted(true), email = None).futureValue should be (PreferencesExists)
+      connector.updateTermsAndConditions(Generic -> TermsAccepted(true), email = None).futureValue should be (PreferencesExists)
     }
 
     "send accepted false and return preferences created if terms and conditions are not accepted and updated and preferences created" in new PayloadCheck {
       override val expectedPayload = TermsAndConditionsUpdate(TermsAccepted(false), email = None)
 
-      connector.updateTermsAndConditions(SaUtr("testing"), Generic -> TermsAccepted(false), email = None).futureValue should be (PreferencesExists)
+      connector.updateTermsAndConditions(Generic -> TermsAccepted(false), email = None).futureValue should be (PreferencesExists)
     }
 
     "return failure if any problems" in new PayloadCheck {
       override val status = 401
       override val expectedPayload = TermsAndConditionsUpdate(TermsAccepted(true), email = None)
 
-      whenReady(connector.updateTermsAndConditions(SaUtr("testing"), Generic -> TermsAccepted(true), email = None).failed) {
+      whenReady(connector.updateTermsAndConditions(Generic -> TermsAccepted(true), email = None).failed) {
         case e => e shouldBe an[Upstream4xxResponse]
       }
     }
@@ -291,13 +291,13 @@ class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with WithFa
     "send accepted true with email" in new NewUserPayloadCheck {
       override def expectedPayload = TermsAndConditionsUpdate(TermsAccepted(true), Some(email))
 
-      connector.updateTermsAndConditions(SaUtr("test"), Generic -> TermsAccepted(true), Some(email)).futureValue should be (PreferencesCreated)
+      connector.updateTermsAndConditions(Generic -> TermsAccepted(true), Some(email)).futureValue should be (PreferencesCreated)
     }
 
     "send accepted false with no email" in new NewUserPayloadCheck {
       override def expectedPayload = TermsAndConditionsUpdate(TermsAccepted(false), None)
 
-      connector.updateTermsAndConditions(SaUtr("test"), Generic -> TermsAccepted(false), None).futureValue should be (PreferencesCreated)
+      connector.updateTermsAndConditions(Generic -> TermsAccepted(false), None).futureValue should be (PreferencesCreated)
     }
 
     "try and send accepted true with email where preferences not working" in new NewUserPayloadCheck {
@@ -305,7 +305,7 @@ class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with WithFa
 
       override def status: Int = 401
 
-      whenReady(connector.updateTermsAndConditions(SaUtr("test"), Generic -> TermsAccepted(true), Some(email)).failed) {
+      whenReady(connector.updateTermsAndConditions(Generic -> TermsAccepted(true), Some(email)).failed) {
         case e => e shouldBe an[Upstream4xxResponse]
       }
     }

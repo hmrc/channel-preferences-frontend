@@ -4,13 +4,11 @@ import java.net.URLEncoder
 
 import config.ServicesCircuitBreaker
 import controllers.internal.OptInCohort
-import model.{FormType, HostContext, NoticeOfCoding, SaAll}
-import play.api.Logger
+import model.{FormType, HostContext}
 import play.api.http.Status
 import play.api.libs.json._
-import uk.gov.hmrc.circuitbreaker.UnhealthyServiceException
 import uk.gov.hmrc.domain.TaxIds.TaxIdWithName
-import uk.gov.hmrc.domain.{Nino, TaxIdentifier, SaUtr}
+import uk.gov.hmrc.domain.{Nino, SaUtr, TaxIdentifier}
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import uk.gov.hmrc.play.http.{NotFoundException, _}
@@ -95,38 +93,35 @@ trait EntityResolverConnector extends Status with ServicesCircuitBreaker {
               (implicit hc: HeaderCarrier): Future[ActivationResponse] = {
     def urlEncode(text: String) = URLEncoder.encode(text, "UTF-8")
 
-    def activationUrl(formType: FormType) = {
+    def activationUrl = {
       val hostContextQueryParams = s"returnUrl=${urlEncode(hostContext.returnUrl)}&returnLinkText=${urlEncode(hostContext.returnLinkText)}"
-      formType match {
-        case SaAll => url(s"/preferences/sa/individual/$taxIdentifier/activations/${formType.value}?$hostContextQueryParams")
-        case NoticeOfCoding => url(s"/preferences/paye/individual/$taxIdentifier/activations/${formType.value}?$hostContextQueryParams")
-      }
+      url(s"/preferences/activate?$hostContextQueryParams")
     }
 
     withCircuitBreaker {
       http.PUT[JsValue, ActivationResponse](
-        url = activationUrl(formType),
+        url = activationUrl,
         body = payload
       )
     }
   }
 
-  def savePreferences(taxIdentifier: TaxIdentifier, digital: Boolean, email: Option[String])(implicit hc: HeaderCarrier): Future[HttpResponse] =
-    withCircuitBreaker(http.POST(url(s"/preferences/$taxIdentifier"), UpdateEmail(digital, email)))
+  def savePreferences(digital: Boolean, email: Option[String])(implicit hc: HeaderCarrier): Future[HttpResponse] =
+    withCircuitBreaker(http.POST(url(s"/preferences"), UpdateEmail(digital, email)))
 
-  def getPreferences(taxIdentifier: TaxIdentifier)(implicit headerCarrier: HeaderCarrier): Future[Option[SaPreference]] =
-    withCircuitBreaker(http.GET[Option[SaPreference]](url(s"/preferences/$taxIdentifier")))
+  def getPreferences()(implicit headerCarrier: HeaderCarrier): Future[Option[SaPreference]] =
+    withCircuitBreaker(http.GET[Option[SaPreference]](url(s"/preferences")))
       .recover {
         case response: Upstream4xxResponse if response.upstreamResponseCode == GONE => None
         case e: NotFoundException => None
       }
 
-  def saveCohort(taxId: TaxIdWithName, cohort: OptInCohort)(implicit hc: HeaderCarrier): Future[Any] = Future.successful(true)
+  def saveCohort(cohort: OptInCohort)(implicit hc: HeaderCarrier): Future[Any] = Future.successful(true)
 
   def getEmailAddress(taxId: TaxIdentifier)(implicit hc: HeaderCarrier) = {
     def basedOnTaxIdType = taxId match {
-      case SaUtr(utr) => s"/portal/preferences/sa/individual/$utr/print-suppression/verified-email-address"
-      case Nino(nino) => s"/portal/preferences/paye/individual/$nino/print-suppression/verified-email-address"
+      case SaUtr(utr) => s"/portal/preferences/sa/$utr/verified-email-address"
+      case Nino(nino) => s"/portal/preferences/paye/$nino/verified-email-address"
     }
     withCircuitBreaker(http.GET[Option[Email]](url(basedOnTaxIdType))).map(_.map(_.email))
   }
@@ -135,8 +130,8 @@ trait EntityResolverConnector extends Status with ServicesCircuitBreaker {
     responseToEmailVerificationLinkStatus(withCircuitBreaker(http.PUT(url("/portal/preferences/email"), ValidateEmail(token))))
   }
 
-  def updateTermsAndConditions(taxIdentifier: TaxIdentifier, termsAccepted: (TermsType, TermsAccepted), email: Option[String])(implicit hc: HeaderCarrier): Future[PreferencesStatus] =
-    withCircuitBreaker(http.POST(url(s"/preferences/$taxIdentifier/terms-and-conditions"), EntityResolverConnector.TermsAndConditionsUpdate.from(termsAccepted, email)))
+  def updateTermsAndConditions(termsAccepted: (TermsType, TermsAccepted), email: Option[String])(implicit hc: HeaderCarrier): Future[PreferencesStatus] =
+    withCircuitBreaker(http.POST(url(s"/preferences/terms-and-conditions"), EntityResolverConnector.TermsAndConditionsUpdate.from(termsAccepted, email)))
       .map(_.status).map {
       case OK => PreferencesExists
       case CREATED => PreferencesCreated

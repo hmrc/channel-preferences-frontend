@@ -8,7 +8,6 @@ import model.{Encrypted, HostContext}
 import play.api.data.Form
 import play.api.libs.json.Json
 import play.api.mvc._
-import uk.gov.hmrc.domain.TaxIds.TaxIdWithName
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.audit.AuditExtensions._
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
@@ -45,9 +44,8 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
     Redirect(routes.ChoosePaperlessController.displayForm(Some(calculateCohort(authContext)), emailAddress, hostContext))
 
   def displayForm(implicit cohort: Option[OptInCohort], emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = authenticated.async { implicit authContext => implicit request =>
-    val taxId = findTaxIdentifier(authContext)
     cohort.fold(ifEmpty = Future.successful(createRedirectToDisplayFormWithCohort(emailAddress, hostContext))) { cohort =>
-      entityResolverConnector.saveCohort(taxId, calculateCohort(authContext)).map { case _ =>
+      entityResolverConnector.saveCohort(calculateCohort(authContext)).map { case _ =>
         auditPageShown(authContext, AccountDetails, cohort)
         val email = emailAddress.map(_.decryptedValue)
         Ok(views.html.sa.prefs.sa_printing_preference(
@@ -61,13 +59,12 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
 
   def submitForm(implicit hostContext: HostContext) = authenticated.async { implicit authContext => implicit request =>
     val cohort = calculateCohort(authContext)
-    val taxId = findTaxIdentifier(authContext)
 
-    def saveAndAuditPreferences(taxId:TaxIdWithName, digital: Boolean, email: Option[String])(implicit hc: HeaderCarrier): Future[Result] = {
+    def saveAndAuditPreferences(digital: Boolean, email: Option[String])(implicit hc: HeaderCarrier): Future[Result] = {
       val terms = Generic -> TermsAccepted(digital)
       for {
-        _ <- entityResolverConnector.saveCohort(taxId, calculateCohort(authContext))
-        preferencesStatus <- entityResolverConnector.updateTermsAndConditions(taxId, terms, email)
+        _ <- entityResolverConnector.saveCohort(calculateCohort(authContext))
+        preferencesStatus <- entityResolverConnector.updateTermsAndConditions(terms, email)
       } yield {
         auditChoice(authContext, AccountDetails, cohort, terms, email, preferencesStatus)
         digital match {
@@ -84,7 +81,7 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
     OptInOrOutForm().bindFromRequest.fold[Future[Result]](
       hasErrors = returnToFormWithErrors,
       happyForm =>
-        if (happyForm.optedIn.contains(false)) saveAndAuditPreferences(taxId, digital = false, email = None)
+        if (happyForm.optedIn.contains(false)) saveAndAuditPreferences(digital = false, email = None)
         else OptInDetailsForm().bindFromRequest.fold[Future[Result]](
           hasErrors = returnToFormWithErrors,
           success = {
@@ -94,7 +91,7 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
                 else emailConnector.isValid(emailAddress)
 
               emailVerificationStatus.flatMap {
-                case true => saveAndAuditPreferences(taxId, digital = true, email = Some(emailAddress))
+                case true => saveAndAuditPreferences(digital = true, email = Some(emailAddress))
                 case false => Future.successful(Ok(views.html.sa_printing_preference_verify_email(emailAddress, cohort)))
               }
             case _ => returnToFormWithErrors(OptInDetailsForm().bindFromRequest)

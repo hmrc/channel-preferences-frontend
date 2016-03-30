@@ -25,13 +25,13 @@ trait PaperlessPartialController
   def entityResolverConnector: EntityResolverConnector
 
   def displayManagePaperlessPartial(implicit returnUrl: HostContext) = authenticated.async { authContext => implicit request =>
-    entityResolverConnector.getPreferences(taxIdentifier = findTaxIdentifier(authContext)) map { pref =>
+    entityResolverConnector.getPreferences() map { pref =>
       Ok(ManagePaperlessPartial(prefs = pref))
     }
   }
 
   def displayPaperlessWarningsPartial(implicit hostContext: HostContext) = authenticated.async { implicit authContext => implicit request =>
-    entityResolverConnector.getPreferences(findTaxIdentifier(authContext)).map {
+    entityResolverConnector.getPreferences().map {
       case None => NotFound
       case Some(prefs) => Ok(PaperlessWarningPartial.apply(prefs, hostContext.returnUrl, hostContext.returnLinkText)).withHeaders("X-Opted-In-Email" -> prefs.digital.toString)
     }
