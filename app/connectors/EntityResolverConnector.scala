@@ -86,21 +86,13 @@ trait EntityResolverConnector extends Status with ServicesCircuitBreaker {
 
   def url(path: String) = s"$serviceUrl$path"
 
-  def activate(formType: FormType,
-               taxIdentifier: String,
-               hostContext: HostContext,
-               payload: JsValue)
+  def activate(payload: JsValue)
               (implicit hc: HeaderCarrier): Future[ActivationResponse] = {
     def urlEncode(text: String) = URLEncoder.encode(text, "UTF-8")
 
-    def activationUrl = {
-      val hostContextQueryParams = s"returnUrl=${urlEncode(hostContext.returnUrl)}&returnLinkText=${urlEncode(hostContext.returnLinkText)}"
-      url(s"/preferences/activate?$hostContextQueryParams")
-    }
-
     withCircuitBreaker {
       http.PUT[JsValue, ActivationResponse](
-        url = activationUrl,
+        url = url("/preferences/activate"),
         body = payload
       )
     }
@@ -125,7 +117,7 @@ trait EntityResolverConnector extends Status with ServicesCircuitBreaker {
     }
     withCircuitBreaker(http.GET[Option[Email]](url(basedOnTaxIdType))).map(_.map(_.email))
   }
-  
+
   def updateEmailValidationStatusUnsecured(token: String)(implicit hc: HeaderCarrier): Future[EmailVerificationLinkResponse.Value] = {
     responseToEmailVerificationLinkStatus(withCircuitBreaker(http.PUT(url("/portal/preferences/email"), ValidateEmail(token))))
   }

@@ -3,7 +3,7 @@ package connectors
 import java.net.URLEncoder
 
 import connectors.SaEmailPreference.Status
-import model.{HostContext, NoticeOfCoding, SaAll}
+import model.HostContext
 import org.scalatest.concurrent.ScalaFutures
 import play.api.libs.json.{Json, Writes}
 import uk.gov.hmrc.circuitbreaker.UnhealthyServiceException
@@ -65,41 +65,24 @@ class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with WithFa
 
     implicit val hc = HeaderCarrier()
 
-    val hostContext = HostContext(returnUrl = "some/return/url", returnLinkText = "continue")
     val payload = Json.parse("""{"active":true}""")
 
     def urlEncode(text: String) = URLEncoder.encode(text, "UTF-8")
 
-    def toUrlParams(hostContext: HostContext) = s"returnUrl=${urlEncode(hostContext.returnUrl)}&returnLinkText=${urlEncode(hostContext.returnLinkText)}"
 
-    "proxy to the /preferences/sa/individual/:utr/activations/sa-all if sa-all form type given" in {
+    "proxy to the /preferences/activate" in {
       val utr = "12345"
       val preferenceResponseStatus = PRECONDITION_FAILED
       val preferenceResponseBody = "link/to/preferences-frontend"
 
       val connector = entityResolverConnector(
         returnFromDoPut = (url, body) => {
-          url should include(s"/preferences/activate?${toUrlParams(hostContext)}")
+          url should include("/preferences/activate")
           body should be (payload)
           Future.successful(HttpResponse(responseStatus = preferenceResponseStatus, responseString = Some(preferenceResponseBody)))
       })
 
-      connector.activate(SaAll, utr, hostContext, payload).futureValue should be (ActivationResponse(preferenceResponseStatus, preferenceResponseBody))
-    }
-
-    "proxy to the /preferences/paye/individual/:nino/activations/notice-of-coding if notice-of-coding form type given" in {
-      val nino = "ABCD"
-      val preferenceResponseStatus = PRECONDITION_FAILED
-      val preferenceResponseBody = "link/to/preferences-frontend"
-
-      val connector = entityResolverConnector(
-        returnFromDoPut = (url, body) => {
-          url should include(s"/preferences/activate?${toUrlParams(hostContext)}")
-          body should be (payload)
-          Future.successful(HttpResponse(responseStatus = preferenceResponseStatus, responseString = Some(preferenceResponseBody)))
-      })
-
-      connector.activate(NoticeOfCoding, nino, hostContext, payload).futureValue should be (ActivationResponse(preferenceResponseStatus, preferenceResponseBody))
+      connector.activate(payload).futureValue should be (ActivationResponse(preferenceResponseStatus, preferenceResponseBody))
     }
 
     "circuit breaker configuration should be applied and unhealthy service exception will kick in after 5th failed call to preferences" in {
@@ -110,9 +93,9 @@ class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with WithFa
       )
 
       1 to 5 foreach { _ =>
-        connector.activate(NoticeOfCoding, nino, hostContext, payload).failed.futureValue shouldBe an[Upstream5xxResponse]
+        connector.activate(payload).failed.futureValue shouldBe an[Upstream5xxResponse]
       }
-      connector.activate(NoticeOfCoding, nino, hostContext, payload).failed.futureValue shouldBe an[UnhealthyServiceException]
+      connector.activate(payload).failed.futureValue shouldBe an[UnhealthyServiceException]
     }
   }
 
