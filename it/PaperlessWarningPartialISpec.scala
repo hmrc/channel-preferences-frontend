@@ -25,16 +25,6 @@ class PaperlessWarningPartialISpec
 
       response should have(status(404))
     }
-
-    "be not found if the user is de-enrolled" in new TestCaseWithFrontEndAuthentication {
-      val email = uniqueEmail
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(email) should have(status(201))
-      `/portal/preferences`.postDeEnrollingForUtr(utr) should have(status(200))
-
-      val response = `/paperless/warnings`.withHeaders(cookieWithUtr).get()
-
-      response should have(status(404))
-    }
   }
 
   "Paperless warnings partial for verification pending" should {
@@ -80,14 +70,6 @@ class PaperlessWarningPartialISpec
 
       response should have(status(200))
       response.futureValue.body should include("Verify your email address for paperless notifications")
-    }
-
-    "be not found if user is then de-enrolled" in new TestCaseWithFrontEndAuthentication {
-      val email = uniqueEmail
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithNino).postPendingEmail(email) should have(status(201))
-      `/portal/preferences`.postDeEnrollingForNino(nino.value)
-
-      `/paperless/warnings`.withHeaders(cookieWithNino).get() should have(status(404))
     }
   }
 
@@ -138,30 +120,6 @@ class PaperlessWarningPartialISpec
 
       response should have(status(200))
       response.futureValue.body should include("Verify your email address for paperless notifications")
-    }
-
-    "be not found if user is then de-enrolled" in new TestCaseWithFrontEndAuthentication {
-      val email = uniqueEmail
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(email) should have(status(201))
-      `/preferences-admin/bounce-email`.post(email) should have(status(204))
-      `/portal/preferences`.postDeEnrollingForUtr(utr) should have(status(200))
-
-      val response =`/paperless/warnings`.withHeaders(cookieWithUtr).get()
-
-      response should have(status(404))
-    }
-
-    "have no warning if user is then de-enrolled followed by a re-enrol" in new TestCaseWithFrontEndAuthentication {
-      val email = uniqueEmail
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(email) should have(status(201))
-      `/preferences-admin/bounce-email`.post(email) should have(status(204))
-      `/portal/preferences`.postDeEnrollingForUtr(utr) should have(status(200))
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postOptOut should have(status(200))
-
-      val response =`/paperless/warnings`.withHeaders(cookieWithUtr).get()
-
-      response should have(status(200))
-      response.futureValue.body should be("")
     }
 
     "have no warning if user successfully resends link and verifies" in new TestCaseWithFrontEndAuthentication {

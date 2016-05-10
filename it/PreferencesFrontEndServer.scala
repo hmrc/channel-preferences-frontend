@@ -83,13 +83,7 @@ trait PreferencesFrontEndServer extends ServiceSpec {
 
     val `/portal/preferences` = new {
 
-      def postDeEnrollingForUtr(utr: String) = WS.url(server.externalResource("entity-resolver",
-        s"/portal/preferences/sa/$utr")).post(Json.parse(s"""{"de-enrolling": true, "reason": "Pour le-test"}"""))
-
       def getForUtr(utr: String) = WS.url(server.externalResource("entity-resolver", s"/portal/preferences/sa/$utr")).get()
-
-      def postDeEnrollingForNino(nino: String) = WS.url(server.externalResource("entity-resolver",
-        s"/portal/preferences/paye/$nino")).post(Json.parse(s"""{"de-enrolling": true, "reason": "Pour le-test"}"""))
 
       def getForNino(nino: String) = WS.url(server.externalResource("entity-resolver", s"/portal/preferences/paye/$nino")).get()
     }

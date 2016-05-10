@@ -119,27 +119,6 @@ class UpgradePreferencesISpec extends PreferencesFrontEndServer with EmailSuppor
 
       `/paperless/activate/:form-type/:tax-identifier`("sa-all", SaUtr(utr))().put().futureValue.status should be (200)
     }
-
-    "show go paperless and allow subsequent activation when legacy user is de-enrolled" in new NewUserTestCase {
-      val a = `/portal/preferences`
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(pendingEmail).futureValue.status should be (201)
-      a.postDeEnrollingForUtr(utr).futureValue.status should be (200)
-
-      val activateResponse = `/paperless/activate/:form-type/:tax-identifier`("sa-all", SaUtr(utr))().put().futureValue
-      activateResponse.status should be (412)
-
-      (activateResponse.json \ "redirectUserTo").as[JsString].value should include ("/paperless/choose")
-
-      val goPaperlessResponse = `/paperless/choose/:cohort`().get()
-      goPaperlessResponse.status should be (200)
-      goPaperlessResponse.body should include ("Go paperless with HMRC")
-
-      val postGoPaperless = post(optIn = true, Some(email), true).futureValue
-      postGoPaperless should have('status(200))
-      postGoPaperless.body should include ("Nearly done...")
-
-      `/paperless/activate/:form-type/:tax-identifier`("sa-all", SaUtr(utr))().put().futureValue.status should be (200)
-    }
    }
 
   "New user preferences" should {
