@@ -79,6 +79,10 @@ trait PreferencesFrontEndServer extends ServiceSpec {
       def getPreference = WS.url(server.externalResource("entity-resolver", "/preferences"))
         .withHeaders(header)
         .get
+
+      def postPendingEmail(email: String) = WS.url(server.externalResource("entity-resolver", "/preferences"))
+        .withHeaders(header)
+        .post(Json.parse(s"""{"email":"$email"}"""))
     }
 
     val `/portal/preferences` = new {

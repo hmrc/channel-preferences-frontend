@@ -111,7 +111,8 @@ class VerificationEmailISpec extends PreferencesFrontEndServer {
 
       clearEmails()
 
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(newEmail) should have(status(200))
+      `/preferences`(ggAuthHeaderWithUtr).postPendingEmail(newEmail) should have(status(200))
+
       withReceivedEmails(2) { emails =>
         emails.flatMap(_.to) should contain(newEmail)
       }
@@ -131,7 +132,7 @@ class VerificationEmailISpec extends PreferencesFrontEndServer {
       val verificationTokenFromFirstEmail = verificationTokenFromEmail()
       `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should have(status(200))
 
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(newEmail) should have(status(200))
+      `/preferences`(ggAuthHeaderWithUtr).postPendingEmail(newEmail) should have(status(200))
 
       `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should beForAnExpiredOldEmail
     }
@@ -145,7 +146,7 @@ class VerificationEmailISpec extends PreferencesFrontEndServer {
 
       val verificationTokenFromFirstEmail = verificationTokenFromEmail()
 
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(newEmail) should have(status(200))
+      `/preferences`(ggAuthHeaderWithUtr).postPendingEmail(newEmail) should have(status(200))
 
       `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should beForAnExpiredOldEmail
     }
@@ -160,7 +161,7 @@ class VerificationEmailISpec extends PreferencesFrontEndServer {
       val verificationTokenFromFirstEmail = verificationTokenFromEmail()
       clearEmails()
 
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(newEmail) should have(status(200))
+      `/preferences`(ggAuthHeaderWithUtr).postPendingEmail(newEmail) should have(status(200))
 
       aVerificationEmailIsReceivedFor(newEmail)
 
@@ -183,9 +184,9 @@ class VerificationEmailISpec extends PreferencesFrontEndServer {
 
       `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should have(status(200))
 
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(secondEmail) should have(status(200))
+      `/preferences`(ggAuthHeaderWithUtr).postPendingEmail(secondEmail) should have(status(200))
       clearEmails()
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(newEmail) should have(status(200))
+      `/preferences`(ggAuthHeaderWithUtr).postPendingEmail(newEmail) should have(status(200))
 
       withReceivedEmails(2) { emails =>
         emails.flatMap(_.to) should contain(newEmail)
@@ -209,9 +210,9 @@ class VerificationEmailISpec extends PreferencesFrontEndServer {
 
       `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should have(status(200))
 
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(secondEmail) should have(status(200))
+      `/preferences`(ggAuthHeaderWithUtr).postPendingEmail(secondEmail) should have(status(200))
 
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(newEmail) should have(status(200))
+      `/preferences`(ggAuthHeaderWithUtr).postPendingEmail(newEmail) should have(status(200))
 
       `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should beForAnExpiredOldEmail
     }
