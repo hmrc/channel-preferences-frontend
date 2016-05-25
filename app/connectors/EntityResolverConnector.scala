@@ -98,8 +98,8 @@ trait EntityResolverConnector extends Status with ServicesCircuitBreaker {
     }
   }
 
-  def savePreferences(digital: Boolean, email: Option[String])(implicit hc: HeaderCarrier): Future[HttpResponse] =
-    withCircuitBreaker(http.POST(url(s"/preferences"), UpdateEmail(digital, email)))
+  def changeEmailAddress(newEmail: String)(implicit hc: HeaderCarrier): Future[HttpResponse] =
+    withCircuitBreaker(http.PUT(url(s"/preferences/pending-email"), UpdateEmail(newEmail)))
 
   def getPreferences()(implicit headerCarrier: HeaderCarrier): Future[Option[SaPreference]] =
     withCircuitBreaker(http.GET[Option[SaPreference]](url(s"/preferences")))
