@@ -8,7 +8,9 @@ import scala.concurrent.Future
 object ValidSessionCredentialsProvider extends AnyAuthenticationProvider with Results {
 
   override def ggwAuthenticationProvider: GovernmentGateway = new GovernmentGateway {
-    override def login: String = throw new IllegalStateException("Should be no redirect to login")
+    override def loginURL: String = throw new IllegalStateException("Should be no redirect to login")
+    override def continueURL: String = throw new IllegalStateException("Should be no redirect to login")
+
     override def redirectToLogin(implicit request: Request[_]) = Future.successful(Unauthorized)
   }
 

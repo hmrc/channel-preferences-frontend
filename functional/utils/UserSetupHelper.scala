@@ -9,7 +9,7 @@ object UserSetupHelper extends Eventually{
 
   def setUserAsOptedIn (validEmailAddress:String)(implicit user:UserWithUtr) {
     givenThat (Auth.`GET /auth/authority` willReturn (aResponse withStatus 200 withBody Auth.authorityRecordJson))
-    givenThat (EntityResolver.`GET /preferences/sa/individual/<utr>/print-suppression` willReturn (
+    givenThat (EntityResolver.`GET /preferences` willReturn (
       aResponse withStatus 200 withBody EntityResolver.optedInPreferenceJson(validEmailAddress)
       ))
   }

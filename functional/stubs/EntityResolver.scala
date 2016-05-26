@@ -5,19 +5,19 @@ import uk.gov.hmrc.endtoend.sa.config.UserWithUtr
 
 object EntityResolver {
 
-  def `GET /preferences/sa/individual/<utr>/print-suppression`(implicit user: UserWithUtr) =
-    get(urlEqualTo(s"/preferences/sa/individual/${user.utr}/print-suppression"))
+  def `GET /preferences`(implicit user: UserWithUtr) =
+    get(urlEqualTo(s"/preferences"))
 
   def `GET verified-email-address`(implicit user: UserWithUtr) =
     get(urlEqualTo(s"/portal/preferences/sa/individual/${user.utr}/print-suppression/verified-email-address"))
 
-  def `POST /preferences/sa/individual/<utr>/terms-and-conditions`(genericAccepted: Boolean)(implicit user: UserWithUtr) =
-    postRequestedFor(urlEqualTo(s"/preferences/sa/individual/${user.utr}/terms-and-conditions")).withRequestBody(
+  def `POST /preferences/terms-and-conditions`(genericAccepted: Boolean)(implicit user: UserWithUtr) =
+    postRequestedFor(urlEqualTo(s"/preferences/terms-and-conditions")).withRequestBody(
       equalToJson(s"""{ "generic": { "accepted": $genericAccepted } } """)
     )
 
-  def `POST /preferences/sa/individual/<utr>/terms-and-conditions`(implicit user: UserWithUtr) =
-    post(urlMatching(s"/preferences/sa/individual/${user.utr}/terms-and-conditions"))
+  def `POST /preferences/terms-and-conditions`(implicit user: UserWithUtr) =
+    post(urlMatching(s"/preferences/terms-and-conditions"))
 
 
   def optedInPreferenceJson(email: String) =

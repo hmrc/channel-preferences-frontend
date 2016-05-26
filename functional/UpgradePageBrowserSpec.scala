@@ -31,7 +31,7 @@ class UpgradePageBrowserSpec extends endtoend.sa.Spec with ScalaFutures with Ser
         upgradePage.`provided email address` should include (validEmailAddress)
 
       When("I click 'Yes' and then 'Submit")
-        givenThat(EntityResolver.`POST /preferences/sa/individual/<utr>/terms-and-conditions` willReturn (aResponse withStatus 200))
+        givenThat(EntityResolver.`POST /preferences/terms-and-conditions` willReturn (aResponse withStatus 200))
         click on upgradePage.`terms and conditions checkbox`
         click on upgradePage.`continue`
 
@@ -46,7 +46,7 @@ class UpgradePageBrowserSpec extends endtoend.sa.Spec with ScalaFutures with Ser
         Host.ReturnPage should be (displayed)
 
       And("My T&Cs have been set to generic=accepted")
-        verify(EntityResolver.`POST /preferences/sa/individual/<utr>/terms-and-conditions`(genericAccepted = true))
+        verify(EntityResolver.`POST /preferences/terms-and-conditions`(genericAccepted = true))
     }
   }
 }
