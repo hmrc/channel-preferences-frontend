@@ -88,13 +88,16 @@ trait EntityResolverConnector extends Status with ServicesCircuitBreaker {
 
   def getPreferencesStatus()(implicit headerCarrier: HeaderCarrier): Future[Int] = {
     withCircuitBreaker(
-      http.GET[Option[SaPreference]](url(s"preferences")).map(
+      http.GET[Option[SaPreference]](url(s"/preferences")).map(
       r => r match {
         case Some(p) => OK
         case _ => PRECONDITION_FAILED
       }))
       .recover {
-        case response: Upstream4xxResponse if response.upstreamResponseCode == UNAUTHORIZED => UNAUTHORIZED
+        case response: Upstream4xxResponse => response.upstreamResponseCode match {
+          case NOT_FOUND => PRECONDITION_FAILED
+          case UNAUTHORIZED => UNAUTHORIZED
+        }
       }
   }
 
