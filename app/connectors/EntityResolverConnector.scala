@@ -86,16 +86,16 @@ trait EntityResolverConnector extends Status with ServicesCircuitBreaker {
 
   def url(path: String) = s"$serviceUrl$path"
 
-  def activate(payload: JsValue)
-              (implicit hc: HeaderCarrier): Future[ActivationResponse] = {
-    def urlEncode(text: String) = URLEncoder.encode(text, "UTF-8")
-
-    withCircuitBreaker {
-      http.PUT[JsValue, ActivationResponse](
-        url = url("/preferences/activate"),
-        body = payload
-      )
-    }
+  def getPreferencesStatus()(implicit headerCarrier: HeaderCarrier): Future[Int] = {
+    withCircuitBreaker(
+      http.GET[Option[SaPreference]](url(s"preferences")).map(
+      r => r match {
+        case Some(p) => OK
+        case _ => PRECONDITION_FAILED
+      }))
+      .recover {
+        case response: Upstream4xxResponse if response.upstreamResponseCode == UNAUTHORIZED => UNAUTHORIZED
+      }
   }
 
   def savePreferences(digital: Boolean, email: Option[String])(implicit hc: HeaderCarrier): Future[HttpResponse] =

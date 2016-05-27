@@ -61,41 +61,52 @@ class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with WithFa
     }
   }
 
-  "activate" should {
+  "getPreferencesStatus" should {
 
     implicit val hc = HeaderCarrier()
 
-    val payload = Json.parse("""{"active":true}""")
-
-    def urlEncode(text: String) = URLEncoder.encode(text, "UTF-8")
-
-
-    "proxy to the /preferences/activate" in {
-      val utr = "12345"
-      val preferenceResponseStatus = PRECONDITION_FAILED
-      val preferenceResponseBody = "link/to/preferences-frontend"
-
+    "map no preference to PRECONDITION_FAILED" in {
       val connector = entityResolverConnector(
-        returnFromDoPut = (url, body) => {
-          url should include("/preferences/activate")
-          body should be (payload)
-          Future.successful(HttpResponse(responseStatus = preferenceResponseStatus, responseString = Some(preferenceResponseBody)))
-      })
+        url => Future.successful(HttpResponse(responseStatus = NOT_FOUND, responseString = Some("Preference not found")))
+      )
 
-      connector.activate(payload).futureValue should be (ActivationResponse(preferenceResponseStatus, preferenceResponseBody))
+      connector.getPreferencesStatus().futureValue should be (PRECONDITION_FAILED)
+    }
+
+    "map found preference to OK" in {
+      val connector = entityResolverConnector(
+        url =>   Future.successful(HttpResponse(200, Some(Json.parse(
+          """
+            |{
+            |   "digital": true,
+            |   "email": {
+            |     "email": "test@mail.com",
+            |     "status": "verified",
+            |     "mailboxFull": false
+            |   }
+            |}
+          """.stripMargin))))
+      )
+
+      connector.getPreferencesStatus().futureValue should be (OK)
+    }
+
+    "map an auth failure to UNAUTHORIZED" in {
+      val connector = entityResolverConnector(url => Future.successful(HttpResponse(responseStatus = UNAUTHORIZED, responseString = Some("Preference not found")))
+      )
+
+      connector.getPreferencesStatus().futureValue should be (UNAUTHORIZED)
     }
 
     "circuit breaker configuration should be applied and unhealthy service exception will kick in after 5th failed call to preferences" in {
-      val nino = "ABCD"
-
       val connector = entityResolverConnector(
-        returnFromDoPut = (_, _) => Future.successful(HttpResponse(INTERNAL_SERVER_ERROR))
+        url => Future.successful(HttpResponse(INTERNAL_SERVER_ERROR))
       )
 
       1 to 5 foreach { _ =>
-        connector.activate(payload).failed.futureValue shouldBe an[Upstream5xxResponse]
+        connector.getPreferencesStatus().failed.futureValue shouldBe an[Upstream5xxResponse]
       }
-      connector.activate(payload).failed.futureValue shouldBe an[UnhealthyServiceException]
+      connector.getPreferencesStatus().failed.futureValue shouldBe an[UnhealthyServiceException]
     }
   }
 

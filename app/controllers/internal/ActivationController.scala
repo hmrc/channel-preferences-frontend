@@ -25,18 +25,15 @@ trait ActivationController extends FrontendController with Actions with AppName 
 
   val hostUrl: String
 
-  def activate(formType: FormType, taxIdentifier: String, hostContext: HostContext) = authenticated.async {
+  def preferencesStatus(formType: FormType, taxIdentifier: String, hostContext: HostContext) = authenticated.async {
     implicit authContext => implicit request =>
-      entityResolverConnector.activate(request.body.asJson.get) map { result =>
-        result.status match {
-          case 412 => {
-            val redirectUrl: String = result.body match {
-              case "OptInRequired" => hostUrl + controllers.internal.routes.ChoosePaperlessController.redirectToDisplayFormWithCohort(None, hostContext).url
-              case "UpgradeRequired" => hostUrl + controllers.internal.routes.UpgradeRemindersController.displayUpgradeForm(Encrypted(hostContext.returnUrl)).url
-            }
-            Status(result.status)(Json.obj("redirectUserTo" -> redirectUrl))
+      entityResolverConnector.getPreferencesStatus() map { status =>
+        status match {
+          case 412  => {
+            val redirectUrl = hostUrl + controllers.internal.routes.ChoosePaperlessController.redirectToDisplayFormWithCohort(None, hostContext).url
+            PreconditionFailed(Json.obj("redirectUserTo" -> redirectUrl))
           }
-          case _ => Status(result.status)
+          case _ => Status(status)
         }
       }
   }
