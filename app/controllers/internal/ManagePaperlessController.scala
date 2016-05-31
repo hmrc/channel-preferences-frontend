@@ -73,7 +73,7 @@ with FindTaxIdentifier {
 
   private[controllers] def _resendVerificationEmail(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Future[Result] = {
     lookupCurrentEmail { email =>
-      entityResolverConnector.savePreferences(true, Some(email)).map(_ =>
+      entityResolverConnector.changeEmailAddress(email).map(_ =>
         Ok(views.html.account_details_verification_email_resent_confirmation(email))
       )
     }
@@ -103,10 +103,9 @@ with FindTaxIdentifier {
               else emailConnector.isValid(emailForm.mainEmail)
 
             emailVerificationStatus.flatMap {
-              case true => entityResolverConnector.savePreferences(
-                digital = true,
-                email = Some(emailForm.mainEmail)
-              ).map(_ => Redirect(routes.ManagePaperlessController.displayChangeEmailAddressConfirmed(hostContext)))
+              case true => entityResolverConnector.changeEmailAddress(emailForm.mainEmail).map(_ =>
+                Redirect(routes.ManagePaperlessController.displayChangeEmailAddressConfirmed(hostContext))
+              )
               case false => Future.successful(Ok(views.html.account_details_update_email_address_verify_email(emailForm.mainEmail)))
             }
           }

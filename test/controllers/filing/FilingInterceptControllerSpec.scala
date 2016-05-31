@@ -87,20 +87,17 @@ class FilingInterceptControllerSpec extends WordSpec with ShouldMatchers with Mo
 
   trait TestCase {
 
-    implicit def toCrypted(encryted: String): Crypted =  Crypted(encryted)
-    implicit def toPlainText(plaintext: String): PlainText =  PlainText(plaintext)
-
     val preferencesConnector = mock[EntityResolverConnector]
     val controller = new FilingInterceptController(whiteList = Set("localhost"), preferencesConnector)
 
     val emailAddress = "foo@bar.com"
     val validUtr = SaUtr("1234567")
-    lazy val validToken = urlEncode(encrypt(s"$validUtr:${DateTime.now(DateTimeZone.UTC).getMillis}").value, "UTF-8")
-    lazy val expiredToken = urlEncode(encrypt(s"$validUtr:${DateTime.now(DateTimeZone.UTC).minusDays(1).getMillis}").value, "UTF-8")
+    lazy val validToken = urlEncode(encrypt(PlainText(s"$validUtr:${DateTime.now(DateTimeZone.UTC).getMillis}")).value, "UTF-8")
+    lazy val expiredToken = urlEncode(encrypt(PlainText(s"$validUtr:${DateTime.now(DateTimeZone.UTC).minusDays(1).getMillis}")).value, "UTF-8")
     lazy val incorrectToken = "this is an incorrect token khdskjfhasduiy3784y37yriuuiyr3i7rurkfdsfhjkdskh"
     val decodedReturnUrl = "http://localhost:8080/portal?exampleQuery=exampleValue"
     val encodedReturnUrl = urlEncode(decodedReturnUrl, "UTF-8")
-    lazy val decodedReturnUrlWithEmailAddress = s"$decodedReturnUrl&email=${urlEncode(encrypt(emailAddress).value, "UTF-8")}"
+    lazy val decodedReturnUrlWithEmailAddress = s"$decodedReturnUrl&email=${urlEncode(encrypt(PlainText(emailAddress)).value, "UTF-8")}"
     val encodedUrlNotOnWhitelist = urlEncode("http://notOnWhiteList/something", "UTF-8")
 
     val request = FakeRequest()

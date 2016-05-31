@@ -10,7 +10,7 @@ import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
 import uk.gov.hmrc.domain.{Nino, SaUtr, TaxIdentifier}
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.it.{ExternalService, MicroServiceEmbeddedServer, ServiceSpec}
-import uk.gov.hmrc.test.it.{AuthorisationHeader, FrontendCookieHelper}
+import uk.gov.hmrc.test.it.{AuthorisationProvider, FrontendCookieHelper}
 import uk.gov.hmrc.time.DateTimeUtils
 import views.sa.prefs.helpers.DateFormat
 
@@ -161,11 +161,11 @@ trait PreferencesFrontEndServer extends ServiceSpec {
     lazy val ggAuthHeaderWithUtrAndNino = createGGAuthorisationHeaderWithUtr(SaUtr(utr), nino)
     lazy val ggAuthHeaderWithNino = createGGAuthorisationHeaderWithNino(nino)
 
-    private lazy val ggAuthorisationHeaderWithUtr = AuthorisationHeader.forGovernmentGateway(authResource, s"utr-$utr")
-    private lazy val ggAuthorisationHeaderWithNino = AuthorisationHeader.forGovernmentGateway(authResource, s"nino-${nino.value}")
-    private lazy val ggAuthorisationHeaderWithUtrAndNino = AuthorisationHeader.forGovernmentGateway(authResource, s"utr-$utr--nino-${nino.value}")
+    private lazy val ggAuthorisationHeaderWithUtr = AuthorisationProvider.forGovernmentGateway(authResource, s"utr-$utr")
+    private lazy val ggAuthorisationHeaderWithNino = AuthorisationProvider.forGovernmentGateway(authResource, s"nino-${nino.value}")
+    private lazy val ggAuthorisationHeaderWithUtrAndNino = AuthorisationProvider.forGovernmentGateway(authResource, s"utr-$utr--nino-${nino.value}")
 
-    private lazy val verifyAuthorisationHeader = AuthorisationHeader.forVerify(authResource)
+    private lazy val verifyAuthorisationHeader = AuthorisationProvider.forVerify(authResource)
 
     def createGGAuthorisationHeaderWithUtr(ids: TaxIdentifier*): (String, String) = ggAuthorisationHeaderWithUtr.create(ids.toList).futureValue
     def createGGAuthorisationHeaderWithNino(ids: TaxIdentifier*): (String, String) = ggAuthorisationHeaderWithNino.create(ids.toList).futureValue

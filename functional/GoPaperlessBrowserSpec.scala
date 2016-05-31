@@ -31,7 +31,7 @@ class GoPaperlessBrowserSpec extends endtoend.sa.Spec with ScalaFutures with Ser
         And("I can update the invalid email address to valid one and submit the email address")
           val validEmail = TestEmailAddresses.generateSafe
           givenThat(Email.`GET /validate-email-address`(validEmail) willReturn(aResponse withStatus 200 withBody Email.validEmailJson))
-          givenThat(EntityResolver.`POST /preferences/sa/individual/<utr>/terms-and-conditions` willReturn (aResponse withStatus 200))
+          givenThat(EntityResolver.`POST /preferences/terms-and-conditions` willReturn (aResponse withStatus 200))
           goPaperlessPage.completeForm(validEmail)
           pageSource should include ("Nearly done...")
       }

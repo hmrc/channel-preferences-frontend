@@ -20,16 +20,13 @@ private[filing] case class Token(utr: SaUtr, timestamp: Long, encryptedToken: St
 
 private[filing] trait TokenEncryption extends Decrypter {
 
-  implicit def toCrypted(encryted: String): Crypted =  Crypted(encryted)
-  implicit def toPlainText(plaintext: String): PlainText =  PlainText(plaintext)
-
   val base64 = "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$"
   val baseConfigKey = "sso.encryption"
 
   def decryptToken(encryptedToken: String, timeout: Int): Token = {
     val tokenAsString =
-      if (encryptedToken.matches(base64)) decrypt(encryptedToken)
-      else decrypt(URLDecoder.decode(encryptedToken, "UTF-8"))
+      if (encryptedToken.matches(base64)) decrypt(Crypted(encryptedToken))
+      else decrypt(Crypted(URLDecoder.decode(encryptedToken, "UTF-8")))
 
     val (utr, time) = tokenAsString.value.split(":") match {
       case Array(u, t) => (u.trim, t.trim.toLong)

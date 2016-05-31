@@ -94,7 +94,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar  {
       val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Pending)))
 
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
-      when(mockEntityResolverConnector.savePreferences(is(true), is(Some("test@test.com")))(any())).thenReturn(Future.successful((HttpResponse(OK))))
+      when(mockEntityResolverConnector.changeEmailAddress(is("test@test.com"))(any())).thenReturn(Future.successful((HttpResponse(OK))))
 
       val page = Future.successful(controller._resendVerificationEmail(user, FakeRequest(), TestFixtures.sampleHostContext))
 
@@ -103,7 +103,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar  {
       document.getElementById("verification-mail-message") should not be null
       document.getElementById("return-to-dashboard-button").attr("href") should be(TestFixtures.sampleHostContext.returnUrl)
 
-      verify(mockEntityResolverConnector).savePreferences(is(true), is(Some("test@test.com")))(any())
+      verify(mockEntityResolverConnector).changeEmailAddress(is("test@test.com"))(any())
     }
   }
 
@@ -133,14 +133,14 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar  {
 
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(true)
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
-      when(mockEntityResolverConnector.savePreferences(is(true), is(Some(emailAddress)))(any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND)))
+      when(mockEntityResolverConnector.changeEmailAddress(is(emailAddress))(any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND)))
 
       val page = Future.successful(controller._submitChangeEmailAddress(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress),("email.confirm", emailAddress)), TestFixtures.sampleHostContext))
 
       status(page) shouldBe 303
       header("Location", page).get should include(routes.ManagePaperlessController.displayChangeEmailAddressConfirmed(TestFixtures.sampleHostContext).toString())
 
-      verify(mockEntityResolverConnector).savePreferences(is(true), is(Some(emailAddress)))(any())
+      verify(mockEntityResolverConnector).changeEmailAddress(is(emailAddress))(any())
       verify(mockEmailConnector).isValid(is(emailAddress))(any())
       verify(mockEntityResolverConnector).getPreferences()(any())
       verifyNoMoreInteractions(mockEntityResolverConnector, mockEmailConnector)
@@ -213,7 +213,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar  {
       val saPreferences = SaPreference(true, Some(SaEmailPreference("oldEmailAddress@test.com", SaEmailPreference.Status.Verified)))
 
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
-      when(mockEntityResolverConnector.savePreferences(is(true), is(Some(emailAddress)))(any())).thenReturn(Future.successful(HttpResponse(OK)))
+      when(mockEntityResolverConnector.changeEmailAddress(is(emailAddress))(any())).thenReturn(Future.successful(HttpResponse(OK)))
 
       val page = Future.successful(controller._submitChangeEmailAddress(user, FakeRequest().withFormUrlEncodedBody
         (("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "true")), TestFixtures.sampleHostContext))
@@ -221,7 +221,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar  {
       status(page) shouldBe 303
       header("Location", page).get should include(routes.ManagePaperlessController.displayChangeEmailAddressConfirmed(TestFixtures.sampleHostContext).toString())
 
-      verify(mockEntityResolverConnector).savePreferences(is(true), is(Some(emailAddress)))(any())
+      verify(mockEntityResolverConnector).changeEmailAddress(is(emailAddress))(any())
       verify(mockEntityResolverConnector).getPreferences()(any())
       verifyNoMoreInteractions(mockEntityResolverConnector, mockEmailConnector)
     }

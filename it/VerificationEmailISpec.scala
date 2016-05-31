@@ -42,8 +42,9 @@ class VerificationEmailISpec extends PreferencesFrontEndServer {
       response should (have(status(200)) and
         have(bodyWith("Email address verified")) and
         have(bodyWith("You&#x27;ve now signed up for paperless notifications.")) and
-        have(bodyWith("Sign into your HMRC online account")) and
-        have(bodyWith( """href="https://online.hmrc.gov.uk"""")))
+        have(bodyWith("Sign into your HMRC online account")))
+
+      Jsoup.parse(response.body).getElementById("link-to-home").toString() should include ("/account")
     }
 
     "display expiry message if the link has expired" in new VerificationEmailTestCase {
@@ -59,8 +60,9 @@ class VerificationEmailISpec extends PreferencesFrontEndServer {
       response should (have(status(200)) and
         have(bodyWith("This link has expired")) and
         have(bodyWith("Sign into your HMRC online account")) and
-        have(bodyWith( """href="https://online.hmrc.gov.uk"""")) and
         have(bodyWith("request a new verification link")))
+
+      Jsoup.parse(response.body).getElementById("link-to-home").toString() should include ("/account")
     }
 
     "display already verified message if the email has been verified already" in new VerificationEmailTestCase {
@@ -76,8 +78,9 @@ class VerificationEmailISpec extends PreferencesFrontEndServer {
       response should (have(status(400)) and
         have(bodyWith("Email address already verified")) and
         have(bodyWith("Your email address has already been verified.")) and
-        have(bodyWith("Sign into your HMRC online account")) and
-        have(bodyWith( """href="https://online.hmrc.gov.uk"""")))
+        have(bodyWith("Sign into your HMRC online account")))
+
+      Jsoup.parse(response.body).getElementById("link-to-home").toString() should include ("/account")
     }
 
     "display expired old email address message if verification link is not valid due to opt out" in new VerificationEmailTestCase {

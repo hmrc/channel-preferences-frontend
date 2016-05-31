@@ -6,6 +6,7 @@ import play.mvc.Http.Status._
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http.{NotFoundException, BadRequestException, Upstream5xxResponse, Upstream4xxResponse}
 import uk.gov.hmrc.play.test.UnitSpec
+import scala.language.reflectiveCalls
 
 class ServicesCircuitBreakerSpec extends UnitSpec {
 

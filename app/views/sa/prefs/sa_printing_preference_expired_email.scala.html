@@ -6,8 +6,8 @@
     <header class="page-header">
         <h1 id="failure-heading">@Messages("sa_printing_preference.verification.heading.expired")</h1>
     </header>
-        <p id="hmrc-online">@Link.toExternalPage(
-            url = "https://online.hmrc.gov.uk",
+        <p id="link-to-home">@Link.toExternalPage(
+            url = controllers.ExternalUrls.businessTaxHome,
             value = Some(Messages("sa_printing_preference.verification.action"))).toHtml
             and request a new verification link</p>
 }

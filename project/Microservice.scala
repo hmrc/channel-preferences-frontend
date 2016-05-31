@@ -26,6 +26,13 @@ trait MicroService {
     .settings(publishingSettings: _*)
     .settings(defaultSettings(): _*)
     .settings(
+      scalacOptions ++= List(
+        "-feature",
+        "-Xlint",
+        "-language:reflectiveCalls"
+      )
+    )
+    .settings(
       targetJvm := "jvm-1.8",
       shellPrompt := ShellPrompt(appVersion),
       libraryDependencies ++= appDependencies,
