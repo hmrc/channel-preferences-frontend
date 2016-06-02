@@ -51,7 +51,9 @@ class ChangeEmailAddressBrowserSpec extends endtoend.sa.Spec with ServerSetup wi
         changeEmailAddressPage should be (displayed)
 
       When("I attempt to submit an unsafe email address")
-        changeEmailAddressPage.completeForm(TestEmailAddresses.generateUnsafe)
+        val newEmailAddress = TestEmailAddresses.generateUnsafe
+        givenThat(Email.`GET /validate-email-address`(newEmailAddress) willReturn(aResponse withStatus 200 withBody Email.invalidEmailJson))
+        changeEmailAddressPage.completeForm(newEmailAddress)
 
       Then("I am asked to confirm email address is correct")
         val checkEmailAddressPage = CheckChangedEmailAddressPage(returnUrl = Host.ReturnPage, Host.returnLinkText)

@@ -12,4 +12,10 @@ object Email {
        |{
        |    "valid": true
        |}""".stripMargin
+
+  val invalidEmailJson =
+    s"""
+       |{
+       |    "valid": false
+       |}""".stripMargin
 }
