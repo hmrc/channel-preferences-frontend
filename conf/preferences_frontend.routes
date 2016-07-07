@@ -1,4 +1,7 @@
-PUT         /paperless/activate/:formType/:taxIdentifier                            controllers.internal.ActivationController.preferencesStatus(formType: model.FormType, taxIdentifier: String, hostContext: model.HostContext)
+#Deprecated - use /paperless/activate
+PUT         /paperless/activate/:formType/:taxIdentifier                            controllers.internal.ActivationController.legacyPreferencesStatus(formType: model.FormType, taxIdentifier: String, hostContext: model.HostContext)
+
+PUT         /paperless/activate                                                     controllers.internal.ActivationController.preferencesStatus(hostContext: model.HostContext)
 
 GET         /paperless/email-address/change                                         controllers.internal.ManagePaperlessController.displayChangeEmailAddress(email: Option[model.EncryptedEmail], hostContext: model.HostContext)
 POST        /paperless/email-address/change                                         controllers.internal.ManagePaperlessController.submitChangeEmailAddress(hostContext: model.HostContext)
@@ -14,10 +17,6 @@ GET         /paperless/choose/nearly-done                                       
 GET         /paperless/choose                                                       controllers.internal.ChoosePaperlessController.redirectToDisplayFormWithCohort(email: Option[model.EncryptedEmail], hostContext: model.HostContext)
 GET         /paperless/choose/:cohort                                               controllers.internal.ChoosePaperlessController.displayForm(cohort: Option[controllers.internal.OptInCohort], email: Option[model.EncryptedEmail], hostContext: model.HostContext)
 POST        /paperless/choose                                                       controllers.internal.ChoosePaperlessController.submitForm(hostContext: model.HostContext)
-
-GET         /paperless/upgrade                                                      controllers.internal.UpgradeRemindersController.displayUpgradeForm(returnUrl: model.Encrypted[String])
-POST        /paperless/upgrade                                                      controllers.internal.UpgradeRemindersController.submitUpgrade(returnUrl: model.Encrypted[String])
-GET         /paperless/upgrade/confirmed                                            controllers.internal.UpgradeRemindersController.displayUpgradeConfirmed(returnUrl: model.Encrypted[String])
 
 GET         /sa/print-preferences/:token                                            @controllers.filing.FilingInterceptController.redirectWithEmailAddress(token: String, return_url: String, emailAddress: Option[model.EncryptedEmail])
 GET         /sa/print-preferences/verification/:token                               @controllers.external.EmailValidationController.verify(token: String)

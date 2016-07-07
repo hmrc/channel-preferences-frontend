@@ -187,9 +187,9 @@ trait PreferencesFrontEndServer extends ServiceSpec {
     val encryptedReturnUrl = URLEncoder.encode(QueryParameterCrypto.encrypt(PlainText(returnUrl)).value, "UTF-8")
     val encryptedReturnText = URLEncoder.encode(QueryParameterCrypto.encrypt(PlainText(returnLinkText)).value, "UTF-8")
 
-    def `/paperless/activate/:form-type/:tax-identifier`(formType: String, taxIdentifier: TaxIdentifier)(additionalUserTaxIdentifiers: TaxIdentifier*) = new {
+    def `/paperless/activate`(taxIdentifier: TaxIdentifier)(additionalUserTaxIdentifiers: TaxIdentifier*) = new {
 
-      private val url = WS.url(resource(s"/paperless/activate/$formType/${taxIdentifier.value}"))
+      private val url = WS.url(resource("/paperless/activate"))
         .withHeaders(createGGAuthorisationHeaderWithUtr(taxIdentifier +: additionalUserTaxIdentifiers: _*), cookieForTaxIdentifiers(taxIdentifier +: additionalUserTaxIdentifiers: _*))
         .withQueryString(
           "returnUrl" -> QueryParameterCrypto.encrypt(PlainText(returnUrl)).value,
