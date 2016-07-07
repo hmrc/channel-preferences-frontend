@@ -9,6 +9,7 @@ import uk.gov.hmrc.play.config.AppName
 import uk.gov.hmrc.play.frontend.auth.Actions
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 import uk.gov.hmrc.play.frontend.controller.FrontendController
+import uk.gov.hmrc.play.http.HeaderCarrier
 
 object ActivationController extends ActivationController {
 
@@ -25,16 +26,25 @@ trait ActivationController extends FrontendController with Actions with AppName 
 
   val hostUrl: String
 
-  def preferencesStatus(formType: FormType, taxIdentifier: String, hostContext: HostContext) = authenticated.async {
+  def preferencesStatus(hostContext: HostContext) = authenticated.async {
     implicit authContext => implicit request =>
-      entityResolverConnector.getPreferencesStatus() map { status =>
-        status match {
-          case 412  => {
-            val redirectUrl = hostUrl + controllers.internal.routes.ChoosePaperlessController.redirectToDisplayFormWithCohort(None, hostContext).url
-            PreconditionFailed(Json.obj("redirectUserTo" -> redirectUrl))
-          }
-          case _ => Status(status)
+      _preferencesStatus(hostContext)
+  }
+
+  def legacyPreferencesStatus(formType: FormType, taxIdentifier: String, hostContext: HostContext) = authenticated.async {
+    implicit authContext => implicit request =>
+      _preferencesStatus(hostContext)
+  }
+
+  private def _preferencesStatus(hostContext: HostContext)(implicit hc: HeaderCarrier) = {
+    entityResolverConnector.getPreferencesStatus() map { status =>
+      status match {
+        case 412  => {
+          val redirectUrl = hostUrl + controllers.internal.routes.ChoosePaperlessController.redirectToDisplayFormWithCohort(None, hostContext).url
+          PreconditionFailed(Json.obj("redirectUserTo" -> redirectUrl))
         }
+        case _ => Status(status)
       }
+    }
   }
 }
