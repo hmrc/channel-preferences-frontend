@@ -45,7 +45,7 @@ When a precondition failed response is generated, the body of the response will 
 
 ```javascript
 {
-    "redirectUserTo":"/paperless/choose?returnUrl=ABdc123ReD6sFe&returnLinkText=gh32seWQ78fdE
+    "redirectUserTo":"/paperless/choose?returnUrl=ABdc123ReD6sFe&returnLinkText=gh32seWQ78fdE"
 }
 ```
 
