@@ -39,7 +39,7 @@ private object Dependencies {
     "org.mockito"             %  "mockito-all"              % "1.10.19"   % "test",
 
     "uk.gov.hmrc"             %% "http-verbs-test"          % "0.1.0"     % "it",
-    "uk.gov.hmrc"             %% "auth-test"                % "2.4.0"     % "test, it",
+    "uk.gov.hmrc"             %% "auth-test"                % "2.3.0"     % "test, it",
     "uk.gov.hmrc"             %% "hmrctest"                 % "1.6.0"     % "test, it",
     "org.jsoup"               %  "jsoup"                    % "1.8.3"     % "test, it",
     "org.pegdown"             %  "pegdown"                  % "1.6.0"     % "test, it",
