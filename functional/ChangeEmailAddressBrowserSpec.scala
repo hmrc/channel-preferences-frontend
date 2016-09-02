@@ -1,7 +1,8 @@
-import conf.ServerSetup
 import com.github.tomakehurst.wiremock.client.WireMock._
-import org.scalatest.concurrent.{ScalaFutures, Eventually}
-import pages.{ConfirmationOfChangedEmailAddressPage, CheckChangedEmailAddressPage, ChangeEmailAddressPage}
+import conf.ServerSetup
+import org.openqa.selenium.support.ui.{ExpectedConditions, WebDriverWait}
+import org.scalatest.concurrent.{Eventually, ScalaFutures}
+import pages.{ChangeEmailAddressPage, CheckChangedEmailAddressPage}
 import uk.gov.hmrc.endtoend
 import uk.gov.hmrc.endtoend.sa.config.{TestEmailAddresses, UserWithUtr}
 import utils.UserSetupHelper
@@ -63,7 +64,7 @@ class ChangeEmailAddressBrowserSpec extends endtoend.sa.Spec with ServerSetup wi
         click on checkEmailAddressPage.changedEmailIsNotCorrectLink
 
       Then("I am taken back to change email page")
-        changeEmailAddressPage should be (displayed)
+        new WebDriverWait(webDriver, 2).until(ExpectedConditions.titleIs(changeEmailAddressPage.title))
     }
   }
 }
