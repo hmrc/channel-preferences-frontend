@@ -9,7 +9,14 @@ trait MicroService {
   import DefaultBuildSettings._
   import uk.gov.hmrc.{SbtBuildInfo, ShellPrompt}
 
-  import TestPhases._
+  lazy val TemplateTest = config("tt") extend Test
+  lazy val FunctionalTest = config("functional") extend Test
+  lazy val TemplateItTest = config("tit") extend IntegrationTest
+
+  def oneForkedJvmPerTest(tests: Seq[TestDefinition]) =
+    tests map {
+      test => new Group(test.name, Seq(test), SubProcess(ForkOptions(runJVMOptions = Seq("-Dtest.name=" + test.name))))
+    }
 
   val appName: String
   val appVersion: String
@@ -43,10 +50,13 @@ trait MicroService {
     .settings(inConfig(FunctionalTest)(Defaults.testSettings): _*)
     .configs(FunctionalTest)
     .settings(
-      unmanagedSourceDirectories in FunctionalTest <<= (baseDirectory in FunctionalTest)(base => Seq(base / "functional")),
       Keys.fork in FunctionalTest := false,
-      parallelExecution in FunctionalTest := false,
-      addTestReportOption(FunctionalTest, "functional-test-reports")
+      testOptions in FunctionalTest := List(
+        Tests.Argument("-o", "-u", "target/functional-test-reports", "-h", "target/functional-test-reports/html-report"),
+        Tests.Setup(() => sys.props += "browser" -> "chrome")
+      ),
+      unmanagedSourceDirectories in FunctionalTest <<= (baseDirectory in FunctionalTest)(base => Seq(base / "functional")),
+      parallelExecution in FunctionalTest := false
     )
     .settings(Repositories.playPublishingSettings : _*)
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
@@ -60,22 +70,6 @@ trait MicroService {
       parallelExecution in IntegrationTest := false)
     .settings(SbtBuildInfo(): _*)
     .settings(resolvers += Resolver.bintrayRepo("hmrc", "releases"))
-}
-
-private object TestPhases {
-
-  val allPhases = "tt->test;test->test;test->compile;compile->compile"
-  val allItPhases = "tit->it;it->it;it->compile;compile->compile"
-  val allFunctionalPhases = "func->functional;functional->functional;functional->compile;compile->compile"
-
-  lazy val TemplateTest = config("tt") extend Test
-  lazy val FunctionalTest = config("functional") extend Test
-  lazy val TemplateItTest = config("tit") extend IntegrationTest
-
-  def oneForkedJvmPerTest(tests: Seq[TestDefinition]) =
-    tests map {
-      test => new Group(test.name, Seq(test), SubProcess(ForkOptions(runJVMOptions = Seq("-Dtest.name=" + test.name))))
-    }
 }
 
 private object Repositories {
