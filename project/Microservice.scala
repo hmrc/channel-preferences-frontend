@@ -52,7 +52,9 @@ trait MicroService {
     .settings(
       Keys.fork in FunctionalTest := false,
       testOptions in FunctionalTest := List(
-        Tests.Argument("-o", "-u", "target/functional-test-reports", "-h", "target/functional-test-reports/html-report"),
+        Tests.Argument(
+          "-o", "-u", s"${target.value.getPath}/functional-test-reports", "-h", s"${target.value.getPath}/functional-test-reports/html-report"
+        ),
         Tests.Setup(() => sys.props += "browser" -> "chrome")
       ),
       unmanagedSourceDirectories in FunctionalTest <<= (baseDirectory in FunctionalTest)(base => Seq(base / "functional")),
