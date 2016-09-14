@@ -1,13 +1,13 @@
 @()(implicit request: Request[_])
 @import uk.gov.hmrc.urls.Link
 
-@main(title = "Email address verified") {
+@main(title = "Email address verified", navTitle = "", navLinks = HtmlFormat.empty) {
 
 <header class="page-header">
     <h1 id="success-heading">@Messages("sa_printing_preference.verification.heading")</h1>
 </header>
 <p id="success-message">@Messages("sa_printing_preference.verification.paragraph.1")</p>
-<p id="link-to-home">@Link.toExternalPage(
+<p id="link-to-home">@Link.toInternalPage(
     url = controllers.ExternalUrls.businessTaxHome,
     value = Some(Messages("sa_printing_preference.verification.action"))
     ).toHtml</p>
