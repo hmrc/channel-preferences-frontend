@@ -53,7 +53,7 @@ class VerificationEmailISpec extends PreferencesFrontEndServer {
 
       aVerificationEmailIsReceivedFor(email)
 
-      `/preferences-admin/sa/individual`.postExpireVerificationLink(`/entity-resolver-admin/sa/:utr`(utr)) should have(status(200))
+      `/preferences-admin/sa/individual`.postExpireVerificationLink(`/entity-resolver/sa/:utr`(utr)) should have(status(200))
 
       val response = `/sa/print-preferences/verification`.verify(verificationTokenFromEmail())
 

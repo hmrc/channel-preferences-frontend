@@ -65,7 +65,7 @@ class ManagePaperlessPartialISpec
       val email = s"${UUID.randomUUID().toString}@email.com"
       val newEmail = s"${UUID.randomUUID().toString}@email.com"
       `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(email) should have(status(201))
-      `/preferences-admin/sa/individual`.verifyEmailFor(`/entity-resolver-admin/sa/:utr`(utr)) should have(status(204))
+      `/preferences-admin/sa/individual`.verifyEmailFor(`/entity-resolver/sa/:utr`(utr)) should have(status(204))
       `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(newEmail) should have(status(200))
       val response = `/paperless/manage`(returnUrl = "http://some/other/url", returnLinkText = "Continue").withHeaders(cookieWithUtr).get()
       response should have(status(200))
@@ -75,7 +75,7 @@ class ManagePaperlessPartialISpec
     "contain sign up details for a subsequent opt out" in new TestCaseWithFrontEndAuthentication {
       val email = s"${UUID.randomUUID().toString}@email.com"
       `/preferences/terms-and-conditions`(ggAuthHeaderWithNino).postPendingEmail(email) should have(status(201))
-      `/preferences-admin/sa/individual`.verifyEmailFor(`/entity-resolver-admin/paye/:nino`(nino.value)) should have(status(204))
+      `/preferences-admin/sa/individual`.verifyEmailFor(`/entity-resolver/paye/:nino`(nino.value)) should have(status(204))
       `/preferences/terms-and-conditions`(ggAuthHeaderWithNino).postOptOut should have(status(200))
       val response = `/paperless/manage`(returnUrl = "http://some/other/url", returnLinkText = "Continue").withHeaders(cookieWithNino).get()
       response should have(status(200))

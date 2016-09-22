@@ -100,16 +100,16 @@ trait PreferencesFrontEndServer extends ServiceSpec {
         s"/preferences/terms-and-conditions")).withHeaders(header).post(Json.parse("""{"generic":{"accepted":false}}"""))
     }
 
-    def `/entity-resolver-admin/sa/:utr`(utr: String, create: Boolean = false) = {
-      val response = WS.url(server.externalResource("entity-resolver", path = s"/entity-resolver-admin/sa/$utr")).get().futureValue
-      if (create) response.status should be (201) else response.status should be (200)
-      response.body
+    def `/entity-resolver/sa/:utr`(utr: String) = {
+      val response = WS.url(server.externalResource("entity-resolver", path = s"entity-resolver/sa/$utr")).get().futureValue
+      response.status should be (200)
+      (response.json \ "_id").as[String]
     }
 
-    def `/entity-resolver-admin/paye/:nino`(nino: String, create: Boolean = false) = {
-      val response = WS.url(server.externalResource("entity-resolver", path = s"/entity-resolver-admin/paye/$nino")).get().futureValue
-      if (create) response.status should be (201) else response.status should be (200)
-      response.body
+    def `/entity-resolver/paye/:nino`(nino: String) = {
+      val response = WS.url(server.externalResource("entity-resolver", path = s"entity-resolver/paye/$nino")).get().futureValue
+      response.status should be (200)
+      (response.json \ "_id").as[String]
     }
 
 
