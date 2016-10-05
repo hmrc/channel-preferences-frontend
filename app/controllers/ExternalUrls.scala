@@ -22,7 +22,7 @@ object ExternalUrls extends RunMode {
   lazy val manageAccount                  = s"$ytaUrlPrefix/account/account-details"
   lazy val accountDetails                 = manageAccount
   lazy val businessTaxHome                = s"$ytaUrlPrefix/account"
-  lazy val survey                         = s"$businessTaxHome/survey"
+  lazy val survey                         = s"$businessTaxHome/sso-sign-out"
 
   lazy val loginCallback                  = Play.configuration.getString(s"govuk-tax.$env.login-callback.url").getOrElse(businessTaxHome)
   lazy val assets                         = Play.configuration.getString(s"govuk-tax.$env.assets.url").getOrElse(throw new RuntimeException("no assets url set")) +
