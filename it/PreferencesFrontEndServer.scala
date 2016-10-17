@@ -52,7 +52,8 @@ trait PreferencesFrontEndServer extends ServiceSpec {
       "ca-frontend",
       "email",
       "cid",
-      "preferences"
+      "preferences",
+      "hmrc-email-renderer"
     )
   }
 
