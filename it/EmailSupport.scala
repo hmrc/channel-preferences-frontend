@@ -27,7 +27,7 @@ import scala.concurrent.duration._
   private lazy val timeout = 5.seconds
 
   def clearEmails() = {
-    eventually(WS.url(s"$emailBaseUrl/email-admin/process-email-queue").post(EmptyContent()) should have (status (200)))
+    eventually(WS.url(s"$emailBaseUrl/test-only/hmrc/email-admin/process-email-queue").post(EmptyContent()) should have (status (200)))
     Await.result(WS.url(s"$mailgunStubUrl/v2/reset").get(), timeout)
   }
 
