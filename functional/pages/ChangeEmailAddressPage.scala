@@ -16,7 +16,7 @@ object ChangeEmailAddressPage {
 
     def `email textbox`(implicit driver: WebDriver) = emailField("email.main")
     def `confirm email textbox`(implicit driver: WebDriver) = emailField("email.confirm")
-    def `change email validation message`(implicit driver: WebDriver) = find(id("email.main-error")).get.text
+    def `change email validation message`(implicit driver: WebDriver) = find(cssSelector(".error-notification")).get.text
 
     def completeForm(emailAddress: String, confirmEmail: Option[String] = None)(implicit driver: WebDriver): Unit = {
       `email textbox`.value = emailAddress

@@ -17,10 +17,12 @@ object GoPaperlessPage {
     def `email textbox`(implicit driver: WebDriver) = emailField("email.main")
     def `confirm email textbox`(implicit driver: WebDriver) = emailField("email.confirm")
     def `terms and conditions checkbox`(implicit driver: WebDriver) = checkbox("accept-tc")
-    def `go paperless validation message`(implicit driver: WebDriver) = find(className("form-field--error")).get.text
+    def `go paperless validation message`(implicit driver: WebDriver) =
+      find(cssSelector(".error-notification")).get.text
     def `continue button`(implicit driver: WebDriver) = name("submitButton")
     def `no I don't want to sign up radio button`(implicit driver: WebDriver) = radioButton("opt-in-out").underlying
-    def emailReminderFormClass(implicit driver: WebDriver) = cssSelector("#form-submit-email-address > fieldset").element.attribute("class").toString
+    def emailReminderFormClass(implicit driver: WebDriver) =
+      cssSelector("#form-submit-email-address > fieldset").element.attribute("class").toString
     def `yes send by email radio button`(implicit driver: WebDriver) = radioButton("opt-in-in").underlying
 
     def completeForm(emailAddress: String, confirmEmail: Option[String] = None, TsAndCsSelected:Boolean = true)(implicit driver: WebDriver) {
