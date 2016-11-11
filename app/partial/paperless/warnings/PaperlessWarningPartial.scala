@@ -3,6 +3,8 @@ package partial.paperless.warnings
 import connectors.SaEmailPreference.Status
 import connectors.{SaEmailPreference, SaPreference}
 import play.twirl.api.HtmlFormat
+import play.api.i18n.Messages.Implicits._
+import play.api.Play.current
 
 object PaperlessWarningPartial {
   def apply(prefs: SaPreference, returnUrl: String, returnLinkText: String) = prefs match {

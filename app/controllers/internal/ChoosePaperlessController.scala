@@ -6,8 +6,11 @@ import controllers.internal.EmailOptInJourney._
 import controllers.{Authentication, FindTaxIdentifier, internal}
 import model.{Encrypted, HostContext}
 import play.api.data.Form
+import play.api.i18n.Messages
 import play.api.libs.json.Json
 import play.api.mvc._
+import play.api.i18n.Messages.Implicits._
+import play.api.Play.current
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.audit.AuditExtensions._
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
@@ -20,12 +23,13 @@ import uk.gov.hmrc.play.http.HeaderCarrier
 
 import scala.concurrent.Future
 
-object ChoosePaperlessController extends ChoosePaperlessController with Authentication with Actions {
+object ChoosePaperlessController extends ChoosePaperlessController {
 
   val auditConnector = Global.auditConnector
   val entityResolverConnector = EntityResolverConnector
   val emailConnector = EmailConnector
-  protected implicit def authConnector: AuthConnector = Global.authConnector
+
+  override protected implicit def authConnector: AuthConnector = Global.authConnector
 }
 
 trait ChoosePaperlessController extends FrontendController with OptInCohortCalculator with Authentication with Actions with AppName with FindTaxIdentifier {
@@ -113,7 +117,7 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
       ))
     ))
 
-  private def auditChoice(authContext: AuthContext, journey: Journey, cohort: OptInCohort, terms: (TermsType, TermsAccepted), emailOption: Option[String], preferencesStatus: PreferencesStatus)(implicit request: Request[_], hc: HeaderCarrier) =
+  private def auditChoice(authContext: AuthContext, journey: Journey, cohort: OptInCohort, terms: (TermsType, TermsAccepted), emailOption: Option[String], preferencesStatus: PreferencesStatus)(implicit request: Request[_], message: play.api.i18n.Messages, hc: HeaderCarrier) =
     auditConnector.sendEvent(ExtendedDataEvent(
       auditSource = appName,
       auditType = if (preferencesStatus == PreferencesFailure) EventTypes.Failed else EventTypes.Succeeded,
@@ -133,7 +137,8 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
     ))
 
   def displayNearlyDone(emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = authenticated { implicit authContext => implicit request =>
-    Ok(views.html.account_details_printing_preference_confirm(calculateCohort(authContext), emailAddress.map(_.decryptedValue))(request, hostContext))
+    implicit val hostContextImplicit = hostContext
+    Ok(views.html.account_details_printing_preference_confirm(calculateCohort(authContext), emailAddress.map(_.decryptedValue)))
   }
 }
 

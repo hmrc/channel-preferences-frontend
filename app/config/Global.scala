@@ -1,11 +1,13 @@
 package config
 
-import com.kenshoo.play.metrics.{MetricsFilter, MetricsRegistry}
+import com.kenshoo.play.metrics.{Metrics, MetricsFilterImpl}
 import connectors.WsHttp
 import controllers.filters.ExceptionHandlingFilter
 import controllers.internal.OptInCohortConfigurationValues
+import play.api.Play.current
+import play.api.i18n.Messages.Implicits._
 import play.api.mvc.{EssentialFilter, Request}
-import play.api.{Application, Configuration}
+import play.api.{Application, Configuration, Play}
 import play.twirl.api.Html
 import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.play.audit.filters.FrontendAuditFilter
@@ -42,8 +44,11 @@ object Global extends DefaultFrontendGlobal with RunMode with ServicesConfig {
 
   override def frontendAuditFilter: FrontendAuditFilter = FrontendFilters.AuditFilter
 
-  override def metricsFilter = new MetricsFilter {
-    def registry = MetricsRegistry.defaultRegistry
+  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: Request[_]) : Html =
+    views.html.error_template(pageTitle, heading, message)
+
+  override def metricsFilter = new MetricsFilterImpl(Play.current.injector.instanceOf[Metrics]) {
+
     override val knownStatuses = Seq(
       200, 201, 202, 204, 206,
       301, 302, 303, 304, 307, 308,
@@ -51,9 +56,6 @@ object Global extends DefaultFrontendGlobal with RunMode with ServicesConfig {
       500, 502, 503, 504
     )
   }
-
-  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: Request[_]): Html =
-    views.html.error_template(pageTitle, heading, message)
 
 }
 

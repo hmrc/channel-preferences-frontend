@@ -15,7 +15,7 @@ object Auth {
     relativeUrl = "login",
     name = "Auth.LoginPage",
     responseBody = "",
-    responseHeader = HeaderNames.SET_COOKIE -> Cookies.encode(Seq(cookieFor(BearerToken(user.utr), userId = s"/auth/oid/${user.utr}")))
+    responseHeader = HeaderNames.SET_COOKIE -> Cookies.encodeCookieHeader(Seq(cookieFor(BearerToken(user.utr), userId = s"/auth/oid/${user.utr}")))
   )
 
   private def cookieFor(bearerToken: BearerToken, authProvider: String = "GGW", userId: String): Cookie = {
@@ -41,7 +41,8 @@ object Auth {
              },
              "levelOfAssurance": "2",
              "confidenceLevel": 50,
-             "credentialStrength": "weak"
+             "credentialStrength": "weak",
+             "legacyOid": ""
          }"""
 
 }

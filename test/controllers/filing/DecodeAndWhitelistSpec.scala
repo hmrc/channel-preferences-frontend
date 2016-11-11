@@ -9,15 +9,16 @@ import org.mockito.Mockito._
 import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.play.OneAppPerSuite
+import play.api.Application
 import play.api.mvc.{Action, AnyContent, Results}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.play.test.WithFakeApplication
 
-class DecodeAndWhitelistSpec extends WordSpec with ShouldMatchers with MockitoSugar with ScalaFutures with WithFakeApplication {
+class DecodeAndWhitelistSpec extends WordSpec with ShouldMatchers with MockitoSugar with ScalaFutures with OneAppPerSuite {
   val allowedHost = "localhost"
 
-  override lazy val fakeApplication = ConfigHelper.fakeApp
+  override implicit lazy val app : Application = ConfigHelper.fakeApp
 
   "The DecodeAndWhitelist wrapper" should {
 

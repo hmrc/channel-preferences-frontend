@@ -3,7 +3,7 @@ package controllers.internal
 import config.Global
 import connectors.EntityResolverConnector
 import controllers.{Authentication, ExternalUrlPrefixes}
-import model.{Encrypted, FormType, HostContext}
+import model.{FormType, HostContext}
 import play.api.libs.json.Json
 import uk.gov.hmrc.play.config.AppName
 import uk.gov.hmrc.play.frontend.auth.Actions

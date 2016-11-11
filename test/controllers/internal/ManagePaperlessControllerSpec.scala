@@ -7,8 +7,10 @@ import model.Encrypted
 import org.jsoup.Jsoup
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.play.OneAppPerSuite
+import play.api.Application
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.api.test.{FakeRequest, WithApplication}
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
@@ -19,7 +21,7 @@ import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 
-abstract class Setup extends WithApplication(ConfigHelper.fakeApp) with MockitoSugar {
+abstract class Setup extends MockitoSugar {
   val mockAuditConnector = mock[AuditConnector]
   val mockAuthConnector = mock[AuthConnector]
   val mockEntityResolverConnector = mock[EntityResolverConnector]
@@ -35,11 +37,13 @@ abstract class Setup extends WithApplication(ConfigHelper.fakeApp) with MockitoS
   val request = FakeRequest()
 }
 
-class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar  {
+class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneAppPerSuite {
   import org.mockito.Matchers.{any, eq => is}
 
   val validUtr = SaUtr("1234567890")
   val user = AuthContext(authority = saAuthority("userId", "1234567890"), nameFromSession = Some("Ciccio"), governmentGatewayToken = None)
+
+  override implicit lazy val app : Application = ConfigHelper.fakeApp
 
   "clicking on Change email address link in the account details page" should {
     "display update email address form when accessed from Account Details" in new Setup {

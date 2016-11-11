@@ -10,9 +10,11 @@ import org.mockito.ArgumentCaptor
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
-import play.api.libs.json.JsString
+import org.scalatestplus.play.OneAppPerSuite
+import play.api.Application
+import play.api.libs.json.{JsDefined, JsString}
 import play.api.mvc.{Request, Results}
-import play.api.test.{FakeRequest, WithApplication}
+import play.api.test.FakeRequest
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
@@ -24,13 +26,12 @@ import uk.gov.hmrc.play.test.UnitSpec
 import scala.concurrent.Future
 
 
-abstract class ChoosePaperlessControllerSetup extends WithApplication(ConfigHelper.fakeApp) with MockitoSugar {
+abstract class ChoosePaperlessControllerSetup extends MockitoSugar {
 
   val validUtr = SaUtr("1234567890")
   val user = AuthContext(authority = saAuthority("userId", validUtr.value), nameFromSession = Some("Ciccio"), governmentGatewayToken = None)
 
   val request = FakeRequest()
-
   def assignedCohort: OptInCohort = IPage
 
   val mockAuditConnector = mock[AuditConnector]
@@ -69,10 +70,12 @@ abstract class ChoosePaperlessControllerSetup extends WithApplication(ConfigHelp
   when(mockEntityResolverConnector.saveCohort(any())(any())).thenReturn(Future.successful(()))
 }
 
-class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
+class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneAppPerSuite {
 
   import org.mockito.Matchers.{any, eq => is}
   import play.api.test.Helpers._
+
+  override implicit lazy val app : Application = ConfigHelper.fakeApp
 
   def allGoPaperlessFormElementsArePresent(document: Document) {
     document.getElementById("email.main") shouldNot be(null)
@@ -117,10 +120,10 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
       value.auditSource shouldBe "preferences-frontend"
       value.auditType shouldBe EventTypes.Succeeded
       value.tags should contain("transactionName" -> "Show Print Preference Option")
-      value.detail \ "cohort" shouldBe JsString(assignedCohort.toString)
-      value.detail \ "journey" shouldBe JsString("AccountDetails")
-      value.detail \ "utr" shouldBe JsString(validUtr.value)
-      value.detail \ "nino" shouldBe JsString("N/A")
+      value.detail \ "cohort" shouldBe JsDefined(JsString(assignedCohort.toString))
+      value.detail \ "journey" shouldBe JsDefined(JsString("AccountDetails"))
+      value.detail \ "utr" shouldBe JsDefined(JsString(validUtr.value))
+      value.detail \ "nino" shouldBe JsDefined(JsString("N/A"))
     }
 
     "redirect to a re-calculated cohort when no cohort is supplied" in new ChoosePaperlessControllerSetup {
@@ -372,14 +375,14 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
       value.auditSource shouldBe "preferences-frontend"
       value.auditType shouldBe EventTypes.Succeeded
       value.tags should contain("transactionName" -> "Set Print Preference")
-      value.detail \ "cohort" shouldBe JsString("IPage")
-      value.detail \ "journey" shouldBe JsString("AccountDetails")
-      value.detail \ "utr" shouldBe JsString(validUtr.value)
-      value.detail \ "nino" shouldBe JsString("N/A")
-      value.detail \ "email" shouldBe JsString("someone@email.com")
-      value.detail \ "digital" shouldBe JsString("true")
-      value.detail \ "userConfirmedReadTandCs" shouldBe JsString("true")
-      value.detail \ "newUserPreferencesCreated" shouldBe JsString("true")
+      value.detail \ "cohort" shouldBe JsDefined(JsString("IPage"))
+      value.detail \ "journey" shouldBe JsDefined(JsString("AccountDetails"))
+      value.detail \ "utr" shouldBe JsDefined(JsString(validUtr.value))
+      value.detail \ "nino" shouldBe JsDefined(JsString("N/A"))
+      value.detail \ "email" shouldBe JsDefined(JsString("someone@email.com"))
+      value.detail \ "digital" shouldBe JsDefined(JsString("true"))
+      value.detail \ "userConfirmedReadTandCs" shouldBe JsDefined(JsString("true"))
+      value.detail \ "newUserPreferencesCreated" shouldBe JsDefined(JsString("true"))
     }
 
     "be created as EventTypes.Succeeded when an existing user is activated on submitting a print preference from IPage" in new ChoosePaperlessControllerSetup {
@@ -401,14 +404,14 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
       value.auditSource shouldBe "preferences-frontend"
       value.auditType shouldBe EventTypes.Succeeded
       value.tags should contain("transactionName" -> "Set Print Preference")
-      value.detail \ "cohort" shouldBe JsString("IPage")
-      value.detail \ "journey" shouldBe JsString("AccountDetails")
-      value.detail \ "utr" shouldBe JsString(validUtr.value)
-      value.detail \ "nino" shouldBe JsString("N/A")
-      value.detail \ "email" shouldBe JsString("someone@email.com")
-      value.detail \ "digital" shouldBe JsString("true")
-      value.detail \ "userConfirmedReadTandCs" shouldBe JsString("true")
-      value.detail \ "newUserPreferencesCreated" shouldBe JsString("false")
+      value.detail \ "cohort" shouldBe JsDefined(JsString("IPage"))
+      value.detail \ "journey" shouldBe JsDefined(JsString("AccountDetails"))
+      value.detail \ "utr" shouldBe JsDefined(JsString(validUtr.value))
+      value.detail \ "nino" shouldBe JsDefined(JsString("N/A"))
+      value.detail \ "email" shouldBe JsDefined(JsString("someone@email.com"))
+      value.detail \ "digital" shouldBe JsDefined(JsString("true"))
+      value.detail \ "userConfirmedReadTandCs" shouldBe JsDefined(JsString("true"))
+      value.detail \ "newUserPreferencesCreated" shouldBe JsDefined(JsString("false"))
     }
 
     "be created as EventTypes.Succeeded when choosing to not opt in" in new ChoosePaperlessControllerSetup {
@@ -431,14 +434,14 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar {
       value.auditSource shouldBe "preferences-frontend"
       value.auditType shouldBe EventTypes.Succeeded
       value.tags should contain("transactionName" -> "Set Print Preference")
-      value.detail \ "cohort" shouldBe JsString("IPage")
-      value.detail \ "journey" shouldBe JsString("AccountDetails")
-      value.detail \ "utr" shouldBe JsString(validUtr.value)
-      value.detail \ "nino" shouldBe JsString("N/A")
-      value.detail \ "email" shouldBe JsString("")
-      value.detail \ "digital" shouldBe JsString("false")
-      value.detail \ "userConfirmedReadTandCs" shouldBe JsString("false")
-      value.detail \ "newUserPreferencesCreated" shouldBe JsString("true")
+      value.detail \ "cohort" shouldBe JsDefined(JsString("IPage"))
+      value.detail \ "journey" shouldBe JsDefined(JsString("AccountDetails"))
+      value.detail \ "utr" shouldBe JsDefined(JsString(validUtr.value))
+      value.detail \ "nino" shouldBe JsDefined(JsString("N/A"))
+      value.detail \ "email" shouldBe JsDefined(JsString(""))
+      value.detail \ "digital" shouldBe JsDefined(JsString("false"))
+      value.detail \ "userConfirmedReadTandCs" shouldBe JsDefined(JsString("false"))
+      value.detail \ "newUserPreferencesCreated" shouldBe JsDefined(JsString("true"))
     }
   }
 }

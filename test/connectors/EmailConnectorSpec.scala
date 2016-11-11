@@ -1,6 +1,9 @@
 package connectors
 
+import helpers.ConfigHelper
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatestplus.play.OneAppPerSuite
+import play.api.Application
 import play.api.libs.json.Json
 import uk.gov.hmrc.play.audit.http.HttpAuditing
 import uk.gov.hmrc.play.config.ServicesConfig
@@ -10,9 +13,10 @@ import uk.gov.hmrc.play.test._
 
 import scala.concurrent.Future
 
-class EmailConnectorSpec extends UnitSpec with ScalaFutures with WithFakeApplication {
+class EmailConnectorSpec extends UnitSpec with ScalaFutures with OneAppPerSuite {
 
   implicit val hc = HeaderCarrier()
+  override implicit lazy val app : Application = ConfigHelper.fakeApp
 
   "Validating an email address" should {
 

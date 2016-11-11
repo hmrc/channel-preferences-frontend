@@ -6,6 +6,8 @@ import controllers.AuthContextAvailability._
 import controllers.{Authentication, FindTaxIdentifier}
 import model.{Encrypted, HostContext}
 import play.api.mvc.{Request, Result}
+import play.api.i18n.Messages.Implicits._
+import play.api.Play.current
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.config.ServicesConfig

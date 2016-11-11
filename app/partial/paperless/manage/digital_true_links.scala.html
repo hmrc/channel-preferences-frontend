@@ -1,4 +1,4 @@
-@(email: connectors.SaEmailPreference, changeEmailAddressLinkId: String)(implicit request: Request[_], hostContext: model.HostContext)
+@(email: connectors.SaEmailPreference, changeEmailAddressLinkId: String)(implicit request: Request[_], messages: Messages, hostContext: model.HostContext)
 @import uk.gov.hmrc.urls.Link
 @import controllers.ExternalUrlPrefixes._
 
@@ -16,5 +16,5 @@
         url = pfUrlPrefix + controllers.internal.routes.ManagePaperlessController.displayStopPaperless(hostContext),
         value = Some("Stop paperless notifications"),
         dataAttributes = Some(Map("journey-click" -> "self-assessment-preferences:Click:Stop paperless notifications"))
-    ).toHtml
+    )(messages).toHtml
 </p>

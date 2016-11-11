@@ -3,12 +3,16 @@ package partial
 import connectors.{SaEmailPreference, SaPreference}
 import helpers.ConfigHelper
 import org.joda.time.LocalDate
+import org.scalatestplus.play.OneAppPerSuite
 import partial.paperless.warnings.PaperlessWarningPartial
+import play.api.Application
 import play.api.mvc.Results
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.play.test.UnitSpec
 
-class PaperlessWarningPartialSpec extends UnitSpec with Results with WithFakeApplication {
-  override lazy val fakeApplication = ConfigHelper.fakeApp
+class PaperlessWarningPartialSpec extends UnitSpec with Results with OneAppPerSuite {
+
+  override implicit lazy val app : Application = ConfigHelper.fakeApp
+
   "rendering of preferences warnings" should {
     "have no content when opted out " in {
       PaperlessWarningPartial.apply(SaPreference(digital = false), "unused.url.com", "Unused text").body should be("")
