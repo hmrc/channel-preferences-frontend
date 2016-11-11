@@ -3,18 +3,22 @@ package controllers.filters
 import java.util.concurrent.TimeUnit.SECONDS
 
 import akka.util.Timeout
+import helpers.ConfigHelper
 import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.play.OneAppPerSuite
+import play.api.Application
 import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.circuitbreaker.UnhealthyServiceException
-import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
 
-class ExceptionHandlingFilterSpec extends WordSpec with ShouldMatchers with MockitoSugar with WithFakeApplication with ScalaFutures {
+class ExceptionHandlingFilterSpec extends WordSpec with ShouldMatchers with MockitoSugar with OneAppPerSuite with ScalaFutures {
 
   implicit val timeout = Timeout(5, SECONDS)
+  override implicit lazy val app : Application = ConfigHelper.fakeApp
+
 
   "ExceptionHandlingFilter" should {
 

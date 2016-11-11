@@ -1,7 +1,8 @@
 import org.scalatest.Matchers._
 import org.scalatest.concurrent.Eventually
+import play.api.Application
 import play.api.libs.json.Json
-import play.api.libs.ws.WS
+import play.api.libs.ws.{WSAPI, WSClient}
 import play.api.mvc.Results.EmptyContent
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http.test.ResponseMatchers
@@ -14,7 +15,7 @@ trait EmailSupport extends ResponseMatchers with Eventually with ServicesConfig 
 
   import EmailSupport._
 
-import scala.concurrent.duration._
+  import scala.concurrent.duration._
 
   implicit val emailReads = Json.reads[Email]
   implicit val emailTokenWrites = Json.writes[Token]
@@ -26,18 +27,22 @@ import scala.concurrent.duration._
   private lazy val prefsBaseUrl = baseUrl("preferences")
   private lazy val timeout = 5.seconds
 
+  private lazy val wsCache: (Application) => WSAPI = Application.instanceCache[WSAPI]
+  private def call(implicit application: Application) : WSClient = wsCache(app).client
+
+
   def clearEmails() = {
-    eventually(WS.url(s"$emailBaseUrl/test-only/hmrc/email-admin/process-email-queue").post(EmptyContent()) should have (status (200)))
-    Await.result(WS.url(s"$mailgunStubUrl/v2/reset").get(), timeout)
+    eventually(call.url(s"$emailBaseUrl/test-only/hmrc/email-admin/process-email-queue").post(EmptyContent()) should have (status (200)))
+    Await.result(call.url(s"$mailgunStubUrl/v2/reset").get(), timeout)
   }
 
   def emails: Future[List[Email]] = {
-    val resp = WS.url(s"$mailgunStubUrl/v2/email").get()
+    val resp = call.url(s"$mailgunStubUrl/v2/email").get()
     resp.futureValue.status should be(200)
     resp.map(r => r.json.as[List[Email]])
   }
 
-  def  verificationTokenFromEmail() = {
+  def verificationTokenFromEmail() = {
     val emailList = Await.result(emails, timeout)
 
     val regex = "/sa/print-preferences/verification/([-a-f0-9]+)".r
@@ -46,7 +51,7 @@ import scala.concurrent.duration._
     token.map(matches => matches.group(1)).get
   }
 
-  def  verificationTokenFromMultipleEmailsFor(emailRecipient: String) = {
+  def verificationTokenFromMultipleEmailsFor(emailRecipient: String) = {
     val emailList = Await.result(emails, timeout)
     val emailMatchedList = emailList.filter(x => x.to.contains(emailRecipient))
 

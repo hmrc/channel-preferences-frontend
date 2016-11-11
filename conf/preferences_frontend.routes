@@ -22,7 +22,7 @@ GET         /sa/print-preferences/:token                                        
 GET         /sa/print-preferences/verification/:token                               @controllers.external.EmailValidationController.verify(token: String)
 
 # Serves up the test gif that is used to determine if the service is up
-GET         /sa/print-preferences/assets/*file                                      controllers.assets.Assets.at(path="/public", file)
+GET         /sa/print-preferences/assets/*file                                      @controllers.internal.PlatformHealthCheckController.getAsset(file)
 
 # Partials
 GET         /paperless/manage                                                       partial.paperless.PaperlessPartialController.displayManagePaperlessPartial(hostContext: model.HostContext)

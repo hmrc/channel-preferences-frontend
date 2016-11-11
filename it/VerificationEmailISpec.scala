@@ -2,9 +2,8 @@ import EmailSupport.Email
 import org.jsoup.Jsoup
 import org.scalatest.concurrent.Eventually
 import org.scalatest.matchers.{HavePropertyMatchResult, HavePropertyMatcher, Matcher}
-import play.api.Play.current
 import play.api.libs.json.Json
-import play.api.libs.ws.{WS, WSResponse}
+import play.api.libs.ws.WSResponse
 
 import scala.concurrent.Future
 
@@ -31,8 +30,7 @@ class VerificationEmailISpec extends PreferencesFrontEndServer {
 
     "display success message if the email link is valid" in new VerificationEmailTestCase {
       val email = uniqueEmail
-      override val utr =
-        GenerateRandom.utr().value
+      override val utr = GenerateRandom.utr()
       `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(email) should have(status(201))
 
       aVerificationEmailIsReceivedFor(email)
@@ -53,7 +51,7 @@ class VerificationEmailISpec extends PreferencesFrontEndServer {
 
       aVerificationEmailIsReceivedFor(email)
 
-      `/preferences-admin/sa/individual`.postExpireVerificationLink(`/entity-resolver/sa/:utr`(utr)) should have(status(200))
+      `/preferences-admin/sa/individual`.postExpireVerificationLink(`/entity-resolver/sa/:utr`(utr.value)) should have(status(200))
 
       val response = `/sa/print-preferences/verification`.verify(verificationTokenFromEmail())
 
@@ -221,13 +219,16 @@ class VerificationEmailISpec extends PreferencesFrontEndServer {
     }
   }
 
-  trait VerificationEmailTestCase extends TestCaseWithFrontEndAuthentication with EmailSupport with Eventually {
+  trait VerificationEmailTestCase extends TestCaseWithFrontEndAuthentication
+    with EmailSupport
+    with Eventually {
+
     clearEmails()
 
     val emptyJsonValue = Json.parse("{}")
 
     val `/sa/print-preferences/verification` = new {
-      def verify(token: String) = WS.url(resource(s"/sa/print-preferences/verification/$token")).get()
+      def verify(token: String) = call(server.localResource(s"/sa/print-preferences/verification/$token")).get()
     }
 
     def withReceivedEmails(expectedCount: Int)(assertions: List[Email] => Unit) {

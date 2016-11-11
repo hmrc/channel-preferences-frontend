@@ -9,14 +9,13 @@
   sidebar: Html = HtmlFormat.empty,
   contentHeader: Option[Html] = None,
   mainContent: Html = HtmlFormat.empty,
-  serviceInfoContent: Html = HtmlFormat.empty)(implicit request: Request[_])
+  serviceInfoContent: Html = HtmlFormat.empty)(implicit request: Request[_], messages: Messages)
 
 @import layouts.{govuk_template => hmrcGovUkTemplate}
 @import uk.gov.hmrc.play.views.html.{layouts => uiLayouts}
 
 @head = {
     @uiLayouts.head(
-      assetsPrefix = appConfig.assetsPrefix,
       linkElem = None,
       headScripts = None)
     <meta name="format-detection" content="telephone=no" />
@@ -36,7 +35,6 @@
     @uiLayouts.footer(
       analyticsToken = Some(appConfig.analyticsToken),
       analyticsHost = appConfig.analyticsHost,
-      assetsPrefix = appConfig.assetsPrefix,
       ssoUrl = None,
       scriptElem = None,
       gaCalls = None)

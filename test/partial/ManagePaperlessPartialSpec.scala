@@ -7,19 +7,20 @@ import controllers.internal.routes
 import helpers.{ConfigHelper, TestFixtures}
 import org.joda.time.LocalDate
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatestplus.play.OneAppPerSuite
 import partial.paperless.manage.ManagePaperlessPartial
+import play.api.Application
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.http.HeaderCarrier
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.play.test.UnitSpec
 
-class ManagePaperlessPartialSpec extends UnitSpec with WithFakeApplication with ScalaFutures {
+class ManagePaperlessPartialSpec extends UnitSpec with OneAppPerSuite with ScalaFutures {
   implicit val hc = HeaderCarrier()
 
-  override lazy val fakeApplication = ConfigHelper.fakeApp
-
   implicit val hostContext = TestFixtures.sampleHostContext
+  override implicit lazy val app : Application = ConfigHelper.fakeApp
 
   def linkTo(s: Call) = ExternalUrlPrefixes.pfUrlPrefix + s.url.replaceAll("&", "&amp;")
 

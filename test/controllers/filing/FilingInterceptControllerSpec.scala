@@ -11,21 +11,23 @@ import org.mockito.Mockito._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, OptionValues, ShouldMatchers, WordSpec}
+import org.scalatestplus.play.OneAppPerSuite
+import play.api.Application
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.{AnyContent, Request}
 import play.api.test.FakeRequest
 import uk.gov.hmrc.crypto.ApplicationCrypto.SsoPayloadCrypto.encrypt
-import uk.gov.hmrc.crypto.{Crypted, PlainText}
+import uk.gov.hmrc.crypto.PlainText
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.http.HeaderCarrier
-import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
 
-class FilingInterceptControllerSpec extends WordSpec with ShouldMatchers with MockitoSugar with BeforeAndAfter with ScalaFutures with OptionValues with WithFakeApplication {
+class FilingInterceptControllerSpec extends WordSpec with ShouldMatchers with MockitoSugar with BeforeAndAfter with ScalaFutures with OptionValues with OneAppPerSuite {
 
   import play.api.test.Helpers._
-  override lazy val fakeApplication = ConfigHelper.fakeApp
+  override implicit lazy val app : Application = ConfigHelper.fakeApp
 
   "Preferences pages" should {
     "redirect to the portal when no preference exists for a specific utr" in new TestCase {

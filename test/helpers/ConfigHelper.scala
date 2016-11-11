@@ -1,10 +1,10 @@
 package helpers
 
-import play.api.test.FakeApplication
+import play.api.inject.guice.GuiceApplicationBuilder
 
 object ConfigHelper {
 
-  def additionalConfig = Map(
+  private def additionalConfig = Map(
     "govuk-tax.Test.services.contact-frontend.host" -> "localhost",
     "govuk-tax.Test.services.contact-frontend.port" -> "9250",
     "govuk-tax.Test.assets.url" -> "fake/url",
@@ -12,6 +12,5 @@ object ConfigHelper {
     "govuk-tax.Test.google-analytics.host" -> "host",
     "govuk-tax.Test.google-analytics.token" -> "aToken")
 
-  def fakeApp = FakeApplication(additionalConfiguration = additionalConfig)
-
+  lazy val fakeApp = new GuiceApplicationBuilder().configure(ConfigHelper.additionalConfig).build()
 }

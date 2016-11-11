@@ -12,10 +12,10 @@ addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "1.6.0")
 
 addSbtPlugin("com.github.gseitz" % "sbt-release" % "0.8.4")
 
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.3.10")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.5.8")
 
 addSbtPlugin("uk.gov.hmrc" % "sbt-settings" % "3.2.0")
 
 addSbtPlugin("uk.gov.hmrc" % "hmrc-resolvers" % "0.4.0")
 
-addSbtPlugin("uk.gov.hmrc" % "sbt-distributables" % "0.9.0")
+addSbtPlugin("uk.gov.hmrc" % "sbt-distributables" % "1.0.0")

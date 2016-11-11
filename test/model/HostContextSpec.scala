@@ -1,9 +1,13 @@
 package model
 
+import helpers.ConfigHelper
 import org.scalatest.{Matchers, WordSpec}
-import uk.gov.hmrc.play.test.WithFakeApplication
+import org.scalatestplus.play.OneAppPerSuite
+import play.api.Application
 
-class HostContextSpec extends WordSpec with Matchers with WithFakeApplication {
+class HostContextSpec extends WordSpec with Matchers with OneAppPerSuite {
+
+  override implicit lazy val app : Application = ConfigHelper.fakeApp
 
   "Binding a host context" should {
     val validReturnUrl = "returnUrl" -> Seq("9tNUeRTIYBD0RO+T5WRO7A]==")

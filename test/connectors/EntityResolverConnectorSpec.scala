@@ -1,10 +1,10 @@
 package connectors
 
-import java.net.URLEncoder
-
 import connectors.SaEmailPreference.Status
-import model.HostContext
+import helpers.ConfigHelper
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatestplus.play.OneAppPerSuite
+import play.api.Application
 import play.api.libs.json.{Json, Writes}
 import uk.gov.hmrc.circuitbreaker.UnhealthyServiceException
 import uk.gov.hmrc.domain.{Nino, SaUtr}
@@ -12,13 +12,14 @@ import uk.gov.hmrc.play.audit.http.HttpAuditing
 import uk.gov.hmrc.play.config.{AppName, ServicesConfig}
 import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.http.hooks.HttpHook
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 
-class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with WithFakeApplication {
+class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with OneAppPerSuite {
 
   implicit val hc = new HeaderCarrier
+  override implicit lazy val app : Application = ConfigHelper.fakeApp
 
   import EntityResolverConnector._
 

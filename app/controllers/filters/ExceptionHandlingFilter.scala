@@ -4,12 +4,13 @@ import model.Encrypted
 import play.api.Logger
 import play.api.mvc._
 import uk.gov.hmrc.circuitbreaker.UnhealthyServiceException
+import uk.gov.hmrc.play.filters.MicroserviceFilterSupport
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext
 
 import scala.concurrent.{ExecutionContext, Future}
 
-object ExceptionHandlingFilter extends Filter with Results {
+object ExceptionHandlingFilter extends Filter with Results with MicroserviceFilterSupport {
 
   override def apply(action: (RequestHeader) => Future[Result])(rh: RequestHeader): Future[Result] = {
     implicit val ec = executionContextFromRequest(rh)

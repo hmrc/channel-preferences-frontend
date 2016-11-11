@@ -1,10 +1,14 @@
 package model
 
+import helpers.ConfigHelper
 import model.FormType.formTypeBinder
 import org.scalatest.{Matchers, WordSpec}
-import uk.gov.hmrc.play.test.WithFakeApplication
+import org.scalatestplus.play.OneAppPerSuite
+import play.api.Application
 
-class FormTypeSpec extends WordSpec with Matchers with WithFakeApplication {
+class FormTypeSpec extends WordSpec with Matchers with OneAppPerSuite {
+
+  override implicit lazy val app : Application = ConfigHelper.fakeApp
 
   "Bind known form types" should {
       for {
