@@ -1,5 +1,6 @@
 package controllers.internal
 
+import play.api.{Application, Play}
 import play.api.mvc.Action
 import uk.gov.hmrc.play.config.AppName
 import uk.gov.hmrc.play.frontend.controller.FrontendController
@@ -10,8 +11,7 @@ import scala.concurrent.Future
 class PlatformHealthCheckController extends FrontendController with AppName {
 
     def getAsset(fileName: String) = Action.async { implicit request =>
-      val file = new java.io.File(s"public/$fileName")
-
+      val file = Play.current.getFile(s"public/$fileName")
       if (file.exists()) {
         Future.successful(Ok.sendFile(file))
       } else {
