@@ -21,7 +21,7 @@ trait EmailConnector extends HttpGet with AppName with ServicesCircuitBreaker { 
 
   def isValid(emailAddress: String)(implicit hc: HeaderCarrier): Future[Boolean] = {
     implicit val readValidBoolean = (__ \ "valid").read[Boolean]
-    withCircuitBreaker(GET[Boolean](s"$serviceUrl/validate-email-address?email=${URLEncoder.encode(emailAddress, "UTF-8")}") recover {
+    withCircuitBreaker(GET[Boolean](s"$serviceUrl/hmrc/validate-email-address?email=${URLEncoder.encode(emailAddress, "UTF-8")}") recover {
       case e => {
         Logger.error(s"Could not contact EMAIL service and validate email address for ${emailAddress}: ${e.getMessage}")
         false

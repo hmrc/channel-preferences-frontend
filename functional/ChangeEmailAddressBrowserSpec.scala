@@ -53,7 +53,7 @@ class ChangeEmailAddressBrowserSpec extends endtoend.sa.Spec with ServerSetup wi
 
       When("I attempt to submit an unsafe email address")
         val newEmailAddress = TestEmailAddresses.generateUnsafe
-        givenThat(Email.`GET /validate-email-address`(newEmailAddress) willReturn(aResponse withStatus 200 withBody Email.invalidEmailJson))
+        givenThat(Email.`GET /hmrc/validate-email-address`(newEmailAddress) willReturn(aResponse withStatus 200 withBody Email.invalidEmailJson))
         changeEmailAddressPage.completeForm(newEmailAddress)
 
       Then("I am asked to confirm email address is correct")
