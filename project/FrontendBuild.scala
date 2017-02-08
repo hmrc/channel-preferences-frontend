@@ -40,8 +40,8 @@ private object Dependencies {
 
 
     "uk.gov.hmrc"             %% "http-verbs-test"          % "1.0.0"     % "it",
-    "uk.gov.hmrc"             %% "auth-test"                % "3.0.0"     % "test, it",
-    "uk.gov.hmrc"             %% "hmrctest"                 % "2.1.0"     % "test, it",
+    "uk.gov.hmrc"             %% "auth-test"                % "3.1.0"     % "test, it",
+    "uk.gov.hmrc"             %% "hmrctest"                 % "2.2.0"     % "test, it",
     "org.jsoup"               %  "jsoup"                    % "1.8.3"     % "test, it",
     "org.pegdown"             %  "pegdown"                  % "1.6.0"     % "test, it",
     "org.scalatest"           %% "scalatest"                % "2.2.6"     % "test, it, functional",

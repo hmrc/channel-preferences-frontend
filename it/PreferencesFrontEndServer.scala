@@ -55,16 +55,10 @@ trait PreferencesFrontEndServer extends ServiceSpec {
   def externalServiceNames: Seq[String] = {
     Seq(
       "datastream",
-      "external-government-gateway",
-      "government-gateway",
       "auth",
-      "message",
       "entity-resolver",
       "mailgun",
-      "hmrc-deskpro",
-      "ca-frontend",
       "email",
-      "cid",
       "preferences",
       "hmrc-email-renderer"
     )
