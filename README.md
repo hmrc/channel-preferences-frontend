@@ -40,7 +40,9 @@ Responds with:
 | 412 Precondition failed       | If the user needs to be redirected to a preferences-frontend page to set their paperless options |
 | 200 Ok                        | If the user has previously accepted paperless
 
-When 200 is returned, the body of the response will contain details of the user's paperless status. True means that the user has signed up for paperless.
+When 200 is returned, the body of the response will contain details of the user's paperless status.  
+`true` means that the user has signed up for paperless. It is true even if the email is not verified yet.  
+`false` means that the user has not signed up for paperless.
 
 ```javascript
 {
