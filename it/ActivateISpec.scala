@@ -10,14 +10,16 @@ class ActivateISpec extends PreferencesFrontEndServer with EmailSupport {
       val response = `/paperless/activate`(utr)().put().futureValue
       response.status should be (PRECONDITION_FAILED)
       (response.json \ "redirectUserTo").as[String] should be (s"http://localhost:9024/paperless/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
-      (response.json \ "paperless").asOpt[Boolean] shouldBe empty
+      (response.json \ "optedIn").asOpt[Boolean] shouldBe empty
+      (response.json \ "verifiedEmail").asOpt[Boolean] shouldBe empty
     }
 
     "return PRECONDITION_FAILED with redirectUserTo link if activating for a new user with given utr and nino" in new TestCaseWithFrontEndAuthentication {
       val response = `/paperless/activate`(nino)(utr).put().futureValue
       response.status should be (PRECONDITION_FAILED)
       (response.json \ "redirectUserTo").as[String] should be (s"http://localhost:9024/paperless/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
-      (response.json \ "paperless").asOpt[Boolean] shouldBe empty
+      (response.json \ "optedIn").asOpt[Boolean] shouldBe empty
+      (response.json \ "verifiedEmail").asOpt[Boolean] shouldBe empty
     }
 
     "return UNAUTHORIZED if activating for a user with no nino or utr" in new TestCaseWithFrontEndAuthentication {
@@ -29,7 +31,8 @@ class ActivateISpec extends PreferencesFrontEndServer with EmailSupport {
       val response = `/paperless/activate`(nino)().put().futureValue
       response.status should be (PRECONDITION_FAILED)
       (response.json \ "redirectUserTo").as[String] should be (s"http://localhost:9024/paperless/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
-      (response.json \ "paperless").asOpt[Boolean] shouldBe empty
+      (response.json \ "optedIn").asOpt[Boolean] shouldBe empty
+      (response.json \ "verifiedEmail").asOpt[Boolean] shouldBe empty
     }
 
     "return OK with the paperless status set to true if the user has opted in and not verified" in new TestCaseWithFrontEndAuthentication {
@@ -39,7 +42,8 @@ class ActivateISpec extends PreferencesFrontEndServer with EmailSupport {
 
       val response = `/paperless/activate`(utr)().put().futureValue
       response.status should be (OK)
-      (response.json \ "paperless").as[Boolean] shouldBe true
+      (response.json \ "optedIn").as[Boolean] shouldBe true
+      (response.json \ "verifiedEmail").as[Boolean] shouldBe false
       (response.json \ "redirectUserTo").asOpt[String] shouldBe empty
 
     }
@@ -51,7 +55,8 @@ class ActivateISpec extends PreferencesFrontEndServer with EmailSupport {
       `/preferences-admin/sa/individual`.verifyEmailFor(`/entity-resolver/sa/:utr`(utr.value)) should have(status(204))
       val response = `/paperless/activate`(utr)().put().futureValue
       response.status should be (OK)
-      (response.json \ "paperless").as[Boolean] shouldBe true
+      (response.json \ "optedIn").as[Boolean] shouldBe true
+      (response.json \ "verifiedEmail").as[Boolean] shouldBe true
       (response.json \ "redirectUserTo").asOpt[String] shouldBe empty
 
     }
@@ -63,7 +68,8 @@ class ActivateISpec extends PreferencesFrontEndServer with EmailSupport {
 
       val response = `/paperless/activate`(utr)().put().futureValue
       response.status should be (OK)
-      (response.json \ "paperless").as[Boolean] shouldBe false
+      (response.json \ "optedIn").as[Boolean] shouldBe false
+      (response.json \ "verifiedEmail").asOpt[Boolean] shouldBe empty
       (response.json \ "redirectUserTo").asOpt[String] shouldBe empty
 
     }
