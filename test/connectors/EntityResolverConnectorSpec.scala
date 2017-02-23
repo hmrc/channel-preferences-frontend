@@ -71,10 +71,10 @@ class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with OneApp
         url => Future.successful(HttpResponse(responseStatus = NOT_FOUND, responseString = Some("Preference not found")))
       )
 
-      connector.getPreferencesStatus().futureValue should be (PRECONDITION_FAILED)
+      connector.getPreferencesStatus().futureValue shouldBe Left(PRECONDITION_FAILED)
     }
 
-    "map found preference to OK" in {
+    "map found paperless preference to true" in {
       val connector = entityResolverConnector(
         url =>   Future.successful(HttpResponse(200, Some(Json.parse(
           """
@@ -89,14 +89,27 @@ class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with OneApp
           """.stripMargin))))
       )
 
-      connector.getPreferencesStatus().futureValue should be (OK)
+      connector.getPreferencesStatus().futureValue shouldBe Right(true)
+    }
+
+    "map found non-paperless preference to false" in {
+      val connector = entityResolverConnector(
+        url =>   Future.successful(HttpResponse(200, Some(Json.parse(
+          """
+            |{
+            |   "digital": false
+            |}
+          """.stripMargin))))
+      )
+
+      connector.getPreferencesStatus().futureValue shouldBe Right(false)
     }
 
     "map an auth failure to UNAUTHORIZED" in {
       val connector = entityResolverConnector(url => Future.successful(HttpResponse(responseStatus = UNAUTHORIZED, responseString = Some("Preference not found")))
       )
 
-      connector.getPreferencesStatus().futureValue should be (UNAUTHORIZED)
+      connector.getPreferencesStatus().futureValue shouldBe Left(UNAUTHORIZED)
     }
 
     "circuit breaker configuration should be applied and unhealthy service exception will kick in after 5th failed call to preferences" in {

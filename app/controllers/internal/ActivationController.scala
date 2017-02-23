@@ -37,14 +37,12 @@ trait ActivationController extends FrontendController with Actions with AppName 
   }
 
   private def _preferencesStatus(hostContext: HostContext)(implicit hc: HeaderCarrier) = {
-    entityResolverConnector.getPreferencesStatus() map { status =>
-      status match {
-        case 412  => {
-          val redirectUrl = hostUrl + controllers.internal.routes.ChoosePaperlessController.redirectToDisplayFormWithCohort(None, hostContext).url
-          PreconditionFailed(Json.obj("redirectUserTo" -> redirectUrl))
-        }
-        case _ => Status(status)
-      }
+    entityResolverConnector.getPreferencesStatus() map {
+      case Right(b) => Ok(Json.obj("paperless" -> b))
+      case Left(412) =>
+        val redirectUrl = hostUrl + controllers.internal.routes.ChoosePaperlessController.redirectToDisplayFormWithCohort(None, hostContext).url
+        PreconditionFailed(Json.obj("redirectUserTo" -> redirectUrl))
+      case Left(status) => Status(status)
     }
   }
 }

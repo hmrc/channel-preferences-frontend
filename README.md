@@ -39,15 +39,25 @@ Responds with:
 | ----------------------------- | ----------- |
 | 412 Precondition failed       | If the user needs to be redirected to a preferences-frontend page to set their paperless options |
 | 200 Ok                        | If the user has previously accepted paperless
-| 409 Conflict                  | If the user has previously declined paperless
+
+When 200 is returned, the body of the response will contain details of the user's paperless status.  
+`true` means that the user has signed up for paperless. It is `true` even if the email is not verified yet.  
+`false` means that the user has decided to not opt in for paperless.
+
+```json
+{
+    "paperless": true
+}
+```
 
 When a precondition failed response is generated, the body of the response will contain a redirect url. An example response is:
 
-```javascript
+```json
 {
     "redirectUserTo":"/paperless/choose?returnUrl=ABdc123ReD6sFe&returnLinkText=gh32seWQ78fdE"
 }
 ```
+
 
 ### POST /paperless/resend-validation-email
 
