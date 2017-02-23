@@ -1,7 +1,7 @@
 package controllers.internal
 
 import config.Global
-import connectors.EntityResolverConnector
+import connectors.{EntityResolverConnector, SaEmailPreference, SaPreference}
 import controllers.{Authentication, ExternalUrlPrefixes}
 import model.{FormType, HostContext}
 import play.api.libs.json.Json
@@ -37,8 +37,22 @@ trait ActivationController extends FrontendController with Actions with AppName 
   }
 
   private def _preferencesStatus(hostContext: HostContext)(implicit hc: HeaderCarrier) = {
+
+    def isEmailVerified(emailPreference: Option[SaEmailPreference]) = {
+      emailPreference.fold(false)(preference => (preference.status match {
+        case SaEmailPreference.Status.Verified => true
+        case _ => false
+      }))
+    }
+
     entityResolverConnector.getPreferencesStatus() map {
-      case Right(b) => Ok(Json.obj("paperless" -> b))
+      case Right(SaPreference(true, emailPreference)) => Ok(Json.obj(
+        "optedIn" -> true,
+        "verifiedEmail" -> isEmailVerified(emailPreference)
+      ))
+      case Right(SaPreference(false, _)) => Ok(Json.obj(
+        "optedIn" -> false
+      ))
       case Left(412) =>
         val redirectUrl = hostUrl + controllers.internal.routes.ChoosePaperlessController.redirectToDisplayFormWithCohort(None, hostContext).url
         PreconditionFailed(Json.obj("redirectUserTo" -> redirectUrl))

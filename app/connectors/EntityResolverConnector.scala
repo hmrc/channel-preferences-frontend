@@ -86,10 +86,10 @@ trait EntityResolverConnector extends Status with ServicesCircuitBreaker {
 
   def url(path: String) = s"$serviceUrl$path"
 
-  def getPreferencesStatus()(implicit headerCarrier: HeaderCarrier): Future[Either[Int, Boolean]] = {
+  def getPreferencesStatus()(implicit headerCarrier: HeaderCarrier): Future[Either[Int, SaPreference]] = {
     withCircuitBreaker(
       http.GET[Option[SaPreference]](url(s"/preferences")).map {
-        case Some(p) => Right(p.digital)
+        case Some(p) => Right(p)
         case None => Left(PRECONDITION_FAILED)
       })
     .recover {
