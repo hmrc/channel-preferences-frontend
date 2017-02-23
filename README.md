@@ -40,13 +40,16 @@ Responds with:
 | 412 Precondition failed       | If the user needs to be redirected to a preferences-frontend page to set their paperless options |
 | 200 Ok                        | If the user has previously accepted paperless
 
-When 200 is returned, the body of the response will contain details of the user's paperless status.  
-`true` means that the user has signed up for paperless. It is `true` even if the email is not verified yet.  
-`false` means that the user has decided to not opt in for paperless.
+When 200 is returned, the body of the response will contain details of the user's preference status (`optedIn` and `verifiedEmail`):  
+`optedIn: true` means that the user has signed up for paperless. It is `true` even if the email is not verified yet.  
+`optedIn: false` means that the user has decided to not opt in for paperless.  
+`verifiedEmail: true` means that when the user optedIn he also verified his email address.  
+`verifiedEmail: false` means that the user has not verified the email he entered yet.  
 
 ```json
 {
-    "paperless": true
+    "optedIn": true,
+    "verifiedEmail": true
 }
 ```
 
