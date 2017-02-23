@@ -43,8 +43,8 @@ Responds with:
 When 200 is returned, the body of the response will contain details of the user's preference status (`optedIn` and `verifiedEmail`):  
 `optedIn: true` means that the user has signed up for paperless. It is `true` even if the email is not verified yet.  
 `optedIn: false` means that the user has decided to not opt in for paperless.  
-`verifiedEmail: true` means that when the user optedIn he also verified his email address.  
-`verifiedEmail: false` means that the user has not verified the email he entered yet.  
+`verifiedEmail: true` [this attribute is present only when `optedIn: true`] means that when the user optedIn he also verified his email address. 
+`verifiedEmail: false` [this attribute is present only when `optedIn: true`] means that the user has not verified the email he entered yet.  
 
 ```json
 {

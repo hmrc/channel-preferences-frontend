@@ -38,18 +38,21 @@ trait ActivationController extends FrontendController with Actions with AppName 
 
   private def _preferencesStatus(hostContext: HostContext)(implicit hc: HeaderCarrier) = {
 
-    def isEmailVerified(preference: SaPreference) = {
-      preference.email.fold(false)(preference => (preference.status match {
+    def isEmailVerified(emailPreference: Option[SaEmailPreference]) = {
+      emailPreference.fold(false)(preference => (preference.status match {
         case SaEmailPreference.Status.Verified => true
         case _ => false
       }))
     }
 
     entityResolverConnector.getPreferencesStatus() map {
-      case Right(b) => Ok(Json.obj(
-        "optedIn" -> b.digital,
-        "verifiedEmail" -> isEmailVerified(b))
-      )
+      case Right(SaPreference(true, emailPreference)) => Ok(Json.obj(
+        "optedIn" -> true,
+        "verifiedEmail" -> isEmailVerified(emailPreference)
+      ))
+      case Right(SaPreference(false, _)) => Ok(Json.obj(
+        "optedIn" -> false
+      ))
       case Left(412) =>
         val redirectUrl = hostUrl + controllers.internal.routes.ChoosePaperlessController.redirectToDisplayFormWithCohort(None, hostContext).url
         PreconditionFailed(Json.obj("redirectUserTo" -> redirectUrl))
