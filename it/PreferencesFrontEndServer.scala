@@ -3,14 +3,14 @@ import java.util.UUID
 
 import play.api.Application
 import play.api.libs.json.Json
-import play.api.libs.ws.{WSAPI, WSRequest}
+import play.api.libs.ws.{WS, WSAPI, WSClient, WSRequest}
 import play.api.mvc.Results.EmptyContent
 import uk.gov.hmrc.crypto.ApplicationCrypto._
 import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
-import uk.gov.hmrc.domain.{SaUtr, TaxIdentifier}
+import uk.gov.hmrc.domain._
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.it.{ExternalService, ExternalServiceRunner, MicroServiceEmbeddedServer, ServiceSpec}
-import uk.gov.hmrc.test.it.{AuthorisationProvider, FrontendCookieHelper, GovernmentGatewayAuthorisationProvider}
+import uk.gov.hmrc.test.it.{AuthorityBuilder, CanCreateAuthority}
 import uk.gov.hmrc.time.DateTimeUtils
 import views.sa.prefs.helpers.DateFormat
 
@@ -159,31 +159,33 @@ trait PreferencesFrontEndServer extends ServiceSpec {
     def `/paperless/warnings` = urlWithHostContext("/paperless/warnings")()
   }
 
-  trait TestCaseWithFrontEndAuthentication extends TestCase with FrontendCookieHelper {
+  trait TestCaseWithFrontEndAuthentication extends TestCase with CanCreateAuthority {
+
+    import play.api.Play.current
 
     implicit val hc = HeaderCarrier()
 
+    override def httpClient: WSClient = WS.client
+
     def authResource(path: String) = server.externalResource("auth", path)
 
-    lazy val ggAuthHeaderWithUtr = createGGAuthorisationHeaderWithUtr(utr)
-    lazy val ggAuthHeaderWithNino = createGGAuthorisationHeaderWithNino(nino)
+    removeAllFromAuth().futureValue
 
-    private lazy val ggAuthorisationHeaderWithUtr = GovernmentGatewayAuthorisationProvider(authResource, utr.value)
-    private lazy val ggAuthorisationHeaderWithNino = GovernmentGatewayAuthorisationProvider(authResource, nino.value)
-    private lazy val verifyAuthorisationHeader = AuthorisationProvider.forVerify(authResource)
+    private def authBuilderFrom(ids: TaxIdentifier*): AuthorityBuilder = {
 
-    def createGGAuthorisationHeaderWithUtr(ids: TaxIdentifier*): (String, String) = ggAuthorisationHeaderWithUtr.createBearerTokenHeader(ids.toList).futureValue
+      ids.foldLeft(governmentGatewayAuthority())((builder, taxId)  => taxId match {
+        case id@SaUtr(_) => builder.withSaUtr(id)
+        case id@Nino(_) => builder.withNino(id)
+        case id@CtUtr(_) => builder.withCtUtr(id)
+        case id@Vrn(_) => builder.withVrn(id)
+      })
+    }
 
-    def createGGAuthorisationHeaderWithNino(ids: TaxIdentifier*): (String, String) = ggAuthorisationHeaderWithNino.createBearerTokenHeader(ids.toList).futureValue
+    lazy val ggAuthHeaderWithUtr = authBuilderFrom(utr).bearerTokenHeader()
+    lazy val ggAuthHeaderWithNino = authBuilderFrom(nino).bearerTokenHeader()
 
-    def createVerifyAuthorisationHeader(utr: TaxIdentifier): (String, String) = verifyAuthorisationHeader.create(utr).futureValue
-
-    lazy val cookieWithUtr = cookieFor(ggAuthorisationHeaderWithUtr.createBearerToken(List(utr)).futureValue).futureValue
-    lazy val cookieWithNino = cookieFor(ggAuthorisationHeaderWithUtr.createBearerToken(List(nino)).futureValue).futureValue
-
-    def cookieForUtr(utr: SaUtr) = cookieFor(ggAuthorisationHeaderWithUtr.createBearerToken(List(utr)).futureValue)
-
-    def cookieForTaxIdentifiers(taxIdentifiers: TaxIdentifier*) = cookieFor(ggAuthorisationHeaderWithUtr.createBearerToken(taxIdentifiers.toList).futureValue).futureValue
+    lazy val cookieWithUtr = authBuilderFrom(utr).sessionCookie()
+    lazy val cookieWithNino = authBuilderFrom(nino).sessionCookie()
 
     val returnUrl = "/test/return/url"
     val returnLinkText = "Continue"
@@ -191,10 +193,12 @@ trait PreferencesFrontEndServer extends ServiceSpec {
     val encryptedReturnUrl = URLEncoder.encode(QueryParameterCrypto.encrypt(PlainText(returnUrl)).value, "UTF-8")
     val encryptedReturnText = URLEncoder.encode(QueryParameterCrypto.encrypt(PlainText(returnLinkText)).value, "UTF-8")
 
-    def `/paperless/activate`(taxIdentifier: TaxIdentifier)(additionalUserTaxIdentifiers: TaxIdentifier*) = new {
+
+    def `/paperless/activate`(taxIdentifiers: TaxIdentifier*) = new {
+      val builder = authBuilderFrom(taxIdentifiers: _*)
 
       private val url = call(server.localResource("/paperless/activate"))
-        .withHeaders(createGGAuthorisationHeaderWithUtr(taxIdentifier +: additionalUserTaxIdentifiers: _*), cookieForTaxIdentifiers(taxIdentifier +: additionalUserTaxIdentifiers: _*))
+        .withHeaders(builder.bearerTokenHeader(), builder.sessionCookie())
         .withQueryString(
           "returnUrl" -> QueryParameterCrypto.encrypt(PlainText(returnUrl)).value,
           "returnLinkText" -> QueryParameterCrypto.encrypt(PlainText(returnLinkText)).value
@@ -204,5 +208,6 @@ trait PreferencesFrontEndServer extends ServiceSpec {
 
       def put() = url.put(formTypeBody)
     }
+
   }
 }

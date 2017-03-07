@@ -1,8 +1,5 @@
 import org.scalatest.BeforeAndAfterEach
-import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.play.frontend.auth.TaxIdentifiers
 import uk.gov.hmrc.play.http.test.ResponseMatchers
-import uk.gov.hmrc.test.it.AuthorisationHeader
 
 class PaperlessWarningPartialISpec
   extends PreferencesFrontEndServer
