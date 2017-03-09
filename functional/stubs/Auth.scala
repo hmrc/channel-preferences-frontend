@@ -1,6 +1,7 @@
 package stubs
 
 import com.github.tomakehurst.wiremock.client.WireMock._
+import org.joda.time.DateTime
 import play.api.http.HeaderNames
 import play.api.mvc.{Cookie, Cookies, Session}
 import stubs.Page.StubbedPage
@@ -13,19 +14,22 @@ object Auth {
     title = "Login",
     relativeUrl = "login",
     name = "Auth.LoginPage",
-    responseBody = ""
-//    responseHeader = HeaderNames.SET_COOKIE -> Cookies.encodeCookieHeader(Seq(cookieFor(BearerToken(user.utr), userId = s"/auth/oid/${user.utr}")))
+    responseBody = "",
+    responseHeader = HeaderNames.SET_COOKIE -> Cookies.encodeCookieHeader(Seq(cookieFor(BearerToken(user.utr), userId = s"/auth/oid/${user.utr}")))
   )
 
-//  private def cookieFor(bearerToken: BearerToken, authProvider: String = "GGW", userId: String): Cookie = {
-//    val keyValues = Map(
-//      "authToken" -> bearerToken.token,
-//      "token" -> "system-assumes-valid-token",
-//      "userId" -> userId,
-//      "ap" -> authProvider
-//    )
-//    Cookie(name = "mdtp", value = ApplicationCrypto.SessionCookieCrypto.encrypt(PlainText(Session.encode(keyValues))).value)
-//  }
+  private def cookieFor(bearerToken: BearerToken, authProvider: String = "GGW", userId: String): Cookie = {
+    val keyValues = Map(
+      "authToken" -> bearerToken.token,
+      "token" -> "system-assumes-valid-token",
+      "userId" -> userId,
+      "ap" -> authProvider,
+      "ts" -> DateTime.now().getMillis.toString
+    )
+    Cookie(name = "mdtp", value = ApplicationCrypto.SessionCookieCrypto.encrypt(PlainText(Session.encode(keyValues))).value)
+  }
+
+  case class BearerToken(token: String)
 
   val `GET /auth/authority` = get(urlEqualTo("/auth/authority"))
   def authorityRecordJson(implicit user: UserWithUtr) =
