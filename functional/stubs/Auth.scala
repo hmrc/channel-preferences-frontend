@@ -1,12 +1,12 @@
 package stubs
 
 import com.github.tomakehurst.wiremock.client.WireMock._
+import org.joda.time.DateTime
 import play.api.http.HeaderNames
-import play.api.mvc.{Session, Cookie, Cookies}
+import play.api.mvc.{Cookie, Cookies, Session}
 import stubs.Page.StubbedPage
-import uk.gov.hmrc.crypto.{PlainText, ApplicationCrypto}
+import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
 import uk.gov.hmrc.endtoend.sa.config.UserWithUtr
-import uk.gov.hmrc.test.it.BearerToken
 
 object Auth {
 
@@ -23,10 +23,13 @@ object Auth {
       "authToken" -> bearerToken.token,
       "token" -> "system-assumes-valid-token",
       "userId" -> userId,
-      "ap" -> authProvider
+      "ap" -> authProvider,
+      "ts" -> DateTime.now().getMillis.toString
     )
     Cookie(name = "mdtp", value = ApplicationCrypto.SessionCookieCrypto.encrypt(PlainText(Session.encode(keyValues))).value)
   }
+
+  case class BearerToken(token: String)
 
   val `GET /auth/authority` = get(urlEqualTo("/auth/authority"))
   def authorityRecordJson(implicit user: UserWithUtr) =
