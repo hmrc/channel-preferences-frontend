@@ -1,24 +1,43 @@
 package controllers.internal
 
-import config.Global
-import connectors.{EntityResolverConnector, SaEmailPreference, SaPreference}
+import connectors._
 import controllers.{Authentication, ExternalUrlPrefixes}
 import model.{FormType, HostContext}
 import play.api.libs.json.Json
+import play.api.mvc.Result
 import uk.gov.hmrc.play.config.AppName
+import uk.gov.hmrc.play.frontend.auth
 import uk.gov.hmrc.play.frontend.auth.Actions
-import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import uk.gov.hmrc.play.http.HeaderCarrier
 
-object ActivationController extends ActivationController {
+import scala.concurrent.{ExecutionContext, Future}
 
-  override val entityResolverConnector: EntityResolverConnector = EntityResolverConnector
+object ActivationController extends ActivationController with ServiceActivationController{
 
-  override protected implicit val authConnector: AuthConnector = Global.authConnector
+  val entityResolverConnector: EntityResolverConnector = EntityResolverConnector
+
+  val preferenceConnector: PreferencesConnector = PreferencesConnector
+
+  val authorityConnector: AuthConnector = AuthConnector
 
   val hostUrl = ExternalUrlPrefixes.pfUrlPrefix
+
+  override protected val authConnector: auth.connectors.AuthConnector = AuthConnector
 }
+
+trait ServiceActivationController extends FrontendController with Actions with AppName with Authentication{
+    def authorityConnector: AuthConnector
+    def preferenceConnector: PreferencesConnector
+    def paperlessPreference(hostContext: HostContext, service: String) = authenticated.async {
+      implicit authContext => implicit request =>
+        authorityConnector.currentTaxIdentifiers.map{ taxIds =>
+          preferenceConnector.getPreferencesStatus(taxIds.head.name, taxIds.head.value)
+          Ok(Json.obj())
+        }
+    }
+}
+
 
 trait ActivationController extends FrontendController with Actions with AppName with Authentication {
 
@@ -36,7 +55,7 @@ trait ActivationController extends FrontendController with Actions with AppName 
       _preferencesStatus(hostContext)
   }
 
-  private def _preferencesStatus(hostContext: HostContext)(implicit hc: HeaderCarrier) = {
+  private def _preferencesStatus(hostContext: HostContext)(implicit hc: HeaderCarrier): Future[Result] = {
 
     def isEmailVerified(emailPreference: Option[SaEmailPreference]) = {
       emailPreference.fold(false)(preference => (preference.status match {
@@ -45,7 +64,7 @@ trait ActivationController extends FrontendController with Actions with AppName 
       }))
     }
 
-    entityResolverConnector.getPreferencesStatus() map {
+    entityResolverConnector.getPreferencesStatus().map {
       case Right(SaPreference(true, emailPreference)) => Ok(Json.obj(
         "optedIn" -> true,
         "verifiedEmail" -> isEmailVerified(emailPreference)

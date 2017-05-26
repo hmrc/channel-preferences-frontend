@@ -61,3 +61,21 @@ object ValidateEmail {
 }
 
 case class ValidateEmail(token: String)
+
+case class PreferenceEmail(address: String, isVerified: Boolean, hasBounces: Boolean)
+
+object PreferenceEmail {
+  implicit val formats = Json.format[PreferenceEmail]
+}
+
+case class PaperlessService(optedIn: Boolean, terms: String)
+
+object PaperlessService {
+  implicit val formats = Json.format[PaperlessService]
+}
+
+case class PaperlessPreference(services: Map[String, PaperlessService], email: Option[PreferenceEmail])
+
+object PaperlessPreference {
+  implicit val formats = Json.format[PaperlessPreference]
+}

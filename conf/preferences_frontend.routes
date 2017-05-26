@@ -3,6 +3,8 @@ PUT         /paperless/activate/:formType/:taxIdentifier                        
 
 PUT         /paperless/activate                                                     controllers.internal.ActivationController.preferencesStatus(hostContext: model.HostContext)
 
+PUT         /paperless/activate/:service                                            controllers.internal.ActivationController.paperlessPreference(hostContext: model.HostContext, service: String)
+
 GET         /paperless/email-address/change                                         controllers.internal.ManagePaperlessController.displayChangeEmailAddress(email: Option[model.EncryptedEmail], hostContext: model.HostContext)
 POST        /paperless/email-address/change                                         controllers.internal.ManagePaperlessController.submitChangeEmailAddress(hostContext: model.HostContext)
 GET         /paperless/email-address/change/confirmed                               controllers.internal.ManagePaperlessController.displayChangeEmailAddressConfirmed(hostContext: model.HostContext)
