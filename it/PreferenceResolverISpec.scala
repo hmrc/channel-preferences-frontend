@@ -72,6 +72,7 @@ class PreferenceResolverISpec extends PreferencesFrontEndServer with EmailSuppor
         `/preferences/:taxIdName/:taxIdValue`("default", nino, nino, utr).get().futureValue.status shouldBe Status.NOT_FOUND
 
         val response = `/paperless/:service/activate`("default", nino, utr).put().futureValue
+
         response.status should be(OK)
         `/preferences/:taxIdName/:taxIdValue`("default", nino, nino, utr).get().futureValue.status shouldBe Status.OK
       }

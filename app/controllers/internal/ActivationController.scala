@@ -41,19 +41,24 @@ trait ServiceActivationController extends FrontendController with Actions with A
 
         val servicesForAuthTaxIds = for {
           authTaxIds <- authorityConnector.currentTaxIdentifiers
-          maybePreferencesForTaxIds <- Future.traverse(authTaxIds.toSeq) { taxId => preferenceConnector.getPreferencesStatus(taxId.name, taxId.value) }
+          taxIdWithMaybePaperlessPreference <- Future.traverse(authTaxIds.toSeq) { taxId => preferenceConnector.getPreferencesStatus(taxId.name, taxId.value).map(f => taxId -> f) }
         } yield {
+          val canAutoEnroll = authTaxIds.size == 2 && service == "default"
           for {
-            maybePaperlessPreferences <- maybePreferencesForTaxIds
-            paperlessPreference <- maybePaperlessPreferences
+            (taxId, maybePreference) <- taxIdWithMaybePaperlessPreference
+            paperlessPreference <- maybePreference
+            autoEnrolTaxId = if (maybePreference.isEmpty && canAutoEnroll) Some(taxId) else None
             serviceForTaxId <- paperlessPreference.services.get(service)
-          } yield serviceForTaxId
+          } yield (serviceForTaxId, canAutoEnroll)
         }
 
         servicesForAuthTaxIds.map {
           case Seq() => PreconditionFailed(Json.obj(
             "redirectUserTo" -> (hostUrl + routes.ChoosePaperlessController.redirectToDisplayServiceFormWithCohort(None, hostContext, service).url)
           ))
+          case Seq((oneServicePreference, canAutoEnroll)) if canAutoEnroll => {
+            BadRequest(Json.obj())
+          }
           case _ => Ok((Json.obj()))
         }
 
