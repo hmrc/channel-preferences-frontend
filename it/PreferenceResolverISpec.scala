@@ -2,24 +2,13 @@ import play.api.test.Helpers._
 
 class PreferenceResolverISpec extends PreferencesFrontEndServer with EmailSupport {
 
-  "a Nino only user logs in with no preference it" should {
-
-    "be redirected to the default optIn page" in new TestCaseWithFrontEndAuthentication {
-      val response = `/paperless/activate/:service`("default",utr).put().futureValue
-      response.status should be (PRECONDITION_FAILED)
-      (response.json \ "redirectUserTo").as[String] should be (s"http://localhost:9024/paperless/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
-      (response.json \ "optedIn").asOpt[Boolean] shouldBe empty
-      (response.json \ "verifiedEmail").asOpt[Boolean] shouldBe empty
-    }
-  }
-
   "On PTA/BTA " when {
     "a Nino only user logs in with no preference it" should {
 
       "be redirected to the default optIn page" in new TestCaseWithFrontEndAuthentication {
-        val response = `/paperless/activate/:service`("default",utr).put().futureValue
+        val response = `/paperless/:service/activate`("default",utr).put().futureValue
         response.status should be (PRECONDITION_FAILED)
-        (response.json \ "redirectUserTo").as[String] should be (s"http://localhost:9024/paperless/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
+        (response.json \ "redirectUserTo").as[String] should be (s"http://localhost:9024/paperless/default/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
         (response.json \ "optedIn").asOpt[Boolean] shouldBe empty
         (response.json \ "verifiedEmail").asOpt[Boolean] shouldBe empty
       }

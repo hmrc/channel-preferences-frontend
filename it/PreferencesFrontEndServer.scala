@@ -209,10 +209,10 @@ trait PreferencesFrontEndServer extends ServiceSpec {
       def put() = url.put(formTypeBody)
     }
 
-    def `/paperless/activate/:service`(service: String, taxIdentifiers: TaxIdentifier*) = new {
+    def `/paperless/:service/activate`(service: String, taxIdentifiers: TaxIdentifier*) = new {
       val builder = authBuilderFrom(taxIdentifiers: _*)
 
-      private val url = call(server.localResource(s"/paperless/activate/$service"))
+      private val url = call(server.localResource(s"/paperless/$service/activate"))
         .withHeaders(builder.bearerTokenHeader(), builder.sessionCookie())
         .withQueryString(
           "returnUrl" -> QueryParameterCrypto.encrypt(PlainText(returnUrl)).value,

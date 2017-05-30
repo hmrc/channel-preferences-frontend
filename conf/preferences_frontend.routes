@@ -3,7 +3,7 @@ PUT         /paperless/activate/:formType/:taxIdentifier                        
 
 PUT         /paperless/activate                                                     controllers.internal.ActivationController.preferencesStatus(hostContext: model.HostContext)
 
-PUT         /paperless/activate/:service                                            controllers.internal.ActivationController.paperlessPreference(hostContext: model.HostContext, service: String)
+PUT         /paperless/:service/activate                                            controllers.internal.ActivationController.paperlessPreference(hostContext: model.HostContext, service: String)
 
 GET         /paperless/email-address/change                                         controllers.internal.ManagePaperlessController.displayChangeEmailAddress(email: Option[model.EncryptedEmail], hostContext: model.HostContext)
 POST        /paperless/email-address/change                                         controllers.internal.ManagePaperlessController.submitChangeEmailAddress(hostContext: model.HostContext)
@@ -19,6 +19,8 @@ GET         /paperless/choose/nearly-done                                       
 GET         /paperless/choose                                                       controllers.internal.ChoosePaperlessController.redirectToDisplayFormWithCohort(email: Option[model.EncryptedEmail], hostContext: model.HostContext)
 GET         /paperless/choose/:cohort                                               controllers.internal.ChoosePaperlessController.displayForm(cohort: Option[controllers.internal.OptInCohort], email: Option[model.EncryptedEmail], hostContext: model.HostContext)
 POST        /paperless/choose                                                       controllers.internal.ChoosePaperlessController.submitForm(hostContext: model.HostContext)
+
+GET         /paperless/:service/choose                                              controllers.internal.ChoosePaperlessController.redirectToDisplayServiceFormWithCohort(email: Option[model.EncryptedEmail], hostContext: model.HostContext, service: String)
 
 GET         /sa/print-preferences/:token                                            @controllers.filing.FilingInterceptController.redirectWithEmailAddress(token: String, return_url: String, emailAddress: Option[model.EncryptedEmail])
 GET         /sa/print-preferences/verification/:token                               @controllers.external.EmailValidationController.verify(token: String)

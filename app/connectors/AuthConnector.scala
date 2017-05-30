@@ -28,8 +28,7 @@ object AuthConnector extends AuthConnector with ServicesConfig with WSGet {
   lazy val authBaseUrl = baseUrl("auth")
   lazy val http: HttpGet = WsHttp
   lazy val hooks: Seq[HttpHook] = NoneRequired
-//  lazy val serviceUrl: String = baseUrl("auth")
-  lazy val serviceUrl: String = "localhost:8500"
+  lazy val serviceUrl: String = baseUrl("auth")
 
   object ApiReads {
 
