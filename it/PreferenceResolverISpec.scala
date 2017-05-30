@@ -64,6 +64,7 @@ class PreferenceResolverISpec extends PreferencesFrontEndServer with EmailSuppor
     }
     "a SaUtr and Nino user logs in with SaUtr and Nino preference for default" should {
       "continue" in new TestCaseWithFrontEndAuthentication {
+
         `/preferences/:taxIdName/:taxId/:service`("default", nino, nino, utr).put().futureValue
         `/preferences/:taxIdName/:taxId/:service`("default", utr, nino, utr).put().futureValue
         val response = `/paperless/:service/activate`("default", nino, utr).put().futureValue

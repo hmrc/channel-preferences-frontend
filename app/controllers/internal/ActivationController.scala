@@ -5,7 +5,6 @@ import controllers.{Authentication, ExternalUrlPrefixes}
 import model.{FormType, HostContext}
 import play.api.libs.json.Json
 import play.api.mvc.Result
-import uk.gov.hmrc.domain.TaxIds.TaxIdWithName
 import uk.gov.hmrc.play.config.AppName
 import uk.gov.hmrc.play.frontend.auth
 import uk.gov.hmrc.play.frontend.auth.Actions
@@ -13,7 +12,7 @@ import uk.gov.hmrc.play.frontend.controller.FrontendController
 import uk.gov.hmrc.play.http.HeaderCarrier
 
 import scala.collection.Map
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 object ActivationController extends ActivationController with ServiceActivationController {
 
@@ -37,7 +36,6 @@ trait ServiceActivationController extends FrontendController with Actions with A
   def preferenceConnector: PreferencesConnector
 
   def paperlessPreference(hostContext: HostContext, service: String) = authenticated.async {
-    import PaperlessPreference.formats
     implicit authContext =>
       implicit request => {
 
@@ -46,40 +44,25 @@ trait ServiceActivationController extends FrontendController with Actions with A
           preferences <- Future.traverse(taxIds.toSeq) {
             taxId =>
               preferenceConnector.getPreferencesStatus(taxId.name, taxId.value)
-                .map(p => (taxId.name -> p))
+                .map(p => (taxId.name -> p.map(_.services)))
           }
         } yield {
+          val test = for {
+            (taxId, maybePreference) <- preferences
+            preference <- maybePreference
+            servicePreference <- preference.get(service)
+          } yield (taxId, servicePreference)
 
-          val preferencesMap = preferences.collect {
-            case (taxIdName, Some(PaperlessPreference(services, _))) if(services.get(service).isDefined) => taxIdName -> services.get(service).get
-          }.toMap
+          val servicesMap = test.toMap
 
-
-          if(preferencesMap.keys.size == 0) {
+          if (servicesMap.isEmpty) {
             PreconditionFailed(Json.obj(
               "redirectUserTo" -> (hostUrl + routes.ChoosePaperlessController.redirectToDisplayServiceFormWithCohort(None, hostContext, service).url)
             ))
           } else {
-            Ok((Json.toJson(preferencesMap)))
+            Ok((Json.toJson(servicesMap)))
           }
         }
-//
-//        for {
-//          taxIds <- authorityConnector.currentTaxIdentifiers
-//          preferences <- Seq(Future.traverse(taxIds) {
-//            taxId =>
-//              preferenceConnector.getPreferencesStatus(taxId.name, taxId.value)
-//                .map(p => (taxId.name -> p))
-//          }).toMap
-//        } yield {
-////          Ok()
-//          preferences match {
-//            case Map() => PreconditionFailed(Json.obj(
-//              "redirectUserTo" -> (hostUrl + routes.ChoosePaperlessController.redirectToDisplayServiceFormWithCohort(None, hostContext, service).url)
-//            ))
-//            case preferences => Ok((Json.toJson(preferences)))
-//          }
-//        }
       }
   }
 }
