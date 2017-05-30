@@ -5,7 +5,8 @@ import play.api.http.Status
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http._
 
-import scala.concurrent.Future
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
 
 
 trait PreferencesConnector extends Status with ServicesCircuitBreaker {
@@ -21,9 +22,10 @@ trait PreferencesConnector extends Status with ServicesCircuitBreaker {
   def url(path: String) = s"$serviceUrl$path"
 
   def getPreferencesStatus(taxIdName: String, taxId: String)(implicit headerCarrier: HeaderCarrier): Future[Option[PaperlessPreference]] = {
-    withCircuitBreaker(
+    withCircuitBreaker {
       http.GET[Option[PaperlessPreference]](url(s"/preferences/$taxIdName/$taxId"))
-    )
+    }
+
   }
 }
 

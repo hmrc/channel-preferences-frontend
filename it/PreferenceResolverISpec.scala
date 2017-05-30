@@ -1,3 +1,4 @@
+import play.api.libs.json.Json
 import play.api.test.Helpers._
 
 class PreferenceResolverISpec extends PreferencesFrontEndServer with EmailSupport {
@@ -6,7 +7,7 @@ class PreferenceResolverISpec extends PreferencesFrontEndServer with EmailSuppor
     "a Nino only user logs in with no preference it" should {
 
       "be redirected to the default optIn page" in new TestCaseWithFrontEndAuthentication {
-        val response = `/paperless/:service/activate`("default",utr).put().futureValue
+        val response = `/paperless/:service/activate`("default",nino).put().futureValue
         response.status should be (PRECONDITION_FAILED)
         (response.json \ "redirectUserTo").as[String] should be (s"http://localhost:9024/paperless/default/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
         (response.json \ "optedIn").asOpt[Boolean] shouldBe empty
@@ -15,19 +16,39 @@ class PreferenceResolverISpec extends PreferencesFrontEndServer with EmailSuppor
     }
 
     "a Nino only user logs with preference for default" should {
-      "continue" in {
+      "continue by getting the existing preference" in new TestCaseWithFrontEndAuthentication {
+        `/preferences/:taxIdName/:taxId/:service`("default", nino, nino).put().futureValue
+        val response = `/paperless/:service/activate`("default", nino).put().futureValue
+        response.status should be (OK)
+        response.json shouldBe Json.parse(
+         """{
+            | "nino":{"optedIn":true,"terms":"serviceTerms"}
+            }""".stripMargin)
       }
     }
 
     "a Nino only user logs with preference for taxCredits" should {
-      "be redirected to the default optIn page" in {
+      "be redirected to the default optIn page" in new TestCaseWithFrontEndAuthentication {
+        `/preferences/:taxIdName/:taxId/:service`("taxCredits", nino, nino).put().futureValue
+        val response = `/paperless/:service/activate`("default",nino).put().futureValue
+        response.status should be (PRECONDITION_FAILED)
 
+        // Do we prepopulate the email address?
+        (response.json \ "redirectUserTo").as[String] should be (s"http://localhost:9024/paperless/default/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
+        (response.json \ "optedIn").asOpt[Boolean] shouldBe empty
+
+        // What do we do?
+        (response.json \ "verifiedEmail").asOpt[Boolean] shouldBe empty
       }
     }
 
     "a SaUtr only user logs in with no preference" should {
-      "be redirected to the default optIn page when he logs in on PTA/BTA" in {
-
+      "be redirected to the default optIn page" in new TestCaseWithFrontEndAuthentication {
+        val response = `/paperless/:service/activate`("default", utr).put().futureValue
+        response.status should be (PRECONDITION_FAILED)
+        (response.json \ "redirectUserTo").as[String] should be (s"http://localhost:9024/paperless/default/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
+        (response.json \ "optedIn").asOpt[Boolean] shouldBe empty
+        (response.json \ "verifiedEmail").asOpt[Boolean] shouldBe empty
       }
     }
 
@@ -42,7 +63,17 @@ class PreferenceResolverISpec extends PreferencesFrontEndServer with EmailSuppor
       }
     }
     "a SaUtr and Nino user logs in with SaUtr and Nino preference for default" should {
-      "continue" in {
+      "continue" in new TestCaseWithFrontEndAuthentication {
+        `/preferences/:taxIdName/:taxId/:service`("default", nino, nino, utr).put().futureValue
+        `/preferences/:taxIdName/:taxId/:service`("default", utr, nino, utr).put().futureValue
+        val response = `/paperless/:service/activate`("default", nino, utr).put().futureValue
+        response.status should be (OK)
+        response.json shouldBe Json.parse(
+
+          """{
+            |    "nino":{"optedIn":true,"terms":"serviceTerms"},
+            |    "sautr":{"optedIn":true,"terms":"serviceTerms"}
+          }""".stripMargin)
       }
     }
     "a SaUtr and Nino user logs in with SaUtr preference only" should {

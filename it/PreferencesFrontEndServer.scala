@@ -7,6 +7,7 @@ import play.api.libs.ws.{WS, WSAPI, WSClient, WSRequest}
 import play.api.mvc.Results.EmptyContent
 import uk.gov.hmrc.crypto.ApplicationCrypto._
 import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
+import uk.gov.hmrc.domain.TaxIds.TaxIdWithName
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.it.{ExternalService, ExternalServiceRunner, MicroServiceEmbeddedServer, ServiceSpec}
@@ -224,6 +225,25 @@ trait PreferencesFrontEndServer extends ServiceSpec {
       def put() = url.put(formTypeBody)
     }
 
+    def `/preferences/:taxIdName/:taxId/:service`(service: String, taxId: TaxIdWithName, authTaxIdentifiers: TaxIdentifier*) = new {
+      val builder = authBuilderFrom(authTaxIdentifiers: _*)
+
+      val url = call(server.externalResource("preferences", s"/preferences/${taxId.name}/${taxId.value}/$service"))
+          .withHeaders(builder.bearerTokenHeader(), builder.sessionCookie())
+
+      def put() = url.put(
+        Json.parse(
+          s"""
+             |{
+             |	"paperless": {
+             |    "terms":"serviceTerms",
+             |	  "optedIn":true
+             |   },
+             |	"emailAddress":"ab@a.com"
+             |}
+         """.stripMargin)
+      )
+    }
 
   }
 }
