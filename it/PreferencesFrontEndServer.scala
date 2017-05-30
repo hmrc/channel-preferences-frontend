@@ -245,5 +245,13 @@ trait PreferencesFrontEndServer extends ServiceSpec {
       )
     }
 
+    def `/preferences/:taxIdName/:taxIdValue`(service: String, taxId: TaxIdWithName, authTaxIdentifiers: TaxIdentifier*) = new {
+      val builder = authBuilderFrom(authTaxIdentifiers: _*)
+
+      val url = call(server.externalResource("preferences", s"/preferences/${taxId.name}/${taxId.value}"))
+        .withHeaders(builder.bearerTokenHeader(), builder.sessionCookie())
+
+      def get() = url.get()
+    }
   }
 }

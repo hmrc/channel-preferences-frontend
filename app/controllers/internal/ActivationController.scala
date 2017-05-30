@@ -39,29 +39,24 @@ trait ServiceActivationController extends FrontendController with Actions with A
     implicit authContext =>
       implicit request => {
 
-        for {
-          taxIds <- authorityConnector.currentTaxIdentifiers
-          preferences <- Future.traverse(taxIds.toSeq) {
-            taxId =>
-              preferenceConnector.getPreferencesStatus(taxId.name, taxId.value)
-                .map(p => (taxId.name -> p.map(_.services)))
-          }
+        val servicesForAuthTaxIds = for {
+          authTaxIds <- authorityConnector.currentTaxIdentifiers
+          maybePreferencesForTaxIds <- Future.traverse(authTaxIds.toSeq) { taxId => preferenceConnector.getPreferencesStatus(taxId.name, taxId.value) }
         } yield {
-          val services = (
-            for {
-              (taxId, maybePreference) <- preferences
-              preference <- maybePreference
-              servicePreference <- preference.get(service)
-            } yield (taxId, servicePreference)
-            )
-
-          services match {
-            case Seq() => PreconditionFailed(Json.obj(
-              "redirectUserTo" -> (hostUrl + routes.ChoosePaperlessController.redirectToDisplayServiceFormWithCohort(None, hostContext, service).url)
-            ))
-            case _ => Ok((Json.toJson(services.toMap)))
-          }
+          for {
+            maybePaperlessPreferences <- maybePreferencesForTaxIds
+            paperlessPreference <- maybePaperlessPreferences
+            serviceForTaxId <- paperlessPreference.services.get(service)
+          } yield serviceForTaxId
         }
+
+        servicesForAuthTaxIds.map {
+          case Seq() => PreconditionFailed(Json.obj(
+            "redirectUserTo" -> (hostUrl + routes.ChoosePaperlessController.redirectToDisplayServiceFormWithCohort(None, hostContext, service).url)
+          ))
+          case _ => Ok((Json.obj()))
+        }
+
       }
   }
 }
