@@ -47,20 +47,19 @@ trait ServiceActivationController extends FrontendController with Actions with A
                 .map(p => (taxId.name -> p.map(_.services)))
           }
         } yield {
-          val test = for {
-            (taxId, maybePreference) <- preferences
-            preference <- maybePreference
-            servicePreference <- preference.get(service)
-          } yield (taxId, servicePreference)
+          val services = (
+            for {
+              (taxId, maybePreference) <- preferences
+              preference <- maybePreference
+              servicePreference <- preference.get(service)
+            } yield (taxId, servicePreference)
+            )
 
-          val servicesMap = test.toMap
-
-          if (servicesMap.isEmpty) {
-            PreconditionFailed(Json.obj(
+          services match {
+            case Seq() => PreconditionFailed(Json.obj(
               "redirectUserTo" -> (hostUrl + routes.ChoosePaperlessController.redirectToDisplayServiceFormWithCohort(None, hostContext, service).url)
             ))
-          } else {
-            Ok((Json.toJson(servicesMap)))
+            case _ => Ok((Json.toJson(services.toMap)))
           }
         }
       }
