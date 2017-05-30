@@ -3,7 +3,7 @@ import java.util.UUID
 
 import play.api.Application
 import play.api.libs.json.Json
-import play.api.libs.ws.{WS, WSAPI, WSClient, WSRequest}
+import play.api.libs.ws._
 import play.api.mvc.Results.EmptyContent
 import uk.gov.hmrc.crypto.ApplicationCrypto._
 import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
@@ -15,6 +15,8 @@ import uk.gov.hmrc.test.it.{AuthorityBuilder, CanCreateAuthority}
 import uk.gov.hmrc.time.DateTimeUtils
 import views.sa.prefs.helpers.DateFormat
 
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 
 trait TestUser {
@@ -48,7 +50,8 @@ trait PreferencesFrontEndServer extends ServiceSpec {
         s"http://localhost:$servicePort$path"
     }
 
-    override protected val externalServices: Seq[ExternalService] = externalServiceNames.map(ExternalServiceRunner.runFromJar(_))
+    override protected val externalServices: Seq[ExternalService] = externalServiceNames.map(ExternalServiceRunner.runFromJar(_)) ++
+      Seq("preferences").map(ExternalServiceRunner.runFromSource(_))
 
     override protected def startTimeout: Duration = 300.seconds
   }
@@ -60,7 +63,7 @@ trait PreferencesFrontEndServer extends ServiceSpec {
       "entity-resolver",
       "mailgun",
       "email",
-      "preferences",
+//      "preferences",
       "hmrc-email-renderer"
     )
   }
@@ -210,7 +213,7 @@ trait PreferencesFrontEndServer extends ServiceSpec {
       def put() = url.put(formTypeBody)
     }
 
-    def `/paperless/:service/activate`(service: String, taxIdentifiers: TaxIdentifier*) = new {
+    def `/paperless/:service/activate`(service: String)(taxIdentifiers: TaxIdentifier*) = new {
       val builder = authBuilderFrom(taxIdentifiers: _*)
 
       private val url = call(server.localResource(s"/paperless/$service/activate"))
@@ -225,7 +228,7 @@ trait PreferencesFrontEndServer extends ServiceSpec {
       def put() = url.put(formTypeBody)
     }
 
-    def `/preferences/:taxIdName/:taxId/:service`(service: String, taxId: TaxIdWithName, authTaxIdentifiers: TaxIdentifier*) = new {
+    def `/preferences/:taxIdName/:taxId/:service`(service: String, taxId: TaxIdWithName)(authTaxIdentifiers: TaxIdentifier*) = new {
       val builder = authBuilderFrom(authTaxIdentifiers: _*)
 
       val url = call(server.externalResource("preferences", s"/preferences/${taxId.name}/${taxId.value}/$service"))
@@ -245,13 +248,21 @@ trait PreferencesFrontEndServer extends ServiceSpec {
       )
     }
 
-    def `/preferences/:taxIdName/:taxIdValue`(service: String, taxId: TaxIdWithName, authTaxIdentifiers: TaxIdentifier*) = new {
+    def `/preferences/:taxIdName/:taxIdValue`(taxId: TaxIdWithName)(authTaxIdentifiers: TaxIdentifier*) = new {
       val builder = authBuilderFrom(authTaxIdentifiers: _*)
 
       val url = call(server.externalResource("preferences", s"/preferences/${taxId.name}/${taxId.value}"))
         .withHeaders(builder.bearerTokenHeader(), builder.sessionCookie())
 
-      def get() = url.get()
+      def get(service: String) : Future[Boolean] = {
+        get.map{
+          res => (res.json  \ "services" \ service).toOption.isDefined
+        }
+      }
+
+      def get(): Future[WSResponse] = url.get()
     }
+
+
   }
 }

@@ -5,13 +5,13 @@ import controllers.{Authentication, ExternalUrlPrefixes}
 import model.{FormType, HostContext}
 import play.api.libs.json.Json
 import play.api.mvc.Result
+import uk.gov.hmrc.domain.TaxIds.TaxIdWithName
 import uk.gov.hmrc.play.config.AppName
 import uk.gov.hmrc.play.frontend.auth
 import uk.gov.hmrc.play.frontend.auth.Actions
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import uk.gov.hmrc.play.http.HeaderCarrier
 
-import scala.collection.Map
 import scala.concurrent.Future
 
 object ActivationController extends ActivationController with ServiceActivationController {
@@ -35,6 +35,7 @@ trait ServiceActivationController extends FrontendController with Actions with A
 
   def preferenceConnector: PreferencesConnector
 
+
   def paperlessPreference(hostContext: HostContext, service: String) = authenticated.async {
     implicit authContext =>
       implicit request => {
@@ -43,29 +44,34 @@ trait ServiceActivationController extends FrontendController with Actions with A
           authTaxIds <- authorityConnector.currentTaxIdentifiers
           taxIdWithMaybePaperlessPreference <- Future.traverse(authTaxIds.toSeq) { taxId => preferenceConnector.getPreferencesStatus(taxId.name, taxId.value).map(f => taxId -> f) }
         } yield {
-          val canAutoEnroll = authTaxIds.size == 2 && service == "default"
-          for {
+
+          val canAutoEnrol: Boolean = authTaxIds.size == 2 && service == "default"
+          val taxIdToEnrol: Option[TaxIdWithName] = taxIdWithMaybePaperlessPreference.collect {
+            case (taxId, None) => taxId
+          }.headOption
+
+          val preferencesHavingService = for {
             (taxId, maybePreference) <- taxIdWithMaybePaperlessPreference
             paperlessPreference <- maybePreference
-            autoEnrolTaxId = if (maybePreference.isEmpty && canAutoEnroll) Some(taxId) else None
-            serviceForTaxId <- paperlessPreference.services.get(service)
-          } yield (serviceForTaxId, canAutoEnroll)
+            preferenceContainingService <- paperlessPreference.services.get(service).map(_ => paperlessPreference)
+          } yield (preferenceContainingService)
+
+          (preferencesHavingService, canAutoEnrol, taxIdToEnrol)
         }
 
-        servicesForAuthTaxIds.map {
-          case Seq() => PreconditionFailed(Json.obj(
+        servicesForAuthTaxIds.flatMap {
+          case (Seq(),_, _) => Future.successful(PreconditionFailed(Json.obj(
             "redirectUserTo" -> (hostUrl + routes.ChoosePaperlessController.redirectToDisplayServiceFormWithCohort(None, hostContext, service).url)
-          ))
-          case Seq((oneServicePreference, canAutoEnroll)) if canAutoEnroll => {
-            BadRequest(Json.obj())
-          }
-          case _ => Ok((Json.obj()))
+          )))
+          case (Seq(paperlessPreference), canAutoEnrol, Some(taxId)) if canAutoEnrol =>
+            preferenceConnector.autoEnrol(paperlessPreference, taxId.name, taxId.value).map { _ =>
+              Ok(Json.obj("reason" -> "autoEnrol"))
+            }
+          case _ => Future.successful(Ok((Json.obj())))
         }
-
       }
   }
 }
-
 
 trait ActivationController extends FrontendController with Actions with AppName with Authentication {
 
