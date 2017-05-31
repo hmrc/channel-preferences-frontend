@@ -50,8 +50,7 @@ trait PreferencesFrontEndServer extends ServiceSpec {
         s"http://localhost:$servicePort$path"
     }
 
-    override protected val externalServices: Seq[ExternalService] = externalServiceNames.map(ExternalServiceRunner.runFromJar(_)) ++
-      Seq("preferences").map(ExternalServiceRunner.runFromSource(_))
+    override protected val externalServices: Seq[ExternalService] = externalServiceNames.map(ExternalServiceRunner.runFromJar(_))
 
     override protected def startTimeout: Duration = 300.seconds
   }
@@ -63,7 +62,7 @@ trait PreferencesFrontEndServer extends ServiceSpec {
       "entity-resolver",
       "mailgun",
       "email",
-//      "preferences",
+      "preferences",
       "hmrc-email-renderer"
     )
   }

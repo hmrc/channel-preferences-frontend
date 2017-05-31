@@ -5,7 +5,7 @@ import controllers.{Authentication, ExternalUrlPrefixes}
 import model.{FormType, HostContext}
 import play.api.libs.json.Json
 import play.api.mvc.Result
-import uk.gov.hmrc.domain.TaxIds.TaxIdWithName
+import service._
 import uk.gov.hmrc.play.config.AppName
 import uk.gov.hmrc.play.frontend.auth
 import uk.gov.hmrc.play.frontend.auth.Actions
@@ -18,56 +18,27 @@ object ActivationController extends ActivationController with ServiceActivationC
 
   val entityResolverConnector: EntityResolverConnector = EntityResolverConnector
 
-  val preferenceConnector: PreferencesConnector = PreferencesConnector
-
-  val authorityConnector: AuthConnector = AuthConnector
-
   val hostUrl = ExternalUrlPrefixes.pfUrlPrefix
 
-  override protected val authConnector: auth.connectors.AuthConnector = AuthConnector
+  val authConnector: auth.connectors.AuthConnector = AuthConnector
+
+  val activationService: PaperlessActivateService =  PaperlessActivateService
 }
 
 trait ServiceActivationController extends FrontendController with Actions with AppName with Authentication {
 
+  val activationService: PaperlessActivateService
+
   val hostUrl: String
-
-  def authorityConnector: AuthConnector
-
-  def preferenceConnector: PreferencesConnector
 
   def paperlessPreference(hostContext: HostContext, service: String) = authenticated.async {
     implicit authContext =>
       implicit request => {
-
-        val servicesForAuthTaxIds = for {
-          authTaxIds <- authorityConnector.currentTaxIdentifiers
-          taxIdWithMaybePaperlessPreference <- Future.traverse(authTaxIds.toSeq) { taxId => preferenceConnector.getPreferencesStatus(taxId.name, taxId.value).map(f => taxId -> f) }
-        } yield {
-
-          val missingTaxIds = authTaxIds.isEmpty
-          val maybeTaxIdToAutoEnrolToDefault = taxIdWithMaybePaperlessPreference.collect {
-            case (taxId, None) if service == "default" => taxId
-          }.headOption
-
-          val preferencesHavingService = for {
-            (taxId, maybePreference) <- taxIdWithMaybePaperlessPreference
-            paperlessPreference <- maybePreference
-            preferenceContainingService <- paperlessPreference.services.get(service).map(_ => paperlessPreference)
-          } yield (preferenceContainingService)
-
-          (missingTaxIds, preferencesHavingService, maybeTaxIdToAutoEnrolToDefault)
-        }
-
-        servicesForAuthTaxIds.flatMap {
-          case (missingTaxIds,_,_) if missingTaxIds => Future.successful(Unauthorized)
-          case (_, foundPreferences, _) if foundPreferences.isEmpty  => Future.successful(PreconditionFailed(Json.obj(
-            "redirectUserTo" -> (hostUrl + routes.ChoosePaperlessController.redirectToDisplayServiceFormWithCohort(service, None, hostContext).url)
-          )))
-          case (_, Seq(singlePaperlessPreference), Some(taxIdToAutoEnrolToDefault)) =>
-            preferenceConnector.autoEnrol(singlePaperlessPreference, taxIdToAutoEnrolToDefault.name, taxIdToAutoEnrolToDefault.value, "default").map { _ =>
-              Ok(Json.obj("reason" -> "autoEnrol"))
-            }
-          case _ => Future.successful(Ok((Json.obj())))
+        activationService.paperlessPreference(hostContext, service).map {
+          case UnAuthorised => Unauthorized
+          case RedirectToOptInPage(service, url) =>
+            PreconditionFailed(Json.obj("redirectUserTo" -> (hostUrl + url)))
+          case PreferenceFound | UserAutoEnrol(_, _) => Ok(Json.obj())
         }
       }
   }
