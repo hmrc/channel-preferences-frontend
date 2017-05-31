@@ -27,10 +27,10 @@ trait PreferencesConnector extends Status with ServicesCircuitBreaker {
     }
   }
 
-  def autoEnrol(preference: PaperlessPreference, taxIdName: String, taxId: String)(implicit headerCarrier: HeaderCarrier, ec: ExecutionContext): Future[Unit] = {
+  def autoEnrol(preference: PaperlessPreference, taxIdName: String, taxId: String, service: String)(implicit headerCarrier: HeaderCarrier, ec: ExecutionContext): Future[Unit] = {
     val maybeBody: Option[JsObject] = for {
       currentEmail <- preference.email
-      defaultService <- preference.services.get("default")
+      defaultService <- preference.services.get(service)
       body = Json.parse(
         s"""
            |{

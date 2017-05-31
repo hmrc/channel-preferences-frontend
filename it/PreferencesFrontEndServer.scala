@@ -169,7 +169,7 @@ trait PreferencesFrontEndServer extends ServiceSpec {
 
     implicit val hc = HeaderCarrier()
 
-    override def httpClient: WSClient = WS.client
+    override def httpClient: WSClient = current.injector.instanceOf[WSClient]
 
     def authResource(path: String) = server.externalResource("auth", path)
 
@@ -197,9 +197,12 @@ trait PreferencesFrontEndServer extends ServiceSpec {
     val encryptedReturnUrl = URLEncoder.encode(QueryParameterCrypto.encrypt(PlainText(returnUrl)).value, "UTF-8")
     val encryptedReturnText = URLEncoder.encode(QueryParameterCrypto.encrypt(PlainText(returnLinkText)).value, "UTF-8")
 
+    val asNinoSaUtrUser: Seq[TaxIdentifier] = Seq(nino,utr)
+    val asNinoOnlyUser: Seq[TaxIdentifier] = Seq(nino)
+    val asSaUtrOnlyUser: Seq[TaxIdentifier] = Seq(utr)
 
-    def `/paperless/activate`(taxIdentifiers: TaxIdentifier*) = new {
-      val builder = authBuilderFrom(taxIdentifiers: _*)
+    def `/paperless/activate`(userAuthTaxIdentifiers: Seq[TaxIdentifier]) = new {
+      val builder = authBuilderFrom(userAuthTaxIdentifiers: _*)
 
       private val url = call(server.localResource("/paperless/activate"))
         .withHeaders(builder.bearerTokenHeader(), builder.sessionCookie())
@@ -213,8 +216,8 @@ trait PreferencesFrontEndServer extends ServiceSpec {
       def put() = url.put(formTypeBody)
     }
 
-    def `/paperless/:service/activate`(service: String)(taxIdentifiers: TaxIdentifier*) = new {
-      val builder = authBuilderFrom(taxIdentifiers: _*)
+    def `/paperless/:service/activate`(service: String)(userAuthTaxIdentifiers: Seq[TaxIdentifier]) = new {
+      val builder = authBuilderFrom(userAuthTaxIdentifiers: _*)
 
       private val url = call(server.localResource(s"/paperless/$service/activate"))
         .withHeaders(builder.bearerTokenHeader(), builder.sessionCookie())
@@ -228,8 +231,8 @@ trait PreferencesFrontEndServer extends ServiceSpec {
       def put() = url.put(formTypeBody)
     }
 
-    def `/preferences/:taxIdName/:taxId/:service`(service: String, taxId: TaxIdWithName)(authTaxIdentifiers: TaxIdentifier*) = new {
-      val builder = authBuilderFrom(authTaxIdentifiers: _*)
+    def `/preferences/:taxIdName/:taxId/:service`(service: String, taxId: TaxIdWithName)(userAuthTaxIdentifiers: Seq[TaxIdentifier]) = new {
+      val builder = authBuilderFrom(userAuthTaxIdentifiers: _*)
 
       val url = call(server.externalResource("preferences", s"/preferences/${taxId.name}/${taxId.value}/$service"))
           .withHeaders(builder.bearerTokenHeader(), builder.sessionCookie())
@@ -248,21 +251,17 @@ trait PreferencesFrontEndServer extends ServiceSpec {
       )
     }
 
-    def `/preferences/:taxIdName/:taxIdValue`(taxId: TaxIdWithName)(authTaxIdentifiers: TaxIdentifier*) = new {
-      val builder = authBuilderFrom(authTaxIdentifiers: _*)
+    def `/preferences/:taxIdName/:taxIdValue`(taxId: TaxIdWithName)(userAuthTaxIdentifiers: Seq[TaxIdentifier]) = new {
+      val builder = authBuilderFrom(userAuthTaxIdentifiers: _*)
 
       val url = call(server.externalResource("preferences", s"/preferences/${taxId.name}/${taxId.value}"))
         .withHeaders(builder.bearerTokenHeader(), builder.sessionCookie())
 
-      def get(service: String) : Future[Boolean] = {
-        get.map{
-          res => (res.json  \ "services" \ service).toOption.isDefined
-        }
+      def get(service: String) : Future[Boolean] = get.map{
+        res => (res.json  \ "services" \ service).toOption.isDefined
       }
 
       def get(): Future[WSResponse] = url.get()
     }
-
-
   }
 }

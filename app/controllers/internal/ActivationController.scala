@@ -35,7 +35,6 @@ trait ServiceActivationController extends FrontendController with Actions with A
 
   def preferenceConnector: PreferencesConnector
 
-
   def paperlessPreference(hostContext: HostContext, service: String) = authenticated.async {
     implicit authContext =>
       implicit request => {
@@ -45,9 +44,9 @@ trait ServiceActivationController extends FrontendController with Actions with A
           taxIdWithMaybePaperlessPreference <- Future.traverse(authTaxIds.toSeq) { taxId => preferenceConnector.getPreferencesStatus(taxId.name, taxId.value).map(f => taxId -> f) }
         } yield {
 
-          val canAutoEnrol: Boolean = authTaxIds.size == 2 && service == "default"
-          val taxIdToEnrol: Option[TaxIdWithName] = taxIdWithMaybePaperlessPreference.collect {
-            case (taxId, None) => taxId
+          val missingTaxIds = authTaxIds.isEmpty
+          val maybeTaxIdToAutoEnrolToDefault = taxIdWithMaybePaperlessPreference.collect {
+            case (taxId, None) if service == "default" => taxId
           }.headOption
 
           val preferencesHavingService = for {
@@ -56,15 +55,16 @@ trait ServiceActivationController extends FrontendController with Actions with A
             preferenceContainingService <- paperlessPreference.services.get(service).map(_ => paperlessPreference)
           } yield (preferenceContainingService)
 
-          (preferencesHavingService, canAutoEnrol, taxIdToEnrol)
+          (missingTaxIds, preferencesHavingService, maybeTaxIdToAutoEnrolToDefault)
         }
 
         servicesForAuthTaxIds.flatMap {
-          case (Seq(),_, _) => Future.successful(PreconditionFailed(Json.obj(
-            "redirectUserTo" -> (hostUrl + routes.ChoosePaperlessController.redirectToDisplayServiceFormWithCohort(None, hostContext, service).url)
+          case (missingTaxIds,_,_) if missingTaxIds => Future.successful(Unauthorized)
+          case (_, foundPreferences, _) if foundPreferences.isEmpty  => Future.successful(PreconditionFailed(Json.obj(
+            "redirectUserTo" -> (hostUrl + routes.ChoosePaperlessController.redirectToDisplayServiceFormWithCohort(service, None, hostContext).url)
           )))
-          case (Seq(paperlessPreference), canAutoEnrol, Some(taxId)) if canAutoEnrol =>
-            preferenceConnector.autoEnrol(paperlessPreference, taxId.name, taxId.value).map { _ =>
+          case (_, Seq(singlePaperlessPreference), Some(taxIdToAutoEnrolToDefault)) =>
+            preferenceConnector.autoEnrol(singlePaperlessPreference, taxIdToAutoEnrolToDefault.name, taxIdToAutoEnrolToDefault.value, "default").map { _ =>
               Ok(Json.obj("reason" -> "autoEnrol"))
             }
           case _ => Future.successful(Ok((Json.obj())))
