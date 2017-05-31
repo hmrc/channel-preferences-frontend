@@ -40,9 +40,14 @@ trait PaperlessActivateService {
     servicesForAuthTaxIds.flatMap {
       case (missingTaxIds, _, _) if missingTaxIds => Future.successful(UnAuthorised)
       case (_, foundPreferences, _) if foundPreferences.isEmpty => Future.successful(
-        RedirectToOptInPage(
+//        TODO: DC-970: Disabled for production and the user will optIn from the old form
+//        RedirectToOptInPage(
+//          service,
+//          routes.ChoosePaperlessController.redirectToDisplayServiceFormWithCohort(service, None, hostContext).url)
+
+          RedirectToOptInPage(
           service,
-          routes.ChoosePaperlessController.redirectToDisplayServiceFormWithCohort(service, None, hostContext).url)
+          routes.ChoosePaperlessController.redirectToDisplayFormWithCohort(None, hostContext).url)
       )
       case (_, Seq(singlePaperlessPreference), Some(taxIdToAutoEnrolToDefault)) =>
         preferenceConnector.autoEnrol(singlePaperlessPreference, taxIdToAutoEnrolToDefault.name, taxIdToAutoEnrolToDefault.value, "default").map { _ =>

@@ -22,7 +22,10 @@ class PreferenceResolverISpec extends PreferencesFrontEndServer with EmailSuppor
       "be redirected to the default optIn page" in new TestCaseWithFrontEndAuthentication {
         val response = `/paperless/:service/activate`(serviceToLoginOnPtaBta)(asNinoOnlyUser).put().futureValue
         response.status should be(PRECONDITION_FAILED)
-        (response.json \ "redirectUserTo").as[String] should be(s"http://localhost:9024/paperless/default/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
+
+        //        TODO: DC-970: Disabled for production and the user will optIn from the old form
+        //(response.json \ "redirectUserTo").as[String] should be(s"http://localhost:9024/paperless/default/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
+        (response.json \ "redirectUserTo").as[String] should be(s"http://localhost:9024/paperless/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
       }
     }
 
@@ -41,7 +44,9 @@ class PreferenceResolverISpec extends PreferencesFrontEndServer with EmailSuppor
         response.status should be(PRECONDITION_FAILED)
 
         // Do we prepopulate the email address?
-        (response.json \ "redirectUserTo").as[String] should be(s"http://localhost:9024/paperless/default/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
+        //        TODO: DC-970: Disabled for production and the user will optIn from the old form
+        //(response.json \ "redirectUserTo").as[String] should be(s"http://localhost:9024/paperless/default/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
+        (response.json \ "redirectUserTo").as[String] should be(s"http://localhost:9024/paperless/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
       }
     }
 
@@ -49,7 +54,10 @@ class PreferenceResolverISpec extends PreferencesFrontEndServer with EmailSuppor
       "be redirected to the default optIn page" in new TestCaseWithFrontEndAuthentication {
         val response = `/paperless/:service/activate`(serviceToLoginOnPtaBta)(asSaUtrOnlyUser).put().futureValue
         response.status should be(PRECONDITION_FAILED)
-        (response.json \ "redirectUserTo").as[String] should be(s"http://localhost:9024/paperless/default/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
+
+        //        TODO: DC-970: Disabled for production and the user will optIn from the old form
+        //(response.json \ "redirectUserTo").as[String] should be(s"http://localhost:9024/paperless/default/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
+        (response.json \ "redirectUserTo").as[String] should be(s"http://localhost:9024/paperless/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
       }
     }
 
@@ -65,7 +73,11 @@ class PreferenceResolverISpec extends PreferencesFrontEndServer with EmailSuppor
       "be redirected to the default optIn page when he logs in as SaUtr" in new TestCaseWithFrontEndAuthentication {
         val response = `/paperless/:service/activate`(serviceToLoginOnPtaBta)(asNinoSaUtrUser).put().futureValue
         response.status should be(PRECONDITION_FAILED)
-        (response.json \ "redirectUserTo").as[String] should be(s"http://localhost:9024/paperless/default/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
+
+        //        TODO: DC-970: Disabled for production and the user will optIn from the old form
+        //(response.json \ "redirectUserTo").as[String] should be(s"http://localhost:9024/paperless/default/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
+        (response.json \ "redirectUserTo").as[String] should be(s"http://localhost:9024/paperless/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
+
       }
     }
 
@@ -110,7 +122,10 @@ class PreferenceResolverISpec extends PreferencesFrontEndServer with EmailSuppor
         `/preferences/:taxIdName/:taxId/:service`(taxCreditsService, nino)(asNinoSaUtrUser).put().futureValue
         val response = `/paperless/:service/activate`(serviceToLoginOnPtaBta)(asNinoSaUtrUser).put().futureValue
         response.status should be(PRECONDITION_FAILED)
-        (response.json \ "redirectUserTo").as[String] should be(s"http://localhost:9024/paperless/default/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
+
+        //        TODO: DC-970: Disabled for production and the user will optIn from the old form
+        //(response.json \ "redirectUserTo").as[String] should be(s"http://localhost:9024/paperless/default/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
+        (response.json \ "redirectUserTo").as[String] should be(s"http://localhost:9024/paperless/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
       }
     }
   }
@@ -131,7 +146,10 @@ class PreferenceResolverISpec extends PreferencesFrontEndServer with EmailSuppor
       "be redirected to the taxCredits optIn page" in new TestCaseWithFrontEndAuthentication {
         val response = `/paperless/:service/activate`(serviceToLoginOnTaxCredits)(asNinoOnlyUser).put().futureValue
         response.status should be(PRECONDITION_FAILED)
-        (response.json \ "redirectUserTo").as[String] should be(s"http://localhost:9024/paperless/taxCredits/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
+
+        //        TODO: DC-970: Disabled for production and the user will optIn from the old form
+        //(response.json \ "redirectUserTo").as[String] should be(s"http://localhost:9024/paperless/taxCredits/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
+        (response.json \ "redirectUserTo").as[String] should be(s"http://localhost:9024/paperless/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
       }
     }
 
@@ -143,7 +161,9 @@ class PreferenceResolverISpec extends PreferencesFrontEndServer with EmailSuppor
         response.status should be(PRECONDITION_FAILED)
 
         // Do we prepopulate the email address?
-        (response.json \ "redirectUserTo").as[String] should be(s"http://localhost:9024/paperless/taxCredits/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
+        //        TODO: DC-970: Disabled for production and the user will optIn from the old form
+        //(response.json \ "redirectUserTo").as[String] should be(s"http://localhost:9024/paperless/taxCredits/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
+        (response.json \ "redirectUserTo").as[String] should be(s"http://localhost:9024/paperless/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
       }
     }
 
@@ -170,7 +190,10 @@ class PreferenceResolverISpec extends PreferencesFrontEndServer with EmailSuppor
       "be redirected to the taxCredits optIn page" in new TestCaseWithFrontEndAuthentication {
         val response = `/paperless/:service/activate`(serviceToLoginOnTaxCredits)(asNinoSaUtrUser).put().futureValue
         response.status should be(PRECONDITION_FAILED)
-        (response.json \ "redirectUserTo").as[String] should be(s"http://localhost:9024/paperless/taxCredits/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
+
+        //        TODO: DC-970: Disabled for production and the user will optIn from the old form
+        //(response.json \ "redirectUserTo").as[String] should be(s"http://localhost:9024/paperless/taxCredits/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
+        (response.json \ "redirectUserTo").as[String] should be(s"http://localhost:9024/paperless/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
       }
     }
 
@@ -182,7 +205,10 @@ class PreferenceResolverISpec extends PreferencesFrontEndServer with EmailSuppor
         val response = `/paperless/:service/activate`(serviceToLoginOnTaxCredits)(asNinoSaUtrUser).put().futureValue
 
         response.status should be(PRECONDITION_FAILED)
-        (response.json \ "redirectUserTo").as[String] should be(s"http://localhost:9024/paperless/taxCredits/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
+
+        //        TODO: DC-970: Disabled for production and the user will optIn from the old form
+        //(response.json \ "redirectUserTo").as[String] should be(s"http://localhost:9024/paperless/taxCredits/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
+        (response.json \ "redirectUserTo").as[String] should be(s"http://localhost:9024/paperless/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
       }
     }
 
@@ -195,7 +221,10 @@ class PreferenceResolverISpec extends PreferencesFrontEndServer with EmailSuppor
         val response = `/paperless/:service/activate`(serviceToLoginOnTaxCredits)(asNinoSaUtrUser).put().futureValue
 
         response.status should be(PRECONDITION_FAILED)
-        (response.json \ "redirectUserTo").as[String] should be(s"http://localhost:9024/paperless/taxCredits/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
+
+        //        TODO: DC-970: Disabled for production and the user will optIn from the old form
+        //(response.json \ "redirectUserTo").as[String] should be(s"http://localhost:9024/paperless/taxCredits/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
+        (response.json \ "redirectUserTo").as[String] should be(s"http://localhost:9024/paperless/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
       }
     }
 
@@ -208,7 +237,10 @@ class PreferenceResolverISpec extends PreferencesFrontEndServer with EmailSuppor
         val response = `/paperless/:service/activate`(serviceToLoginOnTaxCredits)(asNinoSaUtrUser).put().futureValue
 
         response.status should be(PRECONDITION_FAILED)
-        (response.json \ "redirectUserTo").as[String] should be(s"http://localhost:9024/paperless/taxCredits/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
+
+        //        TODO: DC-970: Disabled for production and the user will optIn from the old form
+        //(response.json \ "redirectUserTo").as[String] should be(s"http://localhost:9024/paperless/taxCredits/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
+        (response.json \ "redirectUserTo").as[String] should be(s"http://localhost:9024/paperless/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
       }
     }
 

@@ -22,7 +22,42 @@ object ActivationController extends ActivationController with ServiceActivationC
 
   val authConnector: auth.connectors.AuthConnector = AuthConnector
 
-  val activationService: PaperlessActivateService =  PaperlessActivateService
+  val activationService: PaperlessActivateService = PaperlessActivateService
+
+  def paperlessPreference(hostContext: HostContext, service: String) = authenticated.async {
+    implicit authContext =>
+      implicit request => {
+
+        def newActivationFlow = () => activationService.paperlessPreference(hostContext, service).map {
+          case UnAuthorised => Unauthorized
+          case RedirectToOptInPage(service, url) =>
+            PreconditionFailed(Json.obj("redirectUserTo" -> (hostUrl + url)))
+          case PreferenceFound | UserAutoEnrol(_, _) => Ok(Json.obj())
+        }
+
+        val oldActivationFlow = () => _preferencesStatus(hostContext)
+        val activate: Seq[() => Future[Result]] = Seq(
+          oldActivationFlow,
+          newActivationFlow
+        )
+
+        def conditionalFold(seq: Seq[() => Future[Result]], keepFolding: Result => Boolean): Future[Result] = {
+          seq match {
+            case head :: Nil => head()
+            case head :: tail => {
+              head().flatMap {
+                case result if keepFolding(result) => conditionalFold(tail, keepFolding)
+                case result => conditionalFold(Seq(() => Future.successful(result)), keepFolding)
+              }
+            }
+          }
+        }
+
+        val continueIfPreconditionFailed : Result => Boolean = result => result.header.status == PRECONDITION_FAILED
+
+        conditionalFold(activate, continueIfPreconditionFailed)
+      }
+  }
 }
 
 trait ServiceActivationController extends FrontendController with Actions with AppName with Authentication {
@@ -30,18 +65,6 @@ trait ServiceActivationController extends FrontendController with Actions with A
   val activationService: PaperlessActivateService
 
   val hostUrl: String
-
-  def paperlessPreference(hostContext: HostContext, service: String) = authenticated.async {
-    implicit authContext =>
-      implicit request => {
-        activationService.paperlessPreference(hostContext, service).map {
-          case UnAuthorised => Unauthorized
-          case RedirectToOptInPage(service, url) =>
-            PreconditionFailed(Json.obj("redirectUserTo" -> (hostUrl + url)))
-          case PreferenceFound | UserAutoEnrol(_, _) => Ok(Json.obj())
-        }
-      }
-  }
 }
 
 trait ActivationController extends FrontendController with Actions with AppName with Authentication {
@@ -62,7 +85,7 @@ trait ActivationController extends FrontendController with Actions with AppName 
         _preferencesStatus(hostContext)
   }
 
-  private def _preferencesStatus(hostContext: HostContext)(implicit hc: HeaderCarrier): Future[Result] = {
+  def _preferencesStatus(hostContext: HostContext)(implicit hc: HeaderCarrier): Future[Result] = {
 
     def isEmailVerified(emailPreference: Option[SaEmailPreference]) = {
       emailPreference.fold(false)(preference => (preference.status match {
