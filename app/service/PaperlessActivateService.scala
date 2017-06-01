@@ -1,11 +1,11 @@
 package service
 
-import connectors.{AuthConnector, PreferencesConnector}
+import connectors.{AuthConnector, PaperlessPreference, PreferencesConnector}
 import controllers.internal.routes
 import model.HostContext
 import uk.gov.hmrc.domain.TaxIds.TaxIdWithName
 import uk.gov.hmrc.play.frontend.auth
-import uk.gov.hmrc.play.http.HeaderCarrier
+import uk.gov.hmrc.play.http.{HeaderCarrier, NotImplementedException}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -18,15 +18,19 @@ trait PaperlessActivateService {
 
   def paperlessPreference(hostContext: HostContext, service: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[ActivateResponse] = {
 
+    def autoEnrolTaxId(serviceToAutoEnrol: String, taxIdWithMaybePaperlessPreference: Seq[(TaxIdWithName, Option[PaperlessPreference])]): Option[TaxIdWithName] = {
+      taxIdWithMaybePaperlessPreference.collect {
+        case (taxId, None) if serviceToAutoEnrol == "default" => taxId
+      }.headOption
+    }
+
     val servicesForAuthTaxIds = for {
       authTaxIds <- authorityConnector.currentTaxIdentifiers
       taxIdWithMaybePaperlessPreference <- Future.traverse(authTaxIds.toSeq) { taxId => preferenceConnector.getPreferencesStatus(taxId.name, taxId.value).map(f => taxId -> f) }
     } yield {
 
       val missingTaxIds = authTaxIds.isEmpty
-      val maybeTaxIdToAutoEnrolToDefault = taxIdWithMaybePaperlessPreference.collect {
-        case (taxId, None) if service == "default" => taxId
-      }.headOption
+      val maybeTaxIdToAutoEnrolToService = autoEnrolTaxId(service, taxIdWithMaybePaperlessPreference)
 
       val preferencesHavingService = for {
         (taxId, maybePreference) <- taxIdWithMaybePaperlessPreference
@@ -34,18 +38,18 @@ trait PaperlessActivateService {
         preferenceContainingService <- paperlessPreference.services.get(service).map(_ => paperlessPreference)
       } yield (preferenceContainingService)
 
-      (missingTaxIds, preferencesHavingService, maybeTaxIdToAutoEnrolToDefault)
+      (missingTaxIds, preferencesHavingService, maybeTaxIdToAutoEnrolToService)
     }
 
     servicesForAuthTaxIds.flatMap {
       case (missingTaxIds, _, _) if missingTaxIds => Future.successful(UnAuthorised)
       case (_, foundPreferences, _) if foundPreferences.isEmpty => Future.successful(
-//        TODO: DC-970: Disabled for production and the user will optIn from the old form
-//        RedirectToOptInPage(
-//          service,
-//          routes.ChoosePaperlessController.redirectToDisplayServiceFormWithCohort(service, None, hostContext).url)
+        //        TODO: DC-970: Disabled for production and the user will optIn from the old form
+        //        RedirectToOptInPage(
+        //          service,
+        //          routes.ChoosePaperlessController.redirectToDisplayServiceFormWithCohort(service, None, hostContext).url)
 
-          RedirectToOptInPage(
+        RedirectToOptInPage(
           service,
           routes.ChoosePaperlessController.redirectToDisplayFormWithCohort(None, hostContext).url)
       )
@@ -56,6 +60,7 @@ trait PaperlessActivateService {
       case _ => Future.successful(PreferenceFound)
     }
   }
+
 }
 
 trait ActivateResponse
@@ -69,7 +74,7 @@ case object PreferenceFound extends ActivateResponse
 case object UnAuthorised extends ActivateResponse
 
 
-object PaperlessActivateService extends PaperlessActivateService{
+object PaperlessActivateService extends PaperlessActivateService {
 
   lazy val authorityConnector: AuthConnector = AuthConnector
 

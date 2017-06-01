@@ -9,7 +9,7 @@ import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.OneAppPerSuite
 import uk.gov.hmrc.domain.TaxIds.TaxIdWithName
 import uk.gov.hmrc.domain.{Nino, SaUtr}
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpGet, HttpPost, HttpPut}
+import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global

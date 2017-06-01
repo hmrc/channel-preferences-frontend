@@ -7,14 +7,14 @@ import play.api.libs.json.Json
 import play.api.mvc.Result
 import service._
 import uk.gov.hmrc.play.config.AppName
-import uk.gov.hmrc.play.frontend.auth
 import uk.gov.hmrc.play.frontend.auth.Actions
 import uk.gov.hmrc.play.frontend.controller.FrontendController
+import uk.gov.hmrc.play.frontend.{auth, controller}
 import uk.gov.hmrc.play.http.HeaderCarrier
 
 import scala.concurrent.Future
 
-object ActivationController extends ActivationController with ServiceActivationController {
+object ActivationController extends ServiceActivationController {
 
   val entityResolverConnector: EntityResolverConnector = EntityResolverConnector
 
@@ -23,51 +23,9 @@ object ActivationController extends ActivationController with ServiceActivationC
   val authConnector: auth.connectors.AuthConnector = AuthConnector
 
   val activationService: PaperlessActivateService = PaperlessActivateService
-
-  def paperlessPreference(hostContext: HostContext, service: String) = authenticated.async {
-    implicit authContext =>
-      implicit request => {
-
-        def newActivationFlow = () => activationService.paperlessPreference(hostContext, service).map {
-          case UnAuthorised => Unauthorized
-          case RedirectToOptInPage(service, url) =>
-            PreconditionFailed(Json.obj("redirectUserTo" -> (hostUrl + url)))
-          case PreferenceFound | UserAutoEnrol(_, _) => Ok(Json.obj())
-        }
-
-        val oldActivationFlow = () => _preferencesStatus(hostContext)
-        val activate: Seq[() => Future[Result]] = Seq(
-          oldActivationFlow,
-          newActivationFlow
-        )
-
-        def conditionalFold(seq: Seq[() => Future[Result]], keepFolding: Result => Boolean): Future[Result] = {
-          seq match {
-            case head :: Nil => head()
-            case head :: tail => {
-              head().flatMap {
-                case result if keepFolding(result) => conditionalFold(tail, keepFolding)
-                case result => conditionalFold(Seq(() => Future.successful(result)), keepFolding)
-              }
-            }
-          }
-        }
-
-        val continueIfPreconditionFailed : Result => Boolean = result => result.header.status == PRECONDITION_FAILED
-
-        conditionalFold(activate, continueIfPreconditionFailed)
-      }
-  }
 }
 
-trait ServiceActivationController extends FrontendController with Actions with AppName with Authentication {
-
-  val activationService: PaperlessActivateService
-
-  val hostUrl: String
-}
-
-trait ActivationController extends FrontendController with Actions with AppName with Authentication {
+trait ActivationController extends controller.FrontendController with Actions with AppName with Authentication {
 
   def entityResolverConnector: EntityResolverConnector
 
@@ -107,5 +65,51 @@ trait ActivationController extends FrontendController with Actions with AppName 
         PreconditionFailed(Json.obj("redirectUserTo" -> redirectUrl))
       case Left(status) => Status(status)
     }
+  }
+}
+
+
+trait ServiceActivationController extends ActivationController with FrontendController with Actions with AppName with Authentication {
+
+  def activationService: PaperlessActivateService
+
+  def paperlessStatusFor(hostContext: HostContext, service: String) = authenticated.async {
+    implicit authContext =>
+      implicit request => {
+        checkPreferenceActivationFlows(hostContext, service)
+      }
+  }
+
+  def checkPreferenceActivationFlows(hostContext: HostContext, service: String)(implicit headerCarrier: HeaderCarrier) = {
+
+    def preferenceFlow = () => activationService.paperlessPreference(hostContext, service).map {
+      case UnAuthorised => Unauthorized
+      case RedirectToOptInPage(service, url) =>
+        PreconditionFailed(Json.obj("redirectUserTo" -> (hostUrl + url)))
+      case PreferenceFound | UserAutoEnrol(_, _) => Ok(Json.obj())
+    }
+
+    val entityResolverFlow = () => _preferencesStatus(hostContext)
+
+    val activationFlows: Seq[() => Future[Result]] = Seq(
+      entityResolverFlow,
+      preferenceFlow // DC-970 calls directly preference
+    )
+
+    def conditionalFold(seq: Seq[() => Future[Result]], keepFolding: Result => Boolean): Future[Result] = {
+      seq match {
+        case head :: Nil => head()
+        case head :: tail => {
+          head().flatMap {
+            case result if keepFolding(result) => conditionalFold(tail, keepFolding)
+            case result => conditionalFold(Seq(() => Future.successful(result)), keepFolding)
+          }
+        }
+      }
+    }
+
+    val continueIfPreconditionFailed: Result => Boolean = result => result.header.status == PRECONDITION_FAILED
+
+    conditionalFold(activationFlows, continueIfPreconditionFailed)
   }
 }

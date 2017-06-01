@@ -4,12 +4,13 @@ import config.ServicesCircuitBreaker
 import play.api.http.Status
 import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.play.config.ServicesConfig
+import uk.gov.hmrc.play.config.RunMode
 import uk.gov.hmrc.play.http._
 
 import scala.concurrent.{ExecutionContext, Future}
 
 
-trait PreferencesConnector extends Status with ServicesCircuitBreaker {
+trait PreferencesConnector extends Status with ServicesCircuitBreaker with RunMode {
 
   this: ServicesConfig =>
 
@@ -28,6 +29,10 @@ trait PreferencesConnector extends Status with ServicesCircuitBreaker {
   }
 
   def autoEnrol(preference: PaperlessPreference, taxIdName: String, taxId: String, service: String)(implicit headerCarrier: HeaderCarrier, ec: ExecutionContext): Future[Unit] = {
+
+    // DC-970 - Feature disabled in Production as backend is not ready
+    if(mode == play.api.Mode.Prod) throw new NotImplementedException(s"AutoOptIn functionality was called for $taxIdName: $taxId, for service $service")
+
     val maybeBody: Option[JsObject] = for {
       currentEmail <- preference.email
       defaultService <- preference.services.get(service)
