@@ -18,9 +18,9 @@ trait PaperlessActivateService {
 
   def paperlessPreference(hostContext: HostContext, service: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[ActivateResponse] = {
 
-    def autoEnrolTaxId(serviceToAutoEnrol: String, taxIdWithMaybePaperlessPreference: Seq[(TaxIdWithName, Option[PaperlessPreference])]): Option[TaxIdWithName] = {
+    def autoOptInTaxId(serviceToAutoOptIn: String, taxIdWithMaybePaperlessPreference: Seq[(TaxIdWithName, Option[PaperlessPreference])]): Option[TaxIdWithName] = {
       taxIdWithMaybePaperlessPreference.collect {
-        case (taxId, None) if serviceToAutoEnrol == "default" => taxId
+        case (taxId, None) if serviceToAutoOptIn == "default" => taxId
       }.headOption
     }
 
@@ -30,7 +30,7 @@ trait PaperlessActivateService {
     } yield {
 
       val missingTaxIds = authTaxIds.isEmpty
-      val maybeTaxIdToAutoEnrolToService = autoEnrolTaxId(service, taxIdWithMaybePaperlessPreference)
+      val maybeTaxIdToAutoOptInToService = autoOptInTaxId(service, taxIdWithMaybePaperlessPreference)
 
       val preferencesHavingService = for {
         (taxId, maybePreference) <- taxIdWithMaybePaperlessPreference
@@ -38,7 +38,7 @@ trait PaperlessActivateService {
         preferenceContainingService <- paperlessPreference.services.get(service).map(_ => paperlessPreference)
       } yield (preferenceContainingService)
 
-      (missingTaxIds, preferencesHavingService, maybeTaxIdToAutoEnrolToService)
+      (missingTaxIds, preferencesHavingService, maybeTaxIdToAutoOptInToService)
     }
 
     servicesForAuthTaxIds.flatMap {
@@ -53,9 +53,9 @@ trait PaperlessActivateService {
           service,
           routes.ChoosePaperlessController.redirectToDisplayFormWithCohort(None, hostContext).url)
       )
-      case (_, Seq(singlePaperlessPreference), Some(taxIdToAutoEnrolToDefault)) =>
-        preferenceConnector.autoEnrol(singlePaperlessPreference, taxIdToAutoEnrolToDefault.name, taxIdToAutoEnrolToDefault.value, "default").map { _ =>
-          UserAutoEnrol(taxIdToAutoEnrolToDefault, service)
+      case (_, Seq(singlePaperlessPreference), Some(taxIdToAutoOptInToDefault)) =>
+        preferenceConnector.autoOptIn(singlePaperlessPreference, taxIdToAutoOptInToDefault.name, taxIdToAutoOptInToDefault.value, "default").map { _ =>
+          UserAutoOptIn(taxIdToAutoOptInToDefault, service)
         }
       case _ => Future.successful(PreferenceFound)
     }
@@ -67,7 +67,7 @@ trait ActivateResponse
 
 case class RedirectToOptInPage(service: String, url: String) extends ActivateResponse
 
-case class UserAutoEnrol(to: TaxIdWithName, service: String) extends ActivateResponse
+case class UserAutoOptIn(to: TaxIdWithName, service: String) extends ActivateResponse
 
 case object PreferenceFound extends ActivateResponse
 

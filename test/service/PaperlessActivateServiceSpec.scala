@@ -32,12 +32,12 @@ class PaperlessActivateServiceSpec extends UnitSpec with ScalaFutures with OneAp
         RedirectToOptInPage("taxCredit", "/paperless/choose?returnUrl=7bHIREJ6fizedcIK4IwOVw%3D%3D&returnLinkText=1wDSitF2l%2F0HsWw3huU5nQ%3D%3D")
     }
 
-    "Return the UserAutoEnrol when there is an saUtr preference and not a Nino one if service is default" in new TestCase {
+    "Return the UserAutoOptIn when there is an saUtr preference and not a Nino one if service is default" in new TestCase {
       val service: PaperlessActivateService = createService(saPaperlessPreferenceForDefaultService)(sautr, nino)
-      service.paperlessPreference(HostContext("returnUrl", "returnLinkText"), "default").futureValue shouldBe UserAutoEnrol(nino, "default")
+      service.paperlessPreference(HostContext("returnUrl", "returnLinkText"), "default").futureValue shouldBe UserAutoOptIn(nino, "default")
     }
 
-    "Return the PreferenceFound for TaxCredits when there is an Nino preference for TaxCredits and don't auto enrol the user to Nino default" in new TestCase {
+    "Return the PreferenceFound for TaxCredits when there is an Nino preference for TaxCredits and don't auto optIn the user to Nino default" in new TestCase {
 
       val preferenceMap = Map(
         sautr -> Future.successful(Some(PaperlessPreference(Map("default" -> PaperlessService(true, "genericTerms")), None))),
@@ -49,7 +49,7 @@ class PaperlessActivateServiceSpec extends UnitSpec with ScalaFutures with OneAp
       taxCreditsPreferenceResponse shouldBe PreferenceFound
     }
 
-    "Return the AutoEnrol for saUtr and Default service when there is an Nino preference for TaxCredits and Default but not for SaUtr " in new TestCase {
+    "Return the AutoOptIn for saUtr and Default service when there is an Nino preference for TaxCredits and Default but not for SaUtr " in new TestCase {
 
       val preferenceMap = Map(
         nino -> Future.successful(
@@ -62,7 +62,7 @@ class PaperlessActivateServiceSpec extends UnitSpec with ScalaFutures with OneAp
 
       val service: PaperlessActivateService = createService(preferenceMap)(sautr, nino)
       val defaultPreferenceResponse = service.paperlessPreference(HostContext("returnUrl", "returnLinkText"), "default").futureValue
-      defaultPreferenceResponse shouldBe UserAutoEnrol(sautr, "default")
+      defaultPreferenceResponse shouldBe UserAutoOptIn(sautr, "default")
     }
 
     "Return Unauthorised if there are no saUtr or Nino tax identifiers associated to the user in the Auth record" in new TestCase {
@@ -114,7 +114,7 @@ class PaperlessActivateServiceSpec extends UnitSpec with ScalaFutures with OneAp
       when(preferencesConnectorMock.getPreferencesStatus(argEq(sautr.name), argEq(sautr.value))(any())).thenReturn(preferences.get(sautr).getOrElse(Future.successful(None)))
       when(preferencesConnectorMock.getPreferencesStatus(argEq(nino.name), argEq(nino.value))(any())).thenReturn(preferences.get(nino).getOrElse(Future.successful(None)))
 
-      when(preferencesConnectorMock.autoEnrol(any(), any(), any(), any())(any(), any())).thenReturn((): Unit)
+      when(preferencesConnectorMock.autoOptIn(any(), any(), any(), any())(any(), any())).thenReturn((): Unit)
       preferencesConnectorMock
     }
   }

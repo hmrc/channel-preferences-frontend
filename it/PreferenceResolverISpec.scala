@@ -91,7 +91,7 @@ class PreferenceResolverISpec extends PreferencesFrontEndServer with EmailSuppor
     }
 
     "a SaUtr and Nino user logs in with SaUtr preference only" should {
-      "be auto enrolled as nino user to default service when he logs in" in new TestCaseWithFrontEndAuthentication {
+      "be auto optedIn as nino user to default service when he logs in" in new TestCaseWithFrontEndAuthentication {
         `/preferences/:taxIdName/:taxId/:service`(defaultService, utr)(asSaUtrOnlyUser).put().futureValue
         `/preferences/:taxIdName/:taxIdValue`(utr)(asNinoSaUtrUser).get().futureValue.status shouldBe Status.OK
         `/preferences/:taxIdName/:taxIdValue`(nino)(asNinoSaUtrUser).get().futureValue.status shouldBe Status.NOT_FOUND
@@ -105,7 +105,7 @@ class PreferenceResolverISpec extends PreferencesFrontEndServer with EmailSuppor
     }
 
     "a SaUtr and Nino user logs in with Nino preference only for default" should {
-      "be auto enrolled as SaUtr user to default service" in new TestCaseWithFrontEndAuthentication {
+      "be auto optedIn as SaUtr user to default service" in new TestCaseWithFrontEndAuthentication {
         `/preferences/:taxIdName/:taxId/:service`(defaultService, nino)(asNinoOnlyUser).put().futureValue
         `/preferences/:taxIdName/:taxIdValue`(nino)(asNinoSaUtrUser).get().futureValue.status shouldBe Status.OK
         `/preferences/:taxIdName/:taxIdValue`(utr)(asNinoSaUtrUser).get().futureValue.status shouldBe Status.NOT_FOUND

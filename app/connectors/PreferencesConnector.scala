@@ -28,7 +28,7 @@ trait PreferencesConnector extends Status with ServicesCircuitBreaker with RunMo
     }
   }
 
-  def autoEnrol(preference: PaperlessPreference, taxIdName: String, taxId: String, service: String)(implicit headerCarrier: HeaderCarrier, ec: ExecutionContext): Future[Unit] = {
+  def autoOptIn(preference: PaperlessPreference, taxIdName: String, taxId: String, service: String)(implicit headerCarrier: HeaderCarrier, ec: ExecutionContext): Future[Unit] = {
 
     // DC-970 - Feature disabled in Production as backend is not ready
     if(mode == play.api.Mode.Prod) throw new NotImplementedException(s"AutoOptIn functionality was called for $taxIdName: $taxId, for service $service")

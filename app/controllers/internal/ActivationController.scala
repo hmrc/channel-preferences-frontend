@@ -86,7 +86,7 @@ trait ServiceActivationController extends ActivationController with FrontendCont
       case UnAuthorised => Unauthorized
       case RedirectToOptInPage(service, url) =>
         PreconditionFailed(Json.obj("redirectUserTo" -> (hostUrl + url)))
-      case PreferenceFound | UserAutoEnrol(_, _) => Ok(Json.obj())
+      case PreferenceFound | UserAutoOptIn(_, _) => Ok(Json.obj())
     }
 
     val entityResolverFlow = () => _preferencesStatus(hostContext)
