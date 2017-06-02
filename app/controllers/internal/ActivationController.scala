@@ -73,6 +73,12 @@ trait ServiceActivationController extends ActivationController with FrontendCont
 
   def activationService: PaperlessActivateService
 
+  override def legacyPreferencesStatus(formType: FormType, taxIdentifier: String, hostContext: HostContext) = authenticated.async {
+    implicit authContext =>
+      implicit request =>
+        checkPreferenceActivationFlows(hostContext, "default")
+  }
+
   def paperlessStatusFor(hostContext: HostContext, service: String) = authenticated.async {
     implicit authContext =>
       implicit request => {
