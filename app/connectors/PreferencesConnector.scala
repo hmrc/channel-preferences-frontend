@@ -1,6 +1,7 @@
 package connectors
 
 import config.ServicesCircuitBreaker
+import play.api.Logger
 import play.api.http.Status
 import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.play.config.ServicesConfig
@@ -31,7 +32,12 @@ trait PreferencesConnector extends Status with ServicesCircuitBreaker with RunMo
   def autoOptIn(preference: PaperlessPreference, taxIdName: String, taxId: String, service: String)(implicit headerCarrier: HeaderCarrier, ec: ExecutionContext): Future[Unit] = {
 
     // DC-970 - Feature disabled in Production as backend is not ready
-    if(mode == play.api.Mode.Prod) throw new NotImplementedException(s"AutoOptIn functionality was called for $taxIdName: $taxId, for service $service")
+    if(mode == play.api.Mode.Prod) {
+      // In Prod this feature shouldn't be called.
+      Logger.warn(s"AutoOptIn functionality was called for $taxIdName: $taxId, for service $service")
+      // If that happens, we return success in order to continue
+      return Future.successful((): Unit)
+    }
 
     val maybeBody: Option[JsObject] = for {
       currentEmail <- preference.email
