@@ -3,11 +3,10 @@ import java.util.UUID
 
 import play.api.Application
 import play.api.libs.json.Json
-import play.api.libs.ws._
+import play.api.libs.ws.{WS, WSAPI, WSClient, WSRequest}
 import play.api.mvc.Results.EmptyContent
 import uk.gov.hmrc.crypto.ApplicationCrypto._
 import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
-import uk.gov.hmrc.domain.TaxIds.TaxIdWithName
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.it.{ExternalService, ExternalServiceRunner, MicroServiceEmbeddedServer, ServiceSpec}
@@ -15,8 +14,6 @@ import uk.gov.hmrc.test.it.{AuthorityBuilder, CanCreateAuthority}
 import uk.gov.hmrc.time.DateTimeUtils
 import views.sa.prefs.helpers.DateFormat
 
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 
 trait TestUser {
@@ -168,7 +165,7 @@ trait PreferencesFrontEndServer extends ServiceSpec {
 
     implicit val hc = HeaderCarrier()
 
-    override def httpClient: WSClient = current.injector.instanceOf[WSClient]
+    override def httpClient: WSClient = WS.client
 
     def authResource(path: String) = server.externalResource("auth", path)
 
@@ -196,12 +193,9 @@ trait PreferencesFrontEndServer extends ServiceSpec {
     val encryptedReturnUrl = URLEncoder.encode(QueryParameterCrypto.encrypt(PlainText(returnUrl)).value, "UTF-8")
     val encryptedReturnText = URLEncoder.encode(QueryParameterCrypto.encrypt(PlainText(returnLinkText)).value, "UTF-8")
 
-    val asNinoSaUtrUser: Seq[TaxIdentifier] = Seq(nino,utr)
-    val asNinoOnlyUser: Seq[TaxIdentifier] = Seq(nino)
-    val asSaUtrOnlyUser: Seq[TaxIdentifier] = Seq(utr)
 
-    def `/paperless/activate`(userAuthTaxIdentifiers: Seq[TaxIdentifier]) = new {
-      val builder = authBuilderFrom(userAuthTaxIdentifiers: _*)
+    def `/paperless/activate`(taxIdentifiers: TaxIdentifier*) = new {
+      val builder = authBuilderFrom(taxIdentifiers: _*)
 
       private val url = call(server.localResource("/paperless/activate"))
         .withHeaders(builder.bearerTokenHeader(), builder.sessionCookie())
@@ -215,52 +209,5 @@ trait PreferencesFrontEndServer extends ServiceSpec {
       def put() = url.put(formTypeBody)
     }
 
-    def `/paperless/:service/activate`(service: String)(userAuthTaxIdentifiers: Seq[TaxIdentifier]) = new {
-      val builder = authBuilderFrom(userAuthTaxIdentifiers: _*)
-
-      private val url = call(server.localResource(s"/paperless/$service/activate"))
-        .withHeaders(builder.bearerTokenHeader(), builder.sessionCookie())
-        .withQueryString(
-          "returnUrl" -> QueryParameterCrypto.encrypt(PlainText(returnUrl)).value,
-          "returnLinkText" -> QueryParameterCrypto.encrypt(PlainText(returnLinkText)).value
-        )
-
-      private val formTypeBody = Json.parse("""{"active":true}""")
-
-      def put() = url.put(formTypeBody)
-    }
-
-    def `/preferences/:taxIdName/:taxId/:service`(service: String, taxId: TaxIdWithName)(userAuthTaxIdentifiers: Seq[TaxIdentifier]) = new {
-      val builder = authBuilderFrom(userAuthTaxIdentifiers: _*)
-
-      val url = call(server.externalResource("preferences", s"/preferences/${taxId.name}/${taxId.value}/$service"))
-          .withHeaders(builder.bearerTokenHeader(), builder.sessionCookie())
-
-      def put() = url.put(
-        Json.parse(
-          s"""
-             |{
-             |	"paperless": {
-             |    "terms":"serviceTerms",
-             |	  "optedIn":true
-             |   },
-             |	"emailAddress":"ab@a.com"
-             |}
-         """.stripMargin)
-      )
-    }
-
-    def `/preferences/:taxIdName/:taxIdValue`(taxId: TaxIdWithName)(userAuthTaxIdentifiers: Seq[TaxIdentifier]) = new {
-      val builder = authBuilderFrom(userAuthTaxIdentifiers: _*)
-
-      val url = call(server.externalResource("preferences", s"/preferences/${taxId.name}/${taxId.value}"))
-        .withHeaders(builder.bearerTokenHeader(), builder.sessionCookie())
-
-      def get(service: String) : Future[Boolean] = get.map{
-        res => (res.json  \ "services" \ service).toOption.isDefined
-      }
-
-      def get(): Future[WSResponse] = url.get()
-    }
   }
 }

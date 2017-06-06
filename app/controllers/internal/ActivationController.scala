@@ -1,49 +1,42 @@
 package controllers.internal
 
-import connectors._
+import config.Global
+import connectors.{EntityResolverConnector, SaEmailPreference, SaPreference}
 import controllers.{Authentication, ExternalUrlPrefixes}
 import model.{FormType, HostContext}
 import play.api.libs.json.Json
-import play.api.mvc.Result
-import service._
 import uk.gov.hmrc.play.config.AppName
 import uk.gov.hmrc.play.frontend.auth.Actions
+import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 import uk.gov.hmrc.play.frontend.controller.FrontendController
-import uk.gov.hmrc.play.frontend.{auth, controller}
 import uk.gov.hmrc.play.http.HeaderCarrier
 
-import scala.concurrent.Future
+object ActivationController extends ActivationController {
 
-object ActivationController extends ServiceActivationController {
+  override val entityResolverConnector: EntityResolverConnector = EntityResolverConnector
 
-  val entityResolverConnector: EntityResolverConnector = EntityResolverConnector
+  override protected implicit val authConnector: AuthConnector = Global.authConnector
 
   val hostUrl = ExternalUrlPrefixes.pfUrlPrefix
-
-  val authConnector: auth.connectors.AuthConnector = AuthConnector
-
-  val activationService: PaperlessActivateService = PaperlessActivateService
 }
 
-trait ActivationController extends controller.FrontendController with Actions with AppName with Authentication {
+trait ActivationController extends FrontendController with Actions with AppName with Authentication {
 
   def entityResolverConnector: EntityResolverConnector
 
   val hostUrl: String
 
   def preferencesStatus(hostContext: HostContext) = authenticated.async {
-    implicit authContext =>
-      implicit request =>
-        _preferencesStatus(hostContext)
+    implicit authContext => implicit request =>
+      _preferencesStatus(hostContext)
   }
 
   def legacyPreferencesStatus(formType: FormType, taxIdentifier: String, hostContext: HostContext) = authenticated.async {
-    implicit authContext =>
-      implicit request =>
-        _preferencesStatus(hostContext)
+    implicit authContext => implicit request =>
+      _preferencesStatus(hostContext)
   }
 
-  def _preferencesStatus(hostContext: HostContext)(implicit hc: HeaderCarrier): Future[Result] = {
+  private def _preferencesStatus(hostContext: HostContext)(implicit hc: HeaderCarrier) = {
 
     def isEmailVerified(emailPreference: Option[SaEmailPreference]) = {
       emailPreference.fold(false)(preference => (preference.status match {
@@ -52,7 +45,7 @@ trait ActivationController extends controller.FrontendController with Actions wi
       }))
     }
 
-    entityResolverConnector.getPreferencesStatus().map {
+    entityResolverConnector.getPreferencesStatus() map {
       case Right(SaPreference(true, emailPreference)) => Ok(Json.obj(
         "optedIn" -> true,
         "verifiedEmail" -> isEmailVerified(emailPreference)
@@ -65,57 +58,5 @@ trait ActivationController extends controller.FrontendController with Actions wi
         PreconditionFailed(Json.obj("redirectUserTo" -> redirectUrl))
       case Left(status) => Status(status)
     }
-  }
-}
-
-
-trait ServiceActivationController extends ActivationController with FrontendController with Actions with AppName with Authentication {
-
-  def activationService: PaperlessActivateService
-
-  override def legacyPreferencesStatus(formType: FormType, taxIdentifier: String, hostContext: HostContext) = authenticated.async {
-    implicit authContext =>
-      implicit request =>
-        checkPreferenceActivationFlows(hostContext, "default")
-  }
-
-  def paperlessStatusFor(hostContext: HostContext, service: String) = authenticated.async {
-    implicit authContext =>
-      implicit request => {
-        checkPreferenceActivationFlows(hostContext, service)
-      }
-  }
-
-  def checkPreferenceActivationFlows(hostContext: HostContext, service: String)(implicit headerCarrier: HeaderCarrier) = {
-
-    def preferenceFlow = () => activationService.paperlessPreference(hostContext, service).map {
-      case UnAuthorised => Unauthorized
-      case RedirectToOptInPage(service, url) =>
-        PreconditionFailed(Json.obj("redirectUserTo" -> (hostUrl + url)))
-      case PreferenceFound | UserAutoOptIn(_, _) => Ok(Json.obj())
-    }
-
-    val entityResolverFlow = () => _preferencesStatus(hostContext)
-
-    val activationFlows: Seq[() => Future[Result]] = Seq(
-      entityResolverFlow,
-      preferenceFlow // DC-970 calls directly preference
-    )
-
-    def conditionalFold(seq: Seq[() => Future[Result]], keepFolding: Result => Boolean): Future[Result] = {
-      seq match {
-        case head :: Nil => head()
-        case head :: tail => {
-          head().flatMap {
-            case result if keepFolding(result) => conditionalFold(tail, keepFolding)
-            case result => conditionalFold(Seq(() => Future.successful(result)), keepFolding)
-          }
-        }
-      }
-    }
-
-    val continueIfPreconditionFailed: Result => Boolean = result => result.header.status == PRECONDITION_FAILED
-
-    conditionalFold(activationFlows, continueIfPreconditionFailed)
   }
 }

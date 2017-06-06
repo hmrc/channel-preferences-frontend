@@ -23,9 +23,13 @@ import uk.gov.hmrc.play.http.HeaderCarrier
 
 import scala.concurrent.Future
 
-trait ChoosePaperlessServiceController extends FrontendController with Authentication with Actions {
+object ChoosePaperlessController extends ChoosePaperlessController {
 
+  val auditConnector = Global.auditConnector
+  val entityResolverConnector = EntityResolverConnector
+  val emailConnector = EmailConnector
 
+  override protected implicit def authConnector: AuthConnector = Global.authConnector
 }
 
 trait ChoosePaperlessController extends FrontendController with OptInCohortCalculator with Authentication with Actions with AppName with FindTaxIdentifier {
@@ -40,7 +44,7 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
     createRedirectToDisplayFormWithCohort(emailAddress, hostContext)
   }
 
-  def createRedirectToDisplayFormWithCohort(emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext)(implicit authContext: AuthContext) =
+  private def createRedirectToDisplayFormWithCohort(emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext)(implicit authContext: AuthContext) =
     Redirect(routes.ChoosePaperlessController.displayForm(Some(calculateCohort(authContext)), emailAddress, hostContext))
 
   def displayForm(implicit cohort: Option[OptInCohort], emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = authenticated.async { implicit authContext => implicit request =>
@@ -138,15 +142,3 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
   }
 }
 
-object ChoosePaperlessController extends ChoosePaperlessController with ChoosePaperlessServiceController {
-
-  val auditConnector = Global.auditConnector
-  val entityResolverConnector = EntityResolverConnector
-  val emailConnector = EmailConnector
-
-  override protected implicit def authConnector: AuthConnector = Global.authConnector
-
-  def redirectToDisplayServiceFormWithCohort(service: String, emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = authenticated { implicit authContext => implicit request =>
-    createRedirectToDisplayFormWithCohort(emailAddress, hostContext)(authContext)
-  }
-}

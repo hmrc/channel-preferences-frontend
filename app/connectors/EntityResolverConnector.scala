@@ -1,9 +1,13 @@
 package connectors
 
+import java.net.URLEncoder
+
 import config.ServicesCircuitBreaker
 import controllers.internal.OptInCohort
+import model.{FormType, HostContext}
 import play.api.http.Status
 import play.api.libs.json._
+import uk.gov.hmrc.domain.TaxIds.TaxIdWithName
 import uk.gov.hmrc.domain.{Nino, SaUtr, TaxIdentifier}
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
