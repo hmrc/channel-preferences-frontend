@@ -9,7 +9,8 @@ For setting and changing preferences, whole pages are returned. Partial views ar
 
 | Path                                                                | Supported Methods | Description
 | ------------------------------------------------------------------- | ----------------- | -------------
-| `/paperless/activate`                                               | PUT               | Decides if a paperless choice needs to be made
+| `/paperless/preferences`                                            | GET               | Returns a customer's current paperless preferences
+| `/paperless/activate`                                               | PUT               | Decides if a paperless choice needs to be made, taking an optional body to specify a particular version of terms and conditions
 | `/paperless/email-address/change`                                   | GET, POST         | Displays/submits a form for changing a customer's email address
 | `/paperless/email-address/change/confirmed`                         | GET               | Displays confirmation that a customer's email address has been changed
 | `/paperless/stop`                                                   | GET, POST         | Displays/submits a form for switching a customer to paper
@@ -24,6 +25,33 @@ For setting and changing preferences, whole pages are returned. Partial views ar
 | `/paperless/manage`                                                 | GET               | Returns an HTML partial with appropriate information and links for a customer to manage their paperless status [More...](#get-paperlessmanage)
 | `/paperless/warnings`                                               | GET               | Returns an HTML partial which may contain warnings and links if a customer's paperless status is non-verified [More...](#get-paperlesswarnings)
 
+### GET /paperless/preferences
+
+Responds with:
+
+| Status                        | Description |
+| ----------------------------- | ----------- |
+| 200 Ok                        | If the user has previously accepted paperless |
+| 404 Not Found                 | If no preference is found for the user |
+
+```json
+{
+  "termsAndConditions": {
+    "generic": {
+      "accepted": true
+    },
+    "taxCredits": {
+      "accepted": true
+    }
+  },
+  "email": {
+    "email": "test@example.com",
+    "isVerified": true,
+    "hasBounces": false
+  }
+}
+```
+
 ### PUT /paperless/activate
 
 Takes the following parameters:
@@ -33,6 +61,14 @@ Takes the following parameters:
 | `returnUrl`      | The URL that the user will be redirected to at the end of any journeys resulting from this call, the URL will be passed to the redirectUserTo response |
 | `returnLinkText` | The text that will be used to display the return URL, the parameter will be passed to the redirectUserTo response |
 
+And the following optional body to specify a particular version of terms and conditions.  If the body is empty then it defaults to the "generic" terms and conditions.
+
+```json
+{
+    "termsAndConditions": "taxCredits"
+}
+```
+
 Responds with:
 
 | Status                        | Description |
@@ -40,7 +76,9 @@ Responds with:
 | 412 Precondition failed       | If the user needs to be redirected to a preferences-frontend page to set their paperless options |
 | 200 Ok                        | If the user has previously accepted paperless
 
-When 200 is returned, the body of the response will contain details of the user's preference status (`optedIn` and `verifiedEmail`):  
+When 200 is returned, the body of the response will contain details of the user's preference status (`optedIn` and `verifiedEmail`).  
+This is specific to the type of terms and conditions that was passed in the body if present, otherwise for "generic":  
+
 `optedIn: true` means that the user has signed up for paperless. It is `true` even if the email is not verified yet.  
 `optedIn: false` means that the user has decided to not opt in for paperless.  
 `verifiedEmail: true` [this attribute is present only when `optedIn: true`] means that when the user optedIn he also verified his email address.  
@@ -61,7 +99,6 @@ When a precondition failed response is generated, the body of the response will 
 }
 ```
 
-
 ### POST /paperless/resend-validation-email
 
 
@@ -69,10 +106,11 @@ When a precondition failed response is generated, the body of the response will 
 
 Takes the following parameters:
 
-| Name             | Description |
-| ---------------- | ----------- |
-| `returnUrl`      | The URL that the user will be redirected to at the end of any journeys starting from this partial |
-| `returnLinkText` | The text that will be used to display the return URL |
+| Name                 | Description |
+| -------------------- | ----------- |
+| `returnUrl`          | The URL that the user will be redirected to at the end of any journeys starting from this partial |
+| `returnLinkText`     | The text that will be used to display the return URL |
+| `termsAndConditions` | Optional terms and conditions - will default to "generic" is this is missing |
 
 ### GET /paperless/warnings
 
@@ -83,7 +121,8 @@ Takes the following parameters:
 | `returnUrl`      | The URL that the user will be redirected to at the end of any journeys starting from this partial |
 | `returnLinkText` | The text that will be used to display the return URL |
 
-
+This does not need terms and conditions to be specified because these warnings relating to email (pending email verification and email bounces) and 
+email addresses are global to all of customer's preferences rather than to specific terms and conditions.
 
 Run functional test
 ===================
