@@ -54,7 +54,7 @@ Responds with:
 
 ### PUT /paperless/activate
 
-Takes the following parameters:
+Takes the following parameters, which should all be encrypted and encoded using the query parameter encryption library (https://github.com/hmrc/crypto/blob/master/src/main/scala/uk/gov/hmrc/crypto/ApplicationCrypto.scala#L31):
 
 | Name                 | Description |
 | -------------------- | ----------- |
