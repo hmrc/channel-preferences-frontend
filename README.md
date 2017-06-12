@@ -56,25 +56,19 @@ Responds with:
 
 Takes the following parameters:
 
-| Name             | Description |
-| ---------------- | ----------- |
-| `returnUrl`      | The URL that the user will be redirected to at the end of any journeys resulting from this call, the URL will be passed to the redirectUserTo response |
-| `returnLinkText` | The text that will be used to display the return URL, the parameter will be passed to the redirectUserTo response |
-
-And the following optional body to specify a particular version of terms and conditions.  If the body is empty then it defaults to the "generic" terms and conditions.
-
-```json
-{
-    "termsAndConditions": "taxCredits"
-}
-```
+| Name                 | Description |
+| -------------------- | ----------- |
+| `returnUrl`          | The URL that the user will be redirected to at the end of any journeys resulting from this call, the URL will be passed to the redirectUserTo response |
+| `returnLinkText`     | The text that will be used to display the return URL, the parameter will be passed to the redirectUserTo response |
+| `termsAndConditions` | Optional terms and conditions - will default to "generic" is this is missing |
+| `email`              | Optional customer's email address if already known |
 
 Responds with:
 
 | Status                        | Description |
 | ----------------------------- | ----------- |
 | 412 Precondition failed       | If the user needs to be redirected to a preferences-frontend page to set their paperless options |
-| 200 Ok                        | If the user has previously accepted paperless
+| 200 Ok                        | If the user has previously accepted paperless |
 
 When 200 is returned, the body of the response will contain details of the user's preference status (`optedIn` and `verifiedEmail`).  
 This is specific to the type of terms and conditions that was passed in the body if present, otherwise for "generic":  
