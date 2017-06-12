@@ -1,5 +1,5 @@
-@(email: connectors.SaEmailPreference)(implicit request: Request[_], messages: Messages, hostContext: model.HostContext)
-@import connectors.SaEmailPreference
+@(email: connectors.EmailPreference)(implicit request: Request[_], messages: Messages, hostContext: model.HostContext)
+@import connectors.EmailPreference
 @import uk.gov.hmrc.urls.Link
 @import uk.gov.hmrc.emailaddress.EmailAddress
 @import uk.gov.hmrc.play.views.html.helpers._
@@ -8,7 +8,7 @@
 @import views.sa.prefs.helpers.DateFormat._
 
 <section>
-    <p id="bouncing-status-message">You need to verify <span id="email-address">@{email.email}</span></p>
+    <p id="bouncing-status-message">You need to verify <span id="email-address">@{email.address}</span></p>
 
     @if(email.mailboxFull) {
         <p id="bounce-reason">The email telling you how to do this can't be sent because your inbox is full.</p>

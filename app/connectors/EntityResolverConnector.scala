@@ -86,9 +86,9 @@ trait EntityResolverConnector extends Status with ServicesCircuitBreaker {
 
   def url(path: String) = s"$serviceUrl$path"
 
-  def getPreferencesStatus()(implicit headerCarrier: HeaderCarrier): Future[Either[Int, SaPreference]] = {
+  def getPreferencesStatus()(implicit headerCarrier: HeaderCarrier): Future[Either[Int, NewPreferenceResponse]] = {
     withCircuitBreaker(
-      http.GET[Option[SaPreference]](url(s"/preferences")).map {
+      http.GET[Option[NewPreferenceResponse]](url(s"/preferences")).map {
         case Some(p) => Right(p)
         case None => Left(PRECONDITION_FAILED)
       })
@@ -103,9 +103,11 @@ trait EntityResolverConnector extends Status with ServicesCircuitBreaker {
   def changeEmailAddress(newEmail: String)(implicit hc: HeaderCarrier): Future[HttpResponse] =
     withCircuitBreaker(http.PUT(url(s"/preferences/pending-email"), UpdateEmail(newEmail)))
 
-  def getPreferences()(implicit headerCarrier: HeaderCarrier): Future[Option[SaPreference]] =
-    withCircuitBreaker(http.GET[Option[SaPreference]](url(s"/preferences")))
-      .recover {
+  def getPreferences()(implicit headerCarrier: HeaderCarrier): Future[Option[NewPreferenceResponse]] =
+    withCircuitBreaker {
+      val r = http.GET[Option[NewPreferenceResponse]](url(s"/preferences"))
+      r
+    }.recover {
         case response: Upstream4xxResponse if response.upstreamResponseCode == GONE => None
         case e: NotFoundException => None
       }

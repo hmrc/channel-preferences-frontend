@@ -89,7 +89,7 @@ with FindTaxIdentifier {
 
   private def lookupCurrentEmail(func: (EmailAddress) => Future[Result])(implicit authContext: AuthContext, request: Request[AnyRef]): Future[Result] = {
     entityResolverConnector.getPreferences().flatMap {
-        case Some(SaPreference(true, Some(email))) => func(EmailAddress(email.email))
+        case p@Some(NewPreferenceResponse(_, Some(email))) if (p.fold(false)(_.genericTermsAccepted)) => func(EmailAddress(email.address))
         case _ => Future.successful(BadRequest("Could not find existing preferences."))
     }
   }

@@ -1,7 +1,7 @@
 package controllers.internal
 
 import config.Global
-import connectors.{EntityResolverConnector, SaEmailPreference, SaPreference}
+import connectors.{EmailPreference, EntityResolverConnector, NewPreferenceResponse, TermsAndConditonsAcceptance}
 import controllers.{Authentication, ExternalUrlPrefixes}
 import model.{FormType, HostContext}
 import play.api.libs.json.Json
@@ -10,6 +10,8 @@ import uk.gov.hmrc.play.frontend.auth.Actions
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import uk.gov.hmrc.play.http.HeaderCarrier
+
+import scala.collection.Map
 
 object ActivationController extends ActivationController {
 
@@ -27,32 +29,30 @@ trait ActivationController extends FrontendController with Actions with AppName 
   val hostUrl: String
 
   def preferencesStatus(hostContext: HostContext) = authenticated.async {
-    implicit authContext => implicit request =>
-      _preferencesStatus(hostContext)
+    implicit authContext =>
+      implicit request =>
+        _preferencesStatus(hostContext)
   }
 
   def legacyPreferencesStatus(formType: FormType, taxIdentifier: String, hostContext: HostContext) = authenticated.async {
-    implicit authContext => implicit request =>
-      _preferencesStatus(hostContext)
+    implicit authContext =>
+      implicit request =>
+        _preferencesStatus(hostContext)
   }
 
   private def _preferencesStatus(hostContext: HostContext)(implicit hc: HeaderCarrier) = {
 
-    def isEmailVerified(emailPreference: Option[SaEmailPreference]) = {
-      emailPreference.fold(false)(preference => (preference.status match {
-        case SaEmailPreference.Status.Verified => true
-        case _ => false
-      }))
-    }
-
     entityResolverConnector.getPreferencesStatus() map {
-      case Right(SaPreference(true, emailPreference)) => Ok(Json.obj(
-        "optedIn" -> true,
-        "verifiedEmail" -> isEmailVerified(emailPreference)
-      ))
-      case Right(SaPreference(false, _)) => Ok(Json.obj(
-        "optedIn" -> false
-      ))
+      case Right(NewPreferenceResponse(map, emailPreference)) =>
+        map.get("generic") match {
+          case Some(TermsAndConditonsAcceptance(true)) => Ok(Json.obj(
+            "optedIn" -> true,
+            "verifiedEmail" -> emailPreference.fold(false)(_.isVerified)
+          ))
+          case _ => Ok(Json.obj(
+            "optedIn" -> false
+          ))
+        }
       case Left(412) =>
         val redirectUrl = hostUrl + controllers.internal.routes.ChoosePaperlessController.redirectToDisplayFormWithCohort(None, hostContext).url
         PreconditionFailed(Json.obj("redirectUserTo" -> redirectUrl))

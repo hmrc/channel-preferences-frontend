@@ -13,6 +13,7 @@ import uk.gov.hmrc.play.config.{AppName, ServicesConfig}
 import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.http.hooks.HttpHook
 import uk.gov.hmrc.play.test.UnitSpec
+import NewPreferenceResponse._
 
 import scala.concurrent.Future
 
@@ -92,7 +93,7 @@ class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with OneApp
       val expectedResult = new SaPreference(digital = true, email = Some(new SaEmailPreference("test@mail.com", SaEmailPreference.Status.Verified)))
 
       val preferenceResponse = connector.getPreferencesStatus().futureValue
-      preferenceResponse shouldBe Right(expectedResult)
+      preferenceResponse shouldBe Right(expectedResult.toNewPreference())
     }
 
     "map found non-paperless preference to false" in {
@@ -107,7 +108,7 @@ class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with OneApp
 
       val expectedResult = new SaPreference(digital = false, email = None)
 
-      connector.getPreferencesStatus().futureValue shouldBe Right(expectedResult)
+      connector.getPreferencesStatus().futureValue shouldBe Right(expectedResult.toNewPreference())
     }
 
     "map an auth failure to UNAUTHORIZED" in {
@@ -155,7 +156,7 @@ class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with OneApp
         digital = true, email = Some(SaEmailPreference(
           email = "test@mail.com",
           status = Status.Verified))
-      ))
+      ).toNewPreference())
     }
 
     "return None for a 404" in {
