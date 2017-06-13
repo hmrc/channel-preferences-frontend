@@ -93,7 +93,7 @@ class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with OneApp
       val expectedResult = new SaPreference(digital = true, email = Some(new SaEmailPreference("test@mail.com", SaEmailPreference.Status.Verified)))
 
       val preferenceResponse = connector.getPreferencesStatus().futureValue
-      preferenceResponse shouldBe Right(expectedResult.toNewPreference())
+      preferenceResponse shouldBe Right(expectedResult.toNewPreference().termsAndConditions.get("generic").get, expectedResult.toNewPreference().email)
     }
 
     "map found non-paperless preference to false" in {
@@ -108,7 +108,7 @@ class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with OneApp
 
       val expectedResult = new SaPreference(digital = false, email = None)
 
-      connector.getPreferencesStatus().futureValue shouldBe Right(expectedResult.toNewPreference())
+      connector.getPreferencesStatus().futureValue shouldBe Right((expectedResult.toNewPreference().termsAndConditions.get("generic").get, None))
     }
 
     "map an auth failure to UNAUTHORIZED" in {

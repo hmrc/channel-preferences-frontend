@@ -99,7 +99,7 @@ object NewPreferenceResponse {
       println(json)
       json.validate(defaultRead) match {
         case jSucc@JsSuccess(_, _) => jSucc
-        case _ => SaPreference.formats.reads(json).map(_.toNewPreference
+        case _ => SaPreference.formats.reads(json).map(_.toNewPreference)
       }
     }
   }

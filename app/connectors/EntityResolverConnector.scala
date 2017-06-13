@@ -75,6 +75,7 @@ object EntityResolverConnector extends EntityResolverConnector with ServicesConf
 
 }
 
+
 trait EntityResolverConnector extends Status with ServicesCircuitBreaker {
   this: ServicesConfig =>
 
@@ -86,18 +87,20 @@ trait EntityResolverConnector extends Status with ServicesCircuitBreaker {
 
   def url(path: String) = s"$serviceUrl$path"
 
-  def getPreferencesStatus()(implicit headerCarrier: HeaderCarrier): Future[Either[Int, NewPreferenceResponse]] = {
+  def getPreferencesStatus(termsAndCond: String = "generic")(implicit headerCarrier: HeaderCarrier): Future[Either[Int, (TermsAndConditonsAcceptance, Option[EmailPreference])]] = {
     withCircuitBreaker(
       http.GET[Option[NewPreferenceResponse]](url(s"/preferences")).map {
-        case Some(p) => Right(p)
+        case Some(preference) =>
+          preference.termsAndConditions.get(termsAndCond).fold[Either[Int, (TermsAndConditonsAcceptance, Option[EmailPreference])]](Left(PRECONDITION_FAILED)){Right(_, preference.email)}
         case None => Left(PRECONDITION_FAILED)
-      })
-    .recover {
-      case response: Upstream4xxResponse => response.upstreamResponseCode match {
-        case NOT_FOUND => Left(NOT_FOUND)
-        case UNAUTHORIZED => Left(UNAUTHORIZED)
       }
-    }
+    )
+      .recover {
+        case response: Upstream4xxResponse => response.upstreamResponseCode match {
+          case NOT_FOUND => Left(NOT_FOUND)
+          case UNAUTHORIZED => Left(UNAUTHORIZED)
+        }
+      }
   }
 
   def changeEmailAddress(newEmail: String)(implicit hc: HeaderCarrier): Future[HttpResponse] =
@@ -108,9 +111,9 @@ trait EntityResolverConnector extends Status with ServicesCircuitBreaker {
       val r = http.GET[Option[NewPreferenceResponse]](url(s"/preferences"))
       r
     }.recover {
-        case response: Upstream4xxResponse if response.upstreamResponseCode == GONE => None
-        case e: NotFoundException => None
-      }
+      case response: Upstream4xxResponse if response.upstreamResponseCode == GONE => None
+      case e: NotFoundException => None
+    }
 
   def saveCohort(cohort: OptInCohort)(implicit hc: HeaderCarrier): Future[Any] = Future.successful(true)
 
@@ -119,6 +122,7 @@ trait EntityResolverConnector extends Status with ServicesCircuitBreaker {
       case SaUtr(utr) => s"/portal/preferences/sa/$utr/verified-email-address"
       case Nino(nino) => s"/portal/preferences/paye/$nino/verified-email-address"
     }
+
     withCircuitBreaker(http.GET[Option[Email]](url(basedOnTaxIdType))).map(_.map(_.email))
   }
 

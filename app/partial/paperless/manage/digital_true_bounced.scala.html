@@ -8,7 +8,7 @@
 @import views.sa.prefs.helpers.DateFormat._
 
 <section>
-    <p id="bouncing-status-message">You need to verify <span id="email-address">@{email.address}</span></p>
+    <p id="bouncing-status-message">You need to verify <span id="email-address">@{email.email}</span></p>
 
     @if(email.mailboxFull) {
         <p id="bounce-reason">The email telling you how to do this can't be sent because your inbox is full.</p>
