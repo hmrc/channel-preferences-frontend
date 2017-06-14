@@ -1,7 +1,7 @@
 package controllers.internal
 
 import config.Global
-import connectors.{EmailPreference, EntityResolverConnector, PreferenceResponse, TermsAndConditonsAcceptance}
+import connectors.{EntityResolverConnector, TermsAndConditonsAcceptance}
 import controllers.{Authentication, ExternalUrlPrefixes}
 import model.{FormType, HostContext}
 import play.api.libs.json.Json
@@ -11,8 +11,6 @@ import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import uk.gov.hmrc.play.http.HeaderCarrier
 
-import scala.collection.Map
-
 object ActivationController extends ActivationController {
 
   override val entityResolverConnector: EntityResolverConnector = EntityResolverConnector
@@ -20,6 +18,7 @@ object ActivationController extends ActivationController {
   override protected implicit val authConnector: AuthConnector = Global.authConnector
 
   val hostUrl = ExternalUrlPrefixes.pfUrlPrefix
+
 }
 
 trait ActivationController extends FrontendController with Actions with AppName with Authentication {
@@ -27,6 +26,15 @@ trait ActivationController extends FrontendController with Actions with AppName 
   def entityResolverConnector: EntityResolverConnector
 
   val hostUrl: String
+
+  def preferences() = authenticated.async {
+    implicit authContext =>
+      implicit request =>
+        entityResolverConnector.getPreferences().map {
+          case Some(preference) => Ok(Json.toJson(preference))
+          case _ => NotFound
+        }
+  }
 
   def preferencesStatus(hostContext: HostContext) = authenticated.async {
     implicit authContext =>
