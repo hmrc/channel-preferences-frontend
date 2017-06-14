@@ -194,15 +194,23 @@ trait PreferencesFrontEndServer extends ServiceSpec {
     val encryptedReturnText = URLEncoder.encode(QueryParameterCrypto.encrypt(PlainText(returnLinkText)).value, "UTF-8")
 
 
-    def `/paperless/activate`(taxIdentifiers: TaxIdentifier*) = new {
+    def `/paperless/activate`(taxIdentifiers: TaxIdentifier*)(termsAndConditions: Option[String] = None, emailAddress: Option[String] = None) = new {
       val builder = authBuilderFrom(taxIdentifiers: _*)
+
+      val queryParamsMap: Map[String, Option[String]] = Map(
+        "returnUrl" -> Some(returnUrl),
+        "returnLinkText" -> Some(returnLinkText),
+        "termsAndConditions" -> termsAndConditions,
+        "emailAddress" -> emailAddress
+      )
 
       private val url = call(server.localResource("/paperless/activate"))
         .withHeaders(builder.bearerTokenHeader(), builder.sessionCookie())
         .withQueryString(
-          "returnUrl" -> QueryParameterCrypto.encrypt(PlainText(returnUrl)).value,
-          "returnLinkText" -> QueryParameterCrypto.encrypt(PlainText(returnLinkText)).value
-        )
+          queryParamsMap.collect {
+            case (key, Some(value)) => (key -> QueryParameterCrypto.encrypt(PlainText(value)).value)
+          }.toSeq:_ *
+      )
 
       private val formTypeBody = Json.parse("""{"active":true}""")
 
