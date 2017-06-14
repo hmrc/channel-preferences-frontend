@@ -12,10 +12,31 @@ class HostContextSpec extends WordSpec with Matchers with OneAppPerSuite {
   "Binding a host context" should {
     val validReturnUrl = "returnUrl" -> Seq("9tNUeRTIYBD0RO+T5WRO7A]==")
     val validReturnLinkText = "returnLinkText" -> Seq("w/PwaxV+KgqutfsU0cyrJQ==")
+    val validGenericTermsAndConditions = "termsAndConditions" -> Seq("HYymhRDn1B7qdcKcjIf/1A==")
+    val validTaxCreditsTermsAndConditions = "termsAndConditions" -> Seq("J1Vy/h2rVt/JkA1b/lTfgg==")  // taxCredits
+    val validEmailAddress = "emailAddress" -> Seq("J5lnze8P0QQ8NwFTHVHhVw==")    // test@test.com
 
     "read the returnURL and returnLinkText if both present" in {
       model.HostContext.hostContextBinder.bind("anyValName", Map(validReturnUrl, validReturnLinkText)) should contain (
         Right(HostContext(returnUrl = "foo", returnLinkText = "bar"))
+      )
+    }
+
+    "read the returnURL and returnLinkText if both present and termsAndConditions if present" in {
+      model.HostContext.hostContextBinder.bind("anyValName", Map(validReturnUrl, validReturnLinkText, validGenericTermsAndConditions)) should contain (
+        Right(HostContext(returnUrl = "foo", returnLinkText = "bar", termsAndConditions = Some("generic")))
+      )
+    }
+
+    "read the returnURL and returnLinkText if both present for taxCredits with emailAddress" in {
+      model.HostContext.hostContextBinder.bind("anyValName", Map(validReturnUrl, validReturnLinkText, validTaxCreditsTermsAndConditions, validEmailAddress)) should contain (
+        Right(HostContext(returnUrl = "foo", returnLinkText = "bar", termsAndConditions = Some("taxCredits"), Some("test@test.com")))
+      )
+    }
+
+    "fail when taxCredits does not provide and emailAddress" in {
+      model.HostContext.hostContextBinder.bind("anyValName", Map(validReturnUrl, validReturnLinkText, validTaxCreditsTermsAndConditions)) should contain (
+        Left("TaxCredits must provide emailAddress")
       )
     }
 
