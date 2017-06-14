@@ -13,7 +13,7 @@ import uk.gov.hmrc.play.config.{AppName, ServicesConfig}
 import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.http.hooks.HttpHook
 import uk.gov.hmrc.play.test.UnitSpec
-import NewPreferenceResponse._
+import PreferenceResponse._
 
 import scala.concurrent.Future
 

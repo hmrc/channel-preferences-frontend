@@ -3,7 +3,7 @@ package model
 import play.api.Logger
 import play.api.mvc.QueryStringBindable
 
-case class HostContext(returnUrl: String, returnLinkText: String)
+case class HostContext(returnUrl: String, returnLinkText: String, termsAndConditions: Option[String] = None, emailAddress: Option[String] = None)
 
 object HostContext {
 

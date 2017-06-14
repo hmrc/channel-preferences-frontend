@@ -1,7 +1,7 @@
 package controllers.internal
 
 import config.Global
-import connectors.{EmailPreference, EntityResolverConnector, NewPreferenceResponse, TermsAndConditonsAcceptance}
+import connectors.{EmailPreference, EntityResolverConnector, PreferenceResponse, TermsAndConditonsAcceptance}
 import controllers.{Authentication, ExternalUrlPrefixes}
 import model.{FormType, HostContext}
 import play.api.libs.json.Json
@@ -42,7 +42,8 @@ trait ActivationController extends FrontendController with Actions with AppName 
 
   private def _preferencesStatus(hostContext: HostContext)(implicit hc: HeaderCarrier) = {
 
-    entityResolverConnector.getPreferencesStatus("generic") map {
+    val terms = hostContext.termsAndConditions.getOrElse("generic")
+    entityResolverConnector.getPreferencesStatus(terms) map {
       case Right((TermsAndConditonsAcceptance(true), emailPreference)) =>
         Ok(Json.obj(
           "optedIn" -> true,

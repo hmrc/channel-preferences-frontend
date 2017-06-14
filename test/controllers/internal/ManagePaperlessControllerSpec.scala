@@ -18,7 +18,7 @@ import uk.gov.hmrc.play.frontend.auth.AuthContext
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 import uk.gov.hmrc.play.http.HttpResponse
 import uk.gov.hmrc.play.test.UnitSpec
-import NewPreferenceResponse._
+import PreferenceResponse._
 
 
 import scala.concurrent.Future

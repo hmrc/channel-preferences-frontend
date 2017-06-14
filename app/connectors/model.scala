@@ -85,17 +85,17 @@ object TermsAndConditonsAcceptance {
 
 
 
-case class NewPreferenceResponse(termsAndConditions: Map[String, TermsAndConditonsAcceptance], email: Option[EmailPreference]) {
+case class PreferenceResponse(termsAndConditions: Map[String, TermsAndConditonsAcceptance], email: Option[EmailPreference]) {
   val genericTermsAccepted: Boolean = termsAndConditions.get("generic").fold(false)(_.accepted)
   val taxCreditsTermsAccepted: Boolean = termsAndConditions.get("taxCredits").fold(false)(_.accepted)
 }
 
-object NewPreferenceResponse {
+object PreferenceResponse {
 
-  val defaultRead = Json.reads[NewPreferenceResponse]
+  val defaultRead = Json.reads[PreferenceResponse]
 
-  val reads = new Reads[NewPreferenceResponse] {
-    override def reads(json: JsValue): JsResult[NewPreferenceResponse] = {
+  val reads = new Reads[PreferenceResponse] {
+    override def reads(json: JsValue): JsResult[PreferenceResponse] = {
       println(json)
       json.validate(defaultRead) match {
         case jSucc@JsSuccess(_, _) => jSucc
@@ -104,11 +104,11 @@ object NewPreferenceResponse {
     }
   }
 
-  implicit val formats = OFormat(reads, Json.writes[NewPreferenceResponse])
+  implicit val formats = OFormat(reads, Json.writes[PreferenceResponse])
 
 
   implicit class preferenceOps(saPreference: SaPreference) {
-    def toNewPreference(): NewPreferenceResponse = {
+    def toNewPreference(): PreferenceResponse = {
       def toNewEmail: (SaEmailPreference => EmailPreference) = {
         saEmail =>
           EmailPreference(
@@ -119,7 +119,7 @@ object NewPreferenceResponse {
             saEmail.linkSent)
       }
 
-      NewPreferenceResponse(
+      PreferenceResponse(
         termsAndConditions = Map("generic" -> TermsAndConditonsAcceptance(saPreference.digital)),
         email = saPreference.email.map(toNewEmail))
     }

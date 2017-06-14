@@ -15,7 +15,7 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
-import connectors.NewPreferenceResponse._
+import connectors.PreferenceResponse._
 
 class ManagePaperlessPartialSpec extends UnitSpec with OneAppPerSuite with ScalaFutures {
   implicit val hc = HeaderCarrier()

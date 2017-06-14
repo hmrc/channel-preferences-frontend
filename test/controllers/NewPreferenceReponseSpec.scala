@@ -1,7 +1,7 @@
 package controllers
 
-import connectors.{EmailPreference, NewPreferenceResponse, TermsAndConditonsAcceptance}
-import connectors.NewPreferenceResponse._
+import connectors.{EmailPreference, PreferenceResponse, TermsAndConditonsAcceptance}
+import connectors.PreferenceResponse._
 import play.api.libs.json.Json
 import uk.gov.hmrc.play.test.UnitSpec
 
@@ -27,7 +27,7 @@ class NewPreferenceReponseSpec extends UnitSpec{
           |  "digital": true
           |}""".stripMargin)
 
-      json.as[NewPreferenceResponse] shouldBe NewPreferenceResponse(Map("generic" -> TermsAndConditonsAcceptance(true)), Some(EmailPreference("pihklyljtgoxeoh@mail.com", true, false, false, None)))
+      json.as[PreferenceResponse] shouldBe PreferenceResponse(Map("generic" -> TermsAndConditonsAcceptance(true)), Some(EmailPreference("pihklyljtgoxeoh@mail.com", true, false, false, None)))
     }
   }
 }

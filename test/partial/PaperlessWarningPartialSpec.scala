@@ -8,7 +8,7 @@ import partial.paperless.warnings.PaperlessWarningPartial
 import play.api.Application
 import play.api.mvc.Results
 import uk.gov.hmrc.play.test.UnitSpec
-import connectors.NewPreferenceResponse._
+import connectors.PreferenceResponse._
 
 
 class PaperlessWarningPartialSpec extends UnitSpec with Results with OneAppPerSuite {
