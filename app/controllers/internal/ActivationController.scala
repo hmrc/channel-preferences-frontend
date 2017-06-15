@@ -1,6 +1,8 @@
 package controllers.internal
 
 import config.Global
+import connectors._
+//import connectors.EntityResolverConnector.{PreferenceFound, PreferenceNotFound}
 import connectors.{EntityResolverConnector, TermsAndConditonsAcceptance}
 import controllers.{Authentication, ExternalUrlPrefixes}
 import model.{FormType, HostContext}
@@ -51,20 +53,22 @@ trait ActivationController extends FrontendController with Actions with AppName 
   private def _preferencesStatus(hostContext: HostContext)(implicit hc: HeaderCarrier) = {
 
     val terms = hostContext.termsAndConditions.getOrElse("generic")
-    entityResolverConnector.getPreferencesStatus(terms) map {
-      case Right((TermsAndConditonsAcceptance(true), emailPreference)) =>
-        Ok(Json.obj(
-          "optedIn" -> true,
-          "verifiedEmail" -> emailPreference.fold(false)(_.isVerified)
-        ))
-      case Right((TermsAndConditonsAcceptance(false), _)) =>
-        Ok(Json.obj(
-          "optedIn" -> false
-        ))
-      case Left(412) =>
-        val redirectUrl = hostUrl + controllers.internal.routes.ChoosePaperlessController.redirectToDisplayFormWithCohort(None, hostContext).url
-        PreconditionFailed(Json.obj("redirectUserTo" -> redirectUrl))
-      case Left(status) => Status(status)
+    entityResolverConnector.getPreferencesStatus(terms) map { p =>
+      p match {
+        case Right(PreferenceFound(true, emailPreference)) =>
+          Ok(Json.obj(
+            "optedIn" -> true,
+            "verifiedEmail" -> emailPreference.fold(false)(_.isVerified)
+          ))
+        case Right(PreferenceFound(false, _)) =>
+          Ok(Json.obj(
+            "optedIn" -> false
+          ))
+        case Right(PreferenceNotFound(email)) =>
+          val redirectUrl = hostUrl + controllers.internal.routes.ChoosePaperlessController.redirectToDisplayFormWithCohort(None, hostContext).url
+          PreconditionFailed(Json.obj("redirectUserTo" -> redirectUrl))
+        case Left(status) => Status(status)
+      }
     }
   }
 }

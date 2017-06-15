@@ -1,0 +1,12 @@
+@import play.api.i18n.Messages.Implicits._
+@(emailForm: Form[_], submitPrefsFormAction: Call, cohort: controllers.internal.OptInCohort)(implicit request: Request[_], messages: Messages)
+
+@import views.html.taxCredits.prefs.cohorts._
+    @import controllers.internal._
+
+@{cohort match {
+        case IPage => {
+            i_page(emailForm, submitPrefsFormAction)
+        }
+    }
+}

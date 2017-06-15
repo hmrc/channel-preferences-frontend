@@ -67,12 +67,12 @@ class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with OneApp
 
     implicit val hc = HeaderCarrier()
 
-    "map no preference to PRECONDITION_FAILED" in {
+    "map no preference to PreferenceNotFound with no email" in {
       val connector = entityResolverConnector(
         url => Future.successful(HttpResponse(responseStatus = NOT_FOUND, responseString = Some("Preference not found")))
       )
 
-      connector.getPreferencesStatus().futureValue shouldBe Left(PRECONDITION_FAILED)
+      connector.getPreferencesStatus().futureValue shouldBe Right(PreferenceNotFound(None))
     }
 
     "map found paperless preference to true" in {
@@ -93,7 +93,7 @@ class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with OneApp
       val expectedResult = new SaPreference(digital = true, email = Some(new SaEmailPreference("test@mail.com", SaEmailPreference.Status.Verified)))
 
       val preferenceResponse = connector.getPreferencesStatus().futureValue
-      preferenceResponse shouldBe Right(expectedResult.toNewPreference().termsAndConditions.get("generic").get, expectedResult.toNewPreference().email)
+      preferenceResponse shouldBe Right(PreferenceFound(true, expectedResult.toNewPreference().email))
     }
 
     "map found non-paperless preference to false" in {
@@ -108,7 +108,7 @@ class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with OneApp
 
       val expectedResult = new SaPreference(digital = false, email = None)
 
-      connector.getPreferencesStatus().futureValue shouldBe Right((expectedResult.toNewPreference().termsAndConditions.get("generic").get, None))
+      connector.getPreferencesStatus().futureValue shouldBe Right(PreferenceFound(expectedResult.toNewPreference().termsAndConditions.get("generic").get.accepted, None))
     }
 
     "map an auth failure to UNAUTHORIZED" in {

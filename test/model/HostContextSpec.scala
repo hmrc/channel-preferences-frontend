@@ -14,7 +14,7 @@ class HostContextSpec extends WordSpec with Matchers with OneAppPerSuite {
     val validReturnLinkText = "returnLinkText" -> Seq("w/PwaxV+KgqutfsU0cyrJQ==")
     val validGenericTermsAndConditions = "termsAndConditions" -> Seq("HYymhRDn1B7qdcKcjIf/1A==")
     val validTaxCreditsTermsAndConditions = "termsAndConditions" -> Seq("J1Vy/h2rVt/JkA1b/lTfgg==")  // taxCredits
-    val validEmailAddress = "emailAddress" -> Seq("J5lnze8P0QQ8NwFTHVHhVw==")    // test@test.com
+    val validEmailAddress = "email" -> Seq("J5lnze8P0QQ8NwFTHVHhVw==")    // test@test.com
 
     "read the returnURL and returnLinkText if both present" in {
       model.HostContext.hostContextBinder.bind("anyValName", Map(validReturnUrl, validReturnLinkText)) should contain (
@@ -34,9 +34,9 @@ class HostContextSpec extends WordSpec with Matchers with OneAppPerSuite {
       )
     }
 
-    "fail when taxCredits does not provide and emailAddress" in {
+    "fail when taxCredits does not provide and email" in {
       model.HostContext.hostContextBinder.bind("anyValName", Map(validReturnUrl, validReturnLinkText, validTaxCreditsTermsAndConditions)) should contain (
-        Left("TaxCredits must provide emailAddress")
+        Left("TaxCredits must provide email")
       )
     }
 

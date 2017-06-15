@@ -201,7 +201,7 @@ trait PreferencesFrontEndServer extends ServiceSpec {
         "returnUrl" -> Some(returnUrl),
         "returnLinkText" -> Some(returnLinkText),
         "termsAndConditions" -> termsAndConditions,
-        "emailAddress" -> emailAddress
+        "email" -> emailAddress
       )
 
       private val url = call(server.localResource("/paperless/activate"))

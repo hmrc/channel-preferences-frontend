@@ -75,6 +75,10 @@ object EntityResolverConnector extends EntityResolverConnector with ServicesConf
 
 }
 
+trait PreferenceStatus
+case class PreferenceFound(accepted: Boolean, email: Option[EmailPreference]) extends PreferenceStatus
+case class PreferenceNotFound(email: Option[EmailPreference]) extends PreferenceStatus
+
 
 trait EntityResolverConnector extends Status with ServicesCircuitBreaker {
   this: ServicesConfig =>
@@ -87,21 +91,25 @@ trait EntityResolverConnector extends Status with ServicesCircuitBreaker {
 
   def url(path: String) = s"$serviceUrl$path"
 
-  def getPreferencesStatus(termsAndCond: String = "generic")(implicit headerCarrier: HeaderCarrier): Future[Either[Int, (TermsAndConditonsAcceptance, Option[EmailPreference])]] = {
+
+  def getPreferencesStatus(termsAndCond: String = "generic")(implicit headerCarrier: HeaderCarrier): Future[Either[Int, PreferenceStatus]] = {
     withCircuitBreaker(
       http.GET[Option[PreferenceResponse]](url(s"/preferences")).map {
         case Some(preference) =>
-          preference.termsAndConditions.get(termsAndCond).fold[Either[Int, (TermsAndConditonsAcceptance, Option[EmailPreference])]](Left(PRECONDITION_FAILED)){Right(_, preference.email)}
-        case None => Left(PRECONDITION_FAILED)
+          preference.termsAndConditions.get(termsAndCond).fold[Either[Int, PreferenceStatus]](
+            Right(PreferenceNotFound(preference.email))) {
+            acceptance => Right(PreferenceFound(acceptance.accepted, preference.email))
+          }
+        case None => Right(PreferenceNotFound(None))
       }
-    )
-      .recover {
-        case response: Upstream4xxResponse => response.upstreamResponseCode match {
-          case NOT_FOUND => Left(NOT_FOUND)
-          case UNAUTHORIZED => Left(UNAUTHORIZED)
-        }
+    ).recover {
+      case response: Upstream4xxResponse => response.upstreamResponseCode match {
+        case NOT_FOUND => Left(NOT_FOUND)
+        case UNAUTHORIZED => Left(UNAUTHORIZED)
       }
+    }
   }
+
 
   def changeEmailAddress(newEmail: String)(implicit hc: HeaderCarrier): Future[HttpResponse] =
     withCircuitBreaker(http.PUT(url(s"/preferences/pending-email"), UpdateEmail(newEmail)))

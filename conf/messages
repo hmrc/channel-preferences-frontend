@@ -20,6 +20,11 @@ sa_printing_preference.tc.8.3.2=you may also be asked to register a telephone nu
 sa_printing_preference.title=Sign up for paperless notifications
 sa_printing_preference.fg_page.title=Go paperless with HMRC
 
+tc_printing_preference.fg_page.title=Would you like to receive other email notifications about your tax credits?
+tc_printing_preference.submitButton=Continue
+tc_printing_preference.tc.preLinkText=I agree with the {0}
+tc_printing_preference.tc.linkText = terms and conditions
+
 sa_printing_preference.tc.preLinkText=I agree with the {0}
 sa_printing_preference.tc.linkText=terms and conditions
 sa_printing_preference.tc.legal.1=Messages will be sent to a secure mailbox in your HMRC online account.

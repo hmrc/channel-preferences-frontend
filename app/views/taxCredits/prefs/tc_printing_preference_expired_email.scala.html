@@ -1,0 +1,13 @@
+@()(implicit request: Request[_], messages: Messages)
+
+@import uk.gov.hmrc.urls.Link
+
+@main(title = "Your email address is NOT verified", navTitle = "", navLinks = HtmlFormat.empty) {
+    <header class="page-header">
+        <h1 id="failure-heading">@Messages("tc_printing_preference.verification.heading.expired")</h1>
+    </header>
+        <p id="link-to-home">@Link.toInternalPage(
+            url = controllers.ExternalUrls.businessTaxHome,
+            value = Some(Messages("tc_printing_preference.verification.action"))).toHtml
+            and request a new verification link</p>
+}

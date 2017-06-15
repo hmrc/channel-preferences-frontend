@@ -52,11 +52,20 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
       entityResolverConnector.saveCohort(calculateCohort(authContext)).map { case _ =>
         auditPageShown(authContext, AccountDetails, cohort)
         val email = emailAddress.map(_.decryptedValue)
-        Ok(views.html.sa.prefs.sa_printing_preference(
-          emailForm = OptInDetailsForm().fill(OptInDetailsForm.Data(emailAddress = email, preference = email.map(_ => OptInDetailsForm.Data.PaperlessChoice.OptedIn), acceptedTcs = None)),
-          submitPrefsFormAction = internal.routes.ChoosePaperlessController.submitForm(hostContext),
-          cohort = cohort
-        ))
+        if (hostContext.termsAndConditions.forall(_ == "generic")){
+          Ok(views.html.sa.prefs.sa_printing_preference(
+            emailForm = OptInDetailsForm().fill(OptInDetailsForm.Data(emailAddress = email, preference = email.map(_ => OptInDetailsForm.Data.PaperlessChoice.OptedIn), acceptedTcs = None)),
+            submitPrefsFormAction = internal.routes.ChoosePaperlessController.submitForm(hostContext),
+            cohort = cohort
+          ))
+        }
+        else {
+          Ok(views.html.taxCredits.prefs.tc_printing_preference(
+            emailForm = OptInDetailsForm().fill(OptInDetailsForm.Data(emailAddress = email, preference = email.map(_ => OptInDetailsForm.Data.PaperlessChoice.OptedIn), acceptedTcs = None)),
+            submitPrefsFormAction = internal.routes.ChoosePaperlessController.submitForm(hostContext),
+            cohort = cohort
+          ))
+        }
       }
     }
   }
