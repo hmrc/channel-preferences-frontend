@@ -88,7 +88,7 @@ class VerificationEmailISpec extends PreferencesFrontEndServer {
       withReceivedEmails(1) { case List(mail) =>
         mail should have(
           'to (Some(email)),
-          'subject ("HMRC paperless notifications: verify your email address"))
+          'subject ("HMRC electronic communications: verify your email address"))
       }
 
       `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postOptOut should have(status(200))
@@ -244,7 +244,7 @@ class VerificationEmailISpec extends PreferencesFrontEndServer {
       withReceivedEmails(1) { case List(mail) =>
         mail should have(
           'to (Some(email)),
-          'subject ("HMRC paperless notifications: verify your email address")
+          'subject ("HMRC electronic communications: verify your email address")
         )
       }
     }
