@@ -1,13 +1,8 @@
 package connectors
 
-import java.net.URLEncoder
-
 import config.ServicesCircuitBreaker
-import controllers.internal.OptInCohort
-import model.{FormType, HostContext}
 import play.api.http.Status
 import play.api.libs.json._
-import uk.gov.hmrc.domain.TaxIds.TaxIdWithName
 import uk.gov.hmrc.domain.{Nino, SaUtr, TaxIdentifier}
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
@@ -23,7 +18,9 @@ object Email {
 
 sealed trait TermsType
 
-case object Generic extends TermsType
+case object GenericTerms extends TermsType
+
+case object TaxCreditsTerms extends TermsType
 
 sealed trait PreferencesStatus
 
@@ -62,13 +59,14 @@ object EntityResolverConnector extends EntityResolverConnector with ServicesConf
     implicit val format = Json.format[ActivationStatus]
   }
 
-  protected[connectors] case class TermsAndConditionsUpdate(generic: TermsAccepted, email: Option[String])
+  protected[connectors] case class TermsAndConditionsUpdate(generic: Option[TermsAccepted], taxCredits: Option[TermsAccepted], email: Option[String])
 
   protected[connectors] object TermsAndConditionsUpdate {
     implicit val format = Json.format[TermsAndConditionsUpdate]
 
     def from(terms: (TermsType, TermsAccepted), email: Option[String]): TermsAndConditionsUpdate = terms match {
-      case (Generic, accepted: TermsAccepted) => TermsAndConditionsUpdate(generic = accepted, email = email)
+      case (GenericTerms, accepted: TermsAccepted) => TermsAndConditionsUpdate(generic = Some(accepted), None, email = email)
+      case (TaxCreditsTerms, accepted: TermsAccepted) => TermsAndConditionsUpdate(generic = None, taxCredits = Some(accepted), email = email)
       case (termsType, _) => throw new IllegalArgumentException(s"Could not work with termsType=$termsType")
     }
   }
@@ -121,8 +119,6 @@ trait EntityResolverConnector extends Status with ServicesCircuitBreaker {
       case response: Upstream4xxResponse if response.upstreamResponseCode == GONE => None
       case e: NotFoundException => None
     }
-
-  def saveCohort(cohort: OptInCohort)(implicit hc: HeaderCarrier): Future[Any] = Future.successful(true)
 
   def getEmailAddress(taxId: TaxIdentifier)(implicit hc: HeaderCarrier) = {
     def basedOnTaxIdType = taxId match {

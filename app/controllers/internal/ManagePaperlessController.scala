@@ -69,7 +69,7 @@ with FindTaxIdentifier {
   }
 
   private[controllers] def _submitStopPaperless(implicit authContext: AuthContext, request: Request[AnyRef], hostContext: HostContext): Future[Result] =
-    entityResolverConnector.updateTermsAndConditions((Generic, TermsAccepted(false)), email = None).map(_ =>
+    entityResolverConnector.updateTermsAndConditions((GenericTerms, TermsAccepted(false)), email = None).map(_ =>
       Redirect(routes.ManagePaperlessController.displayStopPaperlessConfirmed(hostContext))
     )
 

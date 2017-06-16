@@ -3,7 +3,9 @@ package model
 import play.api.Logger
 import play.api.mvc.QueryStringBindable
 
-case class HostContext(returnUrl: String, returnLinkText: String, termsAndConditions: Option[String] = None, email: Option[String] = None)
+case class HostContext(returnUrl: String, returnLinkText: String, termsAndConditions: Option[String] = None, email: Option[String] = None) {
+  val isTaxCredits = termsAndConditions.fold(false)(_ == "taxCredits")
+}
 
 object HostContext {
 

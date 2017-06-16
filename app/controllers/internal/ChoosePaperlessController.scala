@@ -38,63 +38,50 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
   def emailConnector: EmailConnector
   def auditConnector: AuditConnector
 
-  def calculateCohort(authContext: AuthContext): OptInCohort
+  def calculateCohort(hostContext: HostContext): OptInCohort
 
   def redirectToDisplayFormWithCohort(emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = authenticated { implicit authContext => implicit request =>
     createRedirectToDisplayFormWithCohort(emailAddress, hostContext)
   }
 
   private def createRedirectToDisplayFormWithCohort(emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext)(implicit authContext: AuthContext) =
-    Redirect(routes.ChoosePaperlessController.displayForm(Some(calculateCohort(authContext)), emailAddress, hostContext))
+    Redirect(routes.ChoosePaperlessController.displayForm(Some(calculateCohort(hostContext)), emailAddress, hostContext))
 
   def displayForm(implicit cohort: Option[OptInCohort], emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = authenticated.async { implicit authContext => implicit request =>
-    cohort.fold(ifEmpty = Future.successful(createRedirectToDisplayFormWithCohort(emailAddress, hostContext))) { cohort =>
-      entityResolverConnector.saveCohort(calculateCohort(authContext)).map { case _ =>
-        auditPageShown(authContext, AccountDetails, cohort)
-        val email = emailAddress.map(_.decryptedValue)
-        if (hostContext.termsAndConditions.forall(_ == "generic")){
-          Ok(views.html.sa.prefs.sa_printing_preference(
-            emailForm = OptInDetailsForm().fill(OptInDetailsForm.Data(emailAddress = email, preference = email.map(_ => OptInDetailsForm.Data.PaperlessChoice.OptedIn), acceptedTcs = None)),
-            submitPrefsFormAction = internal.routes.ChoosePaperlessController.submitForm(hostContext),
-            cohort = cohort
-          ))
-        }
-        else {
-          Ok(views.html.taxCredits.prefs.tc_printing_preference(
-            emailForm = OptInDetailsForm().fill(OptInDetailsForm.Data(emailAddress = email, preference = email.map(_ => OptInDetailsForm.Data.PaperlessChoice.OptedIn), acceptedTcs = None)),
-            submitPrefsFormAction = internal.routes.ChoosePaperlessController.submitForm(hostContext),
-            cohort = cohort
-          ))
-        }
-      }
-    }
-  }
+    cohort.fold(ifEmpty = Future.successful(createRedirectToDisplayFormWithCohort(emailAddress, hostContext))) { cohort => {
+      auditPageShown(authContext, AccountDetails, cohort)
+      val email = emailAddress.map(_.decryptedValue)
+      Future.successful(Ok(views.html.sa.prefs.sa_printing_preference(
+        emailForm = OptInDetailsForm().fill(OptInDetailsForm.Data(emailAddress = email, preference = email.map(_ => OptInDetailsForm.Data.PaperlessChoice.OptedIn), acceptedTcs = None)),
+        submitPrefsFormAction = internal.routes.ChoosePaperlessController.submitForm(hostContext),
+        cohort = cohort
+      )))
+    }}}
+
 
   def submitForm(implicit hostContext: HostContext) = authenticated.async { implicit authContext => implicit request =>
-    val cohort = calculateCohort(authContext)
+    val cohort = calculateCohort(hostContext)
 
-    def saveAndAuditPreferences(digital: Boolean, email: Option[String])(implicit hc: HeaderCarrier): Future[Result] = {
-      val terms = Generic -> TermsAccepted(digital)
-      for {
-        _ <- entityResolverConnector.saveCohort(calculateCohort(authContext))
-        preferencesStatus <- entityResolverConnector.updateTermsAndConditions(terms, email)
-      } yield {
+    def saveAndAuditPreferences(digital: Boolean, email: Option[String], termsType: TermsType)(implicit hc: HeaderCarrier): Future[Result] = {
+      val terms = termsType -> TermsAccepted(digital)
+
+      entityResolverConnector.updateTermsAndConditions(terms, email).map( preferencesStatus => {
         auditChoice(authContext, AccountDetails, cohort, terms, email, preferencesStatus)
-        digital match {
-          case true  =>
-            val encryptedEmail = email map (emailAddress => Encrypted(EmailAddress(emailAddress)))
-            Redirect(routes.ChoosePaperlessController.displayNearlyDone(encryptedEmail, hostContext))
-          case false => Redirect(hostContext.returnUrl)
-        }
-      }
+        if (digital) {
+          val encryptedEmail = email map (emailAddress => Encrypted(EmailAddress(emailAddress)))
+          Redirect(routes.ChoosePaperlessController.displayNearlyDone(encryptedEmail, hostContext))
+        } else Redirect(hostContext.returnUrl)
+      })
     }
 
-    def returnToFormWithErrors(f: Form[_]) = Future.successful(BadRequest(views.html.sa.prefs.sa_printing_preference(f, routes.ChoosePaperlessController.submitForm(hostContext), cohort)))
+    def returnToFormWithErrors(f: Form[_]) =
+      Future.successful(BadRequest(views.html.sa.prefs.sa_printing_preference(f, routes.ChoosePaperlessController.submitForm(hostContext), cohort)))
+
 
     OptInOrOutForm().bindFromRequest.fold[Future[Result]](
       hasErrors = returnToFormWithErrors,
       happyForm =>
-        if (happyForm.optedIn.contains(false)) saveAndAuditPreferences(digital = false, email = None)
+        if (happyForm.optedIn.contains(false)) saveAndAuditPreferences(digital = false, email = None, cohort.terms)
         else OptInDetailsForm().bindFromRequest.fold[Future[Result]](
           hasErrors = returnToFormWithErrors,
           success = {
@@ -104,7 +91,7 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
                 else emailConnector.isValid(emailAddress)
 
               emailVerificationStatus.flatMap {
-                case true => saveAndAuditPreferences(digital = true, email = Some(emailAddress))
+                case true => saveAndAuditPreferences(digital = true, email = Some(emailAddress), cohort.terms)
                 case false => Future.successful(Ok(views.html.sa_printing_preference_verify_email(emailAddress, cohort)))
               }
             case _ => returnToFormWithErrors(OptInDetailsForm().bindFromRequest)
@@ -147,7 +134,7 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
 
   def displayNearlyDone(emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = authenticated { implicit authContext => implicit request =>
     implicit val hostContextImplicit = hostContext
-    Ok(views.html.account_details_printing_preference_confirm(calculateCohort(authContext), emailAddress.map(_.decryptedValue)))
+    Ok(views.html.account_details_printing_preference_confirm(calculateCohort(hostContext), emailAddress.map(_.decryptedValue)))
   }
 }
 

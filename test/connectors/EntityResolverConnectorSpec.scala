@@ -265,23 +265,35 @@ class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with OneApp
       }
     }
 
-    "send accepted true and return preferences created if terms and conditions are accepted and updated and preferences created" in new PayloadCheck {
-      override val expectedPayload = TermsAndConditionsUpdate(TermsAccepted(true), email = None)
+    "send generic accepted true and return preferences created if terms and conditions are accepted and updated and preferences created" in new PayloadCheck {
+      override val expectedPayload = TermsAndConditionsUpdate(generic = Some(TermsAccepted(true)), taxCredits = None, email = None)
 
-      connector.updateTermsAndConditions(Generic -> TermsAccepted(true), email = None).futureValue should be (PreferencesExists)
+      connector.updateTermsAndConditions(GenericTerms -> TermsAccepted(true), email = None).futureValue should be (PreferencesExists)
     }
 
-    "send accepted false and return preferences created if terms and conditions are not accepted and updated and preferences created" in new PayloadCheck {
-      override val expectedPayload = TermsAndConditionsUpdate(TermsAccepted(false), email = None)
+    "send generic accepted false and return preferences created if terms and conditions are not accepted and updated and preferences created" in new PayloadCheck {
+      override val expectedPayload = TermsAndConditionsUpdate(generic = Some(TermsAccepted(false)), taxCredits = None, email = None)
 
-      connector.updateTermsAndConditions(Generic -> TermsAccepted(false), email = None).futureValue should be (PreferencesExists)
+      connector.updateTermsAndConditions(GenericTerms -> TermsAccepted(false), email = None).futureValue should be (PreferencesExists)
+    }
+
+    "send taxCredits accepted true and return preferences created if terms and conditions are accepted and updated and preferences created" in new PayloadCheck {
+      override val expectedPayload = TermsAndConditionsUpdate(generic = None, taxCredits = Some(TermsAccepted(true)), email = None)
+
+      connector.updateTermsAndConditions(TaxCreditsTerms -> TermsAccepted(true), email = None).futureValue should be (PreferencesExists)
+    }
+
+    "send taxCredits accepted false and return preferences created if terms and conditions are not accepted and updated and preferences created" in new PayloadCheck {
+      override val expectedPayload = TermsAndConditionsUpdate(generic = None, taxCredits = Some(TermsAccepted(false)), email = None)
+
+      connector.updateTermsAndConditions(TaxCreditsTerms -> TermsAccepted(false), email = None).futureValue should be (PreferencesExists)
     }
 
     "return failure if any problems" in new PayloadCheck {
       override val status = 401
-      override val expectedPayload = TermsAndConditionsUpdate(TermsAccepted(true), email = None)
+      override val expectedPayload = TermsAndConditionsUpdate(generic = Some(TermsAccepted(true)), taxCredits = None, email = None)
 
-      whenReady(connector.updateTermsAndConditions(Generic -> TermsAccepted(true), email = None).failed) {
+      whenReady(connector.updateTermsAndConditions(GenericTerms -> TermsAccepted(true), email = None).failed) {
         case e => e shouldBe an[Upstream4xxResponse]
       }
     }
@@ -302,24 +314,36 @@ class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with OneApp
       }
     }
 
-    "send accepted true with email" in new NewUserPayloadCheck {
-      override def expectedPayload = TermsAndConditionsUpdate(TermsAccepted(true), Some(email))
+    "send generic accepted true with email" in new NewUserPayloadCheck {
+      override def expectedPayload = TermsAndConditionsUpdate(generic = Some(TermsAccepted(true)), taxCredits = None, Some(email))
 
-      connector.updateTermsAndConditions(Generic -> TermsAccepted(true), Some(email)).futureValue should be (PreferencesCreated)
+      connector.updateTermsAndConditions(GenericTerms -> TermsAccepted(true), Some(email)).futureValue should be (PreferencesCreated)
     }
 
-    "send accepted false with no email" in new NewUserPayloadCheck {
-      override def expectedPayload = TermsAndConditionsUpdate(TermsAccepted(false), None)
+    "send generic accepted false with no email" in new NewUserPayloadCheck {
+      override def expectedPayload = TermsAndConditionsUpdate(generic = Some(TermsAccepted(false)), taxCredits = None, None)
 
-      connector.updateTermsAndConditions(Generic -> TermsAccepted(false), None).futureValue should be (PreferencesCreated)
+      connector.updateTermsAndConditions(GenericTerms -> TermsAccepted(false), None).futureValue should be (PreferencesCreated)
+    }
+
+    "send taxCredits accepted true with email" in new NewUserPayloadCheck {
+      override def expectedPayload = TermsAndConditionsUpdate(generic = Some(TermsAccepted(true)), taxCredits = None, Some(email))
+
+      connector.updateTermsAndConditions(GenericTerms -> TermsAccepted(true), Some(email)).futureValue should be (PreferencesCreated)
+    }
+
+    "send taxCredits accepted false with no email" in new NewUserPayloadCheck {
+      override def expectedPayload = TermsAndConditionsUpdate(generic = Some(TermsAccepted(false)), taxCredits = None, None)
+
+      connector.updateTermsAndConditions(GenericTerms -> TermsAccepted(false), None).futureValue should be (PreferencesCreated)
     }
 
     "try and send accepted true with email where preferences not working" in new NewUserPayloadCheck {
-      override def expectedPayload = TermsAndConditionsUpdate(TermsAccepted(true), Some(email))
+      override def expectedPayload = TermsAndConditionsUpdate(generic = Some(TermsAccepted(true)), taxCredits = None, Some(email))
 
       override def status: Int = 401
 
-      whenReady(connector.updateTermsAndConditions(Generic -> TermsAccepted(true), Some(email)).failed) {
+      whenReady(connector.updateTermsAndConditions(GenericTerms -> TermsAccepted(true), Some(email)).failed) {
         case e => e shouldBe an[Upstream4xxResponse]
       }
     }
