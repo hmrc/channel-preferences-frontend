@@ -25,7 +25,7 @@ private object Dependencies {
     "uk.gov.hmrc"             %% "a-b-test"                 % "2.0.0",
     "uk.gov.hmrc"             %% "emailaddress"             % "2.0.0",
     "uk.gov.hmrc"             %% "frontend-bootstrap"       % "7.17.0",
-    "uk.gov.hmrc"             %% "govuk-template"           % "5.1.0",
+    "uk.gov.hmrc"             %% "govuk-template"           % "5.2.0",
     "uk.gov.hmrc"             %% "play-authorisation"       % "4.3.0",
     "uk.gov.hmrc"             %% "play-authorised-frontend" % "6.3.0",
     "uk.gov.hmrc"             %% "play-config"              % "4.2.0",
