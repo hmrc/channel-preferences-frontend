@@ -40,7 +40,7 @@
             class="email-prefs__toggle"
             checked="checked"
             />
-            Yes, store my email address</b>
+            Yes, store my email address
         </label>
         <label class="selectable">
             <input
@@ -49,7 +49,7 @@
             name="opt-in"
             value="false"
             class="email-prefs__toggle"
-                @if(emailForm("opt-in").value == Some("false")) { checked="checked" }
+                @if(emailForm("opt-in").value.contains("false")) { checked="checked" }
             />
             No, I do not want my email address stored
         </label>
