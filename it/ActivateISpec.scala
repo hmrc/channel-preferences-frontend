@@ -19,7 +19,7 @@ class ActivateISpec extends PreferencesFrontEndServer with EmailSupport {
       val emailAddress = "test@test.com"
       val response = `/paperless/activate`(nino)(Some(termsAndConditions), Some(emailAddress)).put().futureValue
       response.status should be (PRECONDITION_FAILED)
-      (response.json \ "redirectUserTo").as[String] should be (s"http://localhost:9024/paperless/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText&termsAndConditions=${encryptAndEncode(termsAndConditions)}&emailAddress=${encryptAndEncode(emailAddress)}")
+      (response.json \ "redirectUserTo").as[String] should be (s"http://localhost:9024/paperless/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText&termsAndConditions=${encryptAndEncode(termsAndConditions)}&email=${encryptAndEncode(emailAddress)}")
       (response.json \ "optedIn").asOpt[Boolean] shouldBe empty
       (response.json \ "verifiedEmail").asOpt[Boolean] shouldBe empty
     }

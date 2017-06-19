@@ -15,16 +15,17 @@ object OptInDetailsForm {
     "opt-in" -> optional(boolean).verifying("sa_printing_preference.opt_in_choice_required", _.isDefined).transform(
       _.map(Data.PaperlessChoice.fromBoolean), (p: Option[Data.PaperlessChoice]) => p.map(_.toBoolean)
     ),
-    "accept-tc" -> optional(boolean).verifying("sa_printing_preference.accept_tc_required", _.contains(true))
+    "accept-tc" -> optional(boolean).verifying("sa_printing_preference.accept_tc_required", _.contains(true)),
+    "readonlyEmail" -> optional(boolean)
   )(Data.apply)(Data.unapply)
     .verifying("error.email.optIn", _ match {
-    case Data((None, _), _, Some(Data.PaperlessChoice.OptedIn), _) => false
+    case Data((None, _), _, Some(Data.PaperlessChoice.OptedIn), _, _) => false
     case _ => true
   })
     .verifying("email.confirmation.emails.unequal", formData => formData.email._1 == formData.email._2)
   )
 
-  case class Data(email: (Option[String], Option[String]), emailVerified: Option[String], choice: Option[Data.PaperlessChoice], acceptedTCs: Option[Boolean]) {
+  case class Data(email: (Option[String], Option[String]), emailVerified: Option[String], choice: Option[Data.PaperlessChoice], acceptedTCs: Option[Boolean], freezeEmail: Option[Boolean]) {
     lazy val isEmailVerified = emailVerified.contains("true")
 
     def mainEmail = email._1
@@ -46,7 +47,7 @@ object OptInDetailsForm {
 
     def apply(emailAddress: Option[EmailAddress], preference: Option[PaperlessChoice], acceptedTcs: Option[Boolean]): Data = {
       val emailAddressAsString = emailAddress.map(_.value)
-      Data((emailAddressAsString, emailAddressAsString), None, preference, acceptedTcs)
+      Data((emailAddressAsString, emailAddressAsString), None, preference, acceptedTcs, Some(emailAddress.isDefined && !acceptedTcs.contains(true)))
     }
   }
 }

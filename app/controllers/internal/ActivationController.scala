@@ -2,6 +2,9 @@ package controllers.internal
 
 import config.Global
 import connectors._
+import model.Encrypted
+import play.api.Logger
+import uk.gov.hmrc.emailaddress.EmailAddress
 //import connectors.EntityResolverConnector.{PreferenceFound, PreferenceNotFound}
 import connectors.{EntityResolverConnector, TermsAndConditonsAcceptance}
 import controllers.{Authentication, ExternalUrlPrefixes}
@@ -63,9 +66,12 @@ trait ActivationController extends FrontendController with Actions with AppName 
         Ok(Json.obj(
           "optedIn" -> false
         ))
+//    case Right(PreferenceNotFound(email)) if (hostContext.email.forall(_ == email.map(_.email))) =>
       case Right(PreferenceNotFound(email)) =>
-        val redirectUrl = hostUrl + controllers.internal.routes.ChoosePaperlessController.redirectToDisplayFormWithCohort(None, hostContext).url
+        val encryptedEmail = email.map(e => Encrypted(EmailAddress(e.email)))
+        val redirectUrl = hostUrl + controllers.internal.routes.ChoosePaperlessController.redirectToDisplayFormWithCohort(encryptedEmail, hostContext).url
         PreconditionFailed(Json.obj("redirectUserTo" -> redirectUrl))
+      case Right(PreferenceNotFound(email)) => BadRequest(Json.obj())
       case Left(status) => Status(status)
     }
   }
