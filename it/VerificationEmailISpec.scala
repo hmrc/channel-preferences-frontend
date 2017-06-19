@@ -13,7 +13,7 @@ class VerificationEmailISpec extends PreferencesFrontEndServer {
     "confirm email has been sent to the users verification email address" in new VerificationEmailTestCase with TestCaseWithFrontEndAuthentication {
       val email = uniqueEmail
 
-      val result = `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(email).futureValue
+      val result = `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email).futureValue
       result.status should be(201)
 
       val response = `/paperless/resend-verification-email`().withHeaders(cookieWithUtr).post(emptyJsonValue).futureValue
@@ -31,7 +31,7 @@ class VerificationEmailISpec extends PreferencesFrontEndServer {
     "display success message if the email link is valid" in new VerificationEmailTestCase {
       val email = uniqueEmail
       override val utr = GenerateRandom.utr()
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(email) should have(status(201))
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email) should have(status(201))
 
       aVerificationEmailIsReceivedFor(email)
 
@@ -47,7 +47,7 @@ class VerificationEmailISpec extends PreferencesFrontEndServer {
 
     "display expiry message if the link has expired" in new VerificationEmailTestCase {
       val email = uniqueEmail
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(email) should have(status(201))
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email) should have(status(201))
 
       aVerificationEmailIsReceivedFor(email)
 
@@ -65,7 +65,7 @@ class VerificationEmailISpec extends PreferencesFrontEndServer {
 
     "display already verified message if the email has been verified already" in new VerificationEmailTestCase {
       val email = uniqueEmail
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(email) should have(status(201))
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email) should have(status(201))
 
       aVerificationEmailIsReceivedFor(email)
 
@@ -83,7 +83,7 @@ class VerificationEmailISpec extends PreferencesFrontEndServer {
 
     "display expired old email address message if verification link is not valid due to opt out" in new VerificationEmailTestCase {
       val email = uniqueEmail
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(email) should have(status(201))
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email) should have(status(201))
 
       withReceivedEmails(1) { case List(mail) =>
         mail should have(
@@ -91,7 +91,7 @@ class VerificationEmailISpec extends PreferencesFrontEndServer {
           'subject ("HMRC electronic communications: verify your email address"))
       }
 
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postOptOut should have(status(200))
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptOut should have(status(200))
 
       `/sa/print-preferences/verification`.verify(verificationTokenFromEmail()) should beForAnExpiredOldEmail
     }
@@ -103,7 +103,7 @@ class VerificationEmailISpec extends PreferencesFrontEndServer {
       val email = uniqueEmail
       val newEmail = uniqueEmail
 
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(email) should have(status(201))
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email) should have(status(201))
 
       aVerificationEmailIsReceivedFor(email)
 
@@ -112,7 +112,7 @@ class VerificationEmailISpec extends PreferencesFrontEndServer {
 
       clearEmails()
 
-      `/preferences`(ggAuthHeaderWithUtr).postPendingEmail(newEmail) should have(status(200))
+      `/preferences`(ggAuthHeaderWithUtr).putPendingEmail(newEmail) should have(status(200))
 
       withReceivedEmails(2) { emails =>
         emails.flatMap(_.to) should contain(newEmail)
@@ -126,14 +126,14 @@ class VerificationEmailISpec extends PreferencesFrontEndServer {
     "display expired old email address message if the old email is verified and the new email has not been verified" in new VerificationEmailTestCase {
       val email = uniqueEmail
       val newEmail = uniqueEmail
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(email) should have(status(201))
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email) should have(status(201))
 
       aVerificationEmailIsReceivedFor(email)
 
       val verificationTokenFromFirstEmail = verificationTokenFromEmail()
       `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should have(status(200))
 
-      `/preferences`(ggAuthHeaderWithUtr).postPendingEmail(newEmail) should have(status(200))
+      `/preferences`(ggAuthHeaderWithUtr).putPendingEmail(newEmail) should have(status(200))
 
       `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should beForAnExpiredOldEmail
     }
@@ -141,13 +141,13 @@ class VerificationEmailISpec extends PreferencesFrontEndServer {
     "display expired old email address message if the old email is not verified and the new email has not been verified" in new VerificationEmailTestCase {
       val email = uniqueEmail
       val newEmail = uniqueEmail
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(email) should have(status(201))
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email) should have(status(201))
 
       aVerificationEmailIsReceivedFor(email)
 
       val verificationTokenFromFirstEmail = verificationTokenFromEmail()
 
-      `/preferences`(ggAuthHeaderWithUtr).postPendingEmail(newEmail) should have(status(200))
+      `/preferences`(ggAuthHeaderWithUtr).putPendingEmail(newEmail) should have(status(200))
 
       `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should beForAnExpiredOldEmail
     }
@@ -155,14 +155,14 @@ class VerificationEmailISpec extends PreferencesFrontEndServer {
     "display expired old email address message if the old email is not verified and the new email is verified" in new VerificationEmailTestCase {
       val email = uniqueEmail
       val newEmail = uniqueEmail
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(email) should have(status(201))
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email) should have(status(201))
 
       aVerificationEmailIsReceivedFor(email)
 
       val verificationTokenFromFirstEmail = verificationTokenFromEmail()
       clearEmails()
 
-      `/preferences`(ggAuthHeaderWithUtr).postPendingEmail(newEmail) should have(status(200))
+      `/preferences`(ggAuthHeaderWithUtr).putPendingEmail(newEmail) should have(status(200))
 
       aVerificationEmailIsReceivedFor(newEmail)
 
@@ -177,7 +177,7 @@ class VerificationEmailISpec extends PreferencesFrontEndServer {
       val newEmail = uniqueEmail
       val secondEmail = uniqueEmail
 
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(firstEmail) should have(status(201))
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(firstEmail) should have(status(201))
 
       aVerificationEmailIsReceivedFor(firstEmail)
       val verificationTokenFromFirstEmail = verificationTokenFromEmail()
@@ -185,9 +185,9 @@ class VerificationEmailISpec extends PreferencesFrontEndServer {
 
       `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should have(status(200))
 
-      `/preferences`(ggAuthHeaderWithUtr).postPendingEmail(secondEmail) should have(status(200))
+      `/preferences`(ggAuthHeaderWithUtr).putPendingEmail(secondEmail) should have(status(200))
       clearEmails()
-      `/preferences`(ggAuthHeaderWithUtr).postPendingEmail(newEmail) should have(status(200))
+      `/preferences`(ggAuthHeaderWithUtr).putPendingEmail(newEmail) should have(status(200))
 
       withReceivedEmails(2) { emails =>
         emails.flatMap(_.to) should contain(newEmail)
@@ -204,16 +204,16 @@ class VerificationEmailISpec extends PreferencesFrontEndServer {
       val secondEmail = uniqueEmail
       val newEmail = uniqueEmail
 
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(firstEmail) should have(status(201))
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(firstEmail) should have(status(201))
 
       aVerificationEmailIsReceivedFor(firstEmail)
       val verificationTokenFromFirstEmail = verificationTokenFromEmail()
 
       `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should have(status(200))
 
-      `/preferences`(ggAuthHeaderWithUtr).postPendingEmail(secondEmail) should have(status(200))
+      `/preferences`(ggAuthHeaderWithUtr).putPendingEmail(secondEmail) should have(status(200))
 
-      `/preferences`(ggAuthHeaderWithUtr).postPendingEmail(newEmail) should have(status(200))
+      `/preferences`(ggAuthHeaderWithUtr).putPendingEmail(newEmail) should have(status(200))
 
       `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) should beForAnExpiredOldEmail
     }

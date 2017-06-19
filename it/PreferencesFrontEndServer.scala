@@ -90,7 +90,7 @@ trait PreferencesFrontEndServer extends ServiceSpec {
         .withHeaders(header)
         .get
 
-      def postPendingEmail(email: String) = call(server.externalResource("entity-resolver", "/preferences/pending-email"))
+      def putPendingEmail(email: String) = call(server.externalResource("entity-resolver", "/preferences/pending-email"))
         .withHeaders(header)
         .put(Json.parse(s"""{"email":"$email"}"""))
     }
@@ -103,10 +103,10 @@ trait PreferencesFrontEndServer extends ServiceSpec {
     }
 
     def `/preferences/terms-and-conditions`(header: (String, String)) = new {
-      def postPendingEmail(pendingEmail: String) = call(server.externalResource("entity-resolver",
+      def postGenericOptIn(pendingEmail: String) = call(server.externalResource("entity-resolver",
         s"/preferences/terms-and-conditions")).withHeaders(header).post(Json.parse(s"""{"generic":{"accepted":true}, "email":"$pendingEmail"}"""))
 
-      def postOptOut = call(server.externalResource("entity-resolver",
+      def postGenericOptOut = call(server.externalResource("entity-resolver",
         s"/preferences/terms-and-conditions")).withHeaders(header).post(Json.parse("""{"generic":{"accepted":false}}"""))
     }
 
