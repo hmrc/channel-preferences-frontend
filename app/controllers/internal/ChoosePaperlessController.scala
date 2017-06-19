@@ -38,8 +38,6 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
   def emailConnector: EmailConnector
   def auditConnector: AuditConnector
 
-  def calculateCohort(hostContext: HostContext): OptInCohort
-
   def redirectToDisplayFormWithCohort(emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = authenticated { implicit authContext => implicit request =>
     createRedirectToDisplayFormWithCohort(emailAddress, hostContext)
   }

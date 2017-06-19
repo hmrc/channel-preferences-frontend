@@ -129,16 +129,6 @@ trait PreferencesFrontEndServer extends ServiceSpec {
 
       def postExpireVerificationLink(entityId: String) = call(server.externalResource("preferences",
         s"/preferences-admin/$entityId/expire-email-verification-link")).post(EmptyContent())
-
-      def postLegacyOptOut(entityId: String) = {
-        call(server.externalResource("preferences", path = s"/preferences-admin/$entityId/legacy-opt-out"))
-          .post(Json.parse("{}"))
-      }
-
-      def postLegacyOptIn(entityId: String, email: String) = {
-        call(server.externalResource("preferences", path = s"/preferences-admin/${entityId}/legacy-opt-in/${email}"))
-          .post(Json.parse("{}"))
-      }
     }
 
     val `/preferences-admin/bounce-email` = new {
