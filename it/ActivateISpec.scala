@@ -38,7 +38,7 @@ class ActivateISpec extends PreferencesFrontEndServer with EmailSupport {
     "return OK with the optedIn attribute set to true and verifiedEmail set to false if the user has opted in and not verified" in new TestCaseWithFrontEndAuthentication {
 
       val email = s"${UUID.randomUUID().toString}@email.com"
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(email) should have(status(201))
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email) should have(status(201))
 
       val response = `/paperless/activate`(utr).put().futureValue
       response.status should be (OK)
@@ -51,7 +51,7 @@ class ActivateISpec extends PreferencesFrontEndServer with EmailSupport {
     "return OK with the optedIn attribute set to true and verifiedEmail set to true if the user has opted in and verified" in new TestCaseWithFrontEndAuthentication {
 
       val email = s"${UUID.randomUUID().toString}@email.com"
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(email) should have(status(201))
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email) should have(status(201))
       `/preferences-admin/sa/individual`.verifyEmailFor(`/entity-resolver/sa/:utr`(utr.value)) should have(status(204))
       val response = `/paperless/activate`(utr).put().futureValue
       response.status should be (OK)
@@ -64,7 +64,7 @@ class ActivateISpec extends PreferencesFrontEndServer with EmailSupport {
     "return OK with the optedId attribute set to false if the user has opted out" in new TestCaseWithFrontEndAuthentication {
 
       val email = s"${UUID.randomUUID().toString}@email.com"
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postOptOut should have(status(201))
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptOut should have(status(201))
 
       val response = `/paperless/activate`(utr).put().futureValue
       response.status should be (OK)

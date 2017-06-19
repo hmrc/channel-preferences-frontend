@@ -28,7 +28,7 @@ class PaperlessWarningPartialISpec
 
     "have a verification warning for the unverified email" in new TestCaseWithFrontEndAuthentication {
       val email = uniqueEmail
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(email) should have (status(201))
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email) should have (status(201))
 
       val response =`/paperless/warnings`.withHeaders(cookieWithUtr).get()
 
@@ -38,7 +38,7 @@ class PaperlessWarningPartialISpec
 
     "have no warning if user then verifies email" in new TestCaseWithFrontEndAuthentication {
       val email = uniqueEmail
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(email) should have(status(201))
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email) should have(status(201))
       `/preferences-admin/sa/individual`.verifyEmailFor(`/entity-resolver/sa/:utr`(utr.value)) should have(status(204))
 
       val response =`/paperless/warnings`.withHeaders(cookieWithUtr).get()
@@ -49,8 +49,8 @@ class PaperlessWarningPartialISpec
 
     "have no warning if user then opts out" in new TestCaseWithFrontEndAuthentication {
       val email = uniqueEmail
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(email) should have(status(201))
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postOptOut should have(status(200))
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email) should have(status(201))
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptOut should have(status(200))
 
       val response =`/paperless/warnings`.withHeaders(cookieWithUtr).get()
 
@@ -60,8 +60,8 @@ class PaperlessWarningPartialISpec
 
     "have verification warning if user then changes email" in new TestCaseWithFrontEndAuthentication {
       val email = uniqueEmail
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(email) should have(status(201))
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(changedUniqueEmail) should have(status(200))
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email) should have(status(201))
+      `/preferences`(ggAuthHeaderWithUtr).putPendingEmail(changedUniqueEmail) should have(status(200))
 
       val response =`/paperless/warnings`.withHeaders(cookieWithUtr).get()
 
@@ -74,7 +74,7 @@ class PaperlessWarningPartialISpec
 
     "have a bounced warning" in new TestCaseWithFrontEndAuthentication {
       val email = uniqueEmail
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(email) should have(status(201))
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email) should have(status(201))
       `/preferences-admin/bounce-email`.post(email) should have(status(204))
 
       val response =`/paperless/warnings`.withHeaders(cookieWithUtr).get()
@@ -85,9 +85,9 @@ class PaperlessWarningPartialISpec
 
     "have no warning if user then opts out" in new TestCaseWithFrontEndAuthentication {
       val email = uniqueEmail
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(email) should have(status(201))
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email) should have(status(201))
       `/preferences-admin/bounce-email`.post(email) should have(status(204))
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postOptOut
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptOut
 
       val response =`/paperless/warnings`.withHeaders(cookieWithUtr).get()
 
@@ -97,9 +97,9 @@ class PaperlessWarningPartialISpec
 
     "have a verification warning if user then successfully sends verification link to same address" in new TestCaseWithFrontEndAuthentication {
       val email = uniqueEmail
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(email) should have(status(201))
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email) should have(status(201))
       `/preferences-admin/bounce-email`.post(email) should have(status(204))
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(email) should have(status(200))
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email) should have(status(200))
 
       val response =`/paperless/warnings`.withHeaders(cookieWithUtr).get()
 
@@ -109,9 +109,9 @@ class PaperlessWarningPartialISpec
 
     "have verification warning if user then changes email" in new TestCaseWithFrontEndAuthentication {
       val email = uniqueEmail
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(email) should have(status(201))
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email) should have(status(201))
       `/preferences-admin/bounce-email`.post(email) should have(status(204))
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(changedUniqueEmail) should have(status(200))
+      `/preferences`(ggAuthHeaderWithUtr).putPendingEmail(changedUniqueEmail) should have(status(200))
 
       val response =`/paperless/warnings`.withHeaders(cookieWithUtr).get()
 
@@ -121,9 +121,9 @@ class PaperlessWarningPartialISpec
 
     "have no warning if user successfully resends link and verifies" in new TestCaseWithFrontEndAuthentication {
       val email = uniqueEmail
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(email) should have(status(201))
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email) should have(status(201))
       `/preferences-admin/bounce-email`.post(email) should have(status(204))
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(email) should have(status(200))
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email) should have(status(200))
       `/preferences-admin/sa/individual`.verifyEmailFor(`/entity-resolver/sa/:utr`(utr.value)) should have(status(204))
 
       val response =`/paperless/warnings`.withHeaders(cookieWithUtr).get()
@@ -134,9 +134,9 @@ class PaperlessWarningPartialISpec
 
     "have inbox full warning if user resends link and their inbox is full" in new TestCaseWithFrontEndAuthentication {
       val email = uniqueEmail
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(email) should have(status(201))
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email) should have(status(201))
       `/preferences-admin/bounce-email`.post(email) should have(status(204))
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(email) should have(status(200))
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email) should have(status(200))
       `/preferences-admin/sa/bounce-email-inbox-full`.post(email) should have(status(204))
 
       val response =`/paperless/warnings`.withHeaders(cookieWithUtr).get()
@@ -150,7 +150,7 @@ class PaperlessWarningPartialISpec
   "Paperless warnings partial for opted out user" should {
 
     "be empty" in new TestCaseWithFrontEndAuthentication {
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postOptOut should have(status(201))
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptOut should have(status(201))
 
       val response = `/paperless/warnings`.withHeaders(cookieWithUtr).get()
 
@@ -162,7 +162,7 @@ class PaperlessWarningPartialISpec
 
     "have a bounced warning" in new TestCaseWithFrontEndAuthentication {
       val email = uniqueEmail
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postPendingEmail(email) should have(status(201))
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email) should have(status(201))
       `/preferences-admin/sa/individual`.verifyEmailFor(`/entity-resolver/sa/:utr`(utr.value)) should have(status(204))
       `/preferences-admin/bounce-email`.post(email) should have(status(204))
 
