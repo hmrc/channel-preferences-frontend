@@ -35,7 +35,11 @@ abstract class ChoosePaperlessControllerSetup extends MockitoSugar {
   def assignedCohort: OptInCohort = IPage
 
   val mockAuditConnector = mock[AuditConnector]
-  val mockEntityResolverConnector = mock[EntityResolverConnector]
+  val mockEntityResolverConnector : EntityResolverConnector = {
+    val entityResolverMock = mock[EntityResolverConnector]
+    when(entityResolverMock.getPreferencesStatus(any())(any())).thenReturn(Future.successful(Right[Int,PreferenceStatus](PreferenceNotFound(None))))
+    entityResolverMock
+  }
   val mockAuthConnector = mock[AuthConnector]
   val mockEmailConnector = mock[EmailConnector]
 
@@ -161,8 +165,37 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
 
       document.getElementById("email.main") shouldNot be(null)
       document.getElementById("email.main").attr("value") shouldBe emailAddress
+      document.getElementById("email.main").hasAttr("readonly") shouldBe false
       document.getElementById("email.confirm") shouldNot be(null)
       document.getElementById("email.confirm").attr("value") shouldBe emailAddress
+      document.getElementById("email.main").hasAttr("readonly") shouldBe false
+      document.getElementById("opt-in-in").attr("checked") should be("checked")
+      document.getElementById("opt-in-out").attr("checked") should be(empty)
+    }
+
+    "render an email input field populated with the supplied readonly email address, and the Opt-in option selected if a preferences is not found for terms but an email do exist" in new ChoosePaperlessControllerSetup {
+      val emailAddress = "bob@bob.com"
+
+      override val mockEntityResolverConnector : EntityResolverConnector = {
+        val entityResolverMock = mock[EntityResolverConnector]
+        val emailPreference = EmailPreference(emailAddress, true, false, false, None)
+        when(entityResolverMock.getPreferencesStatus(any())(any())).
+          thenReturn(Future.successful(Right[Int,PreferenceStatus](PreferenceNotFound(Some(emailPreference))))
+        )
+        entityResolverMock
+      }
+      val page = controller.displayForm(Some(assignedCohort), Some(Encrypted(EmailAddress(emailAddress))), TestFixtures.sampleHostContext)(request)
+
+      status(page) shouldBe 200
+
+      val document = Jsoup.parse(contentAsString(page))
+
+      document.getElementById("email.main") shouldNot be(null)
+      document.getElementById("email.main").attr("value") shouldBe emailAddress
+      document.getElementById("email.main").hasAttr("readonly") shouldBe true
+      document.getElementById("email.confirm") shouldNot be(null)
+      document.getElementById("email.confirm").attr("value") shouldBe emailAddress
+      document.getElementById("email.confirm").hasAttr("hidden") shouldBe true
       document.getElementById("opt-in-in").attr("checked") should be("checked")
       document.getElementById("opt-in-out").attr("checked") should be(empty)
     }

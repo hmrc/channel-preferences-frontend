@@ -33,7 +33,7 @@
 
         <fieldset class="connected">
 
-            @if(emailForm("readonlyEmail").value.contains("true")) {
+            @if(emailForm("emailAlreadyStored").value.contains("true")) {
                 <input type="email" id="email.main" name="email.main" value="@emailForm("email.main").value" readonly>
                 <input type="email" id="email.confirm" name="email.confirm" value="@emailForm("email.main").value" hidden>
                 <input type="hidden" id="emailVerified" name="emailVerified" value="true">

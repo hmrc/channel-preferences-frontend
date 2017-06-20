@@ -49,11 +49,12 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
     cohort.fold(ifEmpty = Future.successful(createRedirectToDisplayFormWithCohort(emailAddress, hostContext))) { cohort => {
       auditPageShown(authContext, AccountDetails, cohort)
       val email = emailAddress.map(_.decryptedValue)
-      Future.successful(Ok(views.html.sa.prefs.sa_printing_preference(
-        emailForm = OptInDetailsForm().fill(OptInDetailsForm.Data(emailAddress = email, preference = None, acceptedTcs = None)),
-        submitPrefsFormAction = internal.routes.ChoosePaperlessController.submitForm(hostContext),
-        cohort = cohort
-      )))
+      hasStoredEmail(hostContext).map( emailAlredyStored =>
+        Ok(views.html.sa.prefs.sa_printing_preference(
+          emailForm = OptInDetailsForm().fill(OptInDetailsForm.Data(emailAddress = email, preference = None, acceptedTcs = None, emailAlreadyStored = Some(emailAlredyStored))),
+          submitPrefsFormAction = internal.routes.ChoosePaperlessController.submitForm(hostContext),
+          cohort = cohort
+        )))
     }}}
 
 
@@ -130,6 +131,14 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
         "newUserPreferencesCreated" -> (preferencesStatus == PreferencesCreated).toString
       ))
     ))
+
+  private def hasStoredEmail(hostContext: HostContext)(implicit hc: HeaderCarrier): Future[Boolean] = {
+    val terms = hostContext.termsAndConditions.getOrElse("generic")
+    entityResolverConnector.getPreferencesStatus(terms) map {
+      case Right(PreferenceNotFound(Some(email))) => true
+      case _ => false
+    }
+  }
 
   def displayNearlyDone(emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = authenticated { implicit authContext => implicit request =>
     implicit val hostContextImplicit = hostContext
