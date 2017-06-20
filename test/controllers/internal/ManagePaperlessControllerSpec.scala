@@ -18,6 +18,8 @@ import uk.gov.hmrc.play.frontend.auth.AuthContext
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 import uk.gov.hmrc.play.http.HttpResponse
 import uk.gov.hmrc.play.test.UnitSpec
+import PreferenceResponse._
+
 
 import scala.concurrent.Future
 
@@ -47,7 +49,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
 
   "clicking on Change email address link in the account details page" should {
     "display update email address form when accessed from Account Details" in new Setup {
-      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified)))
+      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified))).toNewPreference()
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
 
       val result = Future.successful(controller._displayChangeEmailAddress(None)(user, request, TestFixtures.sampleHostContext))
@@ -64,7 +66,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
 
 
     "display update email address form with the email input field pre-populated when coming back from the warning page" in new Setup {
-      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified)))
+      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified))).toNewPreference()
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
 
       val existingEmailAddress = "existing@email.com"
@@ -82,7 +84,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
 
     "return bad request if the SA user has opted into paper" in new Setup {
 
-      val saPreferences = SaPreference(false, None)
+      val saPreferences = SaPreference(false, None).toNewPreference()
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
 
       val result = Future.successful(controller._displayChangeEmailAddress(None)(user, request, TestFixtures.sampleHostContext))
@@ -95,7 +97,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
 
     "call preferences as if opting-in and send the email as a part of the process" in new Setup {
 
-      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Pending)))
+      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Pending))).toNewPreference()
 
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
       when(mockEntityResolverConnector.changeEmailAddress(is("test@test.com"))(any())).thenReturn(Future.successful((HttpResponse(OK))))
@@ -115,7 +117,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
 
     "display the confirmation page with the current email address obscured" in new Setup {
       val emailAddress = "someone@email.com"
-      val saPreferences = SaPreference(true, Some(SaEmailPreference(emailAddress, SaEmailPreference.Status.Verified)))
+      val saPreferences = SaPreference(true, Some(SaEmailPreference(emailAddress, SaEmailPreference.Status.Verified))).toNewPreference()
 
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
 
@@ -133,7 +135,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
 
     "validate the email address, update the address for SA user and redirect to confirmation page" in new Setup {
       val emailAddress = "someone@email.com"
-      val saPreferences = SaPreference(true, Some(SaEmailPreference("oldEmailAddress@test.com", SaEmailPreference.Status.Verified)))
+      val saPreferences = SaPreference(true, Some(SaEmailPreference("oldEmailAddress@test.com", SaEmailPreference.Status.Verified))).toNewPreference()
 
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(true)
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
@@ -151,7 +153,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
     }
 
     "show error if the 2 email address fields do not match" in new Setup {
-      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified)))
+      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified))).toNewPreference()
 
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
 
@@ -165,7 +167,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
 
     "show error if the email address is not syntactically valid" in new Setup {
       val emailAddress = "invalid-email"
-      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified)))
+      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified))).toNewPreference()
 
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
       val page = Future.successful(controller._submitChangeEmailAddress(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress)), TestFixtures.sampleHostContext))
@@ -177,7 +179,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
     }
 
     "show error if the email field is empty" in new Setup {
-      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified)))
+      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified))).toNewPreference()
 
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
 
@@ -192,7 +194,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
     "show a warning page if the email has a valid structure but does not pass validation by the email micro service" in new Setup {
 
       val emailAddress = "someone@dodgy.domain"
-      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified)))
+      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified))).toNewPreference()
 
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(false)
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
@@ -214,7 +216,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
 
     "if the verified flag is true, save the preference and redirect to the thank you page without verifying the email address again" in new Setup {
       val emailAddress = "someone@email.com"
-      val saPreferences = SaPreference(true, Some(SaEmailPreference("oldEmailAddress@test.com", SaEmailPreference.Status.Verified)))
+      val saPreferences = SaPreference(true, Some(SaEmailPreference("oldEmailAddress@test.com", SaEmailPreference.Status.Verified))).toNewPreference()
 
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
       when(mockEntityResolverConnector.changeEmailAddress(is(emailAddress))(any())).thenReturn(Future.successful(HttpResponse(OK)))
@@ -233,7 +235,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
     "if the verified flag is false and the email does not pass validation by the email micro service, display the verify page" in new Setup {
 
       val emailAddress = "someone@dodgy.domain"
-      val saPreferences = SaPreference(true, Some(SaEmailPreference("oldEmailAddress@test.com", SaEmailPreference.Status.Verified)))
+      val saPreferences = SaPreference(true, Some(SaEmailPreference("oldEmailAddress@test.com", SaEmailPreference.Status.Verified))).toNewPreference()
 
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(false)
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
@@ -256,7 +258,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
     "if the verified flag is any value other than true, treat it as false" in new Setup {
 
       val emailAddress = "someone@dodgy.domain"
-      val saPreferences = SaPreference(true, Some(SaEmailPreference("oldEmailAddress@test.com", SaEmailPreference.Status.Verified)))
+      val saPreferences = SaPreference(true, Some(SaEmailPreference("oldEmailAddress@test.com", SaEmailPreference.Status.Verified))).toNewPreference()
 
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(false)
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
@@ -280,7 +282,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
   "clicking on opt-out of email reminders link in the account details page" should {
 
     "display the <are you sure> page" in new Setup {
-      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified)))
+      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified))).toNewPreference()
 
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
 
@@ -295,7 +297,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
     }
 
     "return bad request if the user has not opted into digital" in new Setup{
-      val saPreferences = SaPreference(false, None)
+      val saPreferences = SaPreference(false, None).toNewPreference()
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
 
       val result = controller._displayStopPaperless(user, request, TestFixtures.sampleHostContext)
@@ -307,10 +309,10 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
   "A post to confirm opt out of email reminders" should {
 
     "return a redirect to thank you page" in new Setup {
-      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified)))
+      val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified))).toNewPreference()
 
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
-      when(mockEntityResolverConnector.updateTermsAndConditions(is(Generic -> TermsAccepted(false)), is(None))(any())).thenReturn(Future.successful(PreferencesExists))
+      when(mockEntityResolverConnector.updateTermsAndConditions(is(GenericTerms -> TermsAccepted(false)), is(None))(any())).thenReturn(Future.successful(PreferencesExists))
 
       val result = Future.successful(controller._submitStopPaperless(user, request, TestFixtures.sampleHostContext))
 
@@ -318,7 +320,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
       header("Location", result).get should include(routes.ManagePaperlessController.displayStopPaperlessConfirmed(TestFixtures.sampleHostContext).url)
       val page = Jsoup.parse(contentAsString(result))
 
-      verify(mockEntityResolverConnector).updateTermsAndConditions(is(Generic -> TermsAccepted(false)), is(None)) (any())
+      verify(mockEntityResolverConnector).updateTermsAndConditions(is(GenericTerms -> TermsAccepted(false)), is(None)) (any())
     }
   }
 

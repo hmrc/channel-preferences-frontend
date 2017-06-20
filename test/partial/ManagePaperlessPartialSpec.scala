@@ -15,6 +15,7 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
+import connectors.PreferenceResponse._
 
 class ManagePaperlessPartialSpec extends UnitSpec with OneAppPerSuite with ScalaFutures {
   implicit val hc = HeaderCarrier()
@@ -32,7 +33,7 @@ class ManagePaperlessPartialSpec extends UnitSpec with OneAppPerSuite with Scala
         status = Status.Pending,
         mailboxFull = false,
         linkSent = Some(new LocalDate(2014,10,2)))
-      val saPreference = SaPreference(digital = true, Some(emailPreferences))
+      val saPreference = SaPreference(digital = true, Some(emailPreferences)).toNewPreference()
 
       ManagePaperlessPartial(Some(saPreference)).body should (
         include("Email for paperless notifications") and
@@ -47,7 +48,7 @@ class ManagePaperlessPartialSpec extends UnitSpec with OneAppPerSuite with Scala
 
     "contain verified email details in content when opted-in and verified" in {
       val emailPreferences: SaEmailPreference = SaEmailPreference("test@test.com", Status.Verified, false)
-      val saPreference = SaPreference(true, Some(emailPreferences))
+      val saPreference = SaPreference(true, Some(emailPreferences)).toNewPreference()
 
       ManagePaperlessPartial(Some(saPreference)).body should (
         include("Email address for paperless notifications") and
@@ -61,7 +62,7 @@ class ManagePaperlessPartialSpec extends UnitSpec with OneAppPerSuite with Scala
 
     "contain bounced email with 'mailbox filled up' details in content when the 'current' email is bounced with full mailbox error" in {
       val emailPreferences: SaEmailPreference = SaEmailPreference("test@test.com", Status.Bounced, mailboxFull = true)
-      val saPreference = SaPreference(true, Some(emailPreferences))
+      val saPreference = SaPreference(true, Some(emailPreferences)).toNewPreference()
 
       ManagePaperlessPartial(Some(saPreference)).body should (
         include("You need to verify") and
@@ -75,7 +76,7 @@ class ManagePaperlessPartialSpec extends UnitSpec with OneAppPerSuite with Scala
 
     "contain bounced email with 'email can't be delivered' in content when the 'current' email is bounced with email can't be delivered error" in {
       val emailPreferences: SaEmailPreference = SaEmailPreference("test@test.com", Status.Bounced, mailboxFull = false)
-      val saPreference = SaPreference(true, Some(emailPreferences))
+      val saPreference = SaPreference(true, Some(emailPreferences)).toNewPreference()
 
       ManagePaperlessPartial(Some(saPreference)).body should (
         include("You need to verify") and
@@ -89,7 +90,7 @@ class ManagePaperlessPartialSpec extends UnitSpec with OneAppPerSuite with Scala
 
     "contain bounced email but no 'full mailbox' details in content when the 'current' email is bounced with other error" in {
       val emailPreferences: SaEmailPreference = SaEmailPreference("test@test.com", Status.Bounced, false)
-      val saPreference = SaPreference(true, Some(emailPreferences))
+      val saPreference = SaPreference(true, Some(emailPreferences)).toNewPreference()
 
       ManagePaperlessPartial(Some(saPreference)).body should (
         include("You need to verify") and
@@ -103,7 +104,7 @@ class ManagePaperlessPartialSpec extends UnitSpec with OneAppPerSuite with Scala
     }
 
     "contain opted out details in content when user is opted-out" in {
-      val saPreference: SaPreference = SaPreference(false, None)
+      val saPreference =  SaPreference(false, None).toNewPreference()
 
       ManagePaperlessPartial(Some(saPreference)).body should (
         include("Replace the letters you get about taxes with emails.") and

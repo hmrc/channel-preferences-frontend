@@ -129,16 +129,6 @@ trait PreferencesFrontEndServer extends ServiceSpec {
 
       def postExpireVerificationLink(entityId: String) = call(server.externalResource("preferences",
         s"/preferences-admin/$entityId/expire-email-verification-link")).post(EmptyContent())
-
-      def postLegacyOptOut(entityId: String) = {
-        call(server.externalResource("preferences", path = s"/preferences-admin/$entityId/legacy-opt-out"))
-          .post(Json.parse("{}"))
-      }
-
-      def postLegacyOptIn(entityId: String, email: String) = {
-        call(server.externalResource("preferences", path = s"/preferences-admin/${entityId}/legacy-opt-in/${email}"))
-          .post(Json.parse("{}"))
-      }
     }
 
     val `/preferences-admin/bounce-email` = new {
@@ -194,15 +184,23 @@ trait PreferencesFrontEndServer extends ServiceSpec {
     val encryptedReturnText = URLEncoder.encode(QueryParameterCrypto.encrypt(PlainText(returnLinkText)).value, "UTF-8")
 
 
-    def `/paperless/activate`(taxIdentifiers: TaxIdentifier*) = new {
+    def `/paperless/activate`(taxIdentifiers: TaxIdentifier*)(termsAndConditions: Option[String] = None, emailAddress: Option[String] = None) = new {
       val builder = authBuilderFrom(taxIdentifiers: _*)
+
+      val queryParamsMap: Map[String, Option[String]] = Map(
+        "returnUrl" -> Some(returnUrl),
+        "returnLinkText" -> Some(returnLinkText),
+        "termsAndConditions" -> termsAndConditions,
+        "email" -> emailAddress
+      )
 
       private val url = call(server.localResource("/paperless/activate"))
         .withHeaders(builder.bearerTokenHeader(), builder.sessionCookie())
         .withQueryString(
-          "returnUrl" -> QueryParameterCrypto.encrypt(PlainText(returnUrl)).value,
-          "returnLinkText" -> QueryParameterCrypto.encrypt(PlainText(returnLinkText)).value
-        )
+          queryParamsMap.collect {
+            case (key, Some(value)) => (key -> QueryParameterCrypto.encrypt(PlainText(value)).value)
+          }.toSeq:_ *
+      )
 
       private val formTypeBody = Json.parse("""{"active":true}""")
 

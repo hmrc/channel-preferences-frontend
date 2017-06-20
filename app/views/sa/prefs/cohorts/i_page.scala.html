@@ -28,33 +28,47 @@
             />
             Yes, send me electronic communications
         </label>
+
+        @if(emailForm("opt-in").value.contains("false")) { checked="checked" }
+
         <fieldset class="connected">
-            @input(
-                emailForm("email.main"),
-                '_label -> "Email address",
-                '_labelClass -> "bold",
-                '_labelHighlight -> true,
-                '_divClass -> "row",
-                '_inputClass -> "input--medium input--cleared",
-                '_type -> "email",
-                'parentField -> emailForm("email")
-            )
 
-            @input(
-                emailForm("email.confirm"),
-                '_label -> "Confirm email address",
-                '_labelClass -> "bold",
-                '_labelHighlight -> true,
-                '_divClass -> "row",
-                '_type -> "email",
-                '_inputClass -> "input--medium input--cleared"
-            )
-
-            @singleCheckbox(
+            @if(emailForm("emailAlreadyStored").value.contains("true")) {
+                <input type="email" id="email.main" name="email.main" value="@emailForm("email.main").value" readonly>
+                <input type="email" id="email.confirm" name="email.confirm" value="@emailForm("email.main").value" hidden>
+                <input type="hidden" id="emailVerified" name="emailVerified" value="true">
+                @singleCheckbox(
                 emailForm("accept-tc"),
                 '_label -> Html(Messages("sa_printing_preference.tc.preLinkText", Link.toExternalPage(id = Some("terms-and-conditions"), url = "https://www.tax.service.gov.uk/information/terms#secure", value = Some(Messages("sa_printing_preference.tc.linkText"))).toHtml)),
-                '_labelClass -> "label--inline"
-            )
+                '_labelClass -> "label"
+                )
+            } else {
+                @input(
+                emailForm("email.main"),
+                    '_label -> "Email address",
+                    '_labelClass -> "bold",
+                    '_labelHighlight -> true,
+                    '_divClass -> "row",
+                    '_inputClass -> "input--medium input--cleared",
+                    '_type -> "email",
+                    'parentField -> emailForm("email")
+                )
+                @input(
+                emailForm("email.confirm"),
+                    '_label -> "Confirm email address",
+                    '_labelClass -> "bold",
+                    '_labelHighlight -> true,
+                    '_divClass -> "row",
+                    '_type -> "email",
+                    '_inputClass -> "input--medium input--cleared",
+                    'readonly -> "readonly"
+                )
+                @singleCheckbox(
+                    emailForm("accept-tc"),
+                    '_label -> Html(Messages("sa_printing_preference.tc.preLinkText", Link.toExternalPage(id = Some("terms-and-conditions"), url = "https://www.tax.service.gov.uk/information/terms#secure", value = Some(Messages("sa_printing_preference.tc.linkText"))).toHtml)),
+                    '_labelClass -> "label--inline"
+                )
+            }
             <p>By signing up, you confirm that you:</p>
             <ul class="bullets form-hint">
                 <li>want to receive statutory notices, decisions, estimates and reminders electronically in connection with your tax affairs</li>

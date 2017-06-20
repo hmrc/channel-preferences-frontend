@@ -1,17 +1,18 @@
 @(title: String,
-  betaBanner: Html = HtmlFormat.empty,
-  sidebarLinks: Option[Html] = None,
-  contentHeader: Option[Html] = None,
-  bodyClasses: Option[String] = None,
-  mainClass: Option[String] = None)(mainContent: Html)(implicit authContext: Option[uk.gov.hmrc.play.frontend.auth.AuthContext] = None, request : Request[_], messages: Messages)
+        navTitle: String = "",
+        betaBanner: Html = HtmlFormat.empty,
+        sidebarLinks: Option[Html] = None,
+        contentHeader: Option[Html] = None,
+        bodyClasses: Option[String] = None,
+        mainClass: Option[String] = None)(mainContent: Html)(implicit authContext: Option[uk.gov.hmrc.play.frontend.auth.AuthContext] = None, request: Request[_], messages: Messages)
 
-@main(
-  title = title,
-  navTitle = "",
-  navLinks = views.html.includes.header_nav_links(),
-  betaBanner = betaBanner,
-  sidebarLinks = sidebarLinks,
-  contentHeader = contentHeader,
-  bodyClasses = bodyClasses,
-  mainClass = mainClass
-)(mainContent = mainContent)
+    @main(
+        title = title,
+        navTitle = navTitle,
+        navLinks = views.html.includes.header_nav_links(),
+        betaBanner = betaBanner,
+        sidebarLinks = sidebarLinks,
+        contentHeader = contentHeader,
+        bodyClasses = bodyClasses,
+        mainClass = mainClass
+    )(mainContent = mainContent)

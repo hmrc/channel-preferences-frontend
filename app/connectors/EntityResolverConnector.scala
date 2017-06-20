@@ -1,13 +1,8 @@
 package connectors
 
-import java.net.URLEncoder
-
 import config.ServicesCircuitBreaker
-import controllers.internal.OptInCohort
-import model.{FormType, HostContext}
 import play.api.http.Status
 import play.api.libs.json._
-import uk.gov.hmrc.domain.TaxIds.TaxIdWithName
 import uk.gov.hmrc.domain.{Nino, SaUtr, TaxIdentifier}
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
@@ -23,7 +18,9 @@ object Email {
 
 sealed trait TermsType
 
-case object Generic extends TermsType
+case object GenericTerms extends TermsType
+
+case object TaxCreditsTerms extends TermsType
 
 sealed trait PreferencesStatus
 
@@ -62,18 +59,24 @@ object EntityResolverConnector extends EntityResolverConnector with ServicesConf
     implicit val format = Json.format[ActivationStatus]
   }
 
-  protected[connectors] case class TermsAndConditionsUpdate(generic: TermsAccepted, email: Option[String])
+  protected[connectors] case class TermsAndConditionsUpdate(generic: Option[TermsAccepted], taxCredits: Option[TermsAccepted], email: Option[String])
 
   protected[connectors] object TermsAndConditionsUpdate {
     implicit val format = Json.format[TermsAndConditionsUpdate]
 
     def from(terms: (TermsType, TermsAccepted), email: Option[String]): TermsAndConditionsUpdate = terms match {
-      case (Generic, accepted: TermsAccepted) => TermsAndConditionsUpdate(generic = accepted, email = email)
+      case (GenericTerms, accepted: TermsAccepted) => TermsAndConditionsUpdate(generic = Some(accepted), None, email = email)
+      case (TaxCreditsTerms, accepted: TermsAccepted) => TermsAndConditionsUpdate(generic = None, taxCredits = Some(accepted), email = email)
       case (termsType, _) => throw new IllegalArgumentException(s"Could not work with termsType=$termsType")
     }
   }
 
 }
+
+trait PreferenceStatus
+case class PreferenceFound(accepted: Boolean, email: Option[EmailPreference]) extends PreferenceStatus
+case class PreferenceNotFound(email: Option[EmailPreference]) extends PreferenceStatus
+
 
 trait EntityResolverConnector extends Status with ServicesCircuitBreaker {
   this: ServicesConfig =>
@@ -86,13 +89,18 @@ trait EntityResolverConnector extends Status with ServicesCircuitBreaker {
 
   def url(path: String) = s"$serviceUrl$path"
 
-  def getPreferencesStatus()(implicit headerCarrier: HeaderCarrier): Future[Either[Int, SaPreference]] = {
+
+  def getPreferencesStatus(termsAndCond: String = "generic")(implicit headerCarrier: HeaderCarrier): Future[Either[Int, PreferenceStatus]] = {
     withCircuitBreaker(
-      http.GET[Option[SaPreference]](url(s"/preferences")).map {
-        case Some(p) => Right(p)
-        case None => Left(PRECONDITION_FAILED)
-      })
-    .recover {
+      http.GET[Option[PreferenceResponse]](url(s"/preferences")).map {
+        case Some(preference) =>
+          preference.termsAndConditions.get(termsAndCond).fold[Either[Int, PreferenceStatus]](
+            Right(PreferenceNotFound(preference.email))) {
+            acceptance => Right(PreferenceFound(acceptance.accepted, preference.email))
+          }
+        case None => Right(PreferenceNotFound(None))
+      }
+    ).recover {
       case response: Upstream4xxResponse => response.upstreamResponseCode match {
         case NOT_FOUND => Left(NOT_FOUND)
         case UNAUTHORIZED => Left(UNAUTHORIZED)
@@ -100,23 +108,24 @@ trait EntityResolverConnector extends Status with ServicesCircuitBreaker {
     }
   }
 
+
   def changeEmailAddress(newEmail: String)(implicit hc: HeaderCarrier): Future[HttpResponse] =
     withCircuitBreaker(http.PUT(url(s"/preferences/pending-email"), UpdateEmail(newEmail)))
 
-  def getPreferences()(implicit headerCarrier: HeaderCarrier): Future[Option[SaPreference]] =
-    withCircuitBreaker(http.GET[Option[SaPreference]](url(s"/preferences")))
-      .recover {
-        case response: Upstream4xxResponse if response.upstreamResponseCode == GONE => None
-        case e: NotFoundException => None
-      }
-
-  def saveCohort(cohort: OptInCohort)(implicit hc: HeaderCarrier): Future[Any] = Future.successful(true)
+  def getPreferences()(implicit headerCarrier: HeaderCarrier): Future[Option[PreferenceResponse]] =
+    withCircuitBreaker {
+      http.GET[Option[PreferenceResponse]](url(s"/preferences"))
+    }.recover {
+      case response: Upstream4xxResponse if response.upstreamResponseCode == GONE => None
+      case e: NotFoundException => None
+    }
 
   def getEmailAddress(taxId: TaxIdentifier)(implicit hc: HeaderCarrier) = {
     def basedOnTaxIdType = taxId match {
       case SaUtr(utr) => s"/portal/preferences/sa/$utr/verified-email-address"
       case Nino(nino) => s"/portal/preferences/paye/$nino/verified-email-address"
     }
+
     withCircuitBreaker(http.GET[Option[Email]](url(basedOnTaxIdType))).map(_.map(_.email))
   }
 

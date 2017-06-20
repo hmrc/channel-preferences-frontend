@@ -2,7 +2,6 @@ package views.html.helpers
 
 import org.joda.time._
 import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
-import uk.gov.hmrc.play.frontend.auth.AuthContext
 
 object LastSignInPeriod {
 

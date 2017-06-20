@@ -1,0 +1,70 @@
+@(emailForm: Form[_], submitPrefsFormAction: Call)(implicit request: Request[_], messages: Messages)
+
+@import uk.gov.hmrc.urls.Link
+@import uk.gov.hmrc.play.views.html.helpers._
+
+@main_with_headers(title = Messages(s"tc_printing_preference.fg_page.title"), navTitle = "Tax credits service") {
+
+    <header class="page-header">
+        <h1 class="heading-large">@Messages(s"tc_printing_preference.fg_page.title")</h1>
+    </header>
+
+    <p class="lede">We can securely store your email address so we can send you future notifications and prompts about your tax credits, when they are available.</p>
+    <p class="lede" id="email-display">The email address we we will store securely is <b>@emailForm("email.main").value</b></p>
+
+    @form(action = submitPrefsFormAction, 'id -> "form-submit-email-address") {
+
+        <label class="selectable">
+            <input
+            id="opt-in-in"
+            type="radio"
+            name="opt-in"
+            value="true"
+            class="email-prefs__toggle"
+                @if(emailForm("opt-in").value.contains("true")) { checked="checked" }
+            />
+            Yes, store my email address
+        </label>
+        <fieldset class="connected js-hidden">
+
+            <input type="hidden" id="email.main" name="email.main" value="@emailForm("email.main").value">
+            <input type="hidden" id="email.confirm" name="email.confirm" value="@emailForm("email.main").value">
+            <input type="hidden" id="emailVerified" name="emailVerified" value="true">
+
+            @singleCheckbox(
+                emailForm("accept-tc"),
+                '_label -> Html(Messages("tc_printing_preference.tc.preLinkText", Link.toExternalPage(id = Some("terms-and-conditions"), url = "https://www.tax.service.gov.uk/information/terms#secure", value = Some(Messages("tc_printing_preference.tc.linkText"))).toHtml)),
+                '_labelClass -> "label--inline"
+            )
+
+            <p>We will send you a verification email. Click on the link in the email to verify your email address with HMRC.</p>
+            <p>By letting us store your email address, you confirm that you:</p>
+            <ul class="bullets form-hint">
+                <li>want to get notifications and prompts about your tax credits</li>
+                <li>will keep your email address up to date using your HMRC online account to make sure you get your email notifications</li>
+            </ul>
+
+        </fieldset>
+        <label class="selectable">
+            <input
+            id="opt-in-out"
+            type="radio"
+            name="opt-in"
+            value="false"
+            class="email-prefs__toggle"
+                @if(emailForm("opt-in").value.contains("false")) { checked="checked" }
+            />
+            No, I do not want my email address stored
+        </label>
+        <div class="email-form-errors">
+            @emailForm("opt-in").errors.map { error => <label class="error-notification">@Messages(error.message)</label>}
+            @emailForm.globalErrors.map { error => <label class="error-notification">@Messages(error.message)</label>}
+        </div>
+        <br>
+        <div class="form-field">
+            <button id="submitEmailButton" class="button" name="submitButton" type="submit">@Messages("tc_printing_preference.submitButton")</button>
+        </div>
+
+    }
+
+}
