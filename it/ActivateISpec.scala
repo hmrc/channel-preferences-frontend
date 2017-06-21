@@ -88,5 +88,12 @@ class ActivateISpec extends PreferencesFrontEndServer with EmailSupport {
       (response.json \ "redirectUserTo").asOpt[String] shouldBe empty
 
     }
+
+    "return CONFLICT if trying to activate providing an email diffrent than the stored one" in new TestCaseWithFrontEndAuthentication {
+      val originalEmail = "generic@test.com"
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithNino).postGenericOptIn(originalEmail) should have(status(CREATED))
+
+      `/paperless/activate`(nino)(Some("taxCredits"), Some("taxCredits@test.com")).put() should have(status(CONFLICT))
+    }
   }
 }

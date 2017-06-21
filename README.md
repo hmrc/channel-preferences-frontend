@@ -68,6 +68,7 @@ Responds with:
 | Status                        | Description |
 | ----------------------------- | ----------- |
 | 412 Precondition failed       | If the user needs to be redirected to a preferences-frontend page to set their paperless options |
+| 409 Conflict                  | If the email provided is different than the one the user actually has. The user cannot be activated. |
 | 200 Ok                        | If the user has previously accepted paperless |
 
 When 200 is returned, the body of the response will contain details of the user's preference status (`optedIn` and `verifiedEmail`).  
