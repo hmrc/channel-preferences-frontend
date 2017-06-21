@@ -37,7 +37,8 @@
                 <input type="email" id="email.main" name="email.main" value="@emailForm("email.main").value" readonly>
                 <input type="email" id="email.confirm" name="email.confirm" value="@emailForm("email.main").value" hidden>
                 <input type="hidden" id="emailVerified" name="emailVerified" value="true">
-                <input type="hidden" id="emailAlreadyStored" name="emailAlreadyStored" value="true" >
+                <input type="hidden" id="emailAlreadyStored" name="emailAlreadyStored" value="@emailForm("emailAlreadyStored").value" >
+
                 @singleCheckbox(
                 emailForm("accept-tc"),
                 '_label -> Html(Messages("sa_printing_preference.tc.preLinkText", Link.toExternalPage(id = Some("terms-and-conditions"), url = "https://www.tax.service.gov.uk/information/terms#secure", value = Some(Messages("sa_printing_preference.tc.linkText"))).toHtml)),

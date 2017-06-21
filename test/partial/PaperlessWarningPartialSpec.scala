@@ -1,6 +1,6 @@
 package partial
 
-import connectors.{SaEmailPreference, SaPreference}
+import connectors.{PreferenceResponse, SaEmailPreference, SaPreference}
 import helpers.ConfigHelper
 import org.joda.time.LocalDate
 import org.scalatestplus.play.OneAppPerSuite
@@ -9,6 +9,8 @@ import play.api.Application
 import play.api.mvc.Results
 import uk.gov.hmrc.play.test.UnitSpec
 import connectors.PreferenceResponse._
+import play.api.libs.json.Json
+import play.twirl.api.HtmlFormat
 
 
 class PaperlessWarningPartialSpec extends UnitSpec with Results with OneAppPerSuite {
@@ -64,5 +66,58 @@ class PaperlessWarningPartialSpec extends UnitSpec with Results with OneAppPerSu
       result should include ("Manage account")
       result should include ("manage.account.com")
     }
+
+    "be ignored if the preferences is not opted in for generic for not verified emails" in new TestCase {
+      PaperlessWarningPartial.apply(genericOnlyPreferenceResponse(accepted = true, isVerified = false, hasBounces = false), "", "") should not be HtmlFormat.empty
+      PaperlessWarningPartial.apply(genericOnlyPreferenceResponse(accepted = false, isVerified = false, hasBounces = false), "", "") shouldBe HtmlFormat.empty
+      PaperlessWarningPartial.apply(taxCreditOnlyPreferenceResponse(accepted = true, isVerified = false, hasBounces = false), "", "") shouldBe HtmlFormat.empty
+      PaperlessWarningPartial.apply(taxCreditOnlyPreferenceResponse(accepted = true, isVerified = false, hasBounces = false), "", "") shouldBe HtmlFormat.empty
+    }
+
+    "be ignored if the preferences is not opted in for generic for bounced emails" in new TestCase {
+      PaperlessWarningPartial.apply(genericOnlyPreferenceResponse(accepted = true, isVerified = false, hasBounces = true), "", "") should not be HtmlFormat.empty
+      PaperlessWarningPartial.apply(genericOnlyPreferenceResponse(accepted = false, isVerified = false, hasBounces = true), "", "") shouldBe HtmlFormat.empty
+      PaperlessWarningPartial.apply(taxCreditOnlyPreferenceResponse(accepted = true, isVerified = false, hasBounces = true), "", "") shouldBe HtmlFormat.empty
+      PaperlessWarningPartial.apply(taxCreditOnlyPreferenceResponse(accepted = true, isVerified = false, hasBounces = true), "", "") shouldBe HtmlFormat.empty
+    }
+
+    trait TestCase {
+      def taxCreditOnlyPreferenceResponse(accepted: Boolean, isVerified : Boolean, hasBounces: Boolean) = Json.parse(
+        s"""{
+           |  "termsAndConditions": {
+           |    "taxCredits": {
+           |      "accepted": $accepted
+           |    }
+           |  },
+           |  "email": {
+           |    "email": "pihklyljtgoxeoh@mail.com",
+           |    "isVerified": $isVerified,
+           |    "hasBounces": $hasBounces,
+           |    "mailboxFull": false,
+           |    "status": "verified"
+           |  },
+           |  "digital": true
+           |}""".stripMargin
+      ).as[PreferenceResponse]
+
+      def genericOnlyPreferenceResponse(accepted: Boolean, isVerified : Boolean, hasBounces: Boolean) = Json.parse(
+        s"""{
+           |  "termsAndConditions": {
+           |    "generic": {
+           |      "accepted": $accepted
+           |    }
+           |  },
+           |  "email": {
+           |    "email": "pihklyljtgoxeoh@mail.com",
+           |    "isVerified": $isVerified,
+           |    "hasBounces": $hasBounces,
+           |    "mailboxFull": false,
+           |    "status": "verified"
+           |  },
+           |  "digital": true
+           |}""".stripMargin
+      ).as[PreferenceResponse]
+    }
+
   }
 }

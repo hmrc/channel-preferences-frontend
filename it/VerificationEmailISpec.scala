@@ -249,15 +249,6 @@ class VerificationEmailISpec extends PreferencesFrontEndServer {
       }
     }
 
-    def aVerificationEmailIsReceivedForNewEmail(email: String) {
-      withReceivedEmails(2) { case List(mail) =>
-        mail should have(
-          'to (Some(email)),
-          'subject ("Self Assessment reminders: verify your new email address")
-        )
-      }
-    }
-
     def beForAnExpiredOldEmail: Matcher[Future[WSResponse]] = {
       have(status(200)) and
         have(bodyWith("You&#x27;ve used a link that has now expired")) and

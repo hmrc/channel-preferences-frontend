@@ -51,7 +51,7 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
       val email = emailAddress.map(_.decryptedValue)
       hasStoredEmail(hostContext).map(emailAlreadyStored =>
         Ok(views.html.sa.prefs.sa_printing_preference(
-          emailForm = OptInDetailsForm().fill(OptInDetailsForm.Data(emailAddress = email, preference = None, acceptedTcs = None, emailAlreadyStored = Some(emailAlreadyStored.toString))),
+          emailForm = OptInDetailsForm().fill(OptInDetailsForm.Data(emailAddress = email, preference = None, acceptedTcs = None, emailAlreadyStored = Some(emailAlreadyStored))),
           submitPrefsFormAction = internal.routes.ChoosePaperlessController.submitForm(hostContext),
           cohort = cohort
         )))
@@ -89,18 +89,11 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
               val emailVerificationStatus =
                 if (emailForm.isEmailVerified) Future.successful(true)
                 else emailConnector.isValid(emailAddress)
-              println("******************************************************************************************************")
-              println(emailForm)
-              println(happyForm)
-              println(request.body)
-              println(hostContext)
-              println(emailForm.isEmailAlreadyStored)
+
               emailVerificationStatus.flatMap {
                 case true => saveAndAuditPreferences(digital = true, email = Some(emailAddress), cohort.terms, emailForm.isEmailAlreadyStored)
-                case false => {
-                  println("WE should not be here -----------------------------------------------------------------------")
+                case false =>
                   Future.successful(Ok(views.html.sa_printing_preference_verify_email(emailAddress, cohort)))
-                }
               }
             case _ =>
               returnToFormWithErrors(OptInDetailsForm().bindFromRequest)
