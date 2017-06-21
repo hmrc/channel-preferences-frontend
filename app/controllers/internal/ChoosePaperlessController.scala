@@ -49,9 +49,9 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
     cohort.fold(ifEmpty = Future.successful(createRedirectToDisplayFormWithCohort(emailAddress, hostContext))) { cohort => {
       auditPageShown(authContext, AccountDetails, cohort)
       val email = emailAddress.map(_.decryptedValue)
-      hasStoredEmail(hostContext).map( emailAlredyStored =>
+      hasStoredEmail(hostContext).map(emailAlreadyStored =>
         Ok(views.html.sa.prefs.sa_printing_preference(
-          emailForm = OptInDetailsForm().fill(OptInDetailsForm.Data(emailAddress = email, preference = None, acceptedTcs = None, emailAlreadyStored = Some(emailAlredyStored))),
+          emailForm = OptInDetailsForm().fill(OptInDetailsForm.Data(emailAddress = email, preference = None, acceptedTcs = None, emailAlreadyStored = Some(emailAlreadyStored.toString))),
           submitPrefsFormAction = internal.routes.ChoosePaperlessController.submitForm(hostContext),
           cohort = cohort
         )))
@@ -61,12 +61,13 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
   def submitForm(implicit hostContext: HostContext) = authenticated.async { implicit authContext => implicit request =>
     val cohort = calculateCohort(hostContext)
 
-    def saveAndAuditPreferences(digital: Boolean, email: Option[String], termsType: TermsType)(implicit hc: HeaderCarrier): Future[Result] = {
+    def saveAndAuditPreferences(digital: Boolean, email: Option[String], termsType: TermsType, emailAlreadyStored: Boolean)(implicit hc: HeaderCarrier): Future[Result] = {
       val terms = termsType -> TermsAccepted(digital)
 
       entityResolverConnector.updateTermsAndConditions(terms, email).map( preferencesStatus => {
         auditChoice(authContext, AccountDetails, cohort, terms, email, preferencesStatus)
-        if (digital) {
+        println(s"redirect to nearly done is: ${digital && !emailAlreadyStored}    digital = $digital   emailalreadyStored = $emailAlreadyStored")
+        if (digital && !emailAlreadyStored) {
           val encryptedEmail = email map (emailAddress => Encrypted(EmailAddress(emailAddress)))
           Redirect(routes.ChoosePaperlessController.displayNearlyDone(encryptedEmail, hostContext))
         } else Redirect(hostContext.returnUrl)
@@ -80,7 +81,7 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
     OptInOrOutForm().bindFromRequest.fold[Future[Result]](
       hasErrors = returnToFormWithErrors,
       happyForm =>
-        if (happyForm.optedIn.contains(false)) saveAndAuditPreferences(digital = false, email = None, cohort.terms)
+        if (happyForm.optedIn.contains(false)) saveAndAuditPreferences(digital = false, email = None, cohort.terms, false)
         else OptInDetailsForm().bindFromRequest.fold[Future[Result]](
           hasErrors = returnToFormWithErrors,
           success = {
@@ -88,10 +89,18 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
               val emailVerificationStatus =
                 if (emailForm.isEmailVerified) Future.successful(true)
                 else emailConnector.isValid(emailAddress)
-
+              println("******************************************************************************************************")
+              println(emailForm)
+              println(happyForm)
+              println(request.body)
+              println(hostContext)
+              println(emailForm.isEmailAlreadyStored)
               emailVerificationStatus.flatMap {
-                case true => saveAndAuditPreferences(digital = true, email = Some(emailAddress), cohort.terms)
-                case false => Future.successful(Ok(views.html.sa_printing_preference_verify_email(emailAddress, cohort)))
+                case true => saveAndAuditPreferences(digital = true, email = Some(emailAddress), cohort.terms, emailForm.isEmailAlreadyStored)
+                case false => {
+                  println("WE should not be here -----------------------------------------------------------------------")
+                  Future.successful(Ok(views.html.sa_printing_preference_verify_email(emailAddress, cohort)))
+                }
               }
             case _ =>
               returnToFormWithErrors(OptInDetailsForm().bindFromRequest)

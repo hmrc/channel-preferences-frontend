@@ -30,6 +30,7 @@
             <input type="hidden" id="email.main" name="email.main" value="@emailForm("email.main").value">
             <input type="hidden" id="email.confirm" name="email.confirm" value="@emailForm("email.main").value">
             <input type="hidden" id="emailVerified" name="emailVerified" value="true">
+            <input type="hidden" id="emailAlreadyStored" name="emailAlreadyStored" value="@emailForm("emailAlreadyStored").value" >
 
             @singleCheckbox(
                 emailForm("accept-tc"),
