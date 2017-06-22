@@ -22,10 +22,10 @@ sa_printing_preference.fg_page.title=Go paperless with HMRC
 
 tc_printing_preference.fg_page.title=Would you like to receive other email notifications about your tax credits?
 tc_printing_preference.submitButton=Continue
-tc_printing_preference.tc.preLinkText=I agree with the {0}
+tc_printing_preference.tc.preLinkText=I agree to the {0}
 tc_printing_preference.tc.linkText = terms and conditions
 
-sa_printing_preference.tc.preLinkText=I agree with the {0}
+sa_printing_preference.tc.preLinkText=I agree to the {0}
 sa_printing_preference.tc.linkText=terms and conditions
 sa_printing_preference.tc.legal.1=Messages will be sent to a secure mailbox in your HMRC online account.
 sa_printing_preference.tc.legal.2=They have the same legal validity as an HMRC reminder sent in the post.
@@ -39,9 +39,8 @@ sa_printing_preferences.confirm_correct_email.title=Check your email address
 sa_printing_preferences.confirm_correct_email.paragraph.1=Are you sure {0} is correct?
 sa_printing_preferences.confirm_correct_email.confirm=This email address is correct
 
-sa_printing_preference_confirm.title=Nearly done...
-sa_printing_preference_confirm.heading=Nearly done...
-sa_printing_preference_confirm.heading.2=Verify your email address
+sa_printing_preference_confirm.title=Verify your email address
+sa_printing_preference_confirm.heading=Verify your email address
 sa_printing_preference_confirm.paragraph=An email has been sent to {0}. Click on the link in the email to verify your email address with HMRC.
 sa_printing_preference_confirm.linkText=Continue to your tax account
 
