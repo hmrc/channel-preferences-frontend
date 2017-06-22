@@ -1,7 +1,7 @@
 package partial
 
 import connectors.SaEmailPreference.Status
-import connectors.{SaEmailPreference, SaPreference}
+import connectors.{PreferenceResponse, SaEmailPreference, SaPreference}
 import controllers.ExternalUrlPrefixes
 import controllers.internal.routes
 import helpers.{ConfigHelper, TestFixtures}
@@ -16,6 +16,8 @@ import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
 import connectors.PreferenceResponse._
+import model.Encrypted
+import play.api.libs.json.Json
 
 class ManagePaperlessPartialSpec extends UnitSpec with OneAppPerSuite with ScalaFutures {
   implicit val hc = HeaderCarrier()
@@ -119,6 +121,33 @@ class ManagePaperlessPartialSpec extends UnitSpec with OneAppPerSuite with Scala
         include(linkTo(routes.ChoosePaperlessController.redirectToDisplayFormWithCohort(None, hostContext))) and
         not include linkTo(routes.ManagePaperlessController.resendVerificationEmail(hostContext))
       )
+    }
+
+
+    "contain existing email if user has one already (Opted in for taxCredits but not generic we will prepopulate the email address)" in {
+      val taxCreditsOptedInPreference = Json.parse(
+        s"""{
+           |  "termsAndConditions": {
+           |    "taxCredits": {
+           |      "accepted": true
+           |    }
+           |  },
+           |  "email": {
+           |    "email": "pihklyljtgoxeoh@mail.com",
+           |    "isVerified": true,
+           |    "hasBounces": false,
+           |    "mailboxFull": false,
+           |    "status": "verified"
+           |  },
+           |  "digital": true
+           |}""".stripMargin
+      ).as[PreferenceResponse]
+
+      ManagePaperlessPartial(Some(taxCreditsOptedInPreference)).body should (
+        include("Replace the letters you get about taxes with emails.") and
+          include(linkTo(routes.ChoosePaperlessController.redirectToDisplayFormWithCohort(Some(Encrypted(EmailAddress("pihklyljtgoxeoh@mail.com"))), hostContext))) and
+          not include linkTo(routes.ManagePaperlessController.resendVerificationEmail(hostContext))
+        )
     }
   }
 }
