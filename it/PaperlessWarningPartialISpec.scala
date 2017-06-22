@@ -99,7 +99,7 @@ class PaperlessWarningPartialISpec
       val email = uniqueEmail
       `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email) should have(status(201))
       `/preferences-admin/bounce-email`.post(email) should have(status(204))
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email) should have(status(200))
+      `/preferences`(ggAuthHeaderWithUtr).putPendingEmail(email) should have(status(200))
 
       val response =`/paperless/warnings`.withHeaders(cookieWithUtr).get()
 
@@ -123,7 +123,7 @@ class PaperlessWarningPartialISpec
       val email = uniqueEmail
       `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email) should have(status(201))
       `/preferences-admin/bounce-email`.post(email) should have(status(204))
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email) should have(status(200))
+      `/preferences`(ggAuthHeaderWithUtr).putPendingEmail(email) should have(status(200))
       `/preferences-admin/sa/individual`.verifyEmailFor(`/entity-resolver/sa/:utr`(utr.value)) should have(status(204))
 
       val response =`/paperless/warnings`.withHeaders(cookieWithUtr).get()

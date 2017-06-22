@@ -33,7 +33,7 @@ class GoPaperlessBrowserSpec extends endtoend.sa.Spec with ScalaFutures with Ser
           givenThat(Email.`GET /hmrc/validate-email-address`(validEmail) willReturn(aResponse withStatus 200 withBody Email.validEmailJson))
           givenThat(EntityResolver.`POST /preferences/terms-and-conditions` willReturn (aResponse withStatus 200))
           goPaperlessPage.completeForm(validEmail)
-          pageSource should include ("Nearly done...")
+          pageSource should include ("Verify your email address")
       }
 
       scenario("I can toggle between yes and no and email parts of the form are hidden when no is selected"){
