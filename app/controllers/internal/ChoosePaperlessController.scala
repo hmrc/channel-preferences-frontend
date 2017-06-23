@@ -137,7 +137,7 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
   private def hasStoredEmail(hostContext: HostContext)(implicit hc: HeaderCarrier): Future[Boolean] = {
     val terms = hostContext.termsAndConditions.getOrElse("generic")
     entityResolverConnector.getPreferencesStatus(terms) map {
-      case Right(PreferenceNotFound(Some(email))) => true
+      case Right(PreferenceNotFound(Some(_))) | Right(PreferenceFound(false, Some(_))) => true
       case _ => false
     }
   }

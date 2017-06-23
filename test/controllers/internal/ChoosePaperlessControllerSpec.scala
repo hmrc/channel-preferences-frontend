@@ -199,6 +199,33 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
       document.getElementById("opt-in-in").attr("checked") should be("checked")
       document.getElementById("opt-in-out").attr("checked") should be(empty)
     }
+
+    "render an email input field populated with the supplied readonly email address, and the Opt-in option selected if a opted out preferences with email is found" in new ChoosePaperlessControllerSetup {
+      val emailAddress = "bob@bob.com"
+
+      override val mockEntityResolverConnector : EntityResolverConnector = {
+        val entityResolverMock = mock[EntityResolverConnector]
+        val emailPreference = EmailPreference(emailAddress, true, false, false, None)
+        when(entityResolverMock.getPreferencesStatus(any())(any())).
+          thenReturn(Future.successful(Right[Int,PreferenceStatus](PreferenceFound(false,Some(emailPreference))))
+          )
+        entityResolverMock
+      }
+      val page = controller.displayForm(Some(assignedCohort), Some(Encrypted(EmailAddress(emailAddress))), TestFixtures.sampleHostContext)(request)
+
+      status(page) shouldBe 200
+
+      val document = Jsoup.parse(contentAsString(page))
+
+      document.getElementById("email.main") shouldNot be(null)
+      document.getElementById("email.main").attr("value") shouldBe emailAddress
+      document.getElementById("email.main").hasAttr("readonly") shouldBe true
+      document.getElementById("email.confirm") shouldNot be(null)
+      document.getElementById("email.confirm").attr("value") shouldBe emailAddress
+      document.getElementById("email.confirm").hasAttr("hidden") shouldBe true
+      document.getElementById("opt-in-in").attr("checked") should be("checked")
+      document.getElementById("opt-in-out").attr("checked") should be(empty)
+    }
   }
 
   "A post to set preferences with no emailVerifiedFlag" should {
