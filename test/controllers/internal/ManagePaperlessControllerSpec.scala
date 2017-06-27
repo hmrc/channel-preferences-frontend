@@ -291,7 +291,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
       status(result) shouldBe 200
       val page = Jsoup.parse(contentAsString(result))
 
-      page.getElementById("confirm-opt-out").text shouldBe "Stop paperless notifications"
+      page.getElementById("confirm-opt-out").text shouldBe "Stop emails from HMRC"
       page.getElementById("cancel-link").text shouldBe "Cancel"
       page.text() should not include "test@test.com"
     }

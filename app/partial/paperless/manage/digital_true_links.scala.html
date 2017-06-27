@@ -14,7 +14,7 @@
     @Link.toInternalPage(
         id = Some("opt-out-of-email-link"),
         url = pfUrlPrefix + controllers.internal.routes.ManagePaperlessController.displayStopPaperless(hostContext),
-        value = Some("Stop paperless notifications"),
-        dataAttributes = Some(Map("journey-click" -> "self-assessment-preferences:Click:Stop paperless notifications"))
+        value = Some("Stop emails from HMRC"),
+        dataAttributes = Some(Map("journey-click" -> "self-assessment-preferences:Click:Stop emails from HMRC"))
     )(messages).toHtml
 </p>
