@@ -53,7 +53,7 @@ class ManagePaperlessPartialSpec extends UnitSpec with OneAppPerSuite with Scala
       val saPreference = SaPreference(true, Some(emailPreferences)).toNewPreference()
 
       ManagePaperlessPartial(Some(saPreference)).body should (
-        include("Email address for paperless notifications") and
+        include("Email address for HMRC digital communications") and
         include("Emails are sent to") and
         include(EmailAddress(emailPreferences.email).obfuscated) and
         include(linkTo(routes.ManagePaperlessController.displayChangeEmailAddress(None, hostContext))) and
