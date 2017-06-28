@@ -2,6 +2,9 @@ package controllers.internal
 
 import play.api.data.Form
 import play.api.data.Forms._
+import play.api.Play.current
+import play.api.i18n.Messages
+import play.api.i18n.Messages.Implicits._
 import uk.gov.hmrc.emailaddress.EmailAddress
 
 
@@ -15,13 +18,17 @@ object OptInDetailsForm {
     "opt-in" -> optional(boolean).verifying("sa_printing_preference.opt_in_choice_required", _.isDefined).transform(
       _.map(Data.PaperlessChoice.fromBoolean), (p: Option[Data.PaperlessChoice]) => p.map(_.toBoolean)
     ),
-    "accept-tc" -> optional(boolean).verifying("sa_printing_preference.accept_tc_required", _.contains(true)),
+    "accept-tc" -> optional(boolean),
     "emailAlreadyStored" -> optional(boolean)
   )(Data.apply)(Data.unapply)
-    .verifying("error.email.optIn", _ match {
-    case Data((None, _), _, Some(Data.PaperlessChoice.OptedIn), _, _) => false
-    case _ => true
-  })
+    .verifying(Messages("sa_printing_preference.accept_tc_required"),data => data match {
+      case Data(_, _, Some(Data.PaperlessChoice.OptedOut), _ , _) => true
+      case Data(_, _, _, acceptedTc , _) =>
+        data.acceptedTCs.contains(true)
+    }).verifying("error.email.optIn", _ match {
+      case Data((None, _), _, Some(Data.PaperlessChoice.OptedIn), _, _) => false
+      case _ => true
+    })
     .verifying("email.confirmation.emails.unequal", formData => formData.email._1 == formData.email._2)
   )
 

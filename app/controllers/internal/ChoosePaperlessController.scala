@@ -66,7 +66,6 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
 
       entityResolverConnector.updateTermsAndConditions(terms, email).map( preferencesStatus => {
         auditChoice(authContext, AccountDetails, cohort, terms, email, preferencesStatus)
-        println(s"redirect to nearly done is: ${digital && !emailAlreadyStored}    digital = $digital   emailalreadyStored = $emailAlreadyStored")
         if (digital && !emailAlreadyStored) {
           val encryptedEmail = email map (emailAddress => Encrypted(EmailAddress(emailAddress)))
           Redirect(routes.ChoosePaperlessController.displayNearlyDone(encryptedEmail, hostContext))
@@ -74,9 +73,10 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
       })
     }
 
-    def returnToFormWithErrors(f: Form[_]) =
+    def returnToFormWithErrors(f: Form[_]) = {
+      println(f.errors)
       Future.successful(BadRequest(views.html.sa.prefs.sa_printing_preference(f, routes.ChoosePaperlessController.submitForm(hostContext), cohort)))
-
+    }
 
     OptInOrOutForm().bindFromRequest.fold[Future[Result]](
       hasErrors = returnToFormWithErrors,

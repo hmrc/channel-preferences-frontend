@@ -19,13 +19,14 @@
 
 
 
-    @form(action = submitPrefsFormAction, 'id -> "form-submit-email-address") {
-        @singleCheckbox(
-            emailForm("accept-tc"),
-            '_label -> Html(Messages("tc_printing_preference.tc.preLinkText", Link.toExternalPage(id = Some("terms-and-conditions"), url = "https://www.tax.service.gov.uk/information/terms#secure", value = Some(Messages("tc_printing_preference.tc.linkText"))).toHtml)),
-            '_labelClass -> "label--inline"
-        )
-
+    @form(action = submitPrefsFormAction, 'id -> "form-submit-email-address-tc") {
+        <fieldset class="connected">
+            @singleCheckbox(
+                emailForm("accept-tc"),
+                '_label -> Html(Messages("tc_printing_preference.tc.preLinkText", Link.toExternalPage(id = Some("terms-and-conditions"), url = "https://www.tax.service.gov.uk/information/terms#secure", value = Some(Messages("tc_printing_preference.tc.linkText"))).toHtml)),
+                '_labelClass -> "label--inline"
+            )
+        </fieldset>
         <label class="selectable">
             <input
             id="opt-in-in"
@@ -38,7 +39,7 @@
             Yes, store my email address
         </label>
 
-        <input type="hidden" id="email.main" name="email.main" value="@emailForm("email.main").value">
+            <input type="hidden" id="email.main" name="email.main" value="@emailForm("email.main").value">
         <input type="hidden" id="email.confirm" name="email.confirm" value="@emailForm("email.main").value">
         <input type="hidden" id="emailVerified" name="emailVerified" value="true">
         <input type="hidden" id="emailAlreadyStored" name="emailAlreadyStored" value="@emailForm("emailAlreadyStored").value" >
@@ -49,13 +50,15 @@
             type="radio"
             name="opt-in"
             value="false"
-            class="email-prefs__toggle"
+            class="email-prefs__toggle lede"
                 @if(emailForm("opt-in").value.contains("false")) { checked="checked" }
             />
             No, I do not want my email address stored
         </label>
         <div class="email-form-errors">
-            @emailForm("opt-in").errors.map { error => <label class="error-notification">@Messages(error.message)</label>}
+            @emailForm.errors.map { error => <span class="error-notification">@Messages(error.message)</span> }
+            @emailForm.errors.map { error => <span class="form-field--error">@Messages(error.message)</span> }
+            @emailForm("opt-in").errors.map { error => <label class="error-notification" style="display:inline-block">@Messages(error.message)</label>}
             @emailForm.globalErrors.map { error => <label class="error-notification">@Messages(error.message)</label>}
         </div>
         <br>
