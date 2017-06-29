@@ -248,7 +248,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
       status(page) shouldBe 400
 
       val document = Jsoup.parse(contentAsString(page))
-      document.select("#form-submit-email-address .error-notification").text shouldBe "Enter a valid email address."
+      document.select("#form-submit-email-address .error-notification").text shouldBe "Enter a valid email address. You must accept the terms and conditions"
       verifyZeroInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
 
@@ -506,6 +506,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
       override def assignedCohort = IPage
 
       when(mockEntityResolverConnector.updateTermsAndConditions(
+
         is(GenericTerms -> TermsAccepted(false)),
         is(None))(any())).thenReturn(Future.successful(PreferencesCreated))
 

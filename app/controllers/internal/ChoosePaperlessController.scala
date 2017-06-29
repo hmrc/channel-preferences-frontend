@@ -3,6 +3,7 @@ package controllers.internal
 import config.Global
 import connectors._
 import controllers.internal.EmailOptInJourney._
+import controllers.internal.OptInDetailsForm.Data.PaperlessChoice.OptedIn
 import controllers.{Authentication, FindTaxIdentifier, internal}
 import model.{Encrypted, HostContext}
 import play.api.data.Form
@@ -49,9 +50,18 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
     cohort.fold(ifEmpty = Future.successful(createRedirectToDisplayFormWithCohort(emailAddress, hostContext))) { cohort => {
       auditPageShown(authContext, AccountDetails, cohort)
       val email = emailAddress.map(_.decryptedValue)
+
+      def form(emailAlreadyStored: Boolean): Form[_] =
+        if (hostContext.termsAndConditions.contains("taxCredits")) {
+          OptInTaxCreditsDetailsForm().fill(OptInTaxCreditsDetailsForm.Data(emailAddress = email, termsAndConditions = (None, None), emailAlreadyStored = Some(emailAlreadyStored)))
+        } else {
+          OptInDetailsForm().fill(OptInDetailsForm.Data(emailAddress = email, preference = None, acceptedTcs = None, emailAlreadyStored = Some(emailAlreadyStored)))
+        }
+
+
       hasStoredEmail(hostContext).map(emailAlreadyStored =>
         Ok(views.html.sa.prefs.sa_printing_preference(
-          emailForm = OptInDetailsForm().fill(OptInDetailsForm.Data(emailAddress = email, termsAndConditions = (None, None), emailAlreadyStored = Some(emailAlreadyStored))),
+          emailForm = form(emailAlreadyStored),
           submitPrefsFormAction = internal.routes.ChoosePaperlessController.submitForm(hostContext),
           cohort = cohort
         )))
@@ -78,28 +88,58 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
       Future.successful(BadRequest(views.html.sa.prefs.sa_printing_preference(f, routes.ChoosePaperlessController.submitForm(hostContext), cohort)))
     }
 
-    OptInOrOutForm().bindFromRequest.fold[Future[Result]](
-      hasErrors = returnToFormWithErrors,
-      happyForm =>
-        if (happyForm.optedIn.contains(false)) saveAndAuditPreferences(digital = false, email = None, cohort.terms, false)
-        else OptInDetailsForm().bindFromRequest.fold[Future[Result]](
-          hasErrors = returnToFormWithErrors,
-          success = {
-            case emailForm@OptInDetailsForm.Data((Some(emailAddress), _),_ , _, (Some(true), Some(true))) =>
-              val emailVerificationStatus =
-                if (emailForm.isEmailVerified) Future.successful(true)
-                else emailConnector.isValid(emailAddress)
+    def handleTc(): Future[Result] = {
+      OptInOrOutTaxCreditsForm().bindFromRequest.fold[Future[Result]](
+        hasErrors = returnToFormWithErrors,
+        happyForm =>
+          if (happyForm.optedIn.contains(false)) saveAndAuditPreferences(digital = false, email = None, cohort.terms, false)
+          else OptInTaxCreditsDetailsForm().bindFromRequest.fold[Future[Result]](
+            hasErrors = returnToFormWithErrors,
+            success = {
+              case emailForm@OptInTaxCreditsDetailsForm.Data((Some(emailAddress), _),_ , _, (Some(true), Some(true))) =>
+                val emailVerificationStatus =
+                  if (emailForm.isEmailVerified) Future.successful(true)
+                  else emailConnector.isValid(emailAddress)
 
-              emailVerificationStatus.flatMap {
-                case true => saveAndAuditPreferences(digital = true, email = Some(emailAddress), cohort.terms, emailForm.isEmailAlreadyStored)
-                case false =>
-                  Future.successful(Ok(views.html.sa_printing_preference_verify_email(emailAddress, cohort)))
-              }
-            case _ =>
-              returnToFormWithErrors(OptInDetailsForm().bindFromRequest)
-          }
-        )
-    )
+                emailVerificationStatus.flatMap {
+                  case true => saveAndAuditPreferences(digital = true, email = Some(emailAddress), cohort.terms, emailForm.isEmailAlreadyStored)
+                  case false =>
+                    Future.successful(Ok(views.html.sa_printing_preference_verify_email(emailAddress, cohort)))
+                }
+              case _ =>
+                returnToFormWithErrors(OptInDetailsForm().bindFromRequest)
+            }
+          )
+      )
+    }
+
+    def handleGeneric(): Future[Result] = {
+      OptInOrOutForm().bindFromRequest.fold[Future[Result]](
+        hasErrors = returnToFormWithErrors,
+        happyForm =>
+          if (happyForm.optedIn.contains(false)) saveAndAuditPreferences(digital = false, email = None, cohort.terms, false)
+          else OptInDetailsForm().bindFromRequest.fold[Future[Result]](
+            hasErrors = returnToFormWithErrors,
+            success = {
+              case emailForm@OptInDetailsForm.Data((Some(emailAddress), _),_, Some(OptedIn), Some(true), _) =>
+                val emailVerificationStatus =
+                  if (emailForm.isEmailVerified) Future.successful(true)
+                  else emailConnector.isValid(emailAddress)
+
+                emailVerificationStatus.flatMap {
+                  case true => saveAndAuditPreferences(digital = true, email = Some(emailAddress), cohort.terms, emailForm.isEmailAlreadyStored)
+                  case false =>
+                    Future.successful(Ok(views.html.sa_printing_preference_verify_email(emailAddress, cohort)))
+                }
+              case _ =>
+                returnToFormWithErrors(OptInDetailsForm().bindFromRequest)
+            }
+          )
+      )
+    }
+
+    if (hostContext.termsAndConditions.contains("taxCredits")) handleTc()
+    else handleGeneric()
   }
 
   private def auditPageShown(authContext: AuthContext, journey: Journey, cohort: OptInCohort)(implicit request: Request[_], hc: HeaderCarrier) =
