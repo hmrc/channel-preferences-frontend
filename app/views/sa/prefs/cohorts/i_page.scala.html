@@ -16,23 +16,25 @@
     <h2>Go paperless now</h2>
 
     @form(action = submitPrefsFormAction, 'id -> "form-submit-email-address") {
+    <input type="hidden" id="opt-in" name="opt-in" value="@emailForm("termsAndConditions.opt-in").value">
+
 
         <label class="selectable">
             <input
             id="opt-in-in"
             type="radio"
-            name="opt-in"
+            name="termsAndConditions.opt-in"
             value="true"
             class="email-prefs__toggle"
             checked="checked"
             />
+
             Yes, send me electronic communications
         </label>
 
-        @if(emailForm("termsAndConditions.opt-in").value.contains("false")) { checked="checked" }
+@if(emailForm("termsAndConditions.opt-in").value.contains("false")) { checked="checked" }
 
         <fieldset class="connected">
-
             @if(emailForm("emailAlreadyStored").value.contains("true")) {
                     <input type="email" class="input--medium input--cleared" id="email.main" name="email.main" value="@emailForm("email.main").value" readonly>
                     <p style="font-size:75%;">
@@ -70,7 +72,7 @@
                     'readonly -> "readonly"
                 )
                 @singleCheckbox(
-                    emailForm("accept-tc"),
+                    emailForm("termsAndConditions.accept-tc"),
                     '_label -> Html(Messages("sa_printing_preference.tc.preLinkText", Link.toExternalPage(id = Some("terms-and-conditions"), url = "https://www.tax.service.gov.uk/information/terms#secure", value = Some(Messages("sa_printing_preference.tc.linkText"))).toHtml)),
                     '_labelClass -> "label--inline"
                 )
@@ -86,7 +88,7 @@
             <input
             id="opt-in-out"
             type="radio"
-            name="opt-in"
+            name="termsAndConditions.opt-in"
             value="false"
             class="email-prefs__toggle"
                 @if(emailForm("termsAndConditions.opt-in").value == Some("false")) { checked="checked" }
@@ -94,7 +96,9 @@
             No, I want to keep receiving letters
         </label>
         <div class="email-form-errors">
+            @emailForm("termsAndConditions").errors.map { error => <label class="error-notification">@Messages(error.message)</label>}
             @emailForm("termsAndConditions.opt-in").errors.map { error => <label class="error-notification">@Messages(error.message)</label>}
+            @emailForm("opt-in").errors.map { error => <label class="error-notification">@Messages(error.message)</label>}
             @emailForm.globalErrors.map { error => <label class="error-notification">@Messages(error.message)</label>}
         </div>
         <br>

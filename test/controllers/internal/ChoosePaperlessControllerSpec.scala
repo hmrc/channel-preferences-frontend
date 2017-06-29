@@ -243,7 +243,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
     "show an error when opting-in if the email is incorrectly formatted" in new ChoosePaperlessControllerSetup {
       val emailAddress = "invalid-email"
 
-      val page = Future.successful(controller.submitForm(TestFixtures.sampleHostContext)(FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", "email.main" -> emailAddress)))
+      val page = Future.successful(controller.submitForm(TestFixtures.sampleHostContext)(FakeRequest().withFormUrlEncodedBody("termsAndConditions.opt-in" -> "true", "termsAndConditions.accept-tc" -> "true", "email.main" -> emailAddress)))
 
       status(page) shouldBe 400
 
@@ -261,7 +261,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
       status(page) shouldBe 400
 
       val document = Jsoup.parse(contentAsString(page))
-//      document.select(".error-notification").text shouldBe "You must accept the terms and conditions"
+      document.select(".error-notification").text shouldBe "You must accept the terms and conditions"
       verifyZeroInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
 
@@ -274,18 +274,18 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
       status(page) shouldBe 400
 
       val document = Jsoup.parse(contentAsString(page))
-//      document.select(".error-notification").text shouldBe "You must accept the terms and conditions"
+      document.select(".error-notification").text shouldBe "You must accept the terms and conditions"
       verifyZeroInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
 
     "show an error when opting-in if the email is not set" in new ChoosePaperlessControllerSetup {
 
-      val page = Future.successful(controller.submitForm(TestFixtures.sampleHostContext)(FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", "email.main" -> "", "accept-tc" -> "true")))
+      val page = Future.successful(controller.submitForm(TestFixtures.sampleHostContext)(FakeRequest().withFormUrlEncodedBody("termsAndConditions.opt-in" -> "true", "email.main" -> "", "termsAndConditions.accept-tc" -> "true")))
 
       status(page) shouldBe 400
 
       val document = Jsoup.parse(contentAsString(page))
-//      document.select(".error-notification").text shouldBe "As you would like to opt in, please enter an email address."
+      document.select(".error-notification").text shouldBe "As you would like to opt in, please enter an email address."
       verifyZeroInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
 
@@ -297,7 +297,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
       status(page) shouldBe 400
 
       val document = Jsoup.parse(contentAsString(page))
-//      document.select("#form-submit-email-address .error-notification").text shouldBe "Check your email addresses - they don't match."
+      document.select("#form-submit-email-address .error-notification").text shouldBe "Check your email addresses - they don't match."
       verifyZeroInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
 
