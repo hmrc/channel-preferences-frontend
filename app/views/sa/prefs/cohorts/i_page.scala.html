@@ -29,7 +29,7 @@
             Yes, send me electronic communications
         </label>
 
-        @if(emailForm("opt-in").value.contains("false")) { checked="checked" }
+        @if(emailForm("termsAndConditions.opt-in").value.contains("false")) { checked="checked" }
 
         <fieldset class="connected">
 
@@ -44,7 +44,7 @@
                 <input type="hidden" id="emailAlreadyStored" name="emailAlreadyStored" value="@emailForm("emailAlreadyStored").value" >
 
                 @singleCheckbox(
-                emailForm("accept-tc"),
+                emailForm("termsAndConditions.accept-tc"),
                 '_label -> Html(Messages("sa_printing_preference.tc.preLinkText", Link.toExternalPage(id = Some("terms-and-conditions"), url = "https://www.tax.service.gov.uk/information/terms#secure", value = Some(Messages("sa_printing_preference.tc.linkText"))).toHtml)),
                 '_labelClass -> "label"
                 )
@@ -89,12 +89,12 @@
             name="opt-in"
             value="false"
             class="email-prefs__toggle"
-                @if(emailForm("opt-in").value == Some("false")) { checked="checked" }
+                @if(emailForm("termsAndConditions.opt-in").value == Some("false")) { checked="checked" }
             />
             No, I want to keep receiving letters
         </label>
         <div class="email-form-errors">
-            @emailForm("opt-in").errors.map { error => <label class="error-notification">@Messages(error.message)</label>}
+            @emailForm("termsAndConditions.opt-in").errors.map { error => <label class="error-notification">@Messages(error.message)</label>}
             @emailForm.globalErrors.map { error => <label class="error-notification">@Messages(error.message)</label>}
         </div>
         <br>

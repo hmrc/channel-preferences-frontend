@@ -15,15 +15,15 @@ object OptInDetailsForm {
     "emailVerified" -> optional(text),
     "emailAlreadyStored" -> optional(boolean),
     "termsAndConditions" -> tuple(
-        "optIn" -> optional(boolean).verifying("sa_printing_preference.opt_in_choice_required", _.isDefined).transform(
+        "opt-in" -> optional(boolean).verifying("sa_printing_preference.opt_in_choice_required", _.isDefined).transform(
           _.map(Data.PaperlessChoice.fromBoolean), (p: Option[Data.PaperlessChoice]) => p.map(_.toBoolean)
         ),
-        "acceptTc" -> optional(boolean)
+        "accept-tc" -> optional(boolean)
       ).transform[(Option[Boolean],Option[Boolean])](
         { case (p: Option[Data.PaperlessChoice], acceptTc: Option[Boolean]) => (p.map(_.toBoolean), acceptTc) },
         { case (paperlessChoice: Option[Boolean], acceptTc: Option[Boolean]) => (paperlessChoice.map(Data.PaperlessChoice.fromBoolean(_)), acceptTc) }
      ).verifying("sa_printing_preference.accept_tc_required", kvp =>
-        (kvp._1.contains(true) && !kvp._2.contains(true))
+        ((kvp._1.contains(true) && kvp._2.contains(true)) || !kvp._1.contains(true) )
     )
   )(Data.apply)(Data.unapply)
     .verifying("email.confirmation.emails.unequal", formData => formData.email._1 == formData.email._2)
