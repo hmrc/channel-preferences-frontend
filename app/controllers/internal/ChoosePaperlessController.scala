@@ -85,7 +85,7 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
         else OptInDetailsForm().bindFromRequest.fold[Future[Result]](
           hasErrors = returnToFormWithErrors,
           success = {
-            case emailForm@OptInDetailsForm.Data((Some(emailAddress), _), _, Some(OptInDetailsForm.Data.PaperlessChoice.OptedIn), Some(true), _) =>
+            case emailForm@OptInDetailsForm.Data((Some(emailAddress), _), _, Some(OptInDetailsForm.Data.PaperlessChoice.OptedIn), Some(true), _, _) =>
               val emailVerificationStatus =
                 if (emailForm.isEmailVerified) Future.successful(true)
                 else emailConnector.isValid(emailAddress)

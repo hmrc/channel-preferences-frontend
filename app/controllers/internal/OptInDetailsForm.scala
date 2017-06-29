@@ -2,9 +2,7 @@ package controllers.internal
 
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.Play.current
-import play.api.i18n.Messages
-import play.api.i18n.Messages.Implicits._
+import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
 import uk.gov.hmrc.emailaddress.EmailAddress
 
 
@@ -19,20 +17,29 @@ object OptInDetailsForm {
       _.map(Data.PaperlessChoice.fromBoolean), (p: Option[Data.PaperlessChoice]) => p.map(_.toBoolean)
     ),
     "accept-tc" -> optional(boolean),
-    "emailAlreadyStored" -> optional(boolean)
+    "emailAlreadyStored" -> optional(boolean),
+    "newAcceptedTerms" -> tuple(
+      "optInTerms" -> optional(boolean),
+      "acceptTcTerms" -> optional(boolean)
+    ).verifying("sa_printing_preference.accept_tc_required", kvp =>
+      (kvp._1.contains(true) && !kvp._2.contains(true))
+    )
   )(Data.apply)(Data.unapply)
-    .verifying(Messages("sa_printing_preference.accept_tc_required"),data => data match {
-      case Data(_, _, Some(Data.PaperlessChoice.OptedOut), _ , _) => true
-      case Data(_, _, _, acceptedTc , _) =>
-        data.acceptedTCs.contains(true)
+    .verifying(Constraint.apply[Data](Some("accept-tc"), Nil) { data: Data =>
+      data match {
+        case Data(_, _, Some(Data.PaperlessChoice.OptedOut), _, _, _) => Valid
+        case data =>
+          if (data.acceptedTCs.contains(true)) Valid
+          else Invalid(ValidationError("sa_printing_preference.accept_tc_required"))
+      }
     }).verifying("error.email.optIn", _ match {
-      case Data((None, _), _, Some(Data.PaperlessChoice.OptedIn), _, _) => false
-      case _ => true
-    })
+    case Data((None, _), _, Some(Data.PaperlessChoice.OptedIn), _, _, _) => false
+    case _ => true
+  })
     .verifying("email.confirmation.emails.unequal", formData => formData.email._1 == formData.email._2)
   )
 
-  case class Data(email: (Option[String], Option[String]), emailVerified: Option[String], choice: Option[Data.PaperlessChoice], acceptedTCs: Option[Boolean], emailAlreadyStored: Option[Boolean]) {
+  case class Data(email: (Option[String], Option[String]), emailVerified: Option[String], choice: Option[Data.PaperlessChoice], acceptedTCs: Option[Boolean], emailAlreadyStored: Option[Boolean], newAcceptedTerms: (Option[Boolean], Option[Boolean])) {
     lazy val isEmailVerified = emailVerified.contains("true")
     lazy val isEmailAlreadyStored = emailAlreadyStored.contains(true)
 
@@ -55,7 +62,8 @@ object OptInDetailsForm {
 
     def apply(emailAddress: Option[EmailAddress], preference: Option[PaperlessChoice], acceptedTcs: Option[Boolean], emailAlreadyStored: Option[Boolean]): Data = {
       val emailAddressAsString = emailAddress.map(_.value)
-      Data((emailAddressAsString, emailAddressAsString), None, preference, acceptedTcs, emailAlreadyStored)
+      val tuple1: (Option[Boolean], Option[Boolean]) = (preference.map(_.toBoolean), acceptedTcs)
+      Data((emailAddressAsString, emailAddressAsString), None, preference, acceptedTcs, emailAlreadyStored, tuple1)
     }
   }
 }
