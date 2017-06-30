@@ -36,7 +36,7 @@
             @if(emailForm("emailAlreadyStored").value.contains("true")) {
                     <input type="email" class="input--medium input--cleared" id="email.main" name="email.main" value="@emailForm("email.main").value" readonly>
                     <p style="font-size:75%;">
-                        You have signed up for digital communications for Tax Credits with this email address.
+                        You have signed up for digital communications for Tax Credits with this email address.<br/>
                         If you wish to change the email address you can do this later within manage your account
                     </p>
                 <input type="email" id="email.confirm" name="email.confirm" value="@emailForm("email.main").value" hidden>
