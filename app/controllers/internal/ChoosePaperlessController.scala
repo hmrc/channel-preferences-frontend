@@ -84,7 +84,6 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
     }
 
     def returnToFormWithErrors(f: Form[_]) = {
-      println(f.errors)
       Future.successful(BadRequest(views.html.sa.prefs.sa_printing_preference(f, routes.ChoosePaperlessController.submitForm(hostContext), cohort)))
     }
 

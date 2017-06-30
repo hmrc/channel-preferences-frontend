@@ -96,7 +96,6 @@ object PreferenceResponse {
 
   val reads = new Reads[PreferenceResponse] {
     override def reads(json: JsValue): JsResult[PreferenceResponse] = {
-      println(json)
       json.validate(defaultRead) match {
         case jSucc@JsSuccess(_, _) => jSucc
         case _ => SaPreference.formats.reads(json).map(_.toNewPreference)
