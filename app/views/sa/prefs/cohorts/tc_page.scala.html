@@ -17,17 +17,20 @@
         <li>will keep your email address up to date using your HMRC online account to make sure you get your email notifications</li>
     </ul>
 
-
-
     @form(action = submitPrefsFormAction, 'id -> "form-submit-email-address-tc") {
         <fieldset class="connected">
+            @emailForm("termsAndConditions").error.map { error =>
+                <label class="error-notification" style="display:inline-block">@Messages(error.message)</label>
+            }
             @singleCheckbox(
-            emailForm("termsAndConditions.accept-tc"),
-            '_label -> Html(Messages("tc_printing_preference.tc.preLinkText", Link.toExternalPage(id = Some("terms-and-conditions"), url = "https://www.tax.service.gov.uk/information/terms#secure", value = Some(Messages("tc_printing_preference.tc.linkText"))).toHtml)),
-            '_labelClass -> "label--inline"
-            )
-            @emailForm("termsAndConditions").error.map { error => <label class="error-notification" style="display:inline-block">@Messages(error.message)</label>}
+        emailForm("termsAndConditions.accept-tc"),
+        '_label -> Html(Messages("tc_printing_preference.tc.preLinkText", Link.toExternalPage(id = Some("terms-and-conditions"), url = "https://www.tax.service.gov.uk/information/terms#secure", value = Some(Messages("tc_printing_preference.tc.linkText"))).toHtml)),
+        '_labelClass -> "label--inline"
+        )
         </fieldset>
+        <div class="email-form-errors">
+            @emailForm("termsAndConditions.opt-in").errors.map { error => <label class="error-notification" style="display:inline-block">@Messages(error.message)</label>}
+        </div>
         <label class="selectable">
             <input
             id="opt-in-in"
@@ -56,9 +59,6 @@
             />
             No, I do not want my email address stored
         </label>
-        <div class="email-form-errors">
-            @emailForm("termsAndConditions.opt-in").errors.map { error => <label class="error-notification" style="display:inline-block">@Messages(error.message)</label>}
-        </div>
         <br>
         <div class="form-field">
             <button id="submitEmailButton" class="button" name="submitButton" type="submit">@Messages("tc_printing_preference.submitButton")</button>

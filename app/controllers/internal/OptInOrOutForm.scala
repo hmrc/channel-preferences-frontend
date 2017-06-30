@@ -14,7 +14,7 @@ object OptInOrOutForm {
 
 object OptInOrOutTaxCreditsForm {
   def apply() = Form[Data](mapping(
-    "termsAndConditions.opt-in" -> optional(boolean).verifying("sa_printing_preference.opt_in_choice_required", _.isDefined)
+    "termsAndConditions.opt-in" -> optional(boolean).verifying("tc_printing_preference.opt_in_choice_required", _.isDefined)
   )(Data.apply)(Data.unapply))
 
   case class Data(optedIn: Option[Boolean])
