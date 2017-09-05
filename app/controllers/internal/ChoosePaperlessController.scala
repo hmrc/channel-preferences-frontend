@@ -6,12 +6,11 @@ import controllers.internal.EmailOptInJourney._
 import controllers.internal.OptInDetailsForm.Data.PaperlessChoice.OptedIn
 import controllers.{Authentication, FindTaxIdentifier, internal}
 import model.{Encrypted, HostContext}
+import play.api.Play.current
 import play.api.data.Form
-import play.api.i18n.Messages
+import play.api.i18n.Messages.Implicits._
 import play.api.libs.json.Json
 import play.api.mvc._
-import play.api.i18n.Messages.Implicits._
-import play.api.Play.current
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.audit.AuditExtensions._
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
@@ -87,6 +86,19 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
       Future.successful(BadRequest(views.html.sa.prefs.sa_printing_preference(f, routes.ChoosePaperlessController.submitForm(hostContext), cohort)))
     }
 
+    def validateEmailAndSavePreference(emailAddress: String, isEmailVerified: Boolean, isEmailAlreadyStored: Boolean) = {
+      val emailVerificationStatus =
+        if (isEmailVerified) Future.successful(true)
+        else emailConnector.isValid(emailAddress)
+
+      emailVerificationStatus.flatMap {
+        case true => saveAndAuditPreferences(digital = true, email = Some(emailAddress), cohort.terms, isEmailAlreadyStored)
+        case false =>
+          Future.successful(Ok(views.html.sa_printing_preference_verify_email(emailAddress, cohort)))
+      }
+
+    }
+
     def handleTc(): Future[Result] = {
       OptInOrOutTaxCreditsForm().bindFromRequest.fold[Future[Result]](
         hasErrors = returnToFormWithErrors,
@@ -96,15 +108,7 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
             hasErrors = returnToFormWithErrors,
             success = {
               case emailForm@OptInTaxCreditsDetailsForm.Data((Some(emailAddress), _),_ , _, (Some(true), Some(true))) =>
-                val emailVerificationStatus =
-                  if (emailForm.isEmailVerified) Future.successful(true)
-                  else emailConnector.isValid(emailAddress)
-
-                emailVerificationStatus.flatMap {
-                  case true => saveAndAuditPreferences(digital = true, email = Some(emailAddress), cohort.terms, emailForm.isEmailAlreadyStored)
-                  case false =>
-                    Future.successful(Ok(views.html.sa_printing_preference_verify_email(emailAddress, cohort)))
-                }
+                validateEmailAndSavePreference(emailAddress, emailForm.isEmailVerified, emailForm.isEmailAlreadyStored)
               case _ =>
                 returnToFormWithErrors(OptInDetailsForm().bindFromRequest)
             }
@@ -121,15 +125,7 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
             hasErrors = returnToFormWithErrors,
             success = {
               case emailForm@OptInDetailsForm.Data((Some(emailAddress), _),_, Some(OptedIn), Some(true), _) =>
-                val emailVerificationStatus =
-                  if (emailForm.isEmailVerified) Future.successful(true)
-                  else emailConnector.isValid(emailAddress)
-
-                emailVerificationStatus.flatMap {
-                  case true => saveAndAuditPreferences(digital = true, email = Some(emailAddress), cohort.terms, emailForm.isEmailAlreadyStored)
-                  case false =>
-                    Future.successful(Ok(views.html.sa_printing_preference_verify_email(emailAddress, cohort)))
-                }
+                validateEmailAndSavePreference(emailAddress, emailForm.isEmailVerified, emailForm.isEmailAlreadyStored)
               case _ =>
                 returnToFormWithErrors(OptInDetailsForm().bindFromRequest)
             }
