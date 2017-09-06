@@ -3,7 +3,7 @@ package controllers.internal
 import config.Global
 import connectors._
 import controllers.internal.EmailOptInJourney._
-import controllers.internal.OptInDetailsForm.Data.PaperlessChoice.OptedIn
+import controllers.internal.PaperlessChoice.OptedIn
 import controllers.{Authentication, FindTaxIdentifier, internal}
 import model.{Encrypted, HostContext}
 import play.api.Play.current

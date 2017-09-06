@@ -736,8 +736,6 @@ class ChoosePaperlessControllerSpecTC extends UnitSpec with MockitoSugar with On
 
       val document = Jsoup.parse(contentAsString(page))
 
-      // TODO: I haven't fixed this test because we don't need to verify email for TC because it's been prepopulated
-      // document.select("#form-submit-email-address-tc .error-notification").text shouldBe "Enter a valid email address."
       verifyZeroInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
 
