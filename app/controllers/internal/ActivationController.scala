@@ -3,16 +3,14 @@ package controllers.internal
 import config.Global
 import connectors._
 import model.Encrypted
-import play.api.Logger
-import play.api.mvc.{AnyContent, Action, Result}
+import play.api.mvc.Result
 import play.api.Play
 import Play.current
 import uk.gov.hmrc.emailaddress.EmailAddress
 
 import scala.concurrent.Future
 
-//import connectors.EntityResolverConnector.{PreferenceFound, PreferenceNotFound}
-import connectors.{EntityResolverConnector, TermsAndConditonsAcceptance}
+import connectors.EntityResolverConnector
 import controllers.{Authentication, ExternalUrlPrefixes}
 import model.{FormType, HostContext}
 import play.api.libs.json.Json
@@ -54,7 +52,7 @@ trait ActivationController extends FrontendController with Actions with AppName 
         _preferencesStatus(hostContext)
   }
 
-  def preferencesStatusMtd(svc: String, token: String, hostContext: HostContext) = authenticated.async {
+  def preferencesStatusBySvc(svc: String, token: String, hostContext: HostContext) = authenticated.async {
     implicit authContext =>
       implicit request =>
         _preferencesStatusMtd(svc, token, hostContext)

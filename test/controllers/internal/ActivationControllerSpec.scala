@@ -53,12 +53,12 @@ class ActivationControllerSpec extends UnitSpec with OneAppPerSuite {
   "The Activation with a token" should {
 
     "fail when not supplied with a mtdfbit servicer" in new ActivationControllerSetup {
-      val res: Future[Result] = controller.preferencesStatusMtd("svc", "token",TestFixtures.sampleHostContext)(request)
+      val res: Future[Result] = controller.preferencesStatusBySvc("svc", "token",TestFixtures.sampleHostContext)(request)
       status(res) shouldBe NotFound.header.status
     }
 
     "succeed when the service is mtdfbit" in new ActivationControllerSetup {
-      val res: Future[Result] = controller.preferencesStatusMtd("mtdfbit", "token",TestFixtures.sampleHostContext)(request)
+      val res: Future[Result] = controller.preferencesStatusBySvc("mtdfbit", "token",TestFixtures.sampleHostContext)(request)
       status(res) shouldBe PreconditionFailed.header.status
       val document = Jsoup.parse(contentAsString(res))
       document.getElementsByTag("body").first().html() shouldBe """{"redirectUserTo":"/income-tax-subscription/"}"""
