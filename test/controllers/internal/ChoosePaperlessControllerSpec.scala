@@ -13,6 +13,7 @@ import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.OneAppPerSuite
 import play.api.Application
 import play.api.libs.json.{JsDefined, JsString}
+import play.api.mvc.Results._
 import play.api.mvc.{Request, Results}
 import play.api.test.FakeRequest
 import uk.gov.hmrc.domain.SaUtr
@@ -529,6 +530,21 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
       value.detail \ "digital" shouldBe JsDefined(JsString("false"))
       value.detail \ "userConfirmedReadTandCs" shouldBe JsDefined(JsString("false"))
       value.detail \ "newUserPreferencesCreated" shouldBe JsDefined(JsString("true"))
+    }
+  }
+
+  "A Paperless Controller  " should {
+    "return ok if there is a mapping for the service " in new ChoosePaperlessControllerSetup {
+      val res = controller.redirectToDisplayFormWithCohortBySvc("mtdfbit","sometoken", None, TestFixtures.taxCreditsHostContext(""))(request)
+      status(res) shouldBe Ok.header.status
+      val document = Jsoup.parse(contentAsString(res))
+      document.getElementsByTag("body").first().html() shouldBe """{"redirectUserTo":"/income-tax-signup/"}"""
+
+    }
+
+    "fail when not supplied with a mtdfbit servicer"  in new ChoosePaperlessControllerSetup {
+      val res = controller.redirectToDisplayFormWithCohortBySvc("badsvc","anothetoken", None, TestFixtures.taxCreditsHostContext(""))(request)
+      status(res) shouldBe NotFound.header.status
     }
   }
 }

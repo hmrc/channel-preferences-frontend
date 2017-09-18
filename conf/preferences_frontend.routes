@@ -17,6 +17,9 @@ POST        /paperless/resend-verification-email                                
 
 GET         /paperless/choose/nearly-done                                           controllers.internal.ChoosePaperlessController.displayNearlyDone(email: Option[model.EncryptedEmail], hostContext: model.HostContext)
 GET         /paperless/choose                                                       controllers.internal.ChoosePaperlessController.redirectToDisplayFormWithCohort(email: Option[model.EncryptedEmail], hostContext: model.HostContext)
+
+GET         /paperless/choose/:svc/:token                                           controllers.internal.ChoosePaperlessController.redirectToDisplayFormWithCohortBySvc(svc: String, token: String, email: Option[model.EncryptedEmail], hostContext: model.HostContext)
+
 GET         /paperless/choose/:cohort                                               controllers.internal.ChoosePaperlessController.displayForm(cohort: Option[controllers.internal.OptInCohort], email: Option[model.EncryptedEmail], hostContext: model.HostContext)
 POST        /paperless/choose                                                       controllers.internal.ChoosePaperlessController.submitForm(hostContext: model.HostContext)
 

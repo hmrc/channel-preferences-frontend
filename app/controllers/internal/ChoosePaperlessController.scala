@@ -6,6 +6,7 @@ import controllers.internal.EmailOptInJourney._
 import controllers.internal.PaperlessChoice.OptedIn
 import controllers.{Authentication, FindTaxIdentifier, internal}
 import model.{Encrypted, HostContext}
+import play.api.Play
 import play.api.Play.current
 import play.api.data.Form
 import play.api.i18n.Messages.Implicits._
@@ -38,8 +39,15 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
   def emailConnector: EmailConnector
   def auditConnector: AuditConnector
 
-  def redirectToDisplayFormWithCohort(emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = authenticated { implicit authContext => implicit request =>
+  def redirectToDisplayFormWithCohort(emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext): Action[AnyContent] = authenticated { implicit authContext => implicit request =>
     createRedirectToDisplayFormWithCohort(emailAddress, hostContext)
+  }
+
+  def redirectToDisplayFormWithCohortBySvc(svc: String, token: String, emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = authenticated { implicit authContext => implicit request =>
+    Play.configuration.getString(s"tokenService.signupRedirect.$svc.callbackUrl") match {
+      case Some(redirectUrl) => Ok(Json.obj("redirectUserTo" -> redirectUrl))
+      case _ => NotFound
+    }
   }
 
   private def createRedirectToDisplayFormWithCohort(emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext)(implicit authContext: AuthContext) =
