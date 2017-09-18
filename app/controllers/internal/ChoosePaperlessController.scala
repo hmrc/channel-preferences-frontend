@@ -44,7 +44,7 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
   }
 
   def redirectToDisplayFormWithCohortBySvc(svc: String, token: String, emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = authenticated { implicit authContext => implicit request =>
-    Play.configuration.getString(s"tokenService.signupRedirect.$svc.callbackUrl") match {
+    Play.configuration.getString(s"tokenService.$svc.signupRedirectUrl") match {
       case Some(redirectUrl) => Ok(Json.obj("redirectUserTo" -> redirectUrl))
       case _ => NotFound
     }
