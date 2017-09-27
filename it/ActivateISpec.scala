@@ -6,6 +6,11 @@ import uk.gov.hmrc.domain.{CtUtr, Vrn}
 class ActivateISpec extends PreferencesFrontEndServer with EmailSupport {
 
   "activate" should {
+    "return PRECONDITION_FAILED with redirectUserTo link if activating with a known service" in  new TestCaseWithFrontEndAuthentication {
+      val response = `/paperless/activate-from-token/:svc/:token`("mtdfbit", "token").put().futureValue
+      response.status should be (PRECONDITION_FAILED)
+    }
+
     "return PRECONDITION_FAILED with redirectUserTo link if activating for a new user with utr only" in new TestCaseWithFrontEndAuthentication {
       val response = `/paperless/activate`(utr)().put().futureValue
       response.status should be (PRECONDITION_FAILED)
