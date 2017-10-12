@@ -63,6 +63,21 @@ class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with OneApp
     }
   }
 
+  "getPreferencesStatusByToken" should {
+    val GOOD_SERVICE = "mtdfbit"
+    val BAD_SERVICE = "rubbish"
+    val GOOD_TOKEN = "91abdbb1-6ad4-4419-8f33-a7ea6cf8e388"
+    val BAD_TOKEN = "rubbish"
+
+    "map no preference to PreferenceNotFound with no email" in {
+      val connector = entityResolverConnector(
+        url => Future.successful(HttpResponse(responseStatus = NOT_FOUND, responseString = Some("Preference not found")))
+      )
+
+      connector.getPreferencesStatusByToken(GOOD_SERVICE, GOOD_TOKEN).futureValue shouldBe Right(PreferenceNotFound(None))
+    }
+  }
+
   "getPreferencesStatus" should {
 
     implicit val hc = HeaderCarrier()
