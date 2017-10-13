@@ -16,6 +16,7 @@ import uk.gov.hmrc.play.frontend.auth._
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 import uk.gov.hmrc.play.test.UnitSpec
 import play.api.mvc.Results.{NotFound, PreconditionFailed}
+import uk.gov.hmrc.play.http.HeaderCarrier
 
 import scala.concurrent.Future
 
@@ -60,15 +61,18 @@ class ActivationControllerSpec extends UnitSpec with OneAppPerSuite {
   "The Activation with a token" should {
 
     "fail when not supplied with a mtdfbit servicer" in new ActivationControllerSetup {
+      when(mockEntityResolverConnector.getPreferencesStatusByToken(any(),any(),any())(any())).thenReturn(Future.successful(Left(NOT_FOUND)))
       val res: Future[Result] = controller.preferencesStatusBySvc("svc", "token",TestFixtures.sampleHostContext)(request)
       status(res) shouldBe NotFound.header.status
     }
 
     "succeed when the service is mtdfbit" in new ActivationControllerSetup {
+      val email = EmailPreference("test@test.com", false, false, false,None)
+      when(mockEntityResolverConnector.getPreferencesStatusByToken(any(),any(),any())(any())).thenReturn(Future.successful(Right(PreferenceNotFound(Some(email)))))
       val res: Future[Result] = controller.preferencesStatusBySvc("mtdfbit", "token",TestFixtures.sampleHostContext)(request)
       status(res) shouldBe PreconditionFailed.header.status
       val document = Jsoup.parse(contentAsString(res))
-      document.getElementsByTag("body").first().html() shouldBe """{"redirectUserTo":"/income-tax-subscription/"}"""
+      document.getElementsByTag("body").first().html() startsWith  """{"redirectUserTo":"/[paperless/choose/mtdfbit/token?email="""
     }
   }
 }
