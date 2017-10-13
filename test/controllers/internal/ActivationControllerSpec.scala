@@ -4,7 +4,8 @@ import _root_.connectors._
 import controllers.AuthorityUtils._
 import helpers.TestFixtures
 import org.jsoup.Jsoup
-
+import org.mockito.Matchers.any
+import org.mockito.Mockito.when
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.OneAppPerSuite
 import play.api.mvc._
@@ -24,8 +25,14 @@ abstract class ActivationControllerSetup extends MockitoSugar {
   val mockAuditConnector = mock[AuditConnector]
   val user = AuthContext(authority = emptyAuthority("userId"), nameFromSession = Some("Ciccio"), governmentGatewayToken = None)
 
+  val mockEntityResolverConnector : EntityResolverConnector = {
+    val entityResolverMock = mock[EntityResolverConnector]
+    when(entityResolverMock.getPreferencesStatus(any())(any())).thenReturn(Future.successful(Right[Int,PreferenceStatus](PreferenceNotFound(None))))
+    entityResolverMock
+  }
+
   val controller = new ActivationController {
-    override def entityResolverConnector: EntityResolverConnector = ???
+    override def entityResolverConnector: EntityResolverConnector = mockEntityResolverConnector
 
     override val hostUrl: String = ""
 
