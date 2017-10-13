@@ -7,6 +7,7 @@ import uk.gov.hmrc.domain.{Nino, SaUtr, TaxIdentifier}
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import uk.gov.hmrc.play.http.{NotFoundException, _}
+import play.api.Logger
 
 import scala.concurrent.Future
 
@@ -89,10 +90,17 @@ trait EntityResolverConnector extends Status with ServicesCircuitBreaker {
 
   def url(path: String) = s"$serviceUrl$path"
 
-
   def getPreferencesStatus(termsAndCond: String = "generic")(implicit headerCarrier: HeaderCarrier): Future[Either[Int, PreferenceStatus]] = {
-    withCircuitBreaker(
-      http.GET[Option[PreferenceResponse]](url(s"/preferences")).map {
+    getPreferencesStatus_Final(termsAndCond, url(s"/preferences"))
+  }
+
+  def getPreferencesStatusByToken(svc: String, token: String, termsAndCond: String = "generic")(implicit headerCarrier: HeaderCarrier): Future[Either[Int, PreferenceStatus]] = {
+    getPreferencesStatus_Final(termsAndCond, url(s"/preferences/$svc/$token"))
+  }
+
+  def getPreferencesStatus_Final(termsAndCond: String, request_url : String)(implicit headerCarrier: HeaderCarrier): Future[Either[Int, PreferenceStatus]] = {
+    withCircuitBreaker({
+      http.GET[Option[PreferenceResponse]](request_url).map {
         case Some(preference) =>
           preference.termsAndConditions.get(termsAndCond).fold[Either[Int, PreferenceStatus]](
             Right(PreferenceNotFound(preference.email))) {
@@ -100,14 +108,14 @@ trait EntityResolverConnector extends Status with ServicesCircuitBreaker {
           }
         case None => Right(PreferenceNotFound(None))
       }
-    ).recover {
+    }).recover {
       case response: Upstream4xxResponse => response.upstreamResponseCode match {
         case NOT_FOUND => Left(NOT_FOUND)
         case UNAUTHORIZED => Left(UNAUTHORIZED)
       }
+      case response: BadRequestException => Left(BAD_REQUEST)
     }
   }
-
 
   def changeEmailAddress(newEmail: String)(implicit hc: HeaderCarrier): Future[HttpResponse] =
     withCircuitBreaker(http.PUT(url(s"/preferences/pending-email"), UpdateEmail(newEmail)))

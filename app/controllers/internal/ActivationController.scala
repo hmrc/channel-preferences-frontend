@@ -7,7 +7,7 @@ import play.api.mvc.Result
 import play.api.Play
 import Play.current
 import uk.gov.hmrc.emailaddress.EmailAddress
-
+import play.api.Logger
 import scala.concurrent.Future
 
 import connectors.EntityResolverConnector
@@ -64,9 +64,12 @@ trait ActivationController extends FrontendController with Actions with AppName 
         _preferencesStatus(hostContext)
   }
 
-  private def _preferencesStatusMtd(svc: String, token: String, hostContext: HostContext)(implicit hc: HeaderCarrier): Future[Result] = Future {
-    Play.configuration.getString(s"tokenService.$svc.callbackUrl") match {
-      case Some(redirectUrl) => PreconditionFailed(Json.obj("redirectUserTo" -> redirectUrl))
+  private def _preferencesStatusMtd(svc: String, token: String, hostContext: HostContext)(implicit hc: HeaderCarrier): Future[Result] = {
+    entityResolverConnector.getPreferencesStatusByToken(svc, token) map {
+      case Right(PreferenceNotFound(email)) =>
+        val encryptedEmail = email.map(e => Encrypted(EmailAddress(e.email)))
+        val redirectUrl = hostUrl + controllers.internal.routes.ChoosePaperlessController.redirectToDisplayFormWithCohortBySvc(svc, token, encryptedEmail, hostContext).url
+        PreconditionFailed(Json.obj("redirectUserTo" -> redirectUrl))
       case _ => NotFound
     }
   }

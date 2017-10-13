@@ -5,6 +5,8 @@ import helpers.ConfigHelper
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.play.OneAppPerSuite
 import play.api.Application
+import org.mockito.Mockito
+import org.scalatest.mock.MockitoSugar
 import play.api.libs.json.{Json, Writes}
 import uk.gov.hmrc.circuitbreaker.UnhealthyServiceException
 import uk.gov.hmrc.domain.{Nino, SaUtr}
@@ -17,7 +19,7 @@ import PreferenceResponse._
 
 import scala.concurrent.Future
 
-class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with OneAppPerSuite {
+class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with OneAppPerSuite with MockitoSugar {
 
   implicit val hc = new HeaderCarrier
   override implicit lazy val app : Application = ConfigHelper.fakeApp
@@ -60,6 +62,21 @@ class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with OneApp
       val hooks: Seq[HttpHook] = Seq(AuditingHook)
 
       def auditConnector = ???
+    }
+  }
+
+  "getPreferencesStatusByToken" should {
+    val GOOD_SERVICE = "mtdfbit"
+    val BAD_SERVICE = "rubbish"
+    val GOOD_TOKEN = "91abdbb1-6ad4-4419-8f33-a7ea6cf8e388"
+    val BAD_TOKEN = "rubbish"
+
+    "map no preference to PreferenceNotFound with no email" in {
+      val connector = entityResolverConnector(
+        url => Future.successful(HttpResponse(responseStatus = NOT_FOUND, responseString = Some("Preference not found")))
+      )
+
+      connector.getPreferencesStatusByToken(GOOD_SERVICE, GOOD_TOKEN).futureValue shouldBe Right(PreferenceNotFound(None))
     }
   }
 
@@ -251,7 +268,7 @@ class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with OneApp
     }
   }
 
-  "The upgradeTermsAndConditions method" should {
+  "The updateTermsAndConditions method" should {
     trait PayloadCheck {
       def status: Int = 200
       def expectedPayload: TermsAndConditionsUpdate
@@ -348,6 +365,7 @@ class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with OneApp
       }
     }
   }
+
 
   "Activate new user" should {
     trait ActivateUserPayloadCheck {

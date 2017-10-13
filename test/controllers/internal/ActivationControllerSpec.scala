@@ -4,7 +4,8 @@ import _root_.connectors._
 import controllers.AuthorityUtils._
 import helpers.TestFixtures
 import org.jsoup.Jsoup
-
+import org.mockito.Matchers.any
+import org.mockito.Mockito.when
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.OneAppPerSuite
 import play.api.mvc._
@@ -15,6 +16,7 @@ import uk.gov.hmrc.play.frontend.auth._
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 import uk.gov.hmrc.play.test.UnitSpec
 import play.api.mvc.Results.{NotFound, PreconditionFailed}
+import uk.gov.hmrc.play.http.HeaderCarrier
 
 import scala.concurrent.Future
 
@@ -24,8 +26,14 @@ abstract class ActivationControllerSetup extends MockitoSugar {
   val mockAuditConnector = mock[AuditConnector]
   val user = AuthContext(authority = emptyAuthority("userId"), nameFromSession = Some("Ciccio"), governmentGatewayToken = None)
 
+  val mockEntityResolverConnector : EntityResolverConnector = {
+    val entityResolverMock = mock[EntityResolverConnector]
+    when(entityResolverMock.getPreferencesStatus(any())(any())).thenReturn(Future.successful(Right[Int,PreferenceStatus](PreferenceNotFound(None))))
+    entityResolverMock
+  }
+
   val controller = new ActivationController {
-    override def entityResolverConnector: EntityResolverConnector = ???
+    override def entityResolverConnector: EntityResolverConnector = mockEntityResolverConnector
 
     override val hostUrl: String = ""
 
@@ -53,15 +61,18 @@ class ActivationControllerSpec extends UnitSpec with OneAppPerSuite {
   "The Activation with a token" should {
 
     "fail when not supplied with a mtdfbit servicer" in new ActivationControllerSetup {
+      when(mockEntityResolverConnector.getPreferencesStatusByToken(any(),any(),any())(any())).thenReturn(Future.successful(Left(NOT_FOUND)))
       val res: Future[Result] = controller.preferencesStatusBySvc("svc", "token",TestFixtures.sampleHostContext)(request)
       status(res) shouldBe NotFound.header.status
     }
 
     "succeed when the service is mtdfbit" in new ActivationControllerSetup {
+      val email = EmailPreference("test@test.com", false, false, false,None)
+      when(mockEntityResolverConnector.getPreferencesStatusByToken(any(),any(),any())(any())).thenReturn(Future.successful(Right(PreferenceNotFound(Some(email)))))
       val res: Future[Result] = controller.preferencesStatusBySvc("mtdfbit", "token",TestFixtures.sampleHostContext)(request)
       status(res) shouldBe PreconditionFailed.header.status
       val document = Jsoup.parse(contentAsString(res))
-      document.getElementsByTag("body").first().html() shouldBe """{"redirectUserTo":"/income-tax-subscription/"}"""
+      document.getElementsByTag("body").first().html() startsWith  """{"redirectUserTo":"/[paperless/choose/mtdfbit/token?email="""
     }
   }
 }
