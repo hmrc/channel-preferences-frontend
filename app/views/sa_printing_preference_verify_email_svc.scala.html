@@ -1,0 +1,32 @@
+@(emailAddress: String, cohort: controllers.internal.OptInCohort, svc: String, token: String)(implicit context: uk.gov.hmrc.play.frontend.auth.AuthContext, request : Request[_], messages: Messages, hostContext: model.HostContext)
+
+@import uk.gov.hmrc.urls.Link
+@import model.Encrypted
+@import uk.gov.hmrc.emailaddress.EmailAddress
+@import uk.gov.hmrc.play.views.html.helpers._
+
+@main_with_headers(title = "Check your email address") {
+
+    <header class="page-header">
+        <h1>@Messages(s"sa_printing_preference.title")</h1>
+        <h2>@Messages("sa_printing_preferences.confirm_correct_email.title")</h2>
+    </header>
+    <p>@Html(Messages("sa_printing_preferences.confirm_correct_email.paragraph.1", s"<span id='emailAddress'>$emailAddress</span>"))</p>
+
+
+    @form(action = controllers.internal.routes.ChoosePaperlessController.submitFormBySvc(svc, token, hostContext), 'id -> "form-submit-preferences-verify-email") {
+        <div class="form-field">
+            <p>
+                <button id="email-is-correct-link" class="button" type="submit">@Messages("sa_printing_preferences.confirm_correct_email.confirm")</button>
+            </p>
+        </div>
+        <input type="hidden" name="opt-in" value="true" />
+        <input type="hidden" name="email.main" value="@emailAddress" />
+        <input type="hidden" name="email.confirm" value="@emailAddress" />
+        <input type="hidden" name="emailVerified" value="true" />
+        <input type="hidden" name="accept-tc" value="true" />
+    }
+
+    @Link.toInternalPage(id = Some("email-is-not-correct-link"), url = controllers.internal.routes.ChoosePaperlessController.redirectToDisplayFormWithCohortBySvc(svc, token, Some(Encrypted(EmailAddress(emailAddress))), hostContext).url, value = Some("Change this email address")).toHtml
+
+}
