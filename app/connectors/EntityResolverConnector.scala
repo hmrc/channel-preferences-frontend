@@ -141,12 +141,20 @@ trait EntityResolverConnector extends Status with ServicesCircuitBreaker {
     responseToEmailVerificationLinkStatus(withCircuitBreaker(http.PUT(url("/portal/preferences/email"), ValidateEmail(token))))
   }
 
+
   def updateTermsAndConditions(termsAccepted: (TermsType, TermsAccepted), email: Option[String])(implicit hc: HeaderCarrier): Future[PreferencesStatus] =
-    withCircuitBreaker(http.POST(url(s"/preferences/terms-and-conditions"), EntityResolverConnector.TermsAndConditionsUpdate.from(termsAccepted, email)))
+    updateTermsAndConditionsForSvc(termsAccepted, email, None, None)
+
+  def updateTermsAndConditionsForSvc(termsAccepted: (TermsType, TermsAccepted), email: Option[String], svc: Option[String], token: Option[String])(implicit hc: HeaderCarrier): Future[PreferencesStatus] = {
+    val endPoint = "/preferences/terms-and-conditions" + (for {
+      s <- svc
+      t <- token
+    } yield "/" + s + "/" + t).getOrElse("")
+    withCircuitBreaker(http.POST(url(endPoint), EntityResolverConnector.TermsAndConditionsUpdate.from(termsAccepted, email)))
       .map(_.status).map {
       case OK => PreferencesExists
       case CREATED => PreferencesCreated
-    }
+    } }
 
   private[connectors] def responseToEmailVerificationLinkStatus(response: Future[HttpResponse])(implicit hc: HeaderCarrier) =
     response.map(_ => EmailVerificationLinkResponse.Ok)

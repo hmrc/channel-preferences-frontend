@@ -60,7 +60,7 @@ class ActivationControllerSpec extends UnitSpec with OneAppPerSuite {
 
   "The Activation with a token" should {
 
-    "fail when not supplied with a mtdfbit servicer" in new ActivationControllerSetup {
+    "fail when not supplied with a mtdfbit service" in new ActivationControllerSetup {
       when(mockEntityResolverConnector.getPreferencesStatusByToken(any(),any(),any())(any())).thenReturn(Future.successful(Left(NOT_FOUND)))
       val res: Future[Result] = controller.preferencesStatusBySvc("svc", "token",TestFixtures.sampleHostContext)(request)
       status(res) shouldBe NotFound.header.status
