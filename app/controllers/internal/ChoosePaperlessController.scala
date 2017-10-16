@@ -171,13 +171,15 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
     val emailVerificationStatus =
       if (isEmailVerified) Future.successful(true)
       else emailConnector.isValid(emailAddress)
-
+    
     emailVerificationStatus.flatMap {
       case true => saveAndAuditPreferences(digital = true, email = Some(emailAddress), cohort, isEmailAlreadyStored, svc, token)
       case false =>
-        if (svc.isDefined && token.isDefined)
-          Future.successful(Ok(views.html.sa_printing_preference_verify_email_svc(emailAddress, cohort, svc.get, token.get)))
-        else Future.successful(Ok(views.html.sa_printing_preference_verify_email(emailAddress, cohort)))
+        if (svc.isDefined && token.isDefined) Future.successful(Ok(views.html.sa_printing_preference_verify_email(emailAddress, cohort,
+          controllers.internal.routes.ChoosePaperlessController.submitFormBySvc(svc.get, token.get, hostContext),
+          controllers.internal.routes.ChoosePaperlessController.redirectToDisplayFormWithCohortBySvc(svc.get, token.get, Some(Encrypted(EmailAddress(emailAddress))), hostContext).url)))
+        else Future.successful(Ok(views.html.sa_printing_preference_verify_email(emailAddress, cohort, controllers.internal.routes.ChoosePaperlessController.submitForm(hostContext),
+          controllers.internal.routes.ChoosePaperlessController.redirectToDisplayFormWithCohort(Some(Encrypted(EmailAddress(emailAddress))), hostContext).url)))
     }
   }
 
@@ -215,15 +217,14 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
 
   private def hasStoredEmail(hostContext: HostContext, svc: Option[String], token: Option[String])(implicit hc: HeaderCarrier): Future[Boolean] = {
     val terms = hostContext.termsAndConditions.getOrElse("generic")
-    if (svc.isDefined && token.isDefined)
-      entityResolverConnector.getPreferencesStatusByToken(svc.get, token.get, terms) map {
-        case Right(PreferenceNotFound(Some(_))) | Right(PreferenceFound(false, Some(_))) => true
-        case _ => false
-      }
-    else entityResolverConnector.getPreferencesStatus(terms) map {
+    val f: Any => Boolean = (v: Any) =>  v match {
       case Right(PreferenceNotFound(Some(_))) | Right(PreferenceFound(false, Some(_))) => true
       case _ => false
     }
+
+    if (svc.isDefined && token.isDefined)
+      entityResolverConnector.getPreferencesStatusByToken(svc.get, token.get, terms) map(f)
+    else entityResolverConnector.getPreferencesStatus(terms) map(f)
   }
 
   def displayNearlyDone(emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = authenticated { implicit authContext => implicit request =>
