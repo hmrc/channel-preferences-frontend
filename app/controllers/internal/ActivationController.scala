@@ -70,6 +70,18 @@ trait ActivationController extends FrontendController with Actions with AppName 
         val encryptedEmail = email.map(e => Encrypted(EmailAddress(e.email)))
         val redirectUrl = hostUrl + controllers.internal.routes.ChoosePaperlessController.redirectToDisplayFormWithCohortBySvc(svc, token, encryptedEmail, hostContext).url
         PreconditionFailed(Json.obj("redirectUserTo" -> redirectUrl))
+      case Right(PreferenceFound(true, emailPreference)) =>
+        Ok(Json.obj(
+          "optedIn" -> true,
+          "verifiedEmail" -> emailPreference.fold(false)(_.isVerified)
+        ))
+      case Right(PreferenceFound(false, email)) =>
+        val encryptedEmail = email.map(e => Encrypted(EmailAddress(e.email)))
+        val redirectUrl = hostUrl + controllers.internal.routes.ChoosePaperlessController.redirectToDisplayFormWithCohortBySvc(svc, token, encryptedEmail, hostContext).url
+        Ok(Json.obj(
+          "optedIn" -> false,
+          "redirectUserTo" -> redirectUrl
+        ))
       case _ => NotFound
     }
   }
