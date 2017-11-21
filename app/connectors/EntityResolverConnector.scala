@@ -1,6 +1,7 @@
 package connectors
 
 import config.ServicesCircuitBreaker
+import model.HostContext
 import play.api.http.Status
 import play.api.libs.json._
 import uk.gov.hmrc.domain.{Nino, SaUtr, TaxIdentifier}
@@ -60,18 +61,24 @@ object EntityResolverConnector extends EntityResolverConnector with ServicesConf
     implicit val format = Json.format[ActivationStatus]
   }
 
-  protected[connectors] case class TermsAndConditionsUpdate(generic: Option[TermsAccepted], taxCredits: Option[TermsAccepted], email: Option[String])
+  protected[connectors] case class TermsAndConditionsUpdate(generic: Option[TermsAccepted], taxCredits: Option[TermsAccepted], email: Option[String], returnUrl: Option[String] = None, returnText: Option[String] = None)
 
   protected[connectors] object TermsAndConditionsUpdate {
     implicit val format = Json.format[TermsAndConditionsUpdate]
 
-    def from(terms: (TermsType, TermsAccepted), email: Option[String]): TermsAndConditionsUpdate = terms match {
-      case (GenericTerms, accepted: TermsAccepted) => TermsAndConditionsUpdate(generic = Some(accepted), None, email = email)
-      case (TaxCreditsTerms, accepted: TermsAccepted) => TermsAndConditionsUpdate(generic = None, taxCredits = Some(accepted), email = email)
-      case (termsType, _) => throw new IllegalArgumentException(s"Could not work with termsType=$termsType")
+    def from(terms: (TermsType, TermsAccepted), email: Option[String], includeLinkDetails: Boolean)(implicit hostContext: HostContext): TermsAndConditionsUpdate = {
+      val standardConditions = terms match {
+        case (GenericTerms, accepted: TermsAccepted) => TermsAndConditionsUpdate(generic = Some(accepted), None, email = email)
+        case (TaxCreditsTerms, accepted: TermsAccepted) => TermsAndConditionsUpdate(generic = None, taxCredits = Some(accepted), email = email)
+        case (termsType, _) => throw new IllegalArgumentException(s"Could not work with termsType=$termsType")
+      }
+      val aaaaa = if (includeLinkDetails)
+        standardConditions.copy(returnText = Some(hostContext.returnLinkText), returnUrl = Some(hostContext.returnUrl))
+      else
+        standardConditions
+      aaaaa
     }
   }
-
 }
 
 trait PreferenceStatus
@@ -142,15 +149,19 @@ trait EntityResolverConnector extends Status with ServicesCircuitBreaker {
   }
 
 
-  def updateTermsAndConditions(termsAccepted: (TermsType, TermsAccepted), email: Option[String])(implicit hc: HeaderCarrier): Future[PreferencesStatus] =
-    updateTermsAndConditionsForSvc(termsAccepted, email, None, None)
+  def updateTermsAndConditions(termsAccepted: (TermsType, TermsAccepted), email: Option[String])(implicit hc: HeaderCarrier, hostContext: HostContext): Future[PreferencesStatus] =
+    updateTermsAndConditionsForSvc(termsAccepted, email, None, None, false)
 
-  def updateTermsAndConditionsForSvc(termsAccepted: (TermsType, TermsAccepted), email: Option[String], svc: Option[String], token: Option[String])(implicit hc: HeaderCarrier): Future[PreferencesStatus] = {
+  def updateTermsAndConditionsForSvc(termsAccepted: (TermsType, TermsAccepted), email: Option[String], svc: Option[String], token: Option[String], includeLinkDetails: Boolean = true)(implicit hc: HeaderCarrier, hostContext: HostContext): Future[PreferencesStatus] = {
     val endPoint = "/preferences/terms-and-conditions" + (for {
       s <- svc
       t <- token
     } yield "/" + s + "/" + t).getOrElse("")
-    withCircuitBreaker(http.POST(url(endPoint), EntityResolverConnector.TermsAndConditionsUpdate.from(termsAccepted, email)))
+    val body = EntityResolverConnector.TermsAndConditionsUpdate.from(termsAccepted, email, includeLinkDetails)
+    val bodyJs = Json.toJson(body)
+    println(s"The body is $body")
+    println(s"The body as json is $bodyJs")
+    withCircuitBreaker(http.POST(url(endPoint), bodyJs))
       .map(_.status).map {
       case OK => PreferencesExists
       case CREATED => PreferencesCreated

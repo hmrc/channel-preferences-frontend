@@ -16,12 +16,14 @@ import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.http.hooks.HttpHook
 import uk.gov.hmrc.play.test.UnitSpec
 import PreferenceResponse._
+import model.HostContext
 
 import scala.concurrent.Future
 
 class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with OneAppPerSuite with MockitoSugar {
 
   implicit val hc = new HeaderCarrier
+  implicit val hostContext : HostContext = new HostContext(returnUrl = "", returnLinkText = "")
   override implicit lazy val app : Application = ConfigHelper.fakeApp
 
   import EntityResolverConnector._
@@ -304,6 +306,13 @@ class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with OneApp
       override val expectedPayload = TermsAndConditionsUpdate(generic = None, taxCredits = Some(TermsAccepted(false)), email = None)
 
       connector.updateTermsAndConditions(TaxCreditsTerms -> TermsAccepted(false), email = None).futureValue should be (PreferencesExists)
+    }
+
+    "include the returnUrl and returnLinkText in the post when called by a service and token" in new PayloadCheck {
+      override val expectedPayload = TermsAndConditionsUpdate(generic = None, taxCredits = Some(TermsAccepted(true)), email = None, returnUrl = Some("return Url"), returnText = Some("return link text"))
+      implicit val hostContext : HostContext = new HostContext(returnUrl = "return Url", returnLinkText = "return link text")
+
+      connector.updateTermsAndConditionsForSvc(TaxCreditsTerms -> TermsAccepted(true), email = None, svc = Some("MTDFBIT"), token = Some("A TOKEN"), includeLinkDetails = true).futureValue should be (PreferencesExists)
     }
 
     "return failure if any problems" in new PayloadCheck {
