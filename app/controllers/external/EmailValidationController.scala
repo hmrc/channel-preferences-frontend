@@ -19,10 +19,11 @@ class EmailValidationController extends FrontendController {
       token match {
         case regex(_) =>
           entityResolverConnector.updateEmailValidationStatusUnsecured(token) map {
-            case EmailVerificationLinkResponse.Ok => Ok(views.html.sa.prefs.sa_printing_preference_verify_email())
-            case EmailVerificationLinkResponse.Expired => Ok(views.html.sa.prefs.sa_printing_preference_expired_email())
-            case EmailVerificationLinkResponse.WrongToken => Ok(views.html.sa.prefs.sa_printing_preference_wrong_token())
-            case EmailVerificationLinkResponse.Error => BadRequest(views.html.sa.prefs.sa_printing_preference_verify_email_failed())
+            case (EmailVerificationLinkResponse.Ok, Some((returnUrl, returnText))) => Ok(views.html.sa.prefs.sa_printing_preference_verify_email(Some(returnText), Some(returnUrl)))
+            case (EmailVerificationLinkResponse.Ok, _) => Ok(views.html.sa.prefs.sa_printing_preference_verify_email(None, None))
+            case (EmailVerificationLinkResponse.Expired, _) => Ok(views.html.sa.prefs.sa_printing_preference_expired_email())
+            case (EmailVerificationLinkResponse.WrongToken, _) => Ok(views.html.sa.prefs.sa_printing_preference_wrong_token())
+            case (EmailVerificationLinkResponse.Error, _) => BadRequest(views.html.sa.prefs.sa_printing_preference_verify_email_failed())
           }
         case _ => Future.successful(BadRequest(views.html.sa.prefs.sa_printing_preference_verify_email_failed()))
       }

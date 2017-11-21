@@ -144,10 +144,9 @@ trait EntityResolverConnector extends Status with ServicesCircuitBreaker {
     withCircuitBreaker(http.GET[Option[Email]](url(basedOnTaxIdType))).map(_.map(_.email))
   }
 
-  def updateEmailValidationStatusUnsecured(token: String)(implicit hc: HeaderCarrier): Future[EmailVerificationLinkResponse.Value] = {
+  def updateEmailValidationStatusUnsecured(token: String)(implicit hc: HeaderCarrier): Future[(EmailVerificationLinkResponse.Value, Option[(String, String)])] = {
     responseToEmailVerificationLinkStatus(withCircuitBreaker(http.PUT(url("/portal/preferences/email"), ValidateEmail(token))))
   }
-
 
   def updateTermsAndConditions(termsAccepted: (TermsType, TermsAccepted), email: Option[String])(implicit hc: HeaderCarrier, hostContext: HostContext): Future[PreferencesStatus] =
     updateTermsAndConditionsForSvc(termsAccepted, email, None, None, false)
@@ -157,21 +156,25 @@ trait EntityResolverConnector extends Status with ServicesCircuitBreaker {
       s <- svc
       t <- token
     } yield "/" + s + "/" + t).getOrElse("")
-    val body = EntityResolverConnector.TermsAndConditionsUpdate.from(termsAccepted, email, includeLinkDetails)
-    val bodyJs = Json.toJson(body)
-    println(s"The body is $body")
-    println(s"The body as json is $bodyJs")
-    withCircuitBreaker(http.POST(url(endPoint), bodyJs))
+    withCircuitBreaker(http.POST(url(endPoint), Json.toJson(EntityResolverConnector.TermsAndConditionsUpdate.from(termsAccepted, email, includeLinkDetails))))
       .map(_.status).map {
       case OK => PreferencesExists
       case CREATED => PreferencesCreated
     } }
 
   private[connectors] def responseToEmailVerificationLinkStatus(response: Future[HttpResponse])(implicit hc: HeaderCarrier) =
-    response.map(_ => EmailVerificationLinkResponse.Ok)
-      .recover {
-        case Upstream4xxResponse(_, GONE, _, _) => EmailVerificationLinkResponse.Expired
-        case Upstream4xxResponse(_, CONFLICT, _, _) => EmailVerificationLinkResponse.WrongToken
-        case (_: Upstream4xxResponse | _: NotFoundException | _: BadRequestException) => EmailVerificationLinkResponse.Error
+    response.map(response => {
+      response.status match {
+        case CREATED =>
+          val body = Json.parse(response.body)
+          val returnLinkText = (body \ "returnLinkText").as[String]
+          val returnUrl = (body \ "returnUrl").as[String]
+          (EmailVerificationLinkResponse.Ok, Some((returnLinkText, returnUrl)))
+        case _ => (EmailVerificationLinkResponse.Ok, None)
       }
+    }).recover {
+        case Upstream4xxResponse(_, GONE, _, _) => (EmailVerificationLinkResponse.Expired, None)
+        case Upstream4xxResponse(_, CONFLICT, _, _) => (EmailVerificationLinkResponse.WrongToken, None)
+        case (_: Upstream4xxResponse | _: NotFoundException | _: BadRequestException) => (EmailVerificationLinkResponse.Error, None)
+    }
 }
