@@ -144,7 +144,7 @@ trait EntityResolverConnector extends Status with ServicesCircuitBreaker {
     withCircuitBreaker(http.GET[Option[Email]](url(basedOnTaxIdType))).map(_.map(_.email))
   }
 
-  def updateEmailValidationStatusUnsecured(token: String)(implicit hc: HeaderCarrier): Future[(EmailVerificationLinkResponse.Value, Option[(String, String)])] = {
+  def updateEmailValidationStatusUnsecured(token: String)(implicit hc: HeaderCarrier): Future[EmailVerificationLinkResponse] = {
     responseToEmailVerificationLinkStatus(withCircuitBreaker(http.PUT(url("/portal/preferences/email"), ValidateEmail(token))))
   }
 
@@ -169,12 +169,12 @@ trait EntityResolverConnector extends Status with ServicesCircuitBreaker {
           val body = Json.parse(response.body)
           val returnLinkText = (body \ "returnLinkText").as[String]
           val returnUrl = (body \ "returnUrl").as[String]
-          (EmailVerificationLinkResponse.Ok, Some((returnLinkText, returnUrl)))
-        case _ => (EmailVerificationLinkResponse.Ok, None)
+          ValidatedWithReturn(returnLinkText, returnUrl)
+        case _ => Validated
       }
     }).recover {
-        case Upstream4xxResponse(_, GONE, _, _) => (EmailVerificationLinkResponse.Expired, None)
-        case Upstream4xxResponse(_, CONFLICT, _, _) => (EmailVerificationLinkResponse.WrongToken, None)
-        case (_: Upstream4xxResponse | _: NotFoundException | _: BadRequestException) => (EmailVerificationLinkResponse.Error, None)
+        case Upstream4xxResponse(_, GONE, _, _) => ValidationExpired
+        case Upstream4xxResponse(_, CONFLICT, _, _) => WrongToken
+        case (_: Upstream4xxResponse | _: NotFoundException | _: BadRequestException) => ValidationError
     }
 }

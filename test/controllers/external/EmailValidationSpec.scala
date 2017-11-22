@@ -1,6 +1,6 @@
 package controllers.external
 
-import connectors.EntityResolverConnector
+import connectors._
 import helpers.ConfigHelper
 import org.jsoup.Jsoup
 import org.mockito.Matchers.{any, eq => meq}
@@ -9,7 +9,6 @@ import org.scalatest._
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.OneAppPerSuite
 import play.api.Application
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.play.http.HeaderCarrier
@@ -17,8 +16,6 @@ import uk.gov.hmrc.play.http.HeaderCarrier
 import scala.concurrent.Future
 
 class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar with OneAppPerSuite {
-
-  import connectors.EmailVerificationLinkResponse._
 
   def createController = new EmailValidationController {
     override lazy val entityResolverConnector = mock[EntityResolverConnector]
@@ -33,11 +30,10 @@ class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar
   override implicit lazy val app : Application = ConfigHelper.fakeApp
 
   "verify" should {
-
     "call the sa micro service and update the email verification status of the user" in {
       val controller = createController
       val token = wellFormattedToken
-      when(controller.entityResolverConnector.updateEmailValidationStatusUnsecured(meq(token))).thenReturn(Future.successful(Ok))
+      when(controller.entityResolverConnector.updateEmailValidationStatusUnsecured(meq(token))).thenReturn(Future.successful(Validated))
 
       val response = controller.verify(token)(request)
 
@@ -45,10 +41,21 @@ class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar
       status(response) shouldBe 200
     }
 
+    "call the sa micro service and update the email verification status of the user when supplied a return url and return link text" in {
+      val controller = createController
+      val token = wellFormattedToken
+      when(controller.entityResolverConnector.updateEmailValidationStatusUnsecured(meq(token))).thenReturn(Future.successful(ValidatedWithReturn("Return link text", "/ReturnUrl")))
+
+      val response = controller.verify(token)(request)
+
+      contentAsString(response) should include("Return link text")
+      status(response) shouldBe 200
+    }
+
     "display an error when the sa micro service fails to update a users email verification status" in {
       val controller = createController
       val token = wellFormattedToken
-      when(controller.entityResolverConnector.updateEmailValidationStatusUnsecured(meq(token))).thenReturn(Future.successful(Error))
+      when(controller.entityResolverConnector.updateEmailValidationStatusUnsecured(meq(token))).thenReturn(Future.successful(ValidationError))
       val response = controller.verify(token)(request)
       contentAsString(response) shouldNot include("portalHomeLink/home")
       status(response) shouldBe 400
@@ -57,7 +64,7 @@ class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar
     "display an error if the email verification token is out of date" in {
       val controller = createController
       val token = wellFormattedToken
-      when(controller.entityResolverConnector.updateEmailValidationStatusUnsecured(meq(token))).thenReturn(Future.successful(Expired))
+      when(controller.entityResolverConnector.updateEmailValidationStatusUnsecured(meq(token))).thenReturn(Future.successful(ValidationExpired))
 
       val response = controller.verify(token)(request)
 
