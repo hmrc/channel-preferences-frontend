@@ -72,11 +72,10 @@ object EntityResolverConnector extends EntityResolverConnector with ServicesConf
         case (TaxCreditsTerms, accepted: TermsAccepted) => TermsAndConditionsUpdate(generic = None, taxCredits = Some(accepted), email = email)
         case (termsType, _) => throw new IllegalArgumentException(s"Could not work with termsType=$termsType")
       }
-      val aaaaa = if (includeLinkDetails)
+      if (includeLinkDetails)
         standardConditions.copy(returnText = Some(hostContext.returnLinkText), returnUrl = Some(hostContext.returnUrl))
       else
         standardConditions
-      aaaaa
     }
   }
 }
