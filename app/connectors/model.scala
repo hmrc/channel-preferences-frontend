@@ -5,12 +5,12 @@ import play.api.libs.json._
 
 import scala.language.implicitConversions
 
-
-object EmailVerificationLinkResponse extends Enumeration {
-  type EmailVerificationLinkResponse = Value
-
-  val Ok, Expired, WrongToken, Error = Value
-}
+sealed trait EmailVerificationLinkResponse
+case object Validated extends EmailVerificationLinkResponse
+case class ValidatedWithReturn(returnLinkText: String, returnUrl: String) extends EmailVerificationLinkResponse
+case object ValidationExpired extends EmailVerificationLinkResponse
+case object WrongToken extends EmailVerificationLinkResponse
+case object ValidationError extends EmailVerificationLinkResponse
 
 object SaPreferenceSimplified {
   implicit val formats = Json.format[SaPreferenceSimplified]

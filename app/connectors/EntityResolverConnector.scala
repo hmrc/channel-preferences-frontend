@@ -1,6 +1,7 @@
 package connectors
 
 import config.ServicesCircuitBreaker
+import model.HostContext
 import play.api.http.Status
 import play.api.libs.json._
 import uk.gov.hmrc.domain.{Nino, SaUtr, TaxIdentifier}
@@ -60,18 +61,23 @@ object EntityResolverConnector extends EntityResolverConnector with ServicesConf
     implicit val format = Json.format[ActivationStatus]
   }
 
-  protected[connectors] case class TermsAndConditionsUpdate(generic: Option[TermsAccepted], taxCredits: Option[TermsAccepted], email: Option[String])
+  protected[connectors] case class TermsAndConditionsUpdate(generic: Option[TermsAccepted], taxCredits: Option[TermsAccepted], email: Option[String], returnUrl: Option[String] = None, returnText: Option[String] = None)
 
   protected[connectors] object TermsAndConditionsUpdate {
     implicit val format = Json.format[TermsAndConditionsUpdate]
 
-    def from(terms: (TermsType, TermsAccepted), email: Option[String]): TermsAndConditionsUpdate = terms match {
-      case (GenericTerms, accepted: TermsAccepted) => TermsAndConditionsUpdate(generic = Some(accepted), None, email = email)
-      case (TaxCreditsTerms, accepted: TermsAccepted) => TermsAndConditionsUpdate(generic = None, taxCredits = Some(accepted), email = email)
-      case (termsType, _) => throw new IllegalArgumentException(s"Could not work with termsType=$termsType")
+    def from(terms: (TermsType, TermsAccepted), email: Option[String], includeLinkDetails: Boolean)(implicit hostContext: HostContext): TermsAndConditionsUpdate = {
+      val standardConditions = terms match {
+        case (GenericTerms, accepted: TermsAccepted) => TermsAndConditionsUpdate(generic = Some(accepted), None, email = email)
+        case (TaxCreditsTerms, accepted: TermsAccepted) => TermsAndConditionsUpdate(generic = None, taxCredits = Some(accepted), email = email)
+        case (termsType, _) => throw new IllegalArgumentException(s"Could not work with termsType=$termsType")
+      }
+      if (includeLinkDetails)
+        standardConditions.copy(returnText = Some(hostContext.returnLinkText), returnUrl = Some(hostContext.returnUrl))
+      else
+        standardConditions
     }
   }
-
 }
 
 trait PreferenceStatus
@@ -137,30 +143,37 @@ trait EntityResolverConnector extends Status with ServicesCircuitBreaker {
     withCircuitBreaker(http.GET[Option[Email]](url(basedOnTaxIdType))).map(_.map(_.email))
   }
 
-  def updateEmailValidationStatusUnsecured(token: String)(implicit hc: HeaderCarrier): Future[EmailVerificationLinkResponse.Value] = {
+  def updateEmailValidationStatusUnsecured(token: String)(implicit hc: HeaderCarrier): Future[EmailVerificationLinkResponse] = {
     responseToEmailVerificationLinkStatus(withCircuitBreaker(http.PUT(url("/portal/preferences/email"), ValidateEmail(token))))
   }
 
+  def updateTermsAndConditions(termsAccepted: (TermsType, TermsAccepted), email: Option[String])(implicit hc: HeaderCarrier, hostContext: HostContext): Future[PreferencesStatus] =
+    updateTermsAndConditionsForSvc(termsAccepted, email, None, None, false)
 
-  def updateTermsAndConditions(termsAccepted: (TermsType, TermsAccepted), email: Option[String])(implicit hc: HeaderCarrier): Future[PreferencesStatus] =
-    updateTermsAndConditionsForSvc(termsAccepted, email, None, None)
-
-  def updateTermsAndConditionsForSvc(termsAccepted: (TermsType, TermsAccepted), email: Option[String], svc: Option[String], token: Option[String])(implicit hc: HeaderCarrier): Future[PreferencesStatus] = {
+  def updateTermsAndConditionsForSvc(termsAccepted: (TermsType, TermsAccepted), email: Option[String], svc: Option[String], token: Option[String], includeLinkDetails: Boolean = true)(implicit hc: HeaderCarrier, hostContext: HostContext): Future[PreferencesStatus] = {
     val endPoint = "/preferences/terms-and-conditions" + (for {
       s <- svc
       t <- token
     } yield "/" + s + "/" + t).getOrElse("")
-    withCircuitBreaker(http.POST(url(endPoint), EntityResolverConnector.TermsAndConditionsUpdate.from(termsAccepted, email)))
+    withCircuitBreaker(http.POST(url(endPoint), Json.toJson(EntityResolverConnector.TermsAndConditionsUpdate.from(termsAccepted, email, includeLinkDetails))))
       .map(_.status).map {
       case OK => PreferencesExists
       case CREATED => PreferencesCreated
     } }
 
   private[connectors] def responseToEmailVerificationLinkStatus(response: Future[HttpResponse])(implicit hc: HeaderCarrier) =
-    response.map(_ => EmailVerificationLinkResponse.Ok)
-      .recover {
-        case Upstream4xxResponse(_, GONE, _, _) => EmailVerificationLinkResponse.Expired
-        case Upstream4xxResponse(_, CONFLICT, _, _) => EmailVerificationLinkResponse.WrongToken
-        case (_: Upstream4xxResponse | _: NotFoundException | _: BadRequestException) => EmailVerificationLinkResponse.Error
+    response.map(response => {
+      response.status match {
+        case CREATED =>
+          val body = Json.parse(response.body)
+          val returnLinkText = (body \ "returnLinkText").as[String]
+          val returnUrl = (body \ "returnUrl").as[String]
+          ValidatedWithReturn(returnLinkText, returnUrl)
+        case _ => Validated
       }
+    }).recover {
+        case Upstream4xxResponse(_, GONE, _, _) => ValidationExpired
+        case Upstream4xxResponse(_, CONFLICT, _, _) => WrongToken
+        case (_: Upstream4xxResponse | _: NotFoundException | _: BadRequestException) => ValidationError
+    }
 }

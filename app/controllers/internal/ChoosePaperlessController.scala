@@ -157,7 +157,7 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
                              (implicit request : Request[_], hostContext: HostContext, authContext: AuthContext, hc: HeaderCarrier): Future[Result] = {
     val terms = cohort.terms -> TermsAccepted(digital)
 
-    entityResolverConnector.updateTermsAndConditionsForSvc(terms, email, svc, token).map(preferencesStatus => {
+    entityResolverConnector.updateTermsAndConditionsForSvc(terms, email, svc, token, (svc.isDefined && token.isDefined)).map(preferencesStatus => {
       auditChoice(authContext, AccountDetails, cohort, terms, email, preferencesStatus)
       if (digital && !emailAlreadyStored) {
         val encryptedEmail = email map (emailAddress => Encrypted(EmailAddress(emailAddress)))

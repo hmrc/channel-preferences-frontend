@@ -5,9 +5,8 @@ import helpers.ConfigHelper
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.play.OneAppPerSuite
 import play.api.Application
-import org.mockito.Mockito
 import org.scalatest.mock.MockitoSugar
-import play.api.libs.json.{Json, Writes}
+import play.api.libs.json.{JsValue, Json, Writes}
 import uk.gov.hmrc.circuitbreaker.UnhealthyServiceException
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.play.audit.http.HttpAuditing
@@ -16,12 +15,14 @@ import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.http.hooks.HttpHook
 import uk.gov.hmrc.play.test.UnitSpec
 import PreferenceResponse._
+import model.HostContext
 
 import scala.concurrent.Future
 
 class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with OneAppPerSuite with MockitoSugar {
 
   implicit val hc = new HeaderCarrier
+  implicit val hostContext : HostContext = new HostContext(returnUrl = "", returnLinkText = "")
   override implicit lazy val app : Application = ConfigHelper.fakeApp
 
   import EntityResolverConnector._
@@ -227,27 +228,36 @@ class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with OneApp
   }
 
   "The responseToEmailVerificationLinkStatus method" should {
-    import connectors.EmailVerificationLinkResponse._
     lazy val preferenceConnector = new TestPreferencesConnector()
 
     "return ok if updateEmailValidationStatusUnsecured returns 200" in {
       val result = preferenceConnector.responseToEmailVerificationLinkStatus(Future.successful(HttpResponse(200)))
-      result.futureValue shouldBe Ok
+      result.futureValue shouldBe Validated
     }
 
     "return ok if updateEmailValidationStatusUnsecured returns 204" in {
       val result = preferenceConnector.responseToEmailVerificationLinkStatus(Future.successful(HttpResponse(204)))
-      result.futureValue shouldBe Ok
+      result.futureValue shouldBe Validated
+    }
+
+    "return ok with the return link text and return url if updateEmailValidationStatusUnsecured returns 201" in {
+      val responseJson = Json.parse(
+        """{
+          |     "returnLinkText": "Return Link Text",
+          |     "returnUrl": "ReturnUrl"
+          |}""".stripMargin)
+      val result = preferenceConnector.responseToEmailVerificationLinkStatus(Future.successful(HttpResponse(201, responseJson = Some(responseJson))))
+      result.futureValue shouldBe ValidatedWithReturn("Return Link Text", "ReturnUrl")
     }
 
     "return error if updateEmailValidationStatusUnsecured returns 400" in {
       val result = preferenceConnector.responseToEmailVerificationLinkStatus(Future.failed(new BadRequestException("")))
-      result.futureValue shouldBe Error
+      result.futureValue shouldBe ValidationError
     }
 
     "return error if updateEmailValidationStatusUnsecured returns 404" in {
       val result = preferenceConnector.responseToEmailVerificationLinkStatus(Future.failed(new NotFoundException("")))
-      result.futureValue shouldBe Error
+      result.futureValue shouldBe ValidationError
     }
 
     "pass through the failure if updateEmailValidationStatusUnsecured returns 500" in {
@@ -259,7 +269,7 @@ class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with OneApp
 
     "return expired if updateEmailValidationStatusUnsecured returns 410" in {
       val result = preferenceConnector.responseToEmailVerificationLinkStatus(Future.failed(Upstream4xxResponse("", 410, 500)))
-      result.futureValue shouldBe Expired
+      result.futureValue shouldBe ValidationExpired
     }
 
     "return wrong token if updateEmailValidationStatusUnsecured returns 409" in {
@@ -277,7 +287,7 @@ class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with OneApp
       val connector = entityResolverConnector(returnFromDoPost = checkPayloadAndReturn)
 
       def checkPayloadAndReturn(url: String, requestBody: Any): Future[HttpResponse] = {
-        postedPayload(requestBody.asInstanceOf[TermsAndConditionsUpdate])
+        postedPayload(requestBody.asInstanceOf[JsValue].as[TermsAndConditionsUpdate])
         Future.successful(HttpResponse(status))
       }
     }
@@ -306,6 +316,13 @@ class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with OneApp
       connector.updateTermsAndConditions(TaxCreditsTerms -> TermsAccepted(false), email = None).futureValue should be (PreferencesExists)
     }
 
+    "include the returnUrl and returnLinkText in the post when called by a service and token" in new PayloadCheck {
+      override val expectedPayload = TermsAndConditionsUpdate(generic = None, taxCredits = Some(TermsAccepted(true)), email = None, returnUrl = Some("return Url"), returnText = Some("return link text"))
+      implicit val hostContext : HostContext = new HostContext(returnUrl = "return Url", returnLinkText = "return link text")
+
+      connector.updateTermsAndConditionsForSvc(TaxCreditsTerms -> TermsAccepted(true), email = None, svc = Some("MTDFBIT"), token = Some("A TOKEN"), includeLinkDetails = true).futureValue should be (PreferencesExists)
+    }
+
     "return failure if any problems" in new PayloadCheck {
       override val status = 401
       override val expectedPayload = TermsAndConditionsUpdate(generic = Some(TermsAccepted(true)), taxCredits = None, email = None)
@@ -326,7 +343,7 @@ class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with OneApp
       val connector = entityResolverConnector(returnFromDoPost = checkPayloadAndReturn)
 
       def checkPayloadAndReturn(url: String, requestBody: Any): Future[HttpResponse] = {
-        postedPayload(requestBody.asInstanceOf[TermsAndConditionsUpdate])
+        postedPayload(requestBody.asInstanceOf[JsValue].as[TermsAndConditionsUpdate])
         Future.successful(HttpResponse(status))
       }
     }
