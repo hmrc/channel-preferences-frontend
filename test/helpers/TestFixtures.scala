@@ -8,6 +8,12 @@ object TestFixtures {
     returnLinkText = "someReturnLinkText"
   )
 
+  def alreadyOptedInUrlHostContext = HostContext(
+    returnUrl = "someReturnUrl",
+    returnLinkText = "someReturnLinkText",
+    alreadyOptedInUrl = Some("someAlreadyOptedInUrl")
+  )
+
   def taxCreditsHostContext(email: String) = HostContext(
     returnUrl = "someReturnUrl",
     returnLinkText = "someReturnLinkText",

@@ -57,6 +57,71 @@ abstract class ActivationControllerSetup extends MockitoSugar {
 }
 class ActivationControllerSpec extends UnitSpec with OneAppPerSuite {
 
+  import scala.concurrent.ExecutionContext.Implicits.global
+
+  "The Activation with an AuthContext" should {
+    "return a json body with optedIn set to true if preference is found and opted-in and no alreadyOptedInUrl is present" in new ActivationControllerSetup {
+      val email = EmailPreference("test@test.com", false, false, false,None)
+      when(mockEntityResolverConnector.getPreferencesStatus(any())(any())).thenReturn(Future.successful(Right(PreferenceFound(true, Some(email)))))
+      val res: Future[Result] = controller.preferencesStatus(TestFixtures.sampleHostContext)(request)
+
+      status(res) shouldBe Ok.header.status
+      val document = Jsoup.parse(contentAsString(res))
+      document.getElementsByTag("body").first().html() should include("""{"optedIn":true,"verifiedEmail":false}""")
+    }
+
+    "redirect to the alreadyOptedInUrl if preference is found and opted-in and an alreadyOptedInUrl is present" in new ActivationControllerSetup {
+      val email = EmailPreference("test@test.com", false, false, false,None)
+      when(mockEntityResolverConnector.getPreferencesStatus(any())(any())).thenReturn(Future.successful(Right(PreferenceFound(true, Some(email)))))
+      val res: Future[Result] = controller.preferencesStatus(TestFixtures.alreadyOptedInUrlHostContext)(request)
+
+      status(res) shouldBe SEE_OTHER
+      res.map { result =>
+        result.header.headers should contain ("Location")
+        result.header.headers.get("Location") shouldBe TestFixtures.alreadyOptedInUrlHostContext.alreadyOptedInUrl.get
+      }
+    }
+
+    "return a json body with optedIn set to false if preference is found and opted-in and no alreadyOptedInUrl is present" in new ActivationControllerSetup {
+      val email = EmailPreference("test@test.com", false, false, false,None)
+      when(mockEntityResolverConnector.getPreferencesStatus(any())(any())).thenReturn(Future.successful(Right(PreferenceFound(false, Some(email)))))
+      val res: Future[Result] = controller.preferencesStatus(TestFixtures.sampleHostContext)(request)
+
+      status(res) shouldBe Ok.header.status
+      val document = Jsoup.parse(contentAsString(res))
+      document.getElementsByTag("body").first().html() should include("""{"optedIn":false}""")
+    }
+
+    "return a json body with optedIn set to false if preference is found and opted-in and an alreadyOptedInUrl is present" in new ActivationControllerSetup {
+      val email = EmailPreference("test@test.com", false, false, false,None)
+      when(mockEntityResolverConnector.getPreferencesStatus(any())(any())).thenReturn(Future.successful(Right(PreferenceFound(false, Some(email)))))
+      val res: Future[Result] = controller.preferencesStatus(TestFixtures.alreadyOptedInUrlHostContext)(request)
+
+      status(res) shouldBe Ok.header.status
+      val document = Jsoup.parse(contentAsString(res))
+      document.getElementsByTag("body").first().html() should include("""{"optedIn":false}""")
+    }
+
+    "return PRECONDITION failed if no preferences are found and no alreadyOptedInUrl is present" in new ActivationControllerSetup {
+      val email = EmailPreference("test@test.com", false, false, false,None)
+      when(mockEntityResolverConnector.getPreferencesStatus(any())(any())).thenReturn(Future.successful(Right(PreferenceNotFound(Some(email)))))
+      val res: Future[Result] = controller.preferencesStatus(TestFixtures.sampleHostContext)(request)
+
+      status(res) shouldBe PRECONDITION_FAILED
+      val document = Jsoup.parse(contentAsString(res))
+      document.getElementsByTag("body").first().html() should startWith("""{"redirectUserTo":"/paperless/choose?email=""")
+    }
+
+    "return PRECONDITION failed if no preferences are found and an alreadyOptedInUrl is present" in new ActivationControllerSetup {
+      val email = EmailPreference("test@test.com", false, false, false,None)
+      when(mockEntityResolverConnector.getPreferencesStatus(any())(any())).thenReturn(Future.successful(Right(PreferenceNotFound(Some(email)))))
+      val res: Future[Result] = controller.preferencesStatus(TestFixtures.alreadyOptedInUrlHostContext)(request)
+
+      status(res) shouldBe PRECONDITION_FAILED
+      val document = Jsoup.parse(contentAsString(res))
+      document.getElementsByTag("body").first().html() should startWith("""{"redirectUserTo":"/paperless/choose?email=""")
+    }
+  }
 
   "The Activation with a token" should {
 
@@ -75,10 +140,20 @@ class ActivationControllerSpec extends UnitSpec with OneAppPerSuite {
       document.getElementsByTag("body").first().html() should startWith("""{"redirectUserTo":"/paperless/choose/cohort/mtdfbit/token?email=""")
     }
 
-    "return a json body with optedIn set to true if preference is found and opted-in" in new ActivationControllerSetup {
+    "return a json body with optedIn set to true if preference is found and opted-in and no alreadyOptedInUrl present" in new ActivationControllerSetup {
       val email = EmailPreference("test@test.com", false, false, false,None)
       when(mockEntityResolverConnector.getPreferencesStatusByToken(any(),any(),any())(any())).thenReturn(Future.successful(Right(PreferenceFound(true, Some(email)))))
       val res: Future[Result] = controller.preferencesStatusBySvc("mtdfbit", "token",TestFixtures.sampleHostContext)(request)
+
+      status(res) shouldBe Ok.header.status
+      val document = Jsoup.parse(contentAsString(res))
+      document.getElementsByTag("body").first().html() should include("""{"optedIn":true,"verifiedEmail":false}""")
+    }
+
+    "return a json body with optedIn set to true if preference is found and opted-in and an alreadyOptedInUrl present" in new ActivationControllerSetup {
+      val email = EmailPreference("test@test.com", false, false, false,None)
+      when(mockEntityResolverConnector.getPreferencesStatusByToken(any(),any(),any())(any())).thenReturn(Future.successful(Right(PreferenceFound(true, Some(email)))))
+      val res: Future[Result] = controller.preferencesStatusBySvc("mtdfbit", "token",TestFixtures.alreadyOptedInUrlHostContext)(request)
 
       status(res) shouldBe Ok.header.status
       val document = Jsoup.parse(contentAsString(res))

@@ -12,6 +12,7 @@ class HostContextSpec extends WordSpec with Matchers with OneAppPerSuite {
   "Binding a host context" should {
     val validReturnUrl = "returnUrl" -> Seq("9tNUeRTIYBD0RO+T5WRO7A]==")
     val validReturnLinkText = "returnLinkText" -> Seq("w/PwaxV+KgqutfsU0cyrJQ==")
+    val validAlreadyOptedInUrl = "alreadyOptedInUrl" -> Seq("Co1YzTJv/KYa5nRQXLAqlw==")
     val validGenericTermsAndConditions = "termsAndConditions" -> Seq("HYymhRDn1B7qdcKcjIf/1A==")
     val validTaxCreditsTermsAndConditions = "termsAndConditions" -> Seq("J1Vy/h2rVt/JkA1b/lTfgg==")  // taxCredits
     val validEmailAddress = "email" -> Seq("J5lnze8P0QQ8NwFTHVHhVw==")    // test@test.com
@@ -19,6 +20,12 @@ class HostContextSpec extends WordSpec with Matchers with OneAppPerSuite {
     "read the returnURL and returnLinkText if both present" in {
       model.HostContext.hostContextBinder.bind("anyValName", Map(validReturnUrl, validReturnLinkText)) should contain (
         Right(HostContext(returnUrl = "foo", returnLinkText = "bar"))
+      )
+    }
+
+    "read the returnURL and returnLinkText if both present and alreadyOptedInUrl if present" in {
+      model.HostContext.hostContextBinder.bind("anyValName", Map(validReturnUrl, validReturnLinkText, validAlreadyOptedInUrl)) should contain (
+        Right(HostContext(returnUrl = "foo", returnLinkText = "bar", alreadyOptedInUrl=Some("AnotherUrl")))
       )
     }
 

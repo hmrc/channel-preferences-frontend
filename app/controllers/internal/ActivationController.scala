@@ -90,6 +90,8 @@ trait ActivationController extends FrontendController with Actions with AppName 
 
     val terms = hostContext.termsAndConditions.getOrElse("generic")
     entityResolverConnector.getPreferencesStatus(terms) map {
+      case Right(PreferenceFound(true, emailPreference)) if hostContext.alreadyOptedInUrl.isDefined =>
+        Redirect(hostContext.alreadyOptedInUrl.get)
       case Right(PreferenceFound(true, emailPreference)) =>
         Ok(Json.obj(
           "optedIn" -> true,

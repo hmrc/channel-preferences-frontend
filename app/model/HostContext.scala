@@ -3,7 +3,7 @@ package model
 import play.api.Logger
 import play.api.mvc.QueryStringBindable
 
-case class HostContext(returnUrl: String, returnLinkText: String, termsAndConditions: Option[String] = None, email: Option[String] = None) {
+case class HostContext(returnUrl: String, returnLinkText: String, termsAndConditions: Option[String] = None, email: Option[String] = None, alreadyOptedInUrl: Option[String] = None) {
   val isTaxCredits = termsAndConditions.fold(false)(_ == "taxCredits")
 }
 
@@ -15,11 +15,12 @@ object HostContext {
       val returnLinkTextResult = stringBinder.bind("returnLinkText", params)
       val termsAndConditionsOptionResult = stringBinder.bind("termsAndConditions", params).liftDecryptedOption
       val emailOptionResult = stringBinder.bind("email", params).liftDecryptedOption
+      val alreadyOptedInUrl = stringBinder.bind("alreadyOptedInUrl", params).liftDecryptedOption
 
       (returnUrlResult, returnLinkTextResult, termsAndConditionsOptionResult, emailOptionResult) match {
         case (Some(Right(returnUrl)), Some(Right(returnLinkText)), Some("taxCredits"), None) => Some(Left("TaxCredits must provide email"))
         case (Some(Right(returnUrl)), Some(Right(returnLinkText)), terms, email) =>
-          Some(Right(HostContext(returnUrl = returnUrl.decryptedValue, returnLinkText = returnLinkText.decryptedValue, termsAndConditions = terms, email = email)))
+          Some(Right(HostContext(returnUrl = returnUrl.decryptedValue, returnLinkText = returnLinkText.decryptedValue, termsAndConditions = terms, email = email, alreadyOptedInUrl = alreadyOptedInUrl)))
         case (maybeReturnUrlError, maybeReturnLinkTextError, _, _) =>
           val errorMessage = Seq(
             extractError(maybeReturnUrlError, Some("No returnUrl query parameter")),
