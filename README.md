@@ -61,6 +61,7 @@ Takes the following parameters, which should all be encrypted and encoded using 
 | `returnUrl`          | The URL that the user will be redirected to at the end of any journeys resulting from this call, the URL will be passed to the redirectUserTo response |
 | `returnLinkText`     | The text that will be used to display the return URL, the parameter will be passed to the redirectUserTo response |
 | `termsAndConditions` | Optional terms and conditions - will default to "generic" is this is missing |
+| `alreadyOptedInUrl`  | Optional If the user has already specified a preference and they have opted in for paperless then automatically redirect them to this URL | 
 | `email`              | Optional customer's email address if already known |
 
 Responds with:
