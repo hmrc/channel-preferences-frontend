@@ -8,7 +8,7 @@ import play.api.mvc.Results.EmptyContent
 import uk.gov.hmrc.crypto.ApplicationCrypto._
 import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
 import uk.gov.hmrc.domain._
-import uk.gov.hmrc.play.http.HeaderCarrier
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.it.{ExternalService, ExternalServiceRunner, MicroServiceEmbeddedServer, ServiceSpec}
 import uk.gov.hmrc.test.it.{AuthorityBuilder, CanCreateAuthority}
 import uk.gov.hmrc.time.DateTimeUtils

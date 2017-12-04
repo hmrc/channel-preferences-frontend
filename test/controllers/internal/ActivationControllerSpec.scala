@@ -16,7 +16,6 @@ import uk.gov.hmrc.play.frontend.auth._
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 import uk.gov.hmrc.play.test.UnitSpec
 import play.api.mvc.Results.{NotFound, Ok, PreconditionFailed}
-import uk.gov.hmrc.play.http.HeaderCarrier
 
 import scala.concurrent.Future
 

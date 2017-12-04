@@ -7,11 +7,11 @@ import play.api.Application
 import play.api.libs.json.Json
 import uk.gov.hmrc.play.audit.http.HttpAuditing
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http.hooks.HttpHook
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test._
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
+import uk.gov.hmrc.http.hooks.HttpHook
 
 class EmailConnectorSpec extends UnitSpec with ScalaFutures with OneAppPerSuite {
 
@@ -39,13 +39,15 @@ class EmailConnectorSpec extends UnitSpec with ScalaFutures with OneAppPerSuite 
       val connector = new EmailConnector with HttpAuditing with ServicesConfig {
         protected def serviceUrl = "http://email.service:80"
 
-        protected def doGet(url: String)(implicit hc: HeaderCarrier) = {
+        def doGet(url: String)(implicit hc: HeaderCarrier) = {
           Future.successful(responseFromEmailService)
         }
 
         val hooks: Seq[HttpHook] = Seq(AuditingHook)
 
         def auditConnector = ???
+
+        override def configuration = ???
       }
 
       val exampleEmailAddress = "bob@somewhere.com"
@@ -56,13 +58,15 @@ class EmailConnectorSpec extends UnitSpec with ScalaFutures with OneAppPerSuite 
       override val connector = new EmailConnector with HttpAuditing with ServicesConfig {
         protected def serviceUrl = "http://email.service:80"
 
-        protected def doGet(url: String)(implicit hc: HeaderCarrier) = {
+        def doGet(url: String)(implicit hc: HeaderCarrier) = {
           Future.failed(new Exception("Service down"))
         }
 
         val hooks: Seq[HttpHook] = Seq(AuditingHook)
 
         def auditConnector = ???
+
+        override def configuration = ???
       }
 
     }

@@ -7,10 +7,11 @@ import play.api.libs.json._
 import uk.gov.hmrc.domain.{Nino, SaUtr, TaxIdentifier}
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
-import uk.gov.hmrc.play.http.{NotFoundException, _}
+import uk.gov.hmrc.play.http._
 import play.api.Logger
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.{ BadRequestException, HeaderCarrier, HttpErrorFunctions, HttpGet, HttpPost, HttpPut, HttpReads, HttpResponse, NotFoundException, Upstream4xxResponse, Upstream5xxResponse }
 
 case class Email(email: String)
 

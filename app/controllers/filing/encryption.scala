@@ -38,7 +38,9 @@ private[filing] trait TokenEncryption extends Decrypter {
   def currentTime: DateTime = DateTime.now(DateTimeZone.UTC)
 }
 
-private[filing] object TokenEncryption extends TokenEncryption with CompositeSymmetricCrypto with KeysFromConfig
+private[filing] object TokenEncryption extends TokenEncryption with CompositeSymmetricCrypto with KeysFromConfig {
+  override def configuration = Play.configuration
+}
 
 private[filing] object DecryptAndValidate extends Results with RunMode {
   private lazy val tokenTimeout = Play.configuration.getInt(s"govuk-tax.$env.portal.tokenTimeout").getOrElse(240)

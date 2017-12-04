@@ -13,11 +13,11 @@ import play.api.Application
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import uk.gov.hmrc.emailaddress.EmailAddress
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
 import connectors.PreferenceResponse._
 import model.Encrypted
 import play.api.libs.json.Json
+import uk.gov.hmrc.http.HeaderCarrier
 
 class ManagePaperlessPartialSpec extends UnitSpec with OneAppPerSuite with ScalaFutures {
   implicit val hc = HeaderCarrier()
