@@ -20,9 +20,9 @@ import uk.gov.hmrc.crypto.ApplicationCrypto.SsoPayloadCrypto.encrypt
 import uk.gov.hmrc.crypto.PlainText
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
-import uk.gov.hmrc.play.http.HeaderCarrier
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
 
 class FilingInterceptControllerSpec extends WordSpec with ShouldMatchers with MockitoSugar with BeforeAndAfter with ScalaFutures with OptionValues with OneAppPerSuite {
 

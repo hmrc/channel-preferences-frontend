@@ -7,12 +7,12 @@ import play.api.Logger
 import play.api.libs.json._
 import uk.gov.hmrc.play.audit.http.HttpAuditing
 import uk.gov.hmrc.play.config.{AppName, ServicesConfig}
-import uk.gov.hmrc.play.http.hooks.HttpHook
 import uk.gov.hmrc.play.http.ws.WSGet
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpGet}
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpGet }
+import uk.gov.hmrc.http.hooks.HttpHook
 
 trait EmailConnector extends HttpGet with AppName with ServicesCircuitBreaker { this: ServicesConfig =>
   protected def serviceUrl: String

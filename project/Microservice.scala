@@ -42,6 +42,7 @@ trait MicroService {
         "-language:reflectiveCalls"
       )
     )
+    .settings(scalaVersion := "2.11.11")
     .settings(
       targetJvm := "jvm-1.8",
       shellPrompt := ShellPrompt(appVersion),

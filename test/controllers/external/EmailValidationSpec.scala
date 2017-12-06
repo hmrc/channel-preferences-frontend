@@ -11,9 +11,9 @@ import org.scalatestplus.play.OneAppPerSuite
 import play.api.Application
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.play.http.HeaderCarrier
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
 
 class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar with OneAppPerSuite {
 

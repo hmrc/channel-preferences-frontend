@@ -133,7 +133,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
       status(page) shouldBe 200
 
       val eventArg: ArgumentCaptor[ExtendedDataEvent] = ArgumentCaptor.forClass(classOf[ExtendedDataEvent])
-      verify(mockAuditConnector).sendEvent(eventArg.capture())(any(), any())
+      verify(mockAuditConnector).sendExtendedEvent(eventArg.capture())(any(), any())
 
       private val value: ExtendedDataEvent = eventArg.getValue
       value.auditSource shouldBe "preferences-frontend"
@@ -150,7 +150,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
       status(page) shouldBe 200
 
       val eventArg: ArgumentCaptor[ExtendedDataEvent] = ArgumentCaptor.forClass(classOf[ExtendedDataEvent])
-      verify(mockAuditConnector).sendEvent(eventArg.capture())(any(), any())
+      verify(mockAuditConnector).sendExtendedEvent(eventArg.capture())(any(), any())
 
       private val value: ExtendedDataEvent = eventArg.getValue
       value.auditSource shouldBe "preferences-frontend"
@@ -521,7 +521,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
       status(page) shouldBe 303
 
       val eventArg: ArgumentCaptor[ExtendedDataEvent] = ArgumentCaptor.forClass(classOf[ExtendedDataEvent])
-      verify(mockAuditConnector).sendEvent(eventArg.capture())(any(), any())
+      verify(mockAuditConnector).sendExtendedEvent(eventArg.capture())(any(), any())
 
       private val value: ExtendedDataEvent = eventArg.getValue
       value.auditSource shouldBe "preferences-frontend"
@@ -550,7 +550,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
       status(page) shouldBe 303
 
       val eventArg: ArgumentCaptor[ExtendedDataEvent] = ArgumentCaptor.forClass(classOf[ExtendedDataEvent])
-      verify(mockAuditConnector).sendEvent(eventArg.capture())(any(), any())
+      verify(mockAuditConnector).sendExtendedEvent(eventArg.capture())(any(), any())
 
       private val value: ExtendedDataEvent = eventArg.getValue
       value.auditSource shouldBe "preferences-frontend"
@@ -580,7 +580,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
       status(page) shouldBe 303
 
       val eventArg: ArgumentCaptor[ExtendedDataEvent] = ArgumentCaptor.forClass(classOf[ExtendedDataEvent])
-      verify(mockAuditConnector).sendEvent(eventArg.capture())(any(), any())
+      verify(mockAuditConnector).sendExtendedEvent(eventArg.capture())(any(), any())
 
       private val value: ExtendedDataEvent = eventArg.getValue
       value.auditSource shouldBe "preferences-frontend"
@@ -649,7 +649,7 @@ class ChoosePaperlessControllerSpecTC extends UnitSpec with MockitoSugar with On
       status(page) shouldBe 200
 
       val eventArg: ArgumentCaptor[ExtendedDataEvent] = ArgumentCaptor.forClass(classOf[ExtendedDataEvent])
-      verify(mockAuditConnector).sendEvent(eventArg.capture())(any(), any())
+      verify(mockAuditConnector).sendExtendedEvent(eventArg.capture())(any(), any())
 
       private val value: ExtendedDataEvent = eventArg.getValue
       value.auditSource shouldBe "preferences-frontend"
@@ -1017,7 +1017,7 @@ class ChoosePaperlessControllerSpecTC extends UnitSpec with MockitoSugar with On
       status(page) shouldBe 303
 
       val eventArg: ArgumentCaptor[ExtendedDataEvent] = ArgumentCaptor.forClass(classOf[ExtendedDataEvent])
-      verify(mockAuditConnector).sendEvent(eventArg.capture())(any(), any())
+      verify(mockAuditConnector).sendExtendedEvent(eventArg.capture())(any(), any())
 
       private val value: ExtendedDataEvent = eventArg.getValue
       value.auditSource shouldBe "preferences-frontend"
@@ -1045,7 +1045,7 @@ class ChoosePaperlessControllerSpecTC extends UnitSpec with MockitoSugar with On
       status(page) shouldBe 303
 
       val eventArg: ArgumentCaptor[ExtendedDataEvent] = ArgumentCaptor.forClass(classOf[ExtendedDataEvent])
-      verify(mockAuditConnector).sendEvent(eventArg.capture())(any(), any())
+      verify(mockAuditConnector).sendExtendedEvent(eventArg.capture())(any(), any())
 
       private val value: ExtendedDataEvent = eventArg.getValue
       value.auditSource shouldBe "preferences-frontend"
@@ -1074,7 +1074,7 @@ class ChoosePaperlessControllerSpecTC extends UnitSpec with MockitoSugar with On
       status(page) shouldBe 303
 
       val eventArg: ArgumentCaptor[ExtendedDataEvent] = ArgumentCaptor.forClass(classOf[ExtendedDataEvent])
-      verify(mockAuditConnector).sendEvent(eventArg.capture())(any(), any())
+      verify(mockAuditConnector).sendExtendedEvent(eventArg.capture())(any(), any())
 
       private val value: ExtendedDataEvent = eventArg.getValue
       value.auditSource shouldBe "preferences-frontend"

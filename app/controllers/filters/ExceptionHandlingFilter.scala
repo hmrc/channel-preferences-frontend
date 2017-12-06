@@ -4,11 +4,11 @@ import model.Encrypted
 import play.api.Logger
 import play.api.mvc._
 import uk.gov.hmrc.circuitbreaker.UnhealthyServiceException
-import uk.gov.hmrc.play.filters.MicroserviceFilterSupport
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext
 
 import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.play.HeaderCarrierConverter
+import uk.gov.hmrc.play.frontend.filters.MicroserviceFilterSupport
 
 object ExceptionHandlingFilter extends Filter with Results with MicroserviceFilterSupport {
 
@@ -29,7 +29,7 @@ object ExceptionHandlingFilter extends Filter with Results with MicroserviceFilt
   }
 
   private def executionContextFromRequest(rh: RequestHeader): ExecutionContext = {
-    val hc = HeaderCarrier.fromHeadersAndSession(rh.headers, Some(rh.session))
+    val hc = HeaderCarrierConverter.fromHeadersAndSession(rh.headers, Some(rh.session))
     MdcLoggingExecutionContext.fromLoggingDetails(hc)
   }
 }

@@ -2,7 +2,7 @@ package config
 
 import uk.gov.hmrc.circuitbreaker.{CircuitBreakerConfig, UsingCircuitBreaker}
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http.{BadRequestException, NotFoundException, Upstream4xxResponse, Upstream5xxResponse}
+import uk.gov.hmrc.http.{ BadRequestException, NotFoundException, Upstream4xxResponse, Upstream5xxResponse }
 
 trait ServicesCircuitBreaker extends UsingCircuitBreaker {
   this: ServicesConfig =>

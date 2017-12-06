@@ -20,9 +20,9 @@ import uk.gov.hmrc.play.config.AppName
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 import uk.gov.hmrc.play.frontend.auth.{Actions, AuthContext}
 import uk.gov.hmrc.play.frontend.controller.FrontendController
-import uk.gov.hmrc.play.http.HeaderCarrier
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
 
 object ChoosePaperlessController extends ChoosePaperlessController {
 
@@ -184,7 +184,7 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
   }
 
   private def auditPageShown(authContext: AuthContext, journey: Journey, cohort: OptInCohort)(implicit request: Request[_], hc: HeaderCarrier) =
-    auditConnector.sendEvent(ExtendedDataEvent(
+    auditConnector.sendExtendedEvent(ExtendedDataEvent(
       auditSource = appName,
       auditType = EventTypes.Succeeded,
       tags = hc.toAuditTags("Show Print Preference Option", request.path),
@@ -197,7 +197,7 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
     ))
 
   private def auditChoice(authContext: AuthContext, journey: Journey, cohort: OptInCohort, terms: (TermsType, TermsAccepted), emailOption: Option[String], preferencesStatus: PreferencesStatus)(implicit request: Request[_], message: play.api.i18n.Messages, hc: HeaderCarrier) =
-    auditConnector.sendEvent(ExtendedDataEvent(
+    auditConnector.sendExtendedEvent(ExtendedDataEvent(
       auditSource = appName,
       auditType = if (preferencesStatus == PreferencesFailure) EventTypes.Failed else EventTypes.Succeeded,
       tags = hc.toAuditTags("Set Print Preference", request.path),
