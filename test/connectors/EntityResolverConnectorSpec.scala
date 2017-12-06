@@ -258,6 +258,11 @@ class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with OneApp
       result.futureValue shouldBe ValidationError
     }
 
+    "return 'error with return' with error if updateEmailValidationStatusUnsecured returns 412" in {
+      val result = preferenceConnector.responseToEmailVerificationLinkStatus(Future.failed(Upstream4xxResponse("""PUT of something Response body: '{"returnLinkText":"a message", "returnUrl": "https://some/place"}'""", PRECONDITION_FAILED, 0, Map())))
+      result.futureValue shouldBe ValidationErrorWithReturn("a message", "https://some/place")
+    }
+
     "return error if updateEmailValidationStatusUnsecured returns 404" in {
       val result = preferenceConnector.responseToEmailVerificationLinkStatus(Future.failed(new NotFoundException("")))
       result.futureValue shouldBe ValidationError

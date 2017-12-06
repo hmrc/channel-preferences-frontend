@@ -1,4 +1,4 @@
-@()(implicit request: Request[_], messages: Messages)
+@(returnUrl: Option[String], returnLinkText: Option[String])(implicit request: Request[_], messages: Messages)
 @import uk.gov.hmrc.urls.Link
 
 @main(title = "Email address already verified", navTitle = "", navLinks = HtmlFormat.empty) {
@@ -7,7 +7,7 @@
 </header>
 <p id="success-message">@Messages("sa_printing_preference.verification.already.paragraph.1")</p>
 <p id="link-to-home">@Link.toInternalPage(
-    url = controllers.ExternalUrls.businessTaxHome,
-    value = Some(Messages("sa_printing_preference.verification.action"))
+    url = returnUrl.getOrElse(controllers.ExternalUrls.businessTaxHome),
+    value = Some(returnLinkText.getOrElse(Messages("sa_printing_preference.verification.action")))
     ).toHtml</p>
 }

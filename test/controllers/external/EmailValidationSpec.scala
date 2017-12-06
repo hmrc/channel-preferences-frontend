@@ -52,6 +52,28 @@ class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar
       status(response) shouldBe 200
     }
 
+    "call the sa micro service and update the email verification status of the user after it has aready been verified" in {
+      val controller = createController
+      val token = wellFormattedToken
+      when(controller.entityResolverConnector.updateEmailValidationStatusUnsecured(meq(token))).thenReturn(Future.successful(ValidationError))
+
+      val response = controller.verify(token)(request)
+
+      contentAsString(response) shouldNot include("portalHomeLink/home")
+      status(response) shouldBe BAD_REQUEST
+    }
+
+    "call the sa micro service and update the email verification status of the user after it has aready been verified, when opted in through a token service" in {
+      val controller = createController
+      val token = wellFormattedToken
+      when(controller.entityResolverConnector.updateEmailValidationStatusUnsecured(meq(token))).thenReturn(Future.successful(ValidationErrorWithReturn("return link text", "returnUrl")))
+
+      val response = controller.verify(token)(request)
+
+      contentAsString(response) should include("return link text")
+      status(response) shouldBe BAD_REQUEST
+    }
+
     "display an error when the sa micro service fails to update a users email verification status" in {
       val controller = createController
       val token = wellFormattedToken
