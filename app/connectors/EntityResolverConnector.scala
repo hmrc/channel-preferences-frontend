@@ -1,17 +1,14 @@
 package connectors
 
 import config.ServicesCircuitBreaker
-import model.HostContext
+import model.{HostContext, ReturnLink}
 import play.api.http.Status
 import play.api.libs.json._
 import uk.gov.hmrc.domain.{Nino, SaUtr, TaxIdentifier}
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
-import uk.gov.hmrc.play.http._
-import play.api.Logger
-
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{ BadRequestException, HeaderCarrier, HttpErrorFunctions, HttpGet, HttpPost, HttpPut, HttpReads, HttpResponse, NotFoundException, Upstream4xxResponse, Upstream5xxResponse }
+import uk.gov.hmrc.http._
 
 case class Email(email: String)
 
@@ -160,21 +157,25 @@ trait EntityResolverConnector extends Status with ServicesCircuitBreaker {
       .map(_.status).map {
       case OK => PreferencesExists
       case CREATED => PreferencesCreated
-    } }
+    }
+  }
 
-  private[connectors] def responseToEmailVerificationLinkStatus(response: Future[HttpResponse])(implicit hc: HeaderCarrier) =
+  private[connectors] def responseToEmailVerificationLinkStatus(response: Future[HttpResponse])(implicit hc: HeaderCarrier) = {
     response.map(response => {
       response.status match {
         case CREATED =>
-          val body = Json.parse(response.body)
-          val returnLinkText = (body \ "returnLinkText").as[String]
-          val returnUrl = (body \ "returnUrl").as[String]
-          ValidatedWithReturn(returnLinkText, returnUrl)
+          val link = ReturnLink.fromString(response.body)
+          ValidatedWithReturn(link.linkText, link.linkUrl)
         case _ => Validated
       }
     }).recover {
-        case Upstream4xxResponse(_, GONE, _, _) => ValidationExpired
-        case Upstream4xxResponse(_, CONFLICT, _, _) => WrongToken
-        case (_: Upstream4xxResponse | _: NotFoundException | _: BadRequestException) => ValidationError
+      case Upstream4xxResponse(_, GONE, _, _) => ValidationExpired
+      case Upstream4xxResponse(_, CONFLICT, _, _) => WrongToken
+      case Upstream4xxResponse(messageBody, PRECONDITION_FAILED, _, _) =>
+        val body = messageBody.substring(messageBody.indexOf("Response body: '") + 16).stripSuffix("'")
+        val link = ReturnLink.fromString(body)
+        ValidationErrorWithReturn(link.linkText, link.linkUrl)
+      case (_: Upstream4xxResponse | _: NotFoundException | _: BadRequestException) => ValidationError
     }
+  }
 }

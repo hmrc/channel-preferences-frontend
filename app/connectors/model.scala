@@ -11,6 +11,7 @@ case class ValidatedWithReturn(returnLinkText: String, returnUrl: String) extend
 case object ValidationExpired extends EmailVerificationLinkResponse
 case object WrongToken extends EmailVerificationLinkResponse
 case object ValidationError extends EmailVerificationLinkResponse
+case class ValidationErrorWithReturn(returnLinkText: String, returnUrl: String) extends EmailVerificationLinkResponse
 
 object SaPreferenceSimplified {
   implicit val formats = Json.format[SaPreferenceSimplified]
