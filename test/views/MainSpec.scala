@@ -15,8 +15,8 @@ class MainSpec extends UnitSpec with OneAppPerSuite {
 
   override implicit lazy val app: Application = ConfigHelper.fakeApp
 
-  "preference print template" should {
-    "render the correct content for the IPage cohort " in {
+  "main template" should {
+    "render the correct content in english" in {
       val email = ObfuscatedEmailAddress("a@a.com")
       val document = Jsoup.parse(main("title")(Html("Some HTML"))(None, FakeRequest("GET", "/"), applicationMessages).toString())
 

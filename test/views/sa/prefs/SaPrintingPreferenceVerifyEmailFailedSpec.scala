@@ -13,8 +13,8 @@ class SaPrintingPreferenceVerifyEmailFailedSpec extends UnitSpec with OneAppPerS
 
   override implicit lazy val app: Application = ConfigHelper.fakeApp
 
-  "preference print template" should {
-    "render the correct content for the IPage cohort " in {
+  "printing preferences verify email failed template" should {
+    "render the correct content in english" in {
       val document = Jsoup.parse(sa_printing_preference_verify_email_failed(None, None)(FakeRequest("GET", "/"), applicationMessages).toString())
 
       document.getElementsByTag("title").first().text() shouldBe "Email address already verified"

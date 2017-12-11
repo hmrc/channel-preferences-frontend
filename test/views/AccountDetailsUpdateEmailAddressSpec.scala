@@ -14,8 +14,8 @@ class AccountDetailsUpdateEmailAddressSpec extends UnitSpec with OneAppPerSuite 
 
   override implicit lazy val app: Application = ConfigHelper.fakeApp
 
-  "preference print template" should {
-    "render the correct content for the IPage cohort " in {
+  "account details update email address template" should {
+    "render the correct content in english" in {
       val currentEmail = "a@a.com"
       val form = EmailForm()
       val document = Jsoup.parse(account_details_update_email_address(currentEmail, form)(None, FakeRequest("GET", "/"), applicationMessages, TestFixtures.sampleHostContext).toString())

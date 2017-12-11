@@ -15,8 +15,8 @@ class TcPageSpec  extends UnitSpec with OneAppPerSuite {
 
   override implicit lazy val app: Application = ConfigHelper.fakeApp
 
-  "Header Nav Links" should {
-    "Display the sign out text from messages" in {
+  "Tax Credit Template" should {
+    "render the correct content in english" in {
       val email = "a@a.com"
       val form = EmailForm().bind(Map("email.main" -> email))
       val document = Jsoup.parse(tc_page(form, internal.routes.ChoosePaperlessController.submitForm(TestFixtures.sampleHostContext))(FakeRequest("GET", "/"), applicationMessages).toString())

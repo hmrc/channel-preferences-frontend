@@ -14,8 +14,8 @@ class ConfirmOptBackIntoPaperSpec extends UnitSpec with OneAppPerSuite {
 
   override implicit lazy val app: Application = ConfigHelper.fakeApp
 
-  "preference print template" should {
-    "render the correct content for the IPage cohort " in {
+  "confirm opt back into paperless template" should {
+    "render the correct content in english" in {
       val email = ObfuscatedEmailAddress("a@a.com")
       val document = Jsoup.parse(confirm_opt_back_into_paper(email)(None, FakeRequest("GET", "/"), applicationMessages, TestFixtures.sampleHostContext).toString())
 

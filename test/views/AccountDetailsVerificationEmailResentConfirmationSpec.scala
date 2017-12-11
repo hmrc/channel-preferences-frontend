@@ -13,8 +13,8 @@ class AccountDetailsVerificationEmailResentConfirmationSpec extends UnitSpec wit
 
   override implicit lazy val app: Application = ConfigHelper.fakeApp
 
-  "preference print template" should {
-    "render the correct content for the IPage cohort " in {
+  "account details verification email resent confirmation template" should {
+    "render the correct content in english" in {
       val email = "a@a.com"
       val document = Jsoup.parse(account_details_verification_email_resent_confirmation(email)(None, FakeRequest("GET", "/"), applicationMessages, TestFixtures.sampleHostContext).toString())
 

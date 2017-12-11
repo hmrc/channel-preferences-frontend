@@ -14,8 +14,8 @@ class LastSignInSpec extends UnitSpec with OneAppPerSuite {
 
   override implicit lazy val app: Application = ConfigHelper.fakeApp
 
-  "Header Nav Links" should {
-    "Display the sign out text from messages" in {
+  "Last sign in template" should {
+    "render the correct content in english" in {
       val document = Jsoup.parse(last_sign_in(new DateTime(), None)(FakeRequest("GET", "/"), applicationMessages).toString())
       document.getElementsByClass("last-login__more-details").first().text() should (startWith ("Last sign in:") and endWith ("not right?"))
       document.getElementsByClass("minimise").first().text() shouldBe "Minimise"

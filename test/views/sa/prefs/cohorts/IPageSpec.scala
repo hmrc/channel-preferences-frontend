@@ -15,8 +15,8 @@ class IPageSpec extends UnitSpec with OneAppPerSuite {
 
   override implicit lazy val app: Application = ConfigHelper.fakeApp
 
-  "Header Nav Links" should {
-    "Display the sign out text from messages" in {
+  "I Page Template" should {
+    "render the correct content in english" in {
       val form = EmailForm().bind(Map("emailAlreadyStored" -> "true"))
       val document = Jsoup.parse(i_page(form, internal.routes.ChoosePaperlessController.submitForm(TestFixtures.sampleHostContext))(FakeRequest("GET", "/"), applicationMessages).toString())
       document.getElementsByClass("lede").first().text() shouldBe "You can choose to get electronic communications instead of letters from HMRC."

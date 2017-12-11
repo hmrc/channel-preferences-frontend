@@ -13,8 +13,8 @@ class YtaHeaderNavLinksSpec extends UnitSpec with OneAppPerSuite {
 
   override implicit lazy val app: Application = ConfigHelper.fakeApp
 
-  "Header Nav Links" should {
-    "Display the sign out text from messages" in {
+  "Yta Header Nav Links" should {
+    "render the correct content in english" in {
       val document = Jsoup.parse(yta_header_nav_links()(FakeRequest("GET", "/"), applicationMessages).toString())
       document.getElementById("homeNavHref").text() shouldBe "Home"
       document.getElementById("accountDetailsNavHref").text() shouldBe "Manage account"
