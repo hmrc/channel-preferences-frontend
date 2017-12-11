@@ -9,11 +9,11 @@
         <h1>@Messages(s"sa_printing_preference.fg_page.title")</h1>
     </header>
 
-    <p class="lede">You can choose to get electronic communications instead of letters from HMRC.</p>
-    <p>These electronic communications include statutory notices, decisions, estimates and reminders relating to your tax affairs, such as notices to file a tax return, make a payment, penalties due, or information about other matters.</p>
-    <p>When you have a new electronic communication we will send you an email notification requiring you to log in to your HMRC online account.</p>
+    <p class="lede">@Messages("sa_printing_preference.fg_page.choose_1")</p>
+    <p>@Messages("sa_printing_preference.fg_page.choose_2")</p>
+    <p>@Messages("sa_printing_preference.fg_page.choose_3")</p>
     <br />
-    <h2>Go paperless now</h2>
+    <h2>@Messages("sa_printing_preference.fg_page.paperless")</h2>
 
     @form(action = submitPrefsFormAction, 'id -> "form-submit-email-address") {
 
@@ -26,7 +26,7 @@
             class="email-prefs__toggle"
             checked="checked"
             />
-            Yes, send me electronic communications
+            @Messages("sa_printing_preference.fg_page.yes_send_email")
         </label>
 
         @if(emailForm("opt-in").value.contains("false")) { checked="checked" }
@@ -36,8 +36,8 @@
             @if(emailForm("emailAlreadyStored").value.contains("true")) {
                     <input type="email" class="input--medium input--cleared" id="email.main" name="email.main" value="@emailForm("email.main").value" readonly>
                     <p style="font-size:75%;">
-                        You have signed up for digital communications for Tax Credits with this email address.<br/>
-                        If you wish to change the email address you can do this later within manage your account
+                        @Messages("sa_printing_preference.fg_page.you_have_signed_up_1")<br/>
+                        @Messages("sa_printing_preference.fg_page.you_have_signed_up_2")
                     </p>
                 <input type="email" id="email.confirm" name="email.confirm" value="@emailForm("email.main").value" hidden>
                 <input type="hidden" id="emailVerified" name="emailVerified" value="true">
@@ -75,10 +75,10 @@
                     '_labelClass -> "label--inline"
                 )
             }
-            <p>By signing up, you confirm that you:</p>
+            <p>@Messages("sa_printing_preference.fg_page.by_signing_up_1")</p>
             <ul class="bullets form-hint">
-                <li>want to receive statutory notices, decisions, estimates and reminders electronically in connection with your tax affairs</li>
-                <li>will keep your communications preferences and email address up to date using your HMRC online account to make sure you get your email notifications</li>
+                <li>@Messages("sa_printing_preference.fg_page.by_signing_up_2")</li>
+                <li>@Messages("sa_printing_preference.fg_page.by_signing_up_3")</li>
             </ul>
 
         </fieldset>
@@ -91,7 +91,7 @@
             class="email-prefs__toggle"
                 @if(emailForm("opt-in").value == Some("false")) { checked="checked" }
             />
-            No, I want to keep receiving letters
+            @Messages("sa_printing_preference.fg_page.keep_receiving")
         </label>
         <div class="email-form-errors">
             @emailForm("opt-in").errors.map { error => <label class="error-notification">@Messages(error.message)</label>}

@@ -1,2 +1,2 @@
-@()
-<li><a id="logOutNavHref" href="@{controllers.ExternalUrls.survey}" data-journey-click="primary-navigation:Click:Sign out">Sign out</a></li>
+@()(implicit request: Request[_], messages: Messages)
+<li><a id="logOutNavHref" href="@{controllers.ExternalUrls.survey}" data-journey-click="primary-navigation:Click:Sign out">@Messages("header_nav_links.sign_out")</a></li>

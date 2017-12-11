@@ -59,3 +59,66 @@ sa_printing_preference.verification.wrong_token.paragraph.1=It may have been sen
 bt.account.yourdetails=Manage account
 bt.account.stopreminders=Stop emails from HMRC
 
+header_nav_links.sign_out=Sign Out
+
+last.sign.in.pre_date_text=Last sign in:
+last.sign.in.post_date_text=not right?
+last.sign.in.minimise=Minimise
+last.sign.in.contact_HMRC=Contact HMRC
+last.sign.in.not_you=if it wasn''t you.
+
+yta.header.nav.home=Home
+yta.header.nav.help=Help and contact
+
+sa_printing_preference.fg_page.choose_1=You can choose to get electronic communications instead of letters from HMRC.
+sa_printing_preference.fg_page.choose_2=These electronic communications include statutory notices, decisions, estimates and reminders relating to your tax affairs, such as notices to file a tax return, make a payment, penalties due, or information about other matters.
+sa_printing_preference.fg_page.choose_3=When you have a new electronic communication we will send you an email notification requiring you to log in to your HMRC online account.
+sa_printing_preference.fg_page.paperless=Go paperless now
+sa_printing_preference.fg_page.yes_send_email=Yes, send me electronic communications
+sa_printing_preference.fg_page.you_have_signed_up_1=You have signed up for digital communications for Tax Credits with this email address.
+sa_printing_preference.fg_page.you_have_signed_up_2=If you wish to change the email address you can do this later within manage your account
+sa_printing_preference.fg_page.by_signing_up_1=By signing up, you confirm that you:
+sa_printing_preference.fg_page.by_signing_up_2=want to receive statutory notices, decisions, estimates and reminders electronically in connection with your tax affairs
+sa_printing_preference.fg_page.by_signing_up_3=will keep your communications preferences and email address up to date using your HMRC online account to make sure you get your email notifications
+sa_printing_preference.fg_page.keep_receiving=No, I want to keep receiving letters
+
+tc_printing_preference.fg_page.nav_title=Tax credits service
+tc_printing_preference.fg_page.email_address=The email address we we will store securely is
+tc_printing_preference.fg_page.confirm_message_1=By letting us store your email address, you confirm that you:
+tc_printing_preference.fg_page.confirm_message_2=want to get notifications and prompts about your tax credits
+tc_printing_preference.fg_page.confirm_message_3=will keep your email address up to date using your HMRC online account to make sure you get your email notifications
+tc_printing_preference.fg_page.store_email=Yes, store my email address
+tc_printing_preference.fg_page.do_not_store_email=No, I do not want my email address stored
+
+sa_printing_preference.verification.action_text=and request a new verification link
+sa_printing_preference.token.expired.title=Your email address is NOT verified
+sa_printing_preference.token.wrong.title=You''ve used a link that has now expired
+sa_printing_preference.email.verified.title=Email address verified
+sa_printing_preference.email.failed.verified.title=Email address already verified
+
+account.details.update.email.title=Change your email address
+account.details.update.email.sent_to=Emails are sent to
+account.details.update.email.submit.text=Change email address
+cancel.text=Cancel
+
+account.details.update.email.thank_you.title=Verify your new email address
+account.details.update.email.thank_you.sent_to=An email has been sent to
+account.details.update.email.thank_you.verify=Click on the link in the email to verify the address.
+account.details.update.email.thank_you.old_address=Until you do this, emails will continue to go to your old address.
+
+account.details.update.email.verify.title=Check your email address
+account.details.update.email.verify.correct=This email address is correct
+account.details.update.email.verify.change=Change this email address
+
+account.details.verification.email.title=Verification email sent
+account.details.verification.email.new_email=A new email has been sent to {0}. Click on the link in the email to verify your email address with HMRC.
+
+account.opt.back.out.confirmation.title=Stop notifications
+account.opt.back.out.confirmation.letters=You''ll get letters again, instead of emails.
+
+default.nav.links.text=Your tax account
+
+opted.back.into.paperless.title=Paperless notifications have stopped
+opted.back.into.paperless.para_1=You''ll get letters again, instead of emails.
+opted.back.into.paperless.para_2=You''ve been sent an email confirming this.
+opted.back.into.paperless.para_3=You can go paperless again at any time.
