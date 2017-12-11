@@ -16,7 +16,7 @@ class HeaderNavLinksSpec extends UnitSpec with OneAppPerSuite {
   "Header Nav Links" should {
     "Display the sign out text from messages" in {
       val document = Jsoup.parse(header_nav_links()(FakeRequest("GET", "/"), applicationMessages).toString())
-      document.getElementById("logOutNavHref").text() shouldBe "Sign Out"
+      document.getElementById("logOutNavHref").text() shouldBe "Sign out"
     }
   }
 }

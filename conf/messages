@@ -59,7 +59,7 @@ sa_printing_preference.verification.wrong_token.paragraph.1=It may have been sen
 bt.account.yourdetails=Manage account
 bt.account.stopreminders=Stop emails from HMRC
 
-header_nav_links.sign_out=Sign Out
+header_nav_links.sign_out=Sign out
 
 last.sign.in.pre_date_text=Last sign in:
 last.sign.in.post_date_text=not right?

@@ -19,7 +19,7 @@ class YtaHeaderNavLinksSpec extends UnitSpec with OneAppPerSuite {
       document.getElementById("homeNavHref").text() shouldBe "Home"
       document.getElementById("accountDetailsNavHref").text() shouldBe "Manage account"
       document.getElementsByAttributeValue("href", "/contact/contact-hmrc").text() shouldBe "Help and contact"
-      document.getElementById("logOutNavHref").text() shouldBe "Sign Out"
+      document.getElementById("logOutNavHref").text() shouldBe "Sign out"
     }
   }
 }
