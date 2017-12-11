@@ -2,13 +2,13 @@
 
 @import uk.gov.hmrc.urls.Link
 
-@main_with_headers(title = "Paperless notifications have stopped") {
+@main_with_headers(title = Messages("opted.back.into.paperless.title")) {
     <header class="page-header">
-        <h1>Paperless notifications have stopped</h1>
+        <h1>@Messages("opted.back.into.paperless.title")</h1>
     </header>
-    <p>You'll get letters again, instead of emails.</p>
-    <p>You've been sent an email confirming this.</p>
-    <p>You can go paperless again at any time.</p>
+    <p>@Messages("opted.back.into.paperless.para_1")</p>
+    <p>@Messages("opted.back.into.paperless.para_2")</p>
+    <p>@Messages("opted.back.into.paperless.para_3")</p>
     <ul class="action-list">
         <li>@Link.toInternalPage(id = Some("return-to-dashboard-button"), url = hostContext.returnUrl, value = Some(hostContext.returnLinkText)).toHtml</li>
     </ul>

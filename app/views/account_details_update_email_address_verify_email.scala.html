@@ -5,18 +5,18 @@
 @import uk.gov.hmrc.emailaddress.EmailAddress
 @import uk.gov.hmrc.play.views.html.helpers._
 
-@main_with_headers(title = "Check your email address") {
+@main_with_headers(title = Messages("account.details.update.email.verify.title")) {
 
     <header class="page-header">
-        <h1 id="emailAddress">Check your email address</h1>
+        <h1 id="emailAddress">@Messages("account.details.update.email.verify.title")</h1>
     </header>
-    <p>Are you sure @emailAddress is correct?</p>
+    <p>@Html(Messages("sa_printing_preferences.confirm_correct_email.paragraph.1", s"<span id='emailAddress'>$emailAddress</span>"))</p>
 
 
     @form(action = controllers.internal.routes.ManagePaperlessController.submitChangeEmailAddress(hostContext)) {
         <div class="form-field">
             <p>
-            <button id="emailIsCorrectLink" class="button" type="submit">This email address is correct</button>
+            <button id="emailIsCorrectLink" class="button" type="submit">@Messages("account.details.update.email.verify.correct")</button>
             </p>
         </div>
         <input type="hidden" name="opt-in" value="true" />
@@ -24,5 +24,5 @@
         <input type="hidden" name="email.confirm" value="@emailAddress" />
         <input type="hidden" name="emailVerified" value="true" />
     }
-    <p>@Link.toInternalPage(id = Some("emailIsNotCorrectLink"), url = controllers.internal.routes.ManagePaperlessController.displayChangeEmailAddress(Some(Encrypted(EmailAddress(emailAddress))), hostContext).url, value = Some("Change this email address")).toHtml</p>
+    <p>@Link.toInternalPage(id = Some("emailIsNotCorrectLink"), url = controllers.internal.routes.ManagePaperlessController.displayChangeEmailAddress(Some(Encrypted(EmailAddress(emailAddress))), hostContext).url, value = Some(Messages("account.details.update.email.verify.change"))).toHtml</p>
 }

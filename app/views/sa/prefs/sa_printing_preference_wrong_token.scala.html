@@ -1,8 +1,6 @@
 @()(implicit request: Request[_], messages: Messages)
 
-@import uk.gov.hmrc.urls.Link
-
-@main(title = "You've used a link that has now expired") {
+@main(title = Messages("sa_printing_preference.token.wrong.title")) {
     <header class="page-header">
         <h1 id="failure-heading">@Messages("sa_printing_preference.verification.heading.wrong_token")</h1>
     </header>
