@@ -122,3 +122,39 @@ opted.back.into.paperless.title=Paperless notifications have stopped
 opted.back.into.paperless.para_1=You''ll get letters again, instead of emails.
 opted.back.into.paperless.para_2=You''ve been sent an email confirming this.
 opted.back.into.paperless.para_3=You can go paperless again at any time.
+
+manage.paperless.go.paperless=Go paperless
+manage.paperless.optout=Replace the letters you get about taxes with emails.
+manage.paperless.signup=Sign up for paperless notifications
+
+manage.paperless.bounce_status=You need to verify 
+manage.paperless.bounce.reason.full=The email telling you how to do this can''t be sent because your inbox is full.
+manage.paperless.bounce.reason.full.more=Clear your inbox or use a different email address.
+manage.paperless.bounce.reason.not_full=The email telling you how to do this can''t be delivered.
+manage.paperless.bounce.reason.not_full.more=Use a different email address
+
+manage.paperless.change.email=Change your email address
+manage.paperless.stop.email=Stop emails from HMRC
+
+manage.paperless.email.notification.header=Email for paperless notifications
+manage.paperless.email.need.verify=You need to verify your email address.
+manage.paperless.email.sent_to=An email was sent to
+manage.paperless.email.click_on_link=on {0}. Click on the link in the email to verify your email address.
+manage.paperless.email.cannot.find=If you can''t find it, we can
+manage.paperless.email.send.new.verification=send a new verification email
+
+manage.paperless.verified.header=Email address for HMRC digital communications
+manage.paperless.verified.sent_to=Emails are sent to:
+
+manage.paperless.problem.header=There is a problem
+
+paperless.warnings.bounced.header=There''s a problem with your paperless notification emails
+paperless.warnings.bounced.urgent=Urgent
+paperless.warnings.bounced.inbox.full=Your inbox is full.
+paperless.warnings.bounced.goto=Go to
+paperless.warnings.bounced.more.info=for more information.
+
+pending.email.verification.summary=Verify your email address for paperless notifications
+pending.email.verification.now=Now
+pending.email.verification.para_1=An email was sent to {0} on {1}. Click on the link in the email to verify your email address with HMRC.
+pending.email.verification.para_2=If you can''t find it you can get a new email sent to you from

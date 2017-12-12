@@ -83,7 +83,7 @@ class ManagePaperlessPartialSpec extends UnitSpec with OneAppPerSuite with Scala
       ManagePaperlessPartial(Some(saPreference)).body should (
         include("You need to verify") and
         include(emailPreferences.email) and
-        include("The email telling you how to do this can't be delivered.") and
+        include("The email telling you how to do this can&#x27;t be delivered.") and
         include(linkTo(routes.ManagePaperlessController.displayChangeEmailAddress(None, hostContext))) and
         include(linkTo(routes.ManagePaperlessController.displayStopPaperless(hostContext))) and
         not include linkTo(routes.ManagePaperlessController.resendVerificationEmail(hostContext))
@@ -97,7 +97,7 @@ class ManagePaperlessPartialSpec extends UnitSpec with OneAppPerSuite with Scala
       ManagePaperlessPartial(Some(saPreference)).body should (
         include("You need to verify") and
         include(emailPreferences.email) and
-        include("can't be delivered") and
+        include("can&#x27;t be delivered") and
         include(linkTo(routes.ManagePaperlessController.displayChangeEmailAddress(None, hostContext))) and
         include(linkTo(routes.ManagePaperlessController.displayStopPaperless(hostContext))) and
         not include "your inbox is full" and

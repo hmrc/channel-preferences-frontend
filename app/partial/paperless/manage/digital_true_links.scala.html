@@ -6,7 +6,7 @@
     @Link.toInternalPage(
         id = Some(changeEmailAddressLinkId),
         url = pfUrlPrefix + controllers.internal.routes.ManagePaperlessController.displayChangeEmailAddress(None, hostContext),
-        value = Some("Change your email address"),
+        value = Some(Messages("manage.paperless.change.email")),
         dataAttributes = Some(Map("journey-click" -> "self-assessment-preferences:Click:Change your email address"))
     ).toHtml
 </p>
@@ -14,7 +14,7 @@
     @Link.toInternalPage(
         id = Some("opt-out-of-email-link"),
         url = pfUrlPrefix + controllers.internal.routes.ManagePaperlessController.displayStopPaperless(hostContext),
-        value = Some("Stop emails from HMRC"),
+        value = Some(Messages("manage.paperless.stop.email")),
         dataAttributes = Some(Map("journey-click" -> "self-assessment-preferences:Click:Stop emails from HMRC"))
     )(messages).toHtml
 </p>

@@ -1,14 +1,12 @@
-@(emailPreference: connectors.EmailPreference, returnUrl: String, returnLinkText: String)(implicit messages: Messages)
-
-
-@import views.sa.prefs.helpers.DateFormat._
+@(emailPreference: connectors.EmailPreference, returnUrl: String, returnLinkText: String)(implicit request: Request[_], messages: Messages)
 @import uk.gov.hmrc.urls.Link
+@import views.sa.prefs.helpers.DateFormat.longDateFormat
 
 <details id="sa-prefs-status">
-    <summary>Verify your email address for paperless notifications<span class="flag flag--urgent">Now</span></summary>
+    <summary>@Messages("pending.email.verification.summary")<span class="flag flag--urgent">@Messages("pending.email.verification.now")</span></summary>
     <div class="panel-indent">
-        <p>An email was sent to @emailPreference.email on @longDateFormat(emailPreference.linkSent). Click on the link in the email to verify your email address with HMRC.</p>
-        <p>If you can't find it you can get a new email sent to you from
+        <p>@Html(Messages("pending.email.verification.para_1", emailPreference.email, longDateFormat(emailPreference.linkSent).getOrElse("")))</p>
+        <p>@Messages("pending.email.verification.para_2")
             @Link.toInternalPage(
             id = Some("remindersProblem"),
             url = returnUrl,
