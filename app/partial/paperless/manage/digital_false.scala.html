@@ -5,13 +5,13 @@
 
 
 <section>
-    <h2 id="saEmailRemindersHeader">Go paperless</h2>
-    <p id="opt-out-status-message">Replace the letters you get about taxes with emails.</p>
+    <h2 id="saEmailRemindersHeader">@Messages("manage.paperless.go.paperless")</h2>
+    <p id="opt-out-status-message">@Messages("manage.paperless.optout")</p>
     <p>
         @Link.toInternalPage(
             id = Some("opt-in-to-digital-email-link"),
             url = pfUrlPrefix + controllers.internal.routes.ChoosePaperlessController.redirectToDisplayFormWithCohort(email, hostContext),
-            value = Some("Sign up for paperless notifications"),
+            value = Some(Messages("manage.paperless.signup")),
             dataAttributes = Some(Map("journey-click" -> "self-assessment-preferences:Click:Sign up for paperless notifications"))
         ).toHtml
     </p>

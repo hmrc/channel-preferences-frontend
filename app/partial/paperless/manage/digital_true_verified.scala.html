@@ -2,8 +2,8 @@
 @import uk.gov.hmrc.emailaddress.EmailAddress
 
 <section>
-    <h2 id="saEmailRemindersHeader">Email address for HMRC digital communications</h2>
-    <p>Emails are sent to: <span id="email-address">@{EmailAddress(email.email).obfuscated}</span></p>
+    <h2 id="saEmailRemindersHeader">@Messages("manage.paperless.verified.header")</h2>
+    <p>@Messages("manage.paperless.verified.sent_to") <span id="email-address">@{EmailAddress(email.email).obfuscated}</span></p>
 
     @digital_true_links(email, "change-email-address-link")
 </section>

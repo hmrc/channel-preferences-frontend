@@ -1,18 +1,18 @@
-@(mailBoxFull: Boolean, returnUrl: String, returnLinkText: String)(implicit messages: Messages)
+@(mailBoxFull: Boolean, returnUrl: String, returnLinkText: String)(implicit request: Request[_], messages: Messages)
 
 @import uk.gov.hmrc.urls.Link
 
 <details id="sa-prefs-status">
-    <summary role="alert">There's a problem with your paperless notification emails <span class="flag flag--urgent">Urgent</span></summary>
+    <summary role="alert">@Messages("paperless.warnings.bounced.header") <span class="flag flag--urgent">@Messages("paperless.warnings.bounced.urgent")</span></summary>
     <div class="panel-indent">
         @if(mailBoxFull) {
-            <p>Your inbox is full.</p>
+            <p>@Messages("paperless.warnings.bounced.inbox.full")</p>
         }
-        <p>Go to
+        <p>@Messages("paperless.warnings.bounced.goto")
             @Link.toInternalPage(
             id = Some("remindersProblem"),
             url = returnUrl,
             value = Some(returnLinkText)
-            ).toHtml for more information.</p>
+            ).toHtml @Messages("paperless.warnings.bounced.more.info")</p>
     </div>
 </details>

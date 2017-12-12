@@ -80,7 +80,7 @@ class PaperlessWarningPartialISpec
       val response =`/paperless/warnings`.withHeaders(cookieWithUtr).get()
 
       response should have(status(200))
-      response.futureValue.body should include("There's a problem with your paperless notification emails")
+      response.futureValue.body should include("There&#x27;s a problem with your paperless notification emails")
     }
 
     "have no warning if user then opts out" in new TestCaseWithFrontEndAuthentication {
@@ -169,7 +169,7 @@ class PaperlessWarningPartialISpec
       val response = `/paperless/warnings`.withHeaders(cookieWithUtr).get()
 
       response should have(status(200))
-      response.futureValue.body should include("There's a problem with your paperless notification emails")
+      response.futureValue.body should include("There&#x27;s a problem with your paperless notification emails")
     }
   }
 }
