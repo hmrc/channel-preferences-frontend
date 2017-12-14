@@ -9,6 +9,7 @@ object ConfigHelper {
     "govuk-tax.Test.services.contact-frontend.port" -> "9250",
     "govuk-tax.Test.assets.url" -> "fake/url",
     "govuk-tax.Test.assets.version" -> "54321",
+    "application.langs" -> "en,cy",
     "govuk-tax.Test.google-analytics.host" -> "host",
     "govuk-tax.Test.google-analytics.token" -> "aToken")
 
