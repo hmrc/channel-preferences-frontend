@@ -20,5 +20,13 @@ class DigitalFalseSpec extends UnitSpec with OneAppPerSuite with WelshLanguage {
       document.getElementById("opt-out-status-message").text() shouldBe "Replace the letters you get about taxes with emails."
       document.getElementById("opt-in-to-digital-email-link").text() shouldBe "Sign up for paperless notifications"
     }
+
+    "render the correct content in welsh" in {
+      val document = Jsoup.parse(digital_false(None)(TestFixtures.sampleHostContext, messagesInWelsh(applicationMessages), langCy).toString())
+
+      document.getElementById("saEmailRemindersHeader").text() shouldBe "Ewch yn ddi-bapur"
+      document.getElementById("opt-out-status-message").text() shouldBe "Cael e-byst, yn lle'r llythyrau a gewch, ynghylch trethi."
+      document.getElementById("opt-in-to-digital-email-link").text() shouldBe "Cofrestrwch ar gyfer hysbysiadau di-bapur"
+    }
   }
 }
