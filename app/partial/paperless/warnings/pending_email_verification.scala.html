@@ -1,4 +1,4 @@
-@(emailPreference: connectors.EmailPreference, returnUrl: String, returnLinkText: String)(implicit request: Request[_], messages: Messages)
+@(emailPreference: connectors.EmailPreference, returnUrl: String, returnLinkText: String)(implicit request: Request[_], messages: Messages, lang: Lang)
 @import uk.gov.hmrc.urls.Link
 @import views.sa.prefs.helpers.DateFormat.longDateFormat
 

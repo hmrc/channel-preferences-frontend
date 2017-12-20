@@ -1,4 +1,4 @@
-@(email: connectors.EmailPreference)(implicit request: Request[_], messages: Messages, hostContext: model.HostContext)
+@(email: connectors.EmailPreference)(implicit request: Request[_], messages: Messages, hostContext: model.HostContext, lang: Lang)
 @import connectors.EmailPreference
 @import uk.gov.hmrc.urls.Link
 @import uk.gov.hmrc.emailaddress.EmailAddress

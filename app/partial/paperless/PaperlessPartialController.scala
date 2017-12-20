@@ -9,7 +9,6 @@ import partial.paperless.warnings.PaperlessWarningPartial
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import play.api.i18n.Messages.Implicits._
 import play.api.Play.current
-import play.api.mvc.Request
 
 object PaperlessPartialController extends PaperlessPartialController {
   lazy val auditConnector = Global.auditConnector
@@ -33,7 +32,7 @@ trait PaperlessPartialController
   def displayPaperlessWarningsPartial(implicit hostContext: HostContext) = authenticated.async { implicit authContext => implicit request =>
     entityResolverConnector.getPreferences().map {
       case None => NotFound
-      case Some(prefs) => Ok(PaperlessWarningPartial.apply(prefs, hostContext.returnUrl, hostContext.returnLinkText)(request, applicationMessages)).withHeaders("X-Opted-In-Email" -> prefs.genericTermsAccepted.toString)
+      case Some(prefs) => Ok(PaperlessWarningPartial.apply(prefs, hostContext.returnUrl, hostContext.returnLinkText)).withHeaders("X-Opted-In-Email" -> prefs.genericTermsAccepted.toString)
     }
   }
 }
