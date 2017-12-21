@@ -18,6 +18,7 @@ import connectors.PreferenceResponse._
 import model.Encrypted
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.HeaderCarrier
+import play.api.i18n.Messages.Implicits._
 
 class ManagePaperlessPartialSpec extends UnitSpec with OneAppPerSuite with ScalaFutures {
   implicit val hc = HeaderCarrier()

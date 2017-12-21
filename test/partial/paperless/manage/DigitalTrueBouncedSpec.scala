@@ -18,7 +18,7 @@ class DigitalTrueBouncedSpec extends UnitSpec with OneAppPerSuite with WelshLang
     "render the correct content in english when the mailbox is not full" in {
       val emailAddress = "a@a.com"
       val email = EmailPreference(emailAddress, true, true, false, None)
-      val document = Jsoup.parse(digital_true_bounced(email)(FakeRequest(), applicationMessages, TestFixtures.sampleHostContext).toString())
+      val document = Jsoup.parse(digital_true_bounced(email)(FakeRequest(), applicationMessages, TestFixtures.sampleHostContext, langEn).toString())
 
       document.getElementById("bouncing-status-message").text() shouldBe s"You need to verify $emailAddress"
       document.getElementById("bounce-reason").text() shouldBe "The email telling you how to do this can't be delivered."
@@ -28,7 +28,7 @@ class DigitalTrueBouncedSpec extends UnitSpec with OneAppPerSuite with WelshLang
     "render the correct content in english when the mailbox is full" in {
       val emailAddress = "b@b.com"
       val email = EmailPreference(emailAddress, true, true, true, None)
-      val document = Jsoup.parse(digital_true_bounced(email)(FakeRequest(), applicationMessages, TestFixtures.sampleHostContext).toString())
+      val document = Jsoup.parse(digital_true_bounced(email)(FakeRequest(), applicationMessages, TestFixtures.sampleHostContext, langEn).toString())
 
       document.getElementById("bounce-reason").text() shouldBe "The email telling you how to do this can't be sent because your inbox is full."
       document.getElementById("bounce-reason-more").text() shouldBe "Clear your inbox or use a different email address."
@@ -37,7 +37,7 @@ class DigitalTrueBouncedSpec extends UnitSpec with OneAppPerSuite with WelshLang
     "render the correct content in welsh when the mailbox is not full" in {
       val emailAddress = "a@a.com"
       val email = EmailPreference(emailAddress, true, true, false, None)
-      val document = Jsoup.parse(digital_true_bounced(email)(welshRequest, messagesInWelsh(applicationMessages), TestFixtures.sampleHostContext).toString())
+      val document = Jsoup.parse(digital_true_bounced(email)(welshRequest, messagesInWelsh(applicationMessages), TestFixtures.sampleHostContext, langCy).toString())
 
       document.getElementById("bouncing-status-message").text() shouldBe s"Mae angen i chi ddilysu $emailAddress"
       document.getElementById("bounce-reason").text() shouldBe "Ni all yr e-bost sy'n rhoi gwybod i chi sut i wneud hyn gyrraedd pen ei daith."
@@ -47,7 +47,7 @@ class DigitalTrueBouncedSpec extends UnitSpec with OneAppPerSuite with WelshLang
     "render the correct content in welsh when the mailbox is full" in {
       val emailAddress = "b@b.com"
       val email = EmailPreference(emailAddress, true, true, true, None)
-      val document = Jsoup.parse(digital_true_bounced(email)(welshRequest, messagesInWelsh(applicationMessages), TestFixtures.sampleHostContext).toString())
+      val document = Jsoup.parse(digital_true_bounced(email)(welshRequest, messagesInWelsh(applicationMessages), TestFixtures.sampleHostContext, langCy).toString())
 
       document.getElementById("bounce-reason").text() shouldBe "Ni ellir anfon yr e-bost sy'n rhoi gwybod i chi sut i wneud hyn oherwydd bod eich mewnflwch yn llawn."
       document.getElementById("bounce-reason-more").text() shouldBe "Cliriwch eich mewnflwch neu defnyddiwch gyfeiriad e-bost gwahanol."

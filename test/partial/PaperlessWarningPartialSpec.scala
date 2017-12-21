@@ -93,8 +93,8 @@ class PaperlessWarningPartialSpec extends UnitSpec with Results with OneAppPerSu
       ).toNewPreference(), "manage.account.com", "Manage account")(welshRequest, messagesInWelsh(applicationMessages)).body
       result should include ("test@test.com")
       result should include ("5 December 2014")
-      result should include ("Rheoli'r cyfrif")
-      result should include ("manage.account.com WELSH")
+      result should include ("Manage account")
+      result should include ("manage.account.com")
     }
 
     "have mail box full warning in welsh if email bounces due to mail box being full" in {
@@ -116,10 +116,10 @@ class PaperlessWarningPartialSpec extends UnitSpec with Results with OneAppPerSu
           status = SaEmailPreference.Status.Bounced,
           linkSent = Some(LocalDate.parse("2014-12-05")),
           mailboxFull = false))
-      ).toNewPreference(), "manage.account.com", "Manage account")(FakeRequest(), applicationMessages).body
-      result should include ("There&#x27;s a problem with your paperless notification emails WELSH")
-      result should include ("Manage account WELSH")
-      result should include ("manage.account.com WELSH")
+      ).toNewPreference(), "manage.account.com", "Manage account")(welshRequest, messagesInWelsh(applicationMessages)).body
+      result should include ("Mae yna broblem gyda&#x27;ch e-byst hysbysu di-bapur")
+      result should include ("Manage account")
+      result should include ("manage.account.com")
     }
 
     trait TestCase {

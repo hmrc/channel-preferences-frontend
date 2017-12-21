@@ -15,7 +15,7 @@ class BouncedEmailSpec extends UnitSpec with OneAppPerSuite with WelshLanguage {
 
   "bounced email partial" should {
     "render the correct content in english if the mailbox is full" in {
-      val document = Jsoup.parse(bounced_email(true, "returnUrl", "returnLinkText")(FakeRequest(), applicationMessages).toString())
+      val document = Jsoup.parse(bounced_email(true, "returnUrl", "returnLinkText")(FakeRequest(), applicationMessages, langEn).toString())
 
       document.getElementsByAttributeValue("role", "alert").first().childNodes().get(0).toString() shouldBe "There's a problem with your paperless notification emails "
       document.getElementsByClass("flag--urgent").first().text() shouldBe "Urgent"
@@ -25,7 +25,7 @@ class BouncedEmailSpec extends UnitSpec with OneAppPerSuite with WelshLanguage {
     }
 
     "render the correct content in welsh if the mailbox is full" in {
-      val document = Jsoup.parse(bounced_email(true, "returnUrl", "returnLinkText")(welshRequest, messagesInWelsh(applicationMessages)).toString())
+      val document = Jsoup.parse(bounced_email(true, "returnUrl", "returnLinkText")(welshRequest, messagesInWelsh(applicationMessages), langCy).toString())
 
       document.getElementsByAttributeValue("role", "alert").first().childNodes().get(0).toString() shouldBe "Mae yna broblem gyda'ch e-byst hysbysu di-bapur "
       document.getElementsByClass("flag--urgent").first().text() shouldBe "Ar frys"
