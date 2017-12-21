@@ -4,8 +4,8 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 
 object Email {
 
-  def `POST /validate-email-address`(emailAddress: String) =
-    post(urlEqualTo("/validate-email-address"))
+  def `GET /hmrc/validate-email-address`(emailAddress: String) =
+    get(urlEqualTo(s"/hmrc/validate-email-address?email=${emailAddress.replace("@","%40")}"))
 
   val validEmailJson =
     s"""
