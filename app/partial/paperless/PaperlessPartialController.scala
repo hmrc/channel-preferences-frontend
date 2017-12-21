@@ -1,15 +1,14 @@
 package partial.paperless
 
-import controllers.{FindTaxIdentifier, Authentication}
+import controllers.{Authentication, FindTaxIdentifier}
 import config.Global
 import connectors.EntityResolverConnector
 import model.HostContext
 import partial.paperless.manage.ManagePaperlessPartial
 import partial.paperless.warnings.PaperlessWarningPartial
-import play.api.mvc.{Action, AnyContent}
-import uk.gov.hmrc.domain.TaxIdentifier
-import uk.gov.hmrc.play.frontend.auth.AuthContext
 import uk.gov.hmrc.play.frontend.controller.FrontendController
+import play.api.i18n.Messages.Implicits._
+import play.api.Play.current
 
 object PaperlessPartialController extends PaperlessPartialController {
   lazy val auditConnector = Global.auditConnector

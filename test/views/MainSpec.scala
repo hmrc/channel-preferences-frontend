@@ -1,6 +1,6 @@
 package views
 
-import _root_.helpers.ConfigHelper
+import _root_.helpers.{ConfigHelper, WelshLanguage}
 import org.jsoup.Jsoup
 import org.scalatestplus.play.OneAppPerSuite
 import play.api.Application
@@ -11,7 +11,7 @@ import uk.gov.hmrc.emailaddress.ObfuscatedEmailAddress
 import uk.gov.hmrc.play.test.UnitSpec
 import views.html.main
 
-class MainSpec extends UnitSpec with OneAppPerSuite {
+class MainSpec extends UnitSpec with OneAppPerSuite with WelshLanguage {
 
   override implicit lazy val app: Application = ConfigHelper.fakeApp
 
@@ -21,6 +21,13 @@ class MainSpec extends UnitSpec with OneAppPerSuite {
       val document = Jsoup.parse(main("title")(Html("Some HTML"))(None, FakeRequest("GET", "/"), applicationMessages).toString())
 
       document.getElementsByClass("header__menu__proposition-name").get(0).text() shouldBe "Your tax account"
+    }
+
+    "render the correct content in welsh" in {
+      val email = ObfuscatedEmailAddress("a@a.com")
+      val document = Jsoup.parse(main("title")(Html("Some HTML"))(None, welshRequest, messagesInWelsh(applicationMessages)).toString())
+
+//TODO :      document.getElementsByClass("header__menu__proposition-name").get(0).text() shouldBe "Your tax account WELSH"
     }
   }
 }

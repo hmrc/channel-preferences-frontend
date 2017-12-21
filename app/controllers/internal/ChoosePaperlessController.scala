@@ -62,7 +62,7 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
   }
   }
 
-  private def createRedirectToDisplayFormWithCohort(emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext)(implicit authContext: AuthContext) =
+  private def createRedirectToDisplayFormWithCohort(emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext)(implicit authContext: AuthContext, request: Request[_]) =
     Redirect(routes.ChoosePaperlessController.displayForm(Some(calculateCohort(hostContext)), emailAddress, hostContext))
 
   def displayForm(implicit cohort: Option[OptInCohort], emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = authenticated.async { implicit authContext => implicit request =>
@@ -111,7 +111,7 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
     val call = routes.ChoosePaperlessController.submitForm(hostContext)
     val formwithErrors = returnToFormWithErrors(call, cohort, request)_
 
-    def handleTc(): Future[Result] = {
+    def handleTc()(implicit request: Request[_]): Future[Result] = {
       OptInOrOutTaxCreditsForm().bindFromRequest.fold[Future[Result]](
         hasErrors = formwithErrors,
         happyForm =>
@@ -128,7 +128,7 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
       )
     }
 
-    def handleGeneric(): Future[Result] = {
+    def handleGeneric()(implicit request: Request[_]): Future[Result] = {
       OptInOrOutForm().bindFromRequest.fold[Future[Result]](
         hasErrors = formwithErrors,
         happyForm =>
@@ -150,7 +150,8 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
   }
 
   def returnToFormWithErrors(submitPrefsFormAction: Call, cohort: OptInCohort, request : Request[_])(form: Form[_]): Future[Result] = {
-    Future.successful(BadRequest(views.html.sa.prefs.sa_printing_preference(form, submitPrefsFormAction, cohort)(request, applicationMessages)))
+    implicit val req = request
+    Future.successful(BadRequest(views.html.sa.prefs.sa_printing_preference(form, submitPrefsFormAction, cohort)))
   }
 
   def saveAndAuditPreferences(digital: Boolean, email: Option[String], cohort: OptInCohort, emailAlreadyStored: Boolean, svc: Option[String], token: Option[String])

@@ -1,5 +1,5 @@
 @import uk.gov.hmrc.emailaddress.EmailAddress
-@(email: Option[model.Encrypted[EmailAddress]])(implicit hostContext: model.HostContext, messages: Messages)
+@(email: Option[model.Encrypted[EmailAddress]])(implicit hostContext: model.HostContext, messages: Messages, lang: Lang)
 @import uk.gov.hmrc.urls.Link
 @import controllers.ExternalUrlPrefixes._
 

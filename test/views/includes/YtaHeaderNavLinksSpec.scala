@@ -1,6 +1,6 @@
 package views.includes
 
-import helpers.ConfigHelper
+import helpers.{ConfigHelper, WelshLanguage}
 import org.jsoup.Jsoup
 import org.scalatestplus.play.OneAppPerSuite
 import play.api.Application
@@ -9,7 +9,7 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.play.test.UnitSpec
 import views.html.includes.yta_header_nav_links
 
-class YtaHeaderNavLinksSpec extends UnitSpec with OneAppPerSuite {
+class YtaHeaderNavLinksSpec extends UnitSpec with OneAppPerSuite with WelshLanguage {
 
   override implicit lazy val app: Application = ConfigHelper.fakeApp
 
@@ -20,6 +20,14 @@ class YtaHeaderNavLinksSpec extends UnitSpec with OneAppPerSuite {
       document.getElementById("accountDetailsNavHref").text() shouldBe "Manage account"
       document.getElementsByAttributeValue("href", "/contact/contact-hmrc").text() shouldBe "Help and contact"
       document.getElementById("logOutNavHref").text() shouldBe "Sign out"
+    }
+
+    "render the correct content in welsh" in {
+      val document = Jsoup.parse(yta_header_nav_links()(welshRequest, messagesInWelsh(applicationMessages)).toString())
+      document.getElementById("homeNavHref").text() shouldBe "Hafan"
+      document.getElementById("accountDetailsNavHref").text() shouldBe "Rheoli'r cyfrif"
+      document.getElementsByAttributeValue("href", "/contact/contact-hmrc").text() shouldBe "Help a chysylltu"
+      document.getElementById("logOutNavHref").text() shouldBe "Allgofnodi"
     }
   }
 }

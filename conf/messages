@@ -81,7 +81,8 @@ sa_printing_preference.fg_page.by_signing_up_1=By signing up, you confirm that y
 sa_printing_preference.fg_page.by_signing_up_2=want to receive statutory notices, decisions, estimates and reminders electronically in connection with your tax affairs
 sa_printing_preference.fg_page.by_signing_up_3=will keep your communications preferences and email address up to date using your HMRC online account to make sure you get your email notifications
 sa_printing_preference.fg_page.keep_receiving=No, I want to keep receiving letters
-
+sa_printing_preference.tc.email.label=Email address
+sa_printing_preference.tc.confirm.email.label=Confirm email address
 tc_printing_preference.fg_page.nav_title=Tax credits service
 tc_printing_preference.fg_page.email_address=The email address we we will store securely is
 tc_printing_preference.fg_page.confirm_message_1=By letting us store your email address, you confirm that you:
@@ -158,3 +159,6 @@ pending.email.verification.summary=Verify your email address for paperless notif
 pending.email.verification.now=Now
 pending.email.verification.para_1=An email was sent to {0} on {1}. Click on the link in the email to verify your email address with HMRC.
 pending.email.verification.para_2=If you can''t find it you can get a new email sent to you from
+
+account.details.update.email.new=New email address
+account.details.update.email.confirm=Confirm new email address

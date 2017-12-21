@@ -15,7 +15,7 @@
         <fieldset>
         @input(
             emailForm("email.main"),
-            '_label -> "New email address",
+            '_label -> Messages("account.details.update.email.new"),
             '_divClass -> "form-field",
             '_inputClass -> "input--medium input--cleared",
             '_type -> "email",
@@ -23,7 +23,7 @@
         )
         @input(
             emailForm("email.confirm"),
-            '_label -> "Confirm new email address",
+            '_label -> Messages("account.details.update.email.confirm"),
             '_divClass -> "form-field",
             '_type -> "email",
             '_inputClass -> "input--medium input--cleared"
