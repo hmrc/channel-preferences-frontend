@@ -24,17 +24,17 @@ sa_printing_preference.fg_page.title=Ewch yn ddi-bapur gyda CThEM
 sa_printing_preference.fg_page.choose_1=Gallwch ddewis cyfathrebu drwy ddull electronig, yn hytrach nag ar bapur, gyda CThEM.
 sa_printing_preference.fg_page.choose_2=Mae''r cyfathrebu electronig hyn yn cynnwys hysbysiadau statudol, penderfyniadau, amcangyfrifon a nodynnau atgoffa sy''n ymwneud â''ch materion treth, megis hysbysiadau i gyflwyno Ffurflen Dreth, gwneud taliad, cosbau sy''n ddyledus, neu wybodaeth am faterion eraill.
 sa_printing_preference.fg_page.choose_3=Pan fo gennych ddogfen gyfathrebu electronig newydd, byddwn yn anfon hysbysiad e-bost atoch yn gofyn i chi fewngofnodi i''ch cyfrif ar-lein gyda CThEM.
-#sa_printing_preference.fg_page.paperless=Go paperless now -- WELSH
+sa_printing_preference.fg_page.paperless=Ewch yn ddi-bapur nawr
 sa_printing_preference.fg_page.yes_send_email=Iawn, cyfathrebwch â mi drwy ddull electronig
 sa_printing_preference.fg_page.you_have_signed_up_1=Rydych wedi cofrestru i gyfathrebu''n ddigidol ar gyfer Credydau Treth gyda''r cyfeiriad e-bost hwn.
 sa_printing_preference.fg_page.you_have_signed_up_2=Os ydych am newid y cyfeiriad e-bost, gallwch wneud hyn nes ymlaen yn yr adran rheoli''ch cyfrif
 sa_printing_preference.fg_page.by_signing_up_1=Drwy gofrestru, rydych yn cadarnhau''r canlynol:
-sa_printing_preference.fg_page.by_signing_up_2=rydych am gael hysbysiadau statudol, penderfyniadau, amcangyfrifon a nodynnau atgoffa sy''n ymwneud â''ch materion trethdrwy ddull electronig
-sa_printing_preference.fg_page.by_signing_up_3=byddwch yn cadw''ch dewisiadau o ran cyfathrebu a''ch cyfeiriad e-bost wedi''u diweddaru drwy ddefnyddio''ch cyfrif ar-lein gyda CThEM, er mwyn gwneud yn siŵr eich bod yn cael eich hysbysiadau e-bost
+sa_printing_preference.fg_page.by_signing_up_2=rydych am gael hysbysiadau statudol, penderfyniadau, amcangyfrifon a nodynnau atgoffa sy''n ymwneud â''ch materion treth drwy ddull electronig
+sa_printing_preference.fg_page.by_signing_up_3=byddwch yn cadw''ch dewisiadau o ran cyfathrebu a''ch cyfeiriad e‑bost wedi''u diweddaru drwy ddefnyddio''ch cyfrif ar-lein gyda CThEM, er mwyn gwneud yn siŵr eich bod yn cael eich hysbysiadau e-bost
 sa_printing_preference.fg_page.keep_receiving=Na, rwyf am barhau i gael llythyrau
 tc_printing_preference.fg_page.title=A hoffech gael hysbysiadau e-bost eraill ynghylch eich credydau treth?
-#sa_printing_preference.tc.email.label=Email address -- WELSH
-#sa_printing_preference.tc.confirm.email.label=Confirm email address -- WELSH
+sa_printing_preference.tc.email.label=Cyfeiriad e-bost
+sa_printing_preference.tc.confirm.email.label=Cadarnhau cyfeiriad e-bost
 tc_printing_preference.submitButton=Yn eich blaen
 tc_printing_preference.tc.preLinkText=Rwy''n cytuno â''r {0}
 tc_printing_preference.tc.linkText=telerau ac amodau
@@ -62,12 +62,13 @@ sa_printing_preference.verification.heading.expired=Mae''r cysylltiad wedi dod i
 sa_printing_preference.verification.paragraph.1=Rydych nawr wedi cofrestru ar gyfer hysbysiadau di-bapur.
 sa_printing_preference.verification.already.paragraph.1=Mae''ch cyfeiriad e-bost wedi''i ddilysu eisoes.
 sa_printing_preference.verification.action=Yn eich blaen i''ch cyfrif ar-lein gyda CThEM
+sa_printing_preference.verification.action_text=a gwnewch gais am gysylltiad dilysu newydd
 sa_printing_preference.verification.heading.wrong_token=Rydych wedi defnyddio cysylltiad sydd bellach wedi dod i ben
 sa_printing_preference.verification.wrong_token.paragraph.1=Mae''n bosibl ei fod wedi cael ei anfon i hen gyfeiriad e-bost neu un gwahanol. Dylech ddefnyddio''r cysylltiad yn yr e-bost dilysu diwethaf a anfonwyd i''r cyfeiriad e-bost a nodwyd gennych.
 bt.account.yourdetails=Rheoli''r cyfrif
 bt.account.stopreminders=Atal e-byst gan CThEM
 
-#opted.back.into.paperless.title=Paperless notifications have stopped -- WELSH
+opted.back.into.paperless.title=Mae hysbysiadau di-bapur wedi dod i ben
 opted.back.into.paperless.para_1=Byddwch yn cael llythyrau unwaith eto, yn hytrach nag e-byst.
 opted.back.into.paperless.para_2=Anfonwyd e-bost atoch yn cadarnhau hyn.
 opted.back.into.paperless.para_3=Gallwch fynd yn ddi-bapur unwaith eto ar unrhyw adeg.
@@ -119,7 +120,7 @@ last.sign.in.not_you=os nad chi ydoedd.
 yta.header.nav.home=Hafan
 yta.header.nav.help=Help a chysylltu
 
-#tc_printing_preference.fg_page.nav_title=WELSH Tax credits service
+tc_printing_preference.fg_page.nav_title=Gwasanaeth Credydau Treth
 tc_printing_preference.fg_page.email_address=Y cyfeiriad e-bost y byddwn yn ei storio''n ddiogel yw
 tc_printing_preference.fg_page.confirm_message_1=Drwy ganiatáu i ni storio''ch cyfeiriad e-bost, rydych yn cadarnhau''r canlynol:
 tc_printing_preference.fg_page.confirm_message_2=eich bod am gael hysbysiadau a negeseuon annog ynghylch eich credydau treth
@@ -128,7 +129,7 @@ tc_printing_preference.fg_page.store_email=Iawn, storiwch fy nghyfeiriad e-bost
 tc_printing_preference.fg_page.do_not_store_email=Na, nid wyf am i''m cyfeiriad e-bost gael ei storio
 
 sa_printing_preference.token.expired.title=NID yw''ch cyfeiriad e-bost wedi''i ddilysu
-#sa_printing_preference.verification.action_text=WELSH 2
+sa_printing_preference.verification.action_text=a gwneud cais am gysylltiad dilysu newydd
 
 sa_printing_preference.email.failed.verified.title=Cyfeiriad e-bost wedi''i ddilysu eisoes
 
@@ -153,4 +154,4 @@ account.details.update.email.verify.correct=Mae''r cyfeiriad e-bost hwn yn gywir
 account.details.verification.email.title=E-bost dilysu wedi''i anfon
 account.details.verification.email.new_email=Mae e-bost newydd wedi''i anfon i {0}. Cliciwch ar y cysylltiad yn yr e-bost er mwyn dilysu''ch cyfeiriad e-bost gyda CThEM.
 
-#default.nav.links.text=eich cyfrif treth
+default.nav.links.text=Eich cyfrif treth
