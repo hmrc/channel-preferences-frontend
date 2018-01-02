@@ -27,7 +27,7 @@ class MainSpec extends UnitSpec with OneAppPerSuite with WelshLanguage {
       val email = ObfuscatedEmailAddress("a@a.com")
       val document = Jsoup.parse(main("title")(Html("Some HTML"))(None, welshRequest, messagesInWelsh(applicationMessages)).toString())
 
-//TODO :      document.getElementsByClass("header__menu__proposition-name").get(0).text() shouldBe "Your tax account WELSH"
+      document.getElementsByClass("header__menu__proposition-name").get(0).text() shouldBe "Eich cyfrif treth"
     }
   }
 }

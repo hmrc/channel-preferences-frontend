@@ -38,13 +38,13 @@ class IPageSpec extends UnitSpec with OneAppPerSuite with WelshLanguage {
       document.getElementsByClass("lede").first().text() shouldBe "Gallwch ddewis cyfathrebu drwy ddull electronig, yn hytrach nag ar bapur, gyda CThEM."
       document.getElementsByTag("p").get(2).text() shouldBe "Mae'r cyfathrebu electronig hyn yn cynnwys hysbysiadau statudol, penderfyniadau, amcangyfrifon a nodynnau atgoffa sy'n ymwneud â'ch materion treth, megis hysbysiadau i gyflwyno Ffurflen Dreth, gwneud taliad, cosbau sy'n ddyledus, neu wybodaeth am faterion eraill."
       document.getElementsByTag("p").get(3).text() shouldBe "Pan fo gennych ddogfen gyfathrebu electronig newydd, byddwn yn anfon hysbysiad e-bost atoch yn gofyn i chi fewngofnodi i'ch cyfrif ar-lein gyda CThEM."
-// TODO:       document.getElementsByTag("h2").get(0).text() shouldBe "Go paperless now"
+      document.getElementsByTag("h2").get(0).text() shouldBe "Ewch yn ddi-bapur nawr"
       document.getElementsByClass("selectable").get(0).text() shouldBe "Iawn, cyfathrebwch â mi drwy ddull electronig"
       document.getElementsByTag("p").get(4).childNodes().get(0).toString.trim shouldBe "Rydych wedi cofrestru i gyfathrebu'n ddigidol ar gyfer Credydau Treth gyda'r cyfeiriad e-bost hwn."
       document.getElementsByTag("p").get(4).childNodes().get(2).toString.trim shouldBe "Os ydych am newid y cyfeiriad e-bost, gallwch wneud hyn nes ymlaen yn yr adran rheoli'ch cyfrif"
       document.getElementsByTag("p").get(5).text() shouldBe "Drwy gofrestru, rydych yn cadarnhau'r canlynol:"
-      document.getElementsByTag("li").get(1).text() shouldBe "rydych am gael hysbysiadau statudol, penderfyniadau, amcangyfrifon a nodynnau atgoffa sy'n ymwneud â'ch materion trethdrwy ddull electronig"
-      document.getElementsByTag("li").get(2).text() shouldBe "byddwch yn cadw'ch dewisiadau o ran cyfathrebu a'ch cyfeiriad e-bost wedi'u diweddaru drwy ddefnyddio'ch cyfrif ar-lein gyda CThEM, er mwyn gwneud yn siŵr eich bod yn cael eich hysbysiadau e-bost"
+      document.getElementsByTag("li").get(1).text() shouldBe "rydych am gael hysbysiadau statudol, penderfyniadau, amcangyfrifon a nodynnau atgoffa sy'n ymwneud â'ch materion treth drwy ddull electronig"
+      document.getElementsByTag("li").get(2).text() shouldBe "byddwch yn cadw'ch dewisiadau o ran cyfathrebu a'ch cyfeiriad e‑bost wedi'u diweddaru drwy ddefnyddio'ch cyfrif ar-lein gyda CThEM, er mwyn gwneud yn siŵr eich bod yn cael eich hysbysiadau e-bost"
       document.getElementsByClass("selectable").get(1).text() shouldBe "Na, rwyf am barhau i gael llythyrau"
     }
   }

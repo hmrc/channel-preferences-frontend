@@ -34,7 +34,7 @@ class TcPageSpec  extends UnitSpec with OneAppPerSuite with WelshLanguage {
       val form = EmailForm().bind(Map("email.main" -> email))
       val document = Jsoup.parse(tc_page(form, internal.routes.ChoosePaperlessController.submitForm(TestFixtures.sampleHostContext))(welshRequest, messagesInWelsh(applicationMessages)).toString())
       document.getElementsByTag("title").text() shouldBe "A hoffech gael hysbysiadau e-bost eraill ynghylch eich credydau treth?"
-// TODO:      document.getElementsByClass("header__menu__proposition-name").get(0).text() shouldBe "Tax credits service"
+      document.getElementsByClass("header__menu__proposition-name").get(0).text() shouldBe "Gwasanaeth Credydau Treth"
       document.getElementsByTag("h1").get(0).text() shouldBe "A hoffech gael hysbysiadau e-bost eraill ynghylch eich credydau treth?"
       document.getElementById("email-display").text() shouldBe s"Y cyfeiriad e-bost y byddwn yn ei storio'n ddiogel yw $email"
       document.getElementsByTag("p").get(1).text() shouldBe "Drwy ganiatáu i ni storio'ch cyfeiriad e-bost, rydych yn cadarnhau'r canlynol:"

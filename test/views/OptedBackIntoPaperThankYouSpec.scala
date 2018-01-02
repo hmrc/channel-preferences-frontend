@@ -30,8 +30,8 @@ class OptedBackIntoPaperThankYouSpec extends UnitSpec with OneAppPerSuite with W
       val email = ObfuscatedEmailAddress("a@a.com")
       val document = Jsoup.parse(opted_back_into_paper_thank_you()(None, welshRequest, messagesInWelsh(applicationMessages), TestFixtures.sampleHostContext).toString())
 
-// TODO:      document.getElementsByTag("title").get(0).text() shouldBe "Paperless notifications have stopped WELSH"
-// TODO:      document.getElementsByTag("h1").get(0).text() shouldBe "Paperless notifications have stopped WELSH"
+      document.getElementsByTag("title").get(0).text() shouldBe "Mae hysbysiadau di-bapur wedi dod i ben"
+      document.getElementsByTag("h1").get(0).text() shouldBe "Mae hysbysiadau di-bapur wedi dod i ben"
       document.getElementsByTag("p").get(1).text() shouldBe "Byddwch yn cael llythyrau unwaith eto, yn hytrach nag e-byst."
       document.getElementsByTag("p").get(2).text() shouldBe "Anfonwyd e-bost atoch yn cadarnhau hyn."
       document.getElementsByTag("p").get(3).text() shouldBe "Gallwch fynd yn ddi-bapur unwaith eto ar unrhyw adeg."
