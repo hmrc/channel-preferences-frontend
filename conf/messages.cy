@@ -129,7 +129,7 @@ tc_printing_preference.fg_page.store_email=Iawn, storiwch fy nghyfeiriad e-bost
 tc_printing_preference.fg_page.do_not_store_email=Na, nid wyf am i''m cyfeiriad e-bost gael ei storio
 
 sa_printing_preference.token.expired.title=NID yw''ch cyfeiriad e-bost wedi''i ddilysu
-sa_printing_preference.verification.action_text=a gwneud cais am gysylltiad dilysu newydd
+sa_printing_preference.verification.action_text=a gwneud gais am gysylltiad dilysu newydd
 
 sa_printing_preference.email.failed.verified.title=Cyfeiriad e-bost wedi''i ddilysu eisoes
 

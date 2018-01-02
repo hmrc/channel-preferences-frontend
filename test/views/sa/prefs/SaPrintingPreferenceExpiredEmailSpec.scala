@@ -26,7 +26,7 @@ class SaPrintingPreferenceExpiredEmailSpec extends UnitSpec with OneAppPerSuite 
 
       document.getElementsByTag("title").first().text() shouldBe "NID yw'ch cyfeiriad e-bost wedi'i ddilysu"
       document.getElementById("link-to-home").childNodes().get(0).childNode(0).toString shouldBe "Yn eich blaen i'ch cyfrif ar-lein gyda CThEM"
-      document.getElementById("link-to-home").childNodes().get(1).toString.trim() shouldBe "a gwneud cais am gysylltiad dilysu newydd"
+      document.getElementById("link-to-home").childNodes().get(1).toString.trim() shouldBe "a gwneud gais am gysylltiad dilysu newydd"
     }
   }
 }
