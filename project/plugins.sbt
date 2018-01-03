@@ -14,7 +14,7 @@ addSbtPlugin("com.github.gseitz" % "sbt-release" % "0.8.4")
 
 addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.5.12")
 
-addSbtPlugin("uk.gov.hmrc" % "sbt-settings" % "3.3.0")
+addSbtPlugin("uk.gov.hmrc" % "sbt-settings" % "3.5.0")
 
 addSbtPlugin("uk.gov.hmrc" % "hmrc-resolvers" % "1.2.0")
 
