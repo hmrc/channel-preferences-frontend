@@ -1,14 +1,6 @@
 preferences-frontend
 ====================
 
-This has now been migrated to the open GitHub.
-
-https://github.com/hmrc/preferences-frontend
-
-The last internal version 6.43.0
-
-***
-
 UI for managing print suppression email addresses & preferences.
 
 For setting and changing preferences, whole pages are returned. Partial views are provided for integration into other frontends (such as business-tax-account).
