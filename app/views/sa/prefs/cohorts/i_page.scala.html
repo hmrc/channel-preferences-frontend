@@ -1,4 +1,5 @@
-@(emailForm: Form[_], submitPrefsFormAction: Call)(implicit request: Request[_], messages: Messages)
+@import play.api.i18n.Messages.Implicits._
+@(emailForm: Form[_], submitPrefsFormAction: Call)(implicit request: Request[_], lang:Lang, messages: Messages)
 
 @import uk.gov.hmrc.urls.Link
 @import uk.gov.hmrc.play.views.html.helpers._

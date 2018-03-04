@@ -5,6 +5,7 @@ import controllers.internal._
 import org.jsoup.Jsoup
 import org.scalatestplus.play.OneAppPerSuite
 import play.api.Application
+import play.api.i18n.Lang
 import play.api.i18n.Messages.Implicits._
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -21,7 +22,7 @@ class SaPrintingPreferenceViewSpec extends UnitSpec with OneAppPerSuite {
         emailForm = EmailForm(),
         submitPrefsFormAction = Call("GET", "/"),
         cohort = IPage
-      )(FakeRequest("GET", "/"), applicationMessages).toString())
+      )(FakeRequest("GET", "/"), Lang("gb"), applicationMessages).toString())
 
       document.getElementById("opt-in-in").hasAttr("checked") shouldBe true
     }

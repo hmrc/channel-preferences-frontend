@@ -29,4 +29,7 @@ object YtaConfig extends AppConfig with RunMode {
   override lazy val accountDetailsUrl              = ExternalUrls.accountDetails
   override lazy val helpUrl                        = ExternalUrls.helpUrl
   override lazy val signOutUrl                     = ExternalUrls.survey
+
+  def fallbackURLForLanguageSwitcher: String = loadConfig(s"$env.languageSwitcher.fallback.url")
+  def enableLanguageSwitching: Boolean = configuration.getBoolean(s"$env.enableLanguageSwitching").getOrElse(false)
 }

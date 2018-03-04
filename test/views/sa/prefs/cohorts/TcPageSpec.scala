@@ -19,7 +19,7 @@ class TcPageSpec  extends UnitSpec with OneAppPerSuite with WelshLanguage {
     "render the correct content in english" in {
       val email = "a@a.com"
       val form = EmailForm().bind(Map("email.main" -> email))
-      val document = Jsoup.parse(tc_page(form, internal.routes.ChoosePaperlessController.submitForm(TestFixtures.sampleHostContext))(FakeRequest("GET", "/"), applicationMessages).toString())
+      val document = Jsoup.parse(tc_page(form, internal.routes.ChoosePaperlessController.submitForm(TestFixtures.sampleHostContext))(FakeRequest("GET", "/"), langEn, applicationMessages).toString())
       document.getElementsByClass("header__menu__proposition-name").get(0).text() shouldBe "Tax credits service"
       document.getElementById("email-display").text() shouldBe s"The email address we we will store securely is $email"
       document.getElementsByTag("p").get(1).text() shouldBe "By letting us store your email address, you confirm that you:"
@@ -32,7 +32,7 @@ class TcPageSpec  extends UnitSpec with OneAppPerSuite with WelshLanguage {
     "render the correct content in welsh" in {
       val email = "a@a.com"
       val form = EmailForm().bind(Map("email.main" -> email))
-      val document = Jsoup.parse(tc_page(form, internal.routes.ChoosePaperlessController.submitForm(TestFixtures.sampleHostContext))(welshRequest, messagesInWelsh(applicationMessages)).toString())
+      val document = Jsoup.parse(tc_page(form, internal.routes.ChoosePaperlessController.submitForm(TestFixtures.sampleHostContext))(welshRequest, langCy, messagesInWelsh(applicationMessages)).toString())
       document.getElementsByTag("title").text() shouldBe "A hoffech gael hysbysiadau e-bost eraill ynghylch eich credydau treth?"
       document.getElementsByClass("header__menu__proposition-name").get(0).text() shouldBe "Gwasanaeth Credydau Treth"
       document.getElementsByTag("h1").get(0).text() shouldBe "A hoffech gael hysbysiadau e-bost eraill ynghylch eich credydau treth?"

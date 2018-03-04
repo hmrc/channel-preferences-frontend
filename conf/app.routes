@@ -4,3 +4,6 @@
 
 #metrics
 GET         /admin/metrics    @com.kenshoo.play.metrics.MetricsController.metrics
+
+GET    /help/switch-to-welsh           controllers.LanguageController.switchToWelsh()
+GET    /help/switch-to-english         controllers.LanguageController.switchToEnglish()

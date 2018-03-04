@@ -162,3 +162,10 @@ pending.email.verification.para_2=If you can''t find it you can get a new email 
 
 account.details.update.email.new=New email address
 account.details.update.email.confirm=Confirm new email address
+
+language-switcher.english=English
+language-switcher.english.hover=Use this account in English
+language-switcher.welsh=Cymraeg
+language-switcher.welsh.hover=Defnyddio''r cyfrif hwn yn Cymraeg
+
+

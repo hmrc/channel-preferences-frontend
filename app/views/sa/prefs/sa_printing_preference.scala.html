@@ -1,5 +1,5 @@
 @import play.api.i18n.Messages.Implicits._
-@(emailForm: Form[_], submitPrefsFormAction: Call, cohort: controllers.internal.OptInCohort)(implicit request: Request[_], messages: Messages)
+@(emailForm: Form[_], submitPrefsFormAction: Call, cohort: controllers.internal.OptInCohort)(implicit request: Request[_], lang : Lang, messages: Messages)
 
 @import views.html.sa.prefs.cohorts._
     @import controllers.internal._

@@ -18,7 +18,7 @@ class IPageSpec extends UnitSpec with OneAppPerSuite with WelshLanguage {
   "I Page Template" should {
     "render the correct content in english" in {
       val form = EmailForm().bind(Map("emailAlreadyStored" -> "true"))
-      val document = Jsoup.parse(i_page(form, internal.routes.ChoosePaperlessController.submitForm(TestFixtures.sampleHostContext))(FakeRequest("GET", "/"), applicationMessages).toString())
+      val document = Jsoup.parse(i_page(form, internal.routes.ChoosePaperlessController.submitForm(TestFixtures.sampleHostContext))(FakeRequest("GET", "/"), langEn, applicationMessages).toString())
       document.getElementsByClass("lede").first().text() shouldBe "You can choose to get electronic communications instead of letters from HMRC."
       document.getElementsByTag("p").get(2).text() shouldBe "These electronic communications include statutory notices, decisions, estimates and reminders relating to your tax affairs, such as notices to file a tax return, make a payment, penalties due, or information about other matters."
       document.getElementsByTag("p").get(3).text() shouldBe "When you have a new electronic communication we will send you an email notification requiring you to log in to your HMRC online account."
@@ -34,7 +34,7 @@ class IPageSpec extends UnitSpec with OneAppPerSuite with WelshLanguage {
 
     "render the correct content in welsh" in {
       val form = EmailForm().bind(Map("emailAlreadyStored" -> "true"))
-      val document = Jsoup.parse(i_page(form, internal.routes.ChoosePaperlessController.submitForm(TestFixtures.sampleHostContext))(welshRequest, messagesInWelsh(applicationMessages)).toString())
+      val document = Jsoup.parse(i_page(form, internal.routes.ChoosePaperlessController.submitForm(TestFixtures.sampleHostContext))(welshRequest, langCy,  messagesInWelsh(applicationMessages)).toString())
       document.getElementsByClass("lede").first().text() shouldBe "Gallwch ddewis cyfathrebu drwy ddull electronig, yn hytrach nag ar bapur, gyda CThEM."
       document.getElementsByTag("p").get(2).text() shouldBe "Mae'r cyfathrebu electronig hyn yn cynnwys hysbysiadau statudol, penderfyniadau, amcangyfrifon a nodynnau atgoffa sy'n ymwneud â'ch materion treth, megis hysbysiadau i gyflwyno Ffurflen Dreth, gwneud taliad, cosbau sy'n ddyledus, neu wybodaeth am faterion eraill."
       document.getElementsByTag("p").get(3).text() shouldBe "Pan fo gennych ddogfen gyfathrebu electronig newydd, byddwn yn anfon hysbysiad e-bost atoch yn gofyn i chi fewngofnodi i'ch cyfrif ar-lein gyda CThEM."

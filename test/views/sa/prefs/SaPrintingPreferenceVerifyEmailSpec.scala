@@ -15,13 +15,13 @@ class SaPrintingPreferenceVerifyEmailSpec extends UnitSpec with OneAppPerSuite w
 
   "printing preferences verify email template" should {
     "render the correct content in english" in {
-      val document = Jsoup.parse(sa_printing_preference_verify_email(None, None)(FakeRequest("GET", "/"), applicationMessages).toString())
+      val document = Jsoup.parse(sa_printing_preference_verify_email(None, None)(FakeRequest("GET", "/"), langEn, applicationMessages).toString())
 
       document.getElementsByTag("title").first().text() shouldBe "Email address verified"
     }
 
     "render the correct content in welsh" in {
-      val document = Jsoup.parse(sa_printing_preference_verify_email(None, None)(welshRequest, messagesInWelsh(applicationMessages)).toString())
+      val document = Jsoup.parse(sa_printing_preference_verify_email(None, None)(welshRequest, langCy, messagesInWelsh(applicationMessages)).toString())
 
       document.getElementsByTag("title").first().text() shouldBe "Cyfeiriad e-bost wedi'i ddilysu"
       document.getElementById("success-heading").text() shouldBe "Cyfeiriad e-bost wedi'i ddilysu"
