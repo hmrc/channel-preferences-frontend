@@ -5,6 +5,7 @@ import controllers.internal._
 import org.jsoup.Jsoup
 import org.scalatestplus.play.OneAppPerSuite
 import play.api.Application
+import play.api.i18n.Lang
 import play.api.i18n.Messages.Implicits._
 import play.api.mvc.Call
 import play.api.test.FakeRequest

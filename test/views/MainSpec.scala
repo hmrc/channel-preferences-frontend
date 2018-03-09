@@ -4,6 +4,7 @@ import _root_.helpers.{ConfigHelper, WelshLanguage}
 import org.jsoup.Jsoup
 import org.scalatestplus.play.OneAppPerSuite
 import play.api.Application
+import play.api.i18n.Lang
 import play.api.i18n.Messages.Implicits.applicationMessages
 import play.api.test.FakeRequest
 import play.twirl.api.Html

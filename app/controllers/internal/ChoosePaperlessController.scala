@@ -6,15 +6,16 @@ import controllers.internal.EmailOptInJourney._
 import controllers.internal.PaperlessChoice.OptedIn
 import controllers.{Authentication, FindTaxIdentifier, internal}
 import model.{Encrypted, HostContext}
-import play.api.Play
+import play.api.{Application, Play}
 import play.api.Play.current
 import play.api.data.Form
 import play.api.i18n.Messages.Implicits._
+import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
 import play.api.mvc._
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.audit.AuditExtensions._
-import uk.gov.hmrc.play.audit.http.connector.{AuditResult, AuditConnector}
+import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.{EventTypes, ExtendedDataEvent}
 import uk.gov.hmrc.play.config.AppName
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
@@ -65,7 +66,8 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
   private def createRedirectToDisplayFormWithCohort(emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext)(implicit authContext: AuthContext, request: Request[_]) =
     Redirect(routes.ChoosePaperlessController.displayForm(Some(calculateCohort(hostContext)), emailAddress, hostContext))
 
-  def displayForm(implicit cohort: Option[OptInCohort], emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = authenticated.async { implicit authContext => implicit request =>
+  def displayForm(cohort: Option[OptInCohort], emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext): Action[AnyContent] = authenticated.async { implicit authContext =>implicit request =>
+
     cohort.fold(ifEmpty = Future.successful(createRedirectToDisplayFormWithCohort(emailAddress, hostContext))) { cohort => {
       auditPageShown(authContext, AccountDetails, cohort)
       val email = emailAddress.map(_.decryptedValue)
@@ -76,6 +78,7 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
         } else {
           OptInDetailsForm().fill(OptInDetailsForm.Data(emailAddress = email, preference = None, acceptedTcs = None, emailAlreadyStored = Some(emailAlreadyStored)))
         }
+
 
 
       hasStoredEmail(hostContext, None, None).map(emailAlreadyStored =>

@@ -155,3 +155,9 @@ account.details.verification.email.title=E-bost dilysu wedi''i anfon
 account.details.verification.email.new_email=Mae e-bost newydd wedi''i anfon i {0}. Cliciwch ar y cysylltiad yn yr e-bost er mwyn dilysu''ch cyfeiriad e-bost gyda CThEM.
 
 default.nav.links.text=Eich cyfrif treth
+
+
+language-switcher.english=English
+language-switcher.english.hover=Use this account in English
+language-switcher.welsh=Cymraeg
+language-switcher.welsh.hover=Defnyddio''r cyfrif hwn yn Cymraeg

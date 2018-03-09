@@ -24,7 +24,7 @@ class PendingEmailVerificationSpec extends UnitSpec with OneAppPerSuite with Wel
       val formattedLocalDate = DateFormat.longDateFormat(Some(localDate))
       val emailPreference = EmailPreference(emailAddress, true, true, false, Some(localDate))
       val errors = Seq((FormError("ErrorKey", Seq("Error Message"), Seq()), "Outer Error Message"))
-      val document = Jsoup.parse(pending_email_verification(emailPreference, "returnUrl", "returnLinkText")(FakeRequest(), applicationMessages, langEn).toString())
+      val document = Jsoup.parse(pending_email_verification(emailPreference, "returnUrl", "returnLinkText")(FakeRequest(), applicationMessages).toString())
 
       document.getElementsByTag("summary").first().childNode(0).toString() shouldBe "Verify your email address for paperless notifications"
       document.getElementsByClass("flag--urgent").first().text() shouldBe "Now"
@@ -38,7 +38,7 @@ class PendingEmailVerificationSpec extends UnitSpec with OneAppPerSuite with Wel
       val formattedLocalDate = DateFormat.longDateFormat(Some(localDate))
       val emailPreference = EmailPreference(emailAddress, true, true, false, Some(localDate))
       val errors = Seq((FormError("ErrorKey", Seq("Error Message"), Seq()), "Outer Error Message"))
-      val document = Jsoup.parse(pending_email_verification(emailPreference, "returnUrl", "returnLinkText")(welshRequest, messagesInWelsh(applicationMessages), langCy).toString())
+      val document = Jsoup.parse(pending_email_verification(emailPreference, "returnUrl", "returnLinkText")(welshRequest, messagesInWelsh(applicationMessages)).toString())
 
       document.getElementsByTag("summary").first().childNode(0).toString() shouldBe "Dilyswch eich cyfeiriad e-bost ar gyfer hysbysiadau di-bapur"
       document.getElementsByClass("flag--urgent").first().text() shouldBe "Nawr"
