@@ -14,7 +14,7 @@ class DigitalFalseSpec extends UnitSpec with OneAppPerSuite with WelshLanguage {
 
   "digital false partial" should {
     "render the correct content in english" in {
-      val document = Jsoup.parse(digital_false(None)(TestFixtures.sampleHostContext, applicationMessages, langEn).toString())
+      val document = Jsoup.parse(digital_false(None)(TestFixtures.sampleHostContext, applicationMessages).toString())
 
       document.getElementById("saEmailRemindersHeader").text() shouldBe "Go paperless"
       document.getElementById("opt-out-status-message").text() shouldBe "Replace the letters you get about taxes with emails."
@@ -22,7 +22,7 @@ class DigitalFalseSpec extends UnitSpec with OneAppPerSuite with WelshLanguage {
     }
 
     "render the correct content in welsh" in {
-      val document = Jsoup.parse(digital_false(None)(TestFixtures.sampleHostContext, messagesInWelsh(applicationMessages), langCy).toString())
+      val document = Jsoup.parse(digital_false(None)(TestFixtures.sampleHostContext, messagesInWelsh(applicationMessages)).toString())
 
       document.getElementById("saEmailRemindersHeader").text() shouldBe "Ewch yn ddi-bapur"
       document.getElementById("opt-out-status-message").text() shouldBe "Cael e-byst, yn lle'r llythyrau a gewch, ynghylch trethi."

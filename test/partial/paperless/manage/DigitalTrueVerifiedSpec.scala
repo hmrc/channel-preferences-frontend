@@ -18,7 +18,7 @@ class DigitalTrueVerifiedSpec extends UnitSpec with OneAppPerSuite with WelshLan
     "render the correct content in english" in {
       val emailAddress = "a@a.com"
       val email = EmailPreference(emailAddress, true, true, false, None)
-      val document = Jsoup.parse(digital_true_verified(email)(FakeRequest(), applicationMessages, TestFixtures.sampleHostContext, langEn).toString())
+      val document = Jsoup.parse(digital_true_verified(email)(FakeRequest(), applicationMessages, TestFixtures.sampleHostContext).toString())
 
       document.getElementById("saEmailRemindersHeader").text() shouldBe "Email address for HMRC digital communications"
       document.getElementsByTag("p").get(0).childNodes().get(0).toString() shouldBe "Emails are sent to: "
@@ -27,7 +27,7 @@ class DigitalTrueVerifiedSpec extends UnitSpec with OneAppPerSuite with WelshLan
     "render the correct content in welsh" in {
       val emailAddress = "a@a.com"
       val email = EmailPreference(emailAddress, true, true, false, None)
-      val document = Jsoup.parse(digital_true_verified(email)(welshRequest, messagesInWelsh(applicationMessages), TestFixtures.sampleHostContext, langCy).toString())
+      val document = Jsoup.parse(digital_true_verified(email)(welshRequest, messagesInWelsh(applicationMessages), TestFixtures.sampleHostContext).toString())
 
       document.getElementById("saEmailRemindersHeader").text() shouldBe "Cyfeiriad e-bost ar gyfer cyfathrebu'n ddigidol â CThEM"
       document.getElementsByTag("p").get(0).childNodes().get(0).toString() shouldBe "Anfonir e-byst at: "

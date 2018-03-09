@@ -1,4 +1,4 @@
-@(errors: Seq[(FormError, String)])(implicit request: Request[_], messages: Messages, lang: Lang)
+@(errors: Seq[(FormError, String)])(implicit request: Request[_], messages: Messages)
 
 @if(errors.nonEmpty) {
     <section>

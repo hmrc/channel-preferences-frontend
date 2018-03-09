@@ -19,7 +19,7 @@ class DigitalTrueLinksSpec extends UnitSpec with OneAppPerSuite with WelshLangua
       val emailAddress = "a@a.com"
       val linkId = "test_id"
       val email = EmailPreference(emailAddress, true, true, false, None)
-      val document = Jsoup.parse(digital_true_links(email, linkId)(FakeRequest(), applicationMessages, TestFixtures.sampleHostContext, langEn).toString())
+      val document = Jsoup.parse(digital_true_links(email, linkId)(FakeRequest(), applicationMessages, TestFixtures.sampleHostContext).toString())
 
       document.getElementById(linkId).text() shouldBe "Change your email address"
       document.getElementById("opt-out-of-email-link").text() shouldBe "Stop emails from HMRC"
@@ -29,7 +29,7 @@ class DigitalTrueLinksSpec extends UnitSpec with OneAppPerSuite with WelshLangua
       val emailAddress = "a@a.com"
       val linkId = "test_id"
       val email = EmailPreference(emailAddress, true, true, false, None)
-      val document = Jsoup.parse(digital_true_links(email, linkId)(welshRequest, messagesInWelsh(applicationMessages), TestFixtures.sampleHostContext, langCy).toString())
+      val document = Jsoup.parse(digital_true_links(email, linkId)(welshRequest, messagesInWelsh(applicationMessages), TestFixtures.sampleHostContext).toString())
 
       document.getElementById(linkId).text() shouldBe "Newid eich cyfeiriad e-bost"
       document.getElementById("opt-out-of-email-link").text() shouldBe "Atal e-byst gan CThEM"

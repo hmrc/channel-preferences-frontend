@@ -22,7 +22,7 @@ class SaPrintingPreferenceViewSpec extends UnitSpec with OneAppPerSuite {
         emailForm = EmailForm(),
         submitPrefsFormAction = Call("GET", "/"),
         cohort = IPage
-      )(FakeRequest("GET", "/"), Lang("gb"), applicationMessages).toString())
+      )(FakeRequest("GET", "/"), applicationMessages).toString())
 
       document.getElementById("opt-in-in").hasAttr("checked") shouldBe true
     }

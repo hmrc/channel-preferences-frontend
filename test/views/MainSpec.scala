@@ -19,14 +19,14 @@ class MainSpec extends UnitSpec with OneAppPerSuite with WelshLanguage {
   "main template" should {
     "render the correct content in english" in {
       val email = ObfuscatedEmailAddress("a@a.com")
-      val document = Jsoup.parse(main("title")(Html("Some HTML"))(None, FakeRequest("GET", "/"), Lang("gb"), applicationMessages).toString())
+      val document = Jsoup.parse(main("title")(Html("Some HTML"))(None, FakeRequest("GET", "/"), applicationMessages).toString())
 
       document.getElementsByClass("header__menu__proposition-name").get(0).text() shouldBe "Your tax account"
     }
 
     "render the correct content in welsh" in {
       val email = ObfuscatedEmailAddress("a@a.com")
-      val document = Jsoup.parse(main("title")(Html("Some HTML"))(None, welshRequest, Lang("cy"), messagesInWelsh(applicationMessages)).toString())
+      val document = Jsoup.parse(main("title")(Html("Some HTML"))(None, welshRequest, messagesInWelsh(applicationMessages)).toString())
 
       document.getElementsByClass("header__menu__proposition-name").get(0).text() shouldBe "Eich cyfrif treth"
     }

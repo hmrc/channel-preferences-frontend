@@ -1,7 +1,7 @@
-@(enableLanguageSwitching: Boolean)(implicit lang : Lang, messages: Messages)
+@(enableLanguageSwitching: Boolean)(implicit messages: Messages)
 
     <li>
-    @if(lang.code == "en") {
+    @if(messages.lang.language.toLowerCase == "en") {
         <a id="switch-language" href="@controllers.routes.LanguageController.switchToWelsh" data-journey-click="Language:Click:Welsh">@Messages("language-switcher.welsh")</a>
     } else {
         <a id="switch-language" href="@controllers.routes.LanguageController.switchToEnglish" data-journey-click="Language:Click:English">@Messages("language-switcher.english")</a>
