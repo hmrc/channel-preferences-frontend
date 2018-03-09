@@ -19,13 +19,12 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.audit.model.{EventTypes, ExtendedDataEvent}
+import uk.gov.hmrc.play.audit.model.{EventTypes, MergedDataEvent}
 import uk.gov.hmrc.play.frontend.auth._
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
-
 
 abstract class ChoosePaperlessControllerSetup extends MockitoSugar {
 
@@ -132,34 +131,34 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
       val page = controller.displayForm(Some(assignedCohort), None, TestFixtures.sampleHostContext)(request)
       status(page) shouldBe 200
 
-      val eventArg: ArgumentCaptor[ExtendedDataEvent] = ArgumentCaptor.forClass(classOf[ExtendedDataEvent])
-      verify(mockAuditConnector).sendExtendedEvent(eventArg.capture())(any(), any())
+      val eventArg: ArgumentCaptor[MergedDataEvent] = ArgumentCaptor.forClass(classOf[MergedDataEvent])
+      verify(mockAuditConnector).sendMergedEvent(eventArg.capture())(any(), any())
 
-      private val value: ExtendedDataEvent = eventArg.getValue
+      private val value: MergedDataEvent = eventArg.getValue
       value.auditSource shouldBe "preferences-frontend"
       value.auditType shouldBe EventTypes.Succeeded
-      value.tags should contain("transactionName" -> "Show Print Preference Option")
-      value.detail \ "cohort" shouldBe JsDefined(JsString(assignedCohort.toString))
-      value.detail \ "journey" shouldBe JsDefined(JsString("AccountDetails"))
-      value.detail \ "utr" shouldBe JsDefined(JsString(validUtr.value))
-      value.detail \ "nino" shouldBe JsDefined(JsString("N/A"))
+      value.request.tags should contain("transactionName" -> "Show Print Preference Option")
+      value.request.detail("cohort") shouldBe assignedCohort.toString
+      value.request.detail("journey") shouldBe "AccountDetails"
+      value.request.detail("utr") shouldBe validUtr.value
+      value.request.detail("nino") shouldBe "N/A"
     }
 
     "audit the cohort information for the account details page for svc" in new ChoosePaperlessControllerSetup {
       val page = controller.displayFormBySvc("mtdfbit", "token", None, TestFixtures.sampleHostContext)(request)
       status(page) shouldBe 200
 
-      val eventArg: ArgumentCaptor[ExtendedDataEvent] = ArgumentCaptor.forClass(classOf[ExtendedDataEvent])
-      verify(mockAuditConnector).sendExtendedEvent(eventArg.capture())(any(), any())
+      val eventArg: ArgumentCaptor[MergedDataEvent] = ArgumentCaptor.forClass(classOf[MergedDataEvent])
+      verify(mockAuditConnector).sendMergedEvent(eventArg.capture())(any(), any())
 
-      private val value: ExtendedDataEvent = eventArg.getValue
+      private val value: MergedDataEvent = eventArg.getValue
       value.auditSource shouldBe "preferences-frontend"
       value.auditType shouldBe EventTypes.Succeeded
-      value.tags should contain("transactionName" -> "Show Print Preference Option")
-      value.detail \ "cohort" shouldBe JsDefined(JsString(assignedCohort.toString))
-      value.detail \ "journey" shouldBe JsDefined(JsString("AccountDetails"))
-      value.detail \ "utr" shouldBe JsDefined(JsString(validUtr.value))
-      value.detail \ "nino" shouldBe JsDefined(JsString("N/A"))
+      value.request.tags should contain("transactionName" -> "Show Print Preference Option")
+      value.request.detail("cohort")shouldBe assignedCohort.toString
+      value.request.detail("journey") shouldBe "AccountDetails"
+      value.request.detail("utr") shouldBe validUtr.value
+      value.request.detail("nino") shouldBe "N/A"
     }
 
     "redirect to a re-calculated cohort when no cohort is supplied" in new ChoosePaperlessControllerSetup {
@@ -505,7 +504,6 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
     }
   }
 
-
   "An audit event" should {
 
     "be created as EventTypes.Succeeded when a new user is activated on submitting a print preference from IPage" in new ChoosePaperlessControllerSetup {
@@ -520,21 +518,21 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
 
       status(page) shouldBe 303
 
-      val eventArg: ArgumentCaptor[ExtendedDataEvent] = ArgumentCaptor.forClass(classOf[ExtendedDataEvent])
-      verify(mockAuditConnector).sendExtendedEvent(eventArg.capture())(any(), any())
+      val eventArg: ArgumentCaptor[MergedDataEvent] = ArgumentCaptor.forClass(classOf[MergedDataEvent])
+      verify(mockAuditConnector).sendMergedEvent(eventArg.capture())(any(), any())
 
-      private val value: ExtendedDataEvent = eventArg.getValue
+      private val value: MergedDataEvent = eventArg.getValue
       value.auditSource shouldBe "preferences-frontend"
       value.auditType shouldBe EventTypes.Succeeded
-      value.tags should contain("transactionName" -> "Set Print Preference")
-      value.detail \ "cohort" shouldBe JsDefined(JsString("IPage"))
-      value.detail \ "journey" shouldBe JsDefined(JsString("AccountDetails"))
-      value.detail \ "utr" shouldBe JsDefined(JsString(validUtr.value))
-      value.detail \ "nino" shouldBe JsDefined(JsString("N/A"))
-      value.detail \ "email" shouldBe JsDefined(JsString("someone@email.com"))
-      value.detail \ "digital" shouldBe JsDefined(JsString("true"))
-      value.detail \ "userConfirmedReadTandCs" shouldBe JsDefined(JsString("true"))
-      value.detail \ "newUserPreferencesCreated" shouldBe JsDefined(JsString("true"))
+      value.request.tags should contain("transactionName" -> "Set Print Preference")
+      value.request.detail("cohort") shouldBe "IPage"
+      value.request.detail("journey") shouldBe "AccountDetails"
+      value.request.detail("utr") shouldBe validUtr.value
+      value.request.detail("nino") shouldBe "N/A"
+      value.request.detail("email") shouldBe "someone@email.com"
+      value.request.detail("digital") shouldBe "true"
+      value.request.detail("userConfirmedReadTandCs") shouldBe "true"
+      value.request.detail("newUserPreferencesCreated") shouldBe "true"
     }
 
     "be created as EventTypes.Succeeded when an existing user is activated on submitting a print preference from IPage" in new ChoosePaperlessControllerSetup {
@@ -549,21 +547,21 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
 
       status(page) shouldBe 303
 
-      val eventArg: ArgumentCaptor[ExtendedDataEvent] = ArgumentCaptor.forClass(classOf[ExtendedDataEvent])
-      verify(mockAuditConnector).sendExtendedEvent(eventArg.capture())(any(), any())
+      val eventArg: ArgumentCaptor[MergedDataEvent] = ArgumentCaptor.forClass(classOf[MergedDataEvent])
+      verify(mockAuditConnector).sendMergedEvent(eventArg.capture())(any(), any())
 
-      private val value: ExtendedDataEvent = eventArg.getValue
+      private val value: MergedDataEvent = eventArg.getValue
       value.auditSource shouldBe "preferences-frontend"
       value.auditType shouldBe EventTypes.Succeeded
-      value.tags should contain("transactionName" -> "Set Print Preference")
-      value.detail \ "cohort" shouldBe JsDefined(JsString("IPage"))
-      value.detail \ "journey" shouldBe JsDefined(JsString("AccountDetails"))
-      value.detail \ "utr" shouldBe JsDefined(JsString(validUtr.value))
-      value.detail \ "nino" shouldBe JsDefined(JsString("N/A"))
-      value.detail \ "email" shouldBe JsDefined(JsString("someone@email.com"))
-      value.detail \ "digital" shouldBe JsDefined(JsString("true"))
-      value.detail \ "userConfirmedReadTandCs" shouldBe JsDefined(JsString("true"))
-      value.detail \ "newUserPreferencesCreated" shouldBe JsDefined(JsString("false"))
+      value.request.tags should contain("transactionName" -> "Set Print Preference")
+      value.request.detail("cohort") shouldBe "IPage"
+      value.request.detail("journey") shouldBe "AccountDetails"
+      value.request.detail("utr") shouldBe validUtr.value
+      value.request.detail("nino") shouldBe "N/A"
+      value.request.detail("email") shouldBe "someone@email.com"
+      value.request.detail("digital") shouldBe "true"
+      value.request.detail("userConfirmedReadTandCs") shouldBe "true"
+      value.request.detail("newUserPreferencesCreated") shouldBe "false"
     }
 
     "be created as EventTypes.Succeeded when choosing to not opt in" in new ChoosePaperlessControllerSetup {
@@ -579,24 +577,23 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
 
       status(page) shouldBe 303
 
-      val eventArg: ArgumentCaptor[ExtendedDataEvent] = ArgumentCaptor.forClass(classOf[ExtendedDataEvent])
-      verify(mockAuditConnector).sendExtendedEvent(eventArg.capture())(any(), any())
+      val eventArg: ArgumentCaptor[MergedDataEvent] = ArgumentCaptor.forClass(classOf[MergedDataEvent])
+      verify(mockAuditConnector).sendMergedEvent(eventArg.capture())(any(), any())
 
-      private val value: ExtendedDataEvent = eventArg.getValue
+      private val value: MergedDataEvent = eventArg.getValue
       value.auditSource shouldBe "preferences-frontend"
       value.auditType shouldBe EventTypes.Succeeded
-      value.tags should contain("transactionName" -> "Set Print Preference")
-      value.detail \ "cohort" shouldBe JsDefined(JsString("IPage"))
-      value.detail \ "journey" shouldBe JsDefined(JsString("AccountDetails"))
-      value.detail \ "utr" shouldBe JsDefined(JsString(validUtr.value))
-      value.detail \ "nino" shouldBe JsDefined(JsString("N/A"))
-      value.detail \ "email" shouldBe JsDefined(JsString(""))
-      value.detail \ "digital" shouldBe JsDefined(JsString("false"))
-      value.detail \ "userConfirmedReadTandCs" shouldBe JsDefined(JsString("false"))
-      value.detail \ "newUserPreferencesCreated" shouldBe JsDefined(JsString("true"))
+      value.request.tags should contain("transactionName" -> "Set Print Preference")
+      value.request.detail("cohort") shouldBe "IPage"
+      value.request.detail("journey") shouldBe "AccountDetails"
+      value.request.detail("utr") shouldBe validUtr.value
+      value.request.detail("nino") shouldBe "N/A"
+      value.request.detail("email") shouldBe ""
+      value.request.detail("digital") shouldBe "false"
+      value.request.detail("userConfirmedReadTandCs") shouldBe "false"
+      value.request.detail("newUserPreferencesCreated") shouldBe "true"
     }
   }
-
 }
 
 class ChoosePaperlessControllerSpecTC extends UnitSpec with MockitoSugar with OneAppPerSuite {
@@ -648,17 +645,17 @@ class ChoosePaperlessControllerSpecTC extends UnitSpec with MockitoSugar with On
       val page = controller.displayForm(Some(assignedCohort), None, TestFixtures.taxCreditsHostContext(""))(request)
       status(page) shouldBe 200
 
-      val eventArg: ArgumentCaptor[ExtendedDataEvent] = ArgumentCaptor.forClass(classOf[ExtendedDataEvent])
-      verify(mockAuditConnector).sendExtendedEvent(eventArg.capture())(any(), any())
+      val eventArg: ArgumentCaptor[MergedDataEvent] = ArgumentCaptor.forClass(classOf[MergedDataEvent])
+      verify(mockAuditConnector).sendMergedEvent(eventArg.capture())(any(), any())
 
-      private val value: ExtendedDataEvent = eventArg.getValue
+      private val value: MergedDataEvent = eventArg.getValue
       value.auditSource shouldBe "preferences-frontend"
       value.auditType shouldBe EventTypes.Succeeded
-      value.tags should contain("transactionName" -> "Show Print Preference Option")
-      value.detail \ "cohort" shouldBe JsDefined(JsString(assignedCohort.toString))
-      value.detail \ "journey" shouldBe JsDefined(JsString("AccountDetails"))
-      value.detail \ "utr" shouldBe JsDefined(JsString(validUtr.value))
-      value.detail \ "nino" shouldBe JsDefined(JsString("N/A"))
+      value.request.tags should contain("transactionName" -> "Show Print Preference Option")
+      value.request.detail("cohort") shouldBe assignedCohort.toString
+      value.request.detail("journey") shouldBe "AccountDetails"
+      value.request.detail("utr") shouldBe validUtr.value
+      value.request.detail("nino") shouldBe "N/A"
     }
 
     "redirect to a re-calculated cohort when no cohort is supplied" in new ChoosePaperlessControllerSetup {
@@ -1016,21 +1013,21 @@ class ChoosePaperlessControllerSpecTC extends UnitSpec with MockitoSugar with On
 
       status(page) shouldBe 303
 
-      val eventArg: ArgumentCaptor[ExtendedDataEvent] = ArgumentCaptor.forClass(classOf[ExtendedDataEvent])
-      verify(mockAuditConnector).sendExtendedEvent(eventArg.capture())(any(), any())
+      val eventArg: ArgumentCaptor[MergedDataEvent] = ArgumentCaptor.forClass(classOf[MergedDataEvent])
+      verify(mockAuditConnector).sendMergedEvent(eventArg.capture())(any(), any())
 
-      private val value: ExtendedDataEvent = eventArg.getValue
+      private val value: MergedDataEvent = eventArg.getValue
       value.auditSource shouldBe "preferences-frontend"
       value.auditType shouldBe EventTypes.Succeeded
-      value.tags should contain("transactionName" -> "Set Print Preference")
-      value.detail \ "cohort" shouldBe JsDefined(JsString("TCPage"))
-      value.detail \ "journey" shouldBe JsDefined(JsString("AccountDetails"))
-      value.detail \ "utr" shouldBe JsDefined(JsString(validUtr.value))
-      value.detail \ "nino" shouldBe JsDefined(JsString("N/A"))
-      value.detail \ "email" shouldBe JsDefined(JsString("someone@email.com"))
-      value.detail \ "digital" shouldBe JsDefined(JsString("true"))
-      value.detail \ "userConfirmedReadTandCs" shouldBe JsDefined(JsString("true"))
-      value.detail \ "newUserPreferencesCreated" shouldBe JsDefined(JsString("true"))
+      value.request.tags should contain("transactionName" -> "Set Print Preference")
+      value.request.detail("cohort") shouldBe "TCPage"
+      value.request.detail("journey") shouldBe "AccountDetails"
+      value.request.detail("utr") shouldBe validUtr.value
+      value.request.detail("nino") shouldBe "N/A"
+      value.request.detail("email") shouldBe "someone@email.com"
+      value.request.detail("digital") shouldBe "true"
+      value.request.detail("userConfirmedReadTandCs") shouldBe "true"
+      value.request.detail("newUserPreferencesCreated") shouldBe "true"
     }
 
     "be created as EventTypes.Succeeded when an existing user is activated on submitting a print preference from TCPage" in new ChoosePaperlessControllerSetup {
@@ -1044,21 +1041,21 @@ class ChoosePaperlessControllerSpecTC extends UnitSpec with MockitoSugar with On
 
       status(page) shouldBe 303
 
-      val eventArg: ArgumentCaptor[ExtendedDataEvent] = ArgumentCaptor.forClass(classOf[ExtendedDataEvent])
-      verify(mockAuditConnector).sendExtendedEvent(eventArg.capture())(any(), any())
+      val eventArg: ArgumentCaptor[MergedDataEvent] = ArgumentCaptor.forClass(classOf[MergedDataEvent])
+      verify(mockAuditConnector).sendMergedEvent(eventArg.capture())(any(), any())
 
-      private val value: ExtendedDataEvent = eventArg.getValue
+      private val value: MergedDataEvent = eventArg.getValue
       value.auditSource shouldBe "preferences-frontend"
       value.auditType shouldBe EventTypes.Succeeded
-      value.tags should contain("transactionName" -> "Set Print Preference")
-      value.detail \ "cohort" shouldBe JsDefined(JsString("TCPage"))
-      value.detail \ "journey" shouldBe JsDefined(JsString("AccountDetails"))
-      value.detail \ "utr" shouldBe JsDefined(JsString(validUtr.value))
-      value.detail \ "nino" shouldBe JsDefined(JsString("N/A"))
-      value.detail \ "email" shouldBe JsDefined(JsString("someone@email.com"))
-      value.detail \ "digital" shouldBe JsDefined(JsString("true"))
-      value.detail \ "userConfirmedReadTandCs" shouldBe JsDefined(JsString("true"))
-      value.detail \ "newUserPreferencesCreated" shouldBe JsDefined(JsString("false"))
+      value.request.tags should contain("transactionName" -> "Set Print Preference")
+      value.request.detail("cohort") shouldBe "TCPage"
+      value.request.detail("journey") shouldBe "AccountDetails"
+      value.request.detail("utr") shouldBe validUtr.value
+      value.request.detail("nino") shouldBe "N/A"
+      value.request.detail("email") shouldBe "someone@email.com"
+      value.request.detail("digital") shouldBe "true"
+      value.request.detail("userConfirmedReadTandCs") shouldBe "true"
+      value.request.detail("newUserPreferencesCreated") shouldBe "false"
     }
 
     "be created as EventTypes.Succeeded when choosing to not opt in" in new ChoosePaperlessControllerSetup {
@@ -1073,21 +1070,21 @@ class ChoosePaperlessControllerSpecTC extends UnitSpec with MockitoSugar with On
 
       status(page) shouldBe 303
 
-      val eventArg: ArgumentCaptor[ExtendedDataEvent] = ArgumentCaptor.forClass(classOf[ExtendedDataEvent])
-      verify(mockAuditConnector).sendExtendedEvent(eventArg.capture())(any(), any())
+      val eventArg: ArgumentCaptor[MergedDataEvent] = ArgumentCaptor.forClass(classOf[MergedDataEvent])
+      verify(mockAuditConnector).sendMergedEvent(eventArg.capture())(any(), any())
 
-      private val value: ExtendedDataEvent = eventArg.getValue
+      private val value: MergedDataEvent = eventArg.getValue
       value.auditSource shouldBe "preferences-frontend"
       value.auditType shouldBe EventTypes.Succeeded
-      value.tags should contain("transactionName" -> "Set Print Preference")
-      value.detail \ "cohort" shouldBe JsDefined(JsString("TCPage"))
-      value.detail \ "journey" shouldBe JsDefined(JsString("AccountDetails"))
-      value.detail \ "utr" shouldBe JsDefined(JsString(validUtr.value))
-      value.detail \ "nino" shouldBe JsDefined(JsString("N/A"))
-      value.detail \ "email" shouldBe JsDefined(JsString(""))
-      value.detail \ "digital" shouldBe JsDefined(JsString("false"))
-      value.detail \ "userConfirmedReadTandCs" shouldBe JsDefined(JsString("false"))
-      value.detail \ "newUserPreferencesCreated" shouldBe JsDefined(JsString("true"))
+      value.request.tags should contain("transactionName" -> "Set Print Preference")
+      value.request.detail("cohort") shouldBe "TCPage"
+      value.request.detail("journey") shouldBe "AccountDetails"
+      value.request.detail("utr") shouldBe validUtr.value
+      value.request.detail("nino") shouldBe "N/A"
+      value.request.detail("email") shouldBe ""
+      value.request.detail("digital") shouldBe "false"
+      value.request.detail("userConfirmedReadTandCs") shouldBe "false"
+      value.request.detail("newUserPreferencesCreated") shouldBe "true"
     }
   }
 }

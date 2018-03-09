@@ -7,6 +7,8 @@ import controllers.internal.PaperlessChoice.OptedIn
 import controllers.{Authentication, FindTaxIdentifier, internal}
 import model.{Encrypted, HostContext}
 import play.api.{Application, Play}
+import org.joda.time.DateTime
+import play.api.Play
 import play.api.Play.current
 import play.api.data.Form
 import play.api.i18n.Messages.Implicits._
@@ -16,7 +18,7 @@ import play.api.mvc._
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.audit.AuditExtensions._
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
-import uk.gov.hmrc.play.audit.model.{EventTypes, ExtendedDataEvent}
+import uk.gov.hmrc.play.audit.model.{DataCall, EventTypes, MergedDataEvent}
 import uk.gov.hmrc.play.config.AppName
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 import uk.gov.hmrc.play.frontend.auth.{Actions, AuthContext}
@@ -188,35 +190,65 @@ trait ChoosePaperlessController extends FrontendController with OptInCohortCalcu
   }
 
   private def auditPageShown(authContext: AuthContext, journey: Journey, cohort: OptInCohort)(implicit request: Request[_], hc: HeaderCarrier) =
-    auditConnector.sendExtendedEvent(ExtendedDataEvent(
+    auditConnector.sendMergedEvent(MergedDataEvent(
       auditSource = appName,
       auditType = EventTypes.Succeeded,
-      tags = hc.toAuditTags("Show Print Preference Option", request.path),
-      detail = Json.toJson(hc.toAuditDetails(
-        "utr" -> findUtr(authContext).map(_.utr).getOrElse("N/A"),
-        "nino" -> findNino(authContext).map(_.nino).getOrElse("N/A"),
-        "journey" -> journey.toString,
-        "cohort" -> cohort.toString
-      ))
+      request = DataCall(
+        tags = hc.toAuditTags("Show Print Preference Option", request.path),
+        detail = hc.toAuditDetails(
+          "utr" -> findUtr(authContext).map(_.utr).getOrElse("N/A"),
+          "nino" -> findNino(authContext).map(_.nino).getOrElse("N/A"),
+          "journey" -> journey.toString,
+          "cohort" -> cohort.toString),
+        generatedAt = DateTime.now()
+      ),
+      response = DataCall(
+        tags = hc.toAuditTags("Show Print Preference Option", request.path),
+        detail = hc.toAuditDetails(
+          "utr" -> findUtr(authContext).map(_.utr).getOrElse("N/A"),
+          "nino" -> findNino(authContext).map(_.nino).getOrElse("N/A"),
+          "journey" -> journey.toString,
+          "cohort" -> cohort.toString),
+        generatedAt = DateTime.now()
+      )
     ))
 
   private def auditChoice(authContext: AuthContext, journey: Journey, cohort: OptInCohort, terms: (TermsType, TermsAccepted), emailOption: Option[String], preferencesStatus: PreferencesStatus)(implicit request: Request[_], message: play.api.i18n.Messages, hc: HeaderCarrier) =
-    auditConnector.sendExtendedEvent(ExtendedDataEvent(
+    auditConnector.sendMergedEvent(MergedDataEvent(
       auditSource = appName,
       auditType = if (preferencesStatus == PreferencesFailure) EventTypes.Failed else EventTypes.Succeeded,
-      tags = hc.toAuditTags("Set Print Preference", request.path),
-      detail = Json.toJson(hc.toAuditDetails(
-        "client" -> "YTA",
-        "utr" -> findUtr(authContext).map(_.utr).getOrElse("N/A"),
-        "nino" -> findNino(authContext).map(_.nino).getOrElse("N/A"),
-        "journey" -> journey.toString,
-        "digital" -> terms._2.accepted.toString,
-        "cohort" -> cohort.toString,
-        "TandCsScope" -> terms._1.toString.toLowerCase,
-        "userConfirmedReadTandCs" -> terms._2.accepted.toString,
-        "email" -> emailOption.getOrElse(""),
-        "newUserPreferencesCreated" -> (preferencesStatus == PreferencesCreated).toString
-      ))
+      request = DataCall(
+          tags = hc.toAuditTags("Set Print Preference", request.path),
+          detail = hc.toAuditDetails(
+            "client" -> "YTA",
+            "utr" -> findUtr(authContext).map(_.utr).getOrElse("N/A"),
+            "nino" -> findNino(authContext).map(_.nino).getOrElse("N/A"),
+            "journey" -> journey.toString,
+            "digital" -> terms._2.accepted.toString,
+            "cohort" -> cohort.toString,
+            "TandCsScope" -> terms._1.toString.toLowerCase,
+            "userConfirmedReadTandCs" -> terms._2.accepted.toString,
+            "email" -> emailOption.getOrElse(""),
+            "newUserPreferencesCreated" -> (preferencesStatus == PreferencesCreated).toString
+          ),
+        generatedAt = DateTime.now()
+      ),
+      response = DataCall(
+        tags = hc.toAuditTags("Set Print Preference", request.path),
+        detail = hc.toAuditDetails(
+          "client" -> "YTA",
+          "utr" -> findUtr(authContext).map(_.utr).getOrElse("N/A"),
+          "nino" -> findNino(authContext).map(_.nino).getOrElse("N/A"),
+          "journey" -> journey.toString,
+          "digital" -> terms._2.accepted.toString,
+          "cohort" -> cohort.toString,
+          "TandCsScope" -> terms._1.toString.toLowerCase,
+          "userConfirmedReadTandCs" -> terms._2.accepted.toString,
+          "email" -> emailOption.getOrElse(""),
+          "newUserPreferencesCreated" -> (preferencesStatus == PreferencesCreated).toString
+        ),
+        generatedAt = DateTime.now()
+      )
     ))
 
   private def hasStoredEmail(hostContext: HostContext, svc: Option[String], token: Option[String])(implicit hc: HeaderCarrier): Future[Boolean] = {
