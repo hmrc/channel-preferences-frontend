@@ -40,7 +40,7 @@ class TcPageSpec  extends UnitSpec with OneAppPerSuite with WelshLanguage {
       document.getElementsByTag("p").get(1).text() shouldBe "Drwy ganiatáu i ni storio'ch cyfeiriad e-bost, rydych yn cadarnhau'r canlynol:"
       document.getElementsByTag("li").get(1).text() shouldBe "eich bod am gael hysbysiadau a negeseuon annog ynghylch eich credydau treth"
       document.getElementsByTag("li").get(2).text() shouldBe "byddwch yn cadw'ch cyfeiriad e-bost wedi'i ddiweddaru drwy ddefnyddio'ch cyfrif ar-lein gyda CThEM i wneud yn siŵr eich bod yn cael eich hysbysiadau"
-      document.getElementById("termsAndConditions_accept-tc").parentNode.childNodes().get(2).toString.trim shouldBe "Rwy'n cytuno â'r"
+      document.getElementById("termsAndConditions_accept-tc").parentNode.childNodes().get(3).toString.contains("Rwy'n cytuno â'r")
       document.getElementById("terms-and-conditions").childNodes().get(0).toString() shouldBe "telerau ac amodau"
       document.getElementsByClass("selectable").get(0).text() shouldBe "Iawn, storiwch fy nghyfeiriad e-bost"
       document.getElementsByClass("selectable").get(1).text() shouldBe "Na, nid wyf am i'm cyfeiriad e-bost gael ei storio"
