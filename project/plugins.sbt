@@ -1,6 +1,6 @@
 credentials += Credentials(Path.userHome / ".sbt" / ".credentials")
 
-val hmrcRepoHost = java.lang.System.getProperty("hmrc.repo.host", "https://nexus-preview.tax.service.gov.uk")
+val hmrcRepoHost = java.lang.System.getProperty("hmrc.repo.host", "https://artefacts.tax.service.gov.uk")
 
 resolvers ++= Seq("hmrc-snapshots" at hmrcRepoHost + "/content/repositories/hmrc-snapshots",
   "hmrc-releases" at hmrcRepoHost + "/content/repositories/hmrc-releases",
