@@ -24,7 +24,7 @@ class SaPrintingPreferenceViewSpec extends UnitSpec with OneAppPerSuite {
         cohort = IPage
       )(FakeRequest("GET", "/"), applicationMessages).toString())
 
-      document.getElementById("opt-in-in").hasAttr("checked") shouldBe true
+      document.getElementById("opt-in-in").hasAttr("checked") shouldBe false
     }
   }
 }
