@@ -182,7 +182,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
 
       document.getElementById("email.main").attr("value") shouldBe ""
       document.getElementById("email.confirm").attr("value") shouldBe ""
-      document.getElementById("opt-in-in").attr("checked") should be("checked")
+      document.getElementById("opt-in-in").attr("checked") should be(empty)
       document.getElementById("opt-in-out").attr("checked") should be(empty)
     }
 
@@ -201,7 +201,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
       document.getElementById("email.confirm") shouldNot be(null)
       document.getElementById("email.confirm").attr("value") shouldBe emailAddress
       document.getElementById("email.main").hasAttr("readonly") shouldBe false
-      document.getElementById("opt-in-in").attr("checked") should be("checked")
+      document.getElementById("opt-in-in").attr("checked") should be(empty)
       document.getElementById("opt-in-out").attr("checked") should be(empty)
     }
 
@@ -228,7 +228,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
       document.getElementById("email.confirm") shouldNot be(null)
       document.getElementById("email.confirm").attr("value") shouldBe emailAddress
       document.getElementById("email.confirm").hasAttr("hidden") shouldBe true
-      document.getElementById("opt-in-in").attr("checked") should be("checked")
+      document.getElementById("opt-in-in").attr("checked") should be(empty)
       document.getElementById("opt-in-out").attr("checked") should be(empty)
     }
 
@@ -255,7 +255,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
       document.getElementById("email.confirm") shouldNot be(null)
       document.getElementById("email.confirm").attr("value") shouldBe emailAddress
       document.getElementById("email.confirm").hasAttr("hidden") shouldBe true
-      document.getElementById("opt-in-in").attr("checked") should be("checked")
+      document.getElementById("opt-in-in").attr("checked") should be(empty)
       document.getElementById("opt-in-out").attr("checked") should be(empty)
     }
   }
