@@ -25,6 +25,9 @@ class GoPaperlessBrowserSpec extends endtoend.sa.Spec with ScalaFutures with Ser
         And("I enter an invalid email address")
           goPaperlessPage.completeForm(TestEmailAddresses.invalidlyFormatted)
 
+        And("I choose the yes option")
+          click on goPaperlessPage.`yes send by email radio button`
+
         Then("I see an error informing me of invalid email addresses")
           goPaperlessPage.`go paperless validation message` should include ("Enter a valid email address.")
 
