@@ -1,3 +1,4 @@
+@import controllers.auth.AuthenticatedRequest
 @(title: String,
   navTitle: Option[String] = None,
   navLinks: Option[Html] = None,
@@ -5,14 +6,14 @@
   sidebarLinks: Option[Html] = None,
   contentHeader: Option[Html] = None,
   bodyClasses: Option[String] = None,
-  mainClass: Option[String] = None)(mainContent: Html)(implicit authContext: Option[uk.gov.hmrc.play.frontend.auth.AuthContext] = None, request : Request[_], messages: Messages)
+  mainClass: Option[String] = None)(mainContent: Html)(implicit request : AuthenticatedRequest[_], messages: Messages)
 
 @import uk.gov.hmrc.play.views.html.layouts
 
 
 @serviceInfoContent = {
-    @if(authContext.exists(_.user.previouslyLoggedInAt.isDefined)) {
-        @includes.last_sign_in(authContext.get.user.previouslyLoggedInAt.get, authContext.get.principal.name)
+    @if(request.previousLoginTime.isDefined) {
+        @includes.last_sign_in(request.previousLoginTime.get, request.fullName)
     }
 }
 
@@ -21,6 +22,7 @@
         @layouts.sidebar(sidebarLinks.get, Some("sidebar"))
     }
 }
+
 
 
 @govuk_wrapper(appConfig = config.YtaConfig,

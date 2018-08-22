@@ -1,4 +1,5 @@
-@()(implicit request: Request[_], messages: Messages)
+@import controllers.auth.AuthenticatedRequest
+@()(implicit request: AuthenticatedRequest[_], messages: Messages)
 
 @import uk.gov.hmrc.urls.Link
 
