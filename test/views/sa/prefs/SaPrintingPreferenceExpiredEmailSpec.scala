@@ -1,6 +1,7 @@
 package views.sa.prefs
 
 import _root_.helpers.{ConfigHelper, WelshLanguage}
+import controllers.auth.AuthenticatedRequest
 import org.jsoup.Jsoup
 import org.scalatestplus.play.OneAppPerSuite
 import play.api.Application
@@ -15,7 +16,7 @@ class SaPrintingPreferenceExpiredEmailSpec extends UnitSpec with OneAppPerSuite 
 
   "printing preferences expired emai; template" should {
     "render the correct content in english" in {
-      val document = Jsoup.parse(sa_printing_preference_expired_email()(FakeRequest("GET", "/"), applicationMessages).toString())
+      val document = Jsoup.parse(sa_printing_preference_expired_email()(AuthenticatedRequest(FakeRequest("GET", "/"), None, None, None, None), applicationMessages).toString())
 
       document.getElementsByTag("title").first().text() shouldBe "Your email address is NOT verified"
       document.getElementById("link-to-home").childNodes().get(1).toString.trim() shouldBe "and request a new verification link"

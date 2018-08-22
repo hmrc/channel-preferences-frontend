@@ -1,6 +1,7 @@
 package views
 
 import _root_.helpers.{ConfigHelper, TestFixtures, WelshLanguage}
+import controllers.auth.AuthenticatedRequest
 import org.jsoup.Jsoup
 import org.scalatestplus.play.OneAppPerSuite
 import play.api.Application
@@ -16,7 +17,7 @@ class AccountDetailsVerificationEmailResentConfirmationSpec extends UnitSpec wit
   "account details verification email resent confirmation template" should {
     "render the correct content in english" in {
       val email = "a@a.com"
-      val document = Jsoup.parse(account_details_verification_email_resent_confirmation(email)(None, FakeRequest("GET", "/"), applicationMessages, TestFixtures.sampleHostContext).toString())
+      val document = Jsoup.parse(account_details_verification_email_resent_confirmation(email)(AuthenticatedRequest(FakeRequest("GET", "/"), None, None, None, None), applicationMessages, TestFixtures.sampleHostContext).toString())
 
       document.getElementsByTag("title").first().text() shouldBe "Verification email sent"
       document.getElementsByTag("h1").get(0).text() shouldBe "Verification email sent"
@@ -25,7 +26,7 @@ class AccountDetailsVerificationEmailResentConfirmationSpec extends UnitSpec wit
 
     "render the correct content in welsh" in {
       val email = "a@a.com"
-      val document = Jsoup.parse(account_details_verification_email_resent_confirmation(email)(None, welshRequest, messagesInWelsh(applicationMessages), TestFixtures.sampleHostContext).toString())
+      val document = Jsoup.parse(account_details_verification_email_resent_confirmation(email)(welshRequest, messagesInWelsh(applicationMessages), TestFixtures.sampleHostContext).toString())
 
       document.getElementsByTag("title").first().text() shouldBe "E-bost dilysu wedi'i anfon"
       document.getElementsByTag("h1").get(0).text() shouldBe "E-bost dilysu wedi'i anfon"

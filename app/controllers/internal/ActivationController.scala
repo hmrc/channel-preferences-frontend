@@ -1,74 +1,62 @@
 package controllers.internal
 
-import config.Global
-import connectors._
-import model.Encrypted
-import play.api.mvc.Result
-import play.api.Play
-import Play.current
-import uk.gov.hmrc.emailaddress.EmailAddress
-import play.api.Logger
-import scala.concurrent.Future
-
-import connectors.EntityResolverConnector
-import controllers.{Authentication, ExternalUrlPrefixes}
-import model.{FormType, HostContext}
+import connectors.{EntityResolverConnector, _}
+import controllers.ExternalUrlPrefixes
+import controllers.auth.{AuthAction, AuthController}
+import model.{Encrypted, FormType, HostContext}
 import play.api.libs.json.Json
-import uk.gov.hmrc.play.config.AppName
-import uk.gov.hmrc.play.frontend.auth.Actions
-import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
-import uk.gov.hmrc.play.frontend.controller.FrontendController
+import play.api.mvc.Result
+import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.config.AppName
+import uk.gov.hmrc.play.frontend.controller.FrontendController
+
+import scala.concurrent.Future
 
 object ActivationController extends ActivationController {
 
   override val entityResolverConnector: EntityResolverConnector = EntityResolverConnector
 
-  override protected implicit val authConnector: AuthConnector = Global.authConnector
-
   val hostUrl = ExternalUrlPrefixes.pfUrlPrefix
 
 }
 
-trait ActivationController extends FrontendController with Actions with AppName with Authentication {
+trait ActivationController extends FrontendController with AppName {
+
+  def authorise: AuthAction = AuthController
 
   def entityResolverConnector: EntityResolverConnector
 
   val hostUrl: String
 
-
-  def preferences() = authenticated.async {
-    implicit authContext =>
-      implicit request =>
-        entityResolverConnector.getPreferences().map {
-          case Some(preference) => Ok(Json.toJson(preference))
-          case _ => NotFound
-        }
+  def preferences() = authorise.async {
+    implicit request =>
+      entityResolverConnector.getPreferences().map {
+        case Some(preference) => Ok(Json.toJson(preference))
+        case _ => NotFound
+      }
   }
 
-  def preferencesStatus(hostContext: HostContext) = authenticated.async {
-    implicit authContext =>
-      implicit request =>
-        _preferencesStatus(hostContext)
+  def preferencesStatus(hostContext: HostContext) = authorise.async {
+    implicit request =>
+      _preferencesStatus(hostContext)
   }
 
-  def preferencesStatusBySvc(svc: String, token: String, hostContext: HostContext) = authenticated.async {
-    implicit authContext =>
-      implicit request =>
-        _preferencesStatusMtd(svc, token, hostContext)
+  def preferencesStatusBySvc(svc: String, token: String, hostContext: HostContext) = authorise.async {
+    implicit request =>
+      _preferencesStatusMtd(svc, token, hostContext)
   }
 
-  def legacyPreferencesStatus(formType: FormType, taxIdentifier: String, hostContext: HostContext) = authenticated.async {
-    implicit authContext =>
-      implicit request =>
-        _preferencesStatus(hostContext)
+  def legacyPreferencesStatus(formType: FormType, taxIdentifier: String, hostContext: HostContext) = authorise.async {
+    implicit request =>
+      _preferencesStatus(hostContext)
   }
 
   private def _preferencesStatusMtd(svc: String, token: String, hostContext: HostContext)(implicit hc: HeaderCarrier): Future[Result] = {
     entityResolverConnector.getPreferencesStatusByToken(svc, token) map {
       case Right(PreferenceNotFound(email)) =>
         val encryptedEmail = email.map(e => Encrypted(EmailAddress(e.email)))
-        val redirectUrl = hostUrl + controllers.internal.routes.ChoosePaperlessController.redirectToDisplayFormWithCohortBySvc(svc, token, encryptedEmail, hostContext).url
+        val redirectUrl = hostUrl + routes.ChoosePaperlessController.redirectToDisplayFormWithCohortBySvc(svc, token, encryptedEmail, hostContext).url
         PreconditionFailed(Json.obj("redirectUserTo" -> redirectUrl))
       case Right(PreferenceFound(true, emailPreference)) =>
         Ok(Json.obj(
@@ -77,7 +65,7 @@ trait ActivationController extends FrontendController with Actions with AppName 
         ))
       case Right(PreferenceFound(false, email)) =>
         val encryptedEmail = email.map(e => Encrypted(EmailAddress(e.email)))
-        val redirectUrl = hostUrl + controllers.internal.routes.ChoosePaperlessController.redirectToDisplayFormWithCohortBySvc(svc, token, encryptedEmail, hostContext).url
+        val redirectUrl = hostUrl + routes.ChoosePaperlessController.redirectToDisplayFormWithCohortBySvc(svc, token, encryptedEmail, hostContext).url
         Ok(Json.obj(
           "optedIn" -> false,
           "redirectUserTo" -> redirectUrl
@@ -101,11 +89,11 @@ trait ActivationController extends FrontendController with Actions with AppName 
         Ok(Json.obj(
           "optedIn" -> false
         ))
-      case Right(PreferenceNotFound(Some(email))) if (hostContext.email.exists(_ !=  email.email)) =>
+      case Right(PreferenceNotFound(Some(email))) if (hostContext.email.exists(_ != email.email)) =>
         Conflict
       case Right(PreferenceNotFound(email)) =>
         val encryptedEmail = email.map(e => Encrypted(EmailAddress(e.email)))
-        val redirectUrl = hostUrl + controllers.internal.routes.ChoosePaperlessController.redirectToDisplayFormWithCohort(encryptedEmail, hostContext).url
+        val redirectUrl = hostUrl + routes.ChoosePaperlessController.redirectToDisplayFormWithCohort(encryptedEmail, hostContext).url
         PreconditionFailed(Json.obj("redirectUserTo" -> redirectUrl))
       case Left(status) => Status(status)
     }

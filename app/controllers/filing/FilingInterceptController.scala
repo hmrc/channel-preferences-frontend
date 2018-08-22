@@ -12,8 +12,9 @@ import play.api.Play.current
 import play.api.mvc._
 import uk.gov.hmrc.crypto.PlainText
 import uk.gov.hmrc.emailaddress.EmailAddress
-import uk.gov.hmrc.play.config.{RunMode, ServicesConfig}
+import uk.gov.hmrc.play.config.RunMode
 import uk.gov.hmrc.play.frontend.controller.FrontendController
+
 import scala.collection.JavaConversions._
 
 class FilingInterceptController(whiteList: Set[String], preferencesConnector: EntityResolverConnector) extends FrontendController {

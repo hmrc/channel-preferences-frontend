@@ -4,11 +4,11 @@ import model.Encrypted
 import play.api.Logger
 import play.api.mvc._
 import uk.gov.hmrc.circuitbreaker.UnhealthyServiceException
+import uk.gov.hmrc.play.HeaderCarrierConverter
+import uk.gov.hmrc.play.frontend.filters.MicroserviceFilterSupport
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext
 
 import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.play.HeaderCarrierConverter
-import uk.gov.hmrc.play.frontend.filters.MicroserviceFilterSupport
 
 object ExceptionHandlingFilter extends Filter with Results with MicroserviceFilterSupport {
 

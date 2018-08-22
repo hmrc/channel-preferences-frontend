@@ -1,19 +1,18 @@
 package partial
 
+import connectors.PreferenceResponse._
 import connectors.{PreferenceResponse, SaEmailPreference, SaPreference}
-import helpers.ConfigHelper
-import _root_.helpers.WelshLanguage
+import _root_.helpers.{ConfigHelper, WelshLanguage}
 import org.joda.time.LocalDate
 import org.scalatestplus.play.OneAppPerSuite
 import partial.paperless.warnings.PaperlessWarningPartial
 import play.api.Application
-import play.api.mvc.Results
-import uk.gov.hmrc.play.test.UnitSpec
-import connectors.PreferenceResponse._
+import play.api.i18n.Messages.Implicits._
 import play.api.libs.json.Json
+import play.api.mvc.Results
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
-import play.api.i18n.Messages.Implicits._
+import uk.gov.hmrc.play.test.UnitSpec
 
 class PaperlessWarningPartialSpec extends UnitSpec with Results with OneAppPerSuite with WelshLanguage {
 

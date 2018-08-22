@@ -1,25 +1,23 @@
 import com.github.tomakehurst.wiremock.client.WireMock._
 import conf.ServerSetup
 import org.scalatest.concurrent.{Eventually, ScalaFutures}
-import pages.GoPaperlessPage
+import pages.{AuthCredential, AuthWizardPage, GoPaperlessPage}
 import uk.gov.hmrc.endtoend
 import uk.gov.hmrc.endtoend.sa.config.{TestEmailAddresses, UserWithUtr}
+
 
 class GoPaperlessBrowserSpec extends endtoend.sa.Spec with ScalaFutures with ServerSetup with Eventually{
   import stubs._
 
   implicit val user = new UserWithUtr { val utr = "1111111111" }
-
   feature("Opting in a user") {
       scenario("I enter an invalid email address, am asked to re-enter it and then I opt-in") {
         Given("I am logged in")
-          eventually {
-            go to Auth.loginPage
-          }
+          go to (AuthWizardPage.url)
+          AuthWizardPage should be (displayed)
         When("I am on opt in to paperless Page")
-          givenThat (Auth.`GET /auth/authority` willReturn (aResponse withStatus 200 withBody Auth.authorityRecordJson))
           val goPaperlessPage = GoPaperlessPage(returnUrl = Host.ReturnPage, Host.returnLinkText)
-          go to goPaperlessPage
+        AuthWizardPage.submitLogin(AuthCredential(goPaperlessPage.url))
           goPaperlessPage should be (displayed)
 
         And("I enter an invalid email address")
@@ -41,12 +39,11 @@ class GoPaperlessBrowserSpec extends endtoend.sa.Spec with ScalaFutures with Ser
 
       scenario("I can toggle between yes and no and email parts of the form are hidden when no is selected"){
         Given("I am logged in")
-          go to Auth.loginPage
-
+          go to (AuthWizardPage.url)
+          AuthWizardPage should be (displayed)
         And("I am on opt in to paperless Page")
-          givenThat (Auth.`GET /auth/authority` willReturn (aResponse withStatus 200 withBody Auth.authorityRecordJson))
           val goPaperlessPage = GoPaperlessPage(returnUrl = Host.ReturnPage, Host.returnLinkText)
-          go to goPaperlessPage
+        AuthWizardPage.submitLogin(AuthCredential(goPaperlessPage.url))
           goPaperlessPage should be (displayed)
 
         When("I choose the no option")
@@ -66,12 +63,13 @@ class GoPaperlessBrowserSpec extends endtoend.sa.Spec with ScalaFutures with Ser
     feature("Go paperless page validation") {
       scenario("email address validation"){
         Given("I am logged in")
-          go to Auth.loginPage
+          go to (AuthWizardPage.url)
+          AuthWizardPage should be (displayed)
 
         When("I am on opt in to paperless Page")
           givenThat (Auth.`GET /auth/authority` willReturn (aResponse withStatus 200 withBody Auth.authorityRecordJson))
           val goPaperlessPage = GoPaperlessPage(returnUrl = Host.ReturnPage, Host.returnLinkText)
-          go to goPaperlessPage
+        AuthWizardPage.submitLogin(AuthCredential(goPaperlessPage.url))
           goPaperlessPage should be (displayed)
 
         And("I enter a blank email address")
@@ -96,12 +94,13 @@ class GoPaperlessBrowserSpec extends endtoend.sa.Spec with ScalaFutures with Ser
 
       scenario("Terms and Conditions validation") {
         Given("I am logged in")
-          go to Auth.loginPage
+          go to (AuthWizardPage.url)
+          AuthWizardPage should be (displayed)
 
         And("I am on opt in to paperless Page")
           givenThat (Auth.`GET /auth/authority` willReturn (aResponse withStatus 200 withBody Auth.authorityRecordJson))
           val goPaperlessPage = GoPaperlessPage(returnUrl = Host.ReturnPage, Host.returnLinkText)
-          go to goPaperlessPage
+        AuthWizardPage.submitLogin(AuthCredential(goPaperlessPage.url))
           goPaperlessPage should be(displayed)
 
         When("I attempt to opt in with no email set and the terms not selected")
