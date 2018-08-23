@@ -1,24 +1,24 @@
 package partial
 
-import connectors.PreferenceResponse._
 import connectors.SaEmailPreference.Status
 import connectors.{PreferenceResponse, SaEmailPreference, SaPreference}
 import controllers.ExternalUrlPrefixes
 import controllers.internal.routes
 import helpers.{ConfigHelper, TestFixtures}
-import model.Encrypted
 import org.joda.time.LocalDate
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.play.OneAppPerSuite
 import partial.paperless.manage.ManagePaperlessPartial
 import play.api.Application
-import play.api.i18n.Messages.Implicits._
-import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import uk.gov.hmrc.emailaddress.EmailAddress
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
+import connectors.PreferenceResponse._
+import model.Encrypted
+import play.api.libs.json.Json
+import uk.gov.hmrc.http.HeaderCarrier
+import play.api.i18n.Messages.Implicits._
 
 class ManagePaperlessPartialSpec extends UnitSpec with OneAppPerSuite with ScalaFutures {
   implicit val hc = HeaderCarrier()

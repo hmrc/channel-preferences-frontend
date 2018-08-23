@@ -1,4 +1,3 @@
-@import controllers.auth.AuthenticatedRequest
 @(appConfig: config.AppConfig,
   title: String,
   navTitle: String,
@@ -10,7 +9,7 @@
   sidebar: Html = HtmlFormat.empty,
   contentHeader: Option[Html] = None,
   mainContent: Html = HtmlFormat.empty,
-  serviceInfoContent: Html = HtmlFormat.empty)(implicit request: AuthenticatedRequest[_], messages: Messages)
+  serviceInfoContent: Html = HtmlFormat.empty)(implicit request: Request[_], messages: Messages)
 
 @import layouts.{govuk_template => hmrcGovUkTemplate}
 @import uk.gov.hmrc.play.views.html.{layouts => uiLayouts}
@@ -59,4 +58,5 @@
       serviceInfo = serviceInfo,
       sidebar = sidebar)
 }
+
 @hmrcGovUkTemplate(Some(title), bodyClasses)(head, bodyEnd, insideHeader, afterHeader, footerTop, Some(uiLayouts.footer_links(Some(partials.language_selection(config.YtaConfig.enableLanguageSwitching)))), true)(content)

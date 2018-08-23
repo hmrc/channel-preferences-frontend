@@ -1,5 +1,4 @@
-@import controllers.auth.AuthenticatedRequest
-@(emailAddress: String, cohort: controllers.internal.OptInCohort, call: Call, redirectUrl: String)(implicit request : AuthenticatedRequest[_], messages: Messages, hostContext: model.HostContext)
+@(emailAddress: String, cohort: controllers.internal.OptInCohort, call: Call, redirectUrl: String)(implicit context: uk.gov.hmrc.play.frontend.auth.AuthContext, request : Request[_], messages: Messages, hostContext: model.HostContext)
 
 @import uk.gov.hmrc.urls.Link
 @import model.Encrypted

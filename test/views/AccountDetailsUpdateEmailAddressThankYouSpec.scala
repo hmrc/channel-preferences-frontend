@@ -1,7 +1,6 @@
 package views
 
 import _root_.helpers.{ConfigHelper, TestFixtures, WelshLanguage}
-import controllers.auth.AuthenticatedRequest
 import org.jsoup.Jsoup
 import org.scalatestplus.play.OneAppPerSuite
 import play.api.Application
@@ -11,7 +10,6 @@ import uk.gov.hmrc.emailaddress.ObfuscatedEmailAddress
 import uk.gov.hmrc.play.test.UnitSpec
 import views.html.account_details_update_email_address_thank_you
 
-
 class AccountDetailsUpdateEmailAddressThankYouSpec extends UnitSpec with OneAppPerSuite with WelshLanguage {
 
   override implicit lazy val app: Application = ConfigHelper.fakeApp
@@ -19,7 +17,7 @@ class AccountDetailsUpdateEmailAddressThankYouSpec extends UnitSpec with OneAppP
   "account details update emaill address thank you template" should {
     "render the correct content in english" in {
       val currentEmail = ObfuscatedEmailAddress("a@a.com")
-      val document = Jsoup.parse(account_details_update_email_address_thank_you(currentEmail)(AuthenticatedRequest(FakeRequest("GET", "/"), None, None, None, None), applicationMessages, TestFixtures.sampleHostContext).toString())
+      val document = Jsoup.parse(account_details_update_email_address_thank_you(currentEmail)(None, FakeRequest("GET", "/"), applicationMessages, TestFixtures.sampleHostContext).toString())
 
       document.getElementsByTag("title").first().text() shouldBe "Verify your new email address"
       document.getElementsByTag("h1").get(0).text() shouldBe "Verify your new email address"
@@ -30,7 +28,7 @@ class AccountDetailsUpdateEmailAddressThankYouSpec extends UnitSpec with OneAppP
 
     "render the correct content in welsh" in {
       val currentEmail = ObfuscatedEmailAddress("a@a.com")
-      val document = Jsoup.parse(account_details_update_email_address_thank_you(currentEmail)(welshRequest, messagesInWelsh(applicationMessages), TestFixtures.sampleHostContext).toString())
+      val document = Jsoup.parse(account_details_update_email_address_thank_you(currentEmail)(None, welshRequest, messagesInWelsh(applicationMessages), TestFixtures.sampleHostContext).toString())
 
       document.getElementsByTag("title").first().text() shouldBe "Dilysu'ch cyfeiriad e-bost newydd"
       document.getElementsByTag("h1").get(0).text() shouldBe "Dilysu'ch cyfeiriad e-bost newydd"

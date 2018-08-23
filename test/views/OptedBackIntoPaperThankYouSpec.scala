@@ -1,7 +1,6 @@
 package views
 
 import _root_.helpers.{ConfigHelper, TestFixtures, WelshLanguage}
-import controllers.auth.AuthenticatedRequest
 import org.jsoup.Jsoup
 import org.scalatestplus.play.OneAppPerSuite
 import play.api.Application
@@ -18,7 +17,7 @@ class OptedBackIntoPaperThankYouSpec extends UnitSpec with OneAppPerSuite with W
   "opted back into paper template" should {
     "render the correct content in english" in {
       val email = ObfuscatedEmailAddress("a@a.com")
-      val document = Jsoup.parse(opted_back_into_paper_thank_you()(AuthenticatedRequest(FakeRequest("GET", "/"), None, None, None, None), applicationMessages, TestFixtures.sampleHostContext).toString())
+      val document = Jsoup.parse(opted_back_into_paper_thank_you()(None, FakeRequest("GET", "/"), applicationMessages, TestFixtures.sampleHostContext).toString())
 
       document.getElementsByTag("title").get(0).text() shouldBe "Paperless notifications have stopped"
       document.getElementsByTag("h1").get(0).text() shouldBe "Paperless notifications have stopped"
@@ -29,7 +28,7 @@ class OptedBackIntoPaperThankYouSpec extends UnitSpec with OneAppPerSuite with W
 
     "render the correct content in welsh" in {
       val email = ObfuscatedEmailAddress("a@a.com")
-      val document = Jsoup.parse(opted_back_into_paper_thank_you()(welshRequest, messagesInWelsh(applicationMessages), TestFixtures.sampleHostContext).toString())
+      val document = Jsoup.parse(opted_back_into_paper_thank_you()(None, welshRequest, messagesInWelsh(applicationMessages), TestFixtures.sampleHostContext).toString())
 
       document.getElementsByTag("title").get(0).text() shouldBe "Mae hysbysiadau di-bapur wedi dod i ben"
       document.getElementsByTag("h1").get(0).text() shouldBe "Mae hysbysiadau di-bapur wedi dod i ben"

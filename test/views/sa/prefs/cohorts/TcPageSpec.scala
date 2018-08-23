@@ -1,6 +1,5 @@
 package views.sa.prefs.cohorts
 
-import controllers.auth.AuthenticatedRequest
 import controllers.internal
 import controllers.internal.EmailForm
 import helpers.{ConfigHelper, TestFixtures, WelshLanguage}
@@ -12,7 +11,7 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.play.test.UnitSpec
 import views.html.sa.prefs.cohorts.tc_page
 
-class TcPageSpec extends UnitSpec with OneAppPerSuite with WelshLanguage {
+class TcPageSpec  extends UnitSpec with OneAppPerSuite with WelshLanguage {
 
   override implicit lazy val app: Application = ConfigHelper.fakeApp
 
@@ -20,7 +19,7 @@ class TcPageSpec extends UnitSpec with OneAppPerSuite with WelshLanguage {
     "render the correct content in english" in {
       val email = "a@a.com"
       val form = EmailForm().bind(Map("email.main" -> email))
-      val document = Jsoup.parse(tc_page(form, internal.routes.ChoosePaperlessController.submitForm(TestFixtures.sampleHostContext))(AuthenticatedRequest(FakeRequest("GET", "/"), None, None, None, None), applicationMessages).toString())
+      val document = Jsoup.parse(tc_page(form, internal.routes.ChoosePaperlessController.submitForm(TestFixtures.sampleHostContext))(FakeRequest("GET", "/"), applicationMessages).toString())
       document.getElementsByClass("header__menu__proposition-name").get(0).text() shouldBe "Tax credits service"
       document.getElementById("email-display").text() shouldBe s"The email address we we will store securely is $email"
       document.getElementsByTag("p").get(1).text() shouldBe "By letting us store your email address, you confirm that you:"
