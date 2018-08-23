@@ -1,6 +1,5 @@
 package views.includes
 
-import controllers.auth.AuthenticatedRequest
 import helpers.{ConfigHelper, WelshLanguage}
 import org.jsoup.Jsoup
 import org.scalatestplus.play.OneAppPerSuite
@@ -16,7 +15,7 @@ class YtaHeaderNavLinksSpec extends UnitSpec with OneAppPerSuite with WelshLangu
 
   "Yta Header Nav Links" should {
     "render the correct content in english" in {
-      val document = Jsoup.parse(yta_header_nav_links()(AuthenticatedRequest(FakeRequest("GET", "/"), None, None, None, None), applicationMessages).toString())
+      val document = Jsoup.parse(yta_header_nav_links()(FakeRequest("GET", "/"), applicationMessages).toString())
       document.getElementById("homeNavHref").text() shouldBe "Home"
       document.getElementById("accountDetailsNavHref").text() shouldBe "Manage account"
       document.getElementsByAttributeValue("href", "/contact/contact-hmrc").text() shouldBe "Help and contact"

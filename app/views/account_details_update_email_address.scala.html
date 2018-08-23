@@ -1,6 +1,5 @@
 @import org.joda.time.DateTime
-@import controllers.auth.AuthenticatedRequest
-@(currentEmail : String, emailForm: Form[_])(implicit request: AuthenticatedRequest[_], messages: Messages, hostContext: model.HostContext)
+@(currentEmail : String, emailForm: Form[_])(implicit context: Option[uk.gov.hmrc.play.frontend.auth.AuthContext], request: Request[_], messages: Messages, hostContext: model.HostContext)
 
 @import uk.gov.hmrc.urls.Link
 @import uk.gov.hmrc.play.views.html.helpers._

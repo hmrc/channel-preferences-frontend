@@ -1,5 +1,4 @@
-@import controllers.auth.AuthenticatedRequest
-@()(implicit request: AuthenticatedRequest[_], messages: Messages)
+@()(implicit request: Request[_], messages: Messages)
 <li><a id="homeNavHref" href="@{controllers.ExternalUrls.businessTaxHome}" data-journey-click="primary-navigation:Click:Home">@Messages("yta.header.nav.home")</a></li>
 <li><a id="accountDetailsNavHref" href="@{controllers.ExternalUrls.businessTaxHome}/account-details" data-journey-click="primary-navigation:Click:Manage account">@Messages("bt.account.yourdetails")</a></li>
 <li><a href="/contact/contact-hmrc" data-journey-click="primary-navigation:Click:Help">@Messages("yta.header.nav.help")</a></li>

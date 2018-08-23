@@ -1,7 +1,6 @@
 package views
 
 import _root_.helpers.{ConfigHelper, TestFixtures, WelshLanguage}
-import controllers.auth.AuthenticatedRequest
 import org.jsoup.Jsoup
 import org.scalatestplus.play.OneAppPerSuite
 import play.api.Application
@@ -10,7 +9,6 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.play.test.UnitSpec
 import views.html.account_details_update_email_address_verify_email
 
-
 class AccountDetailsUpdateEmailAddressVerifyEmailSpec extends UnitSpec with OneAppPerSuite with WelshLanguage {
 
   override implicit lazy val app: Application = ConfigHelper.fakeApp
@@ -18,7 +16,7 @@ class AccountDetailsUpdateEmailAddressVerifyEmailSpec extends UnitSpec with OneA
   "account details update email address verify email template" should {
     "render the correct content in english" in {
       val email = "a@a.com"
-      val document = Jsoup.parse(account_details_update_email_address_verify_email(email)(AuthenticatedRequest(FakeRequest("GET", "/"), None, None, None, None), applicationMessages, TestFixtures.sampleHostContext).toString())
+      val document = Jsoup.parse(account_details_update_email_address_verify_email(email)(None, FakeRequest("GET", "/"), applicationMessages, TestFixtures.sampleHostContext).toString())
 
       document.getElementsByTag("title").first().text() shouldBe "Check your email address"
       document.getElementsByTag("h1").get(0).text() shouldBe "Check your email address"
@@ -29,7 +27,7 @@ class AccountDetailsUpdateEmailAddressVerifyEmailSpec extends UnitSpec with OneA
 
     "render the correct content in welsh" in {
       val email = "a@a.com"
-      val document = Jsoup.parse(account_details_update_email_address_verify_email(email)(welshRequest, messagesInWelsh(applicationMessages), TestFixtures.sampleHostContext).toString())
+      val document = Jsoup.parse(account_details_update_email_address_verify_email(email)(None, welshRequest, messagesInWelsh(applicationMessages), TestFixtures.sampleHostContext).toString())
 
       document.getElementsByTag("title").first().text() shouldBe "Gwirio'ch cyfeiriad e-bost"
       document.getElementsByTag("h1").get(0).text() shouldBe "Gwirio'ch cyfeiriad e-bost"
