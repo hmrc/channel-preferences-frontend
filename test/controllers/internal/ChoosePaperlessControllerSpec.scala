@@ -1,8 +1,8 @@
 package controllers.internal
 
 import _root_.connectors._
-import controllers.AuthorityUtils._
-import helpers.{ConfigHelper, TestFixtures}
+import controllers.auth.AuthAction
+import helpers.{ConfigHelper, MockAuthController, TestFixtures}
 import model.{Encrypted, HostContext}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -12,15 +12,11 @@ import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.OneAppPerSuite
 import play.api.Application
-import play.api.libs.json.{JsDefined, JsString}
-import play.api.mvc.Results._
-import play.api.mvc.{Request, Results}
 import play.api.test.FakeRequest
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.{EventTypes, MergedDataEvent}
-import uk.gov.hmrc.play.frontend.auth._
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 import uk.gov.hmrc.play.test.UnitSpec
 
@@ -29,22 +25,24 @@ import scala.concurrent.Future
 abstract class ChoosePaperlessControllerSetup extends MockitoSugar {
 
   val validUtr = SaUtr("1234567890")
-  val user = AuthContext(authority = saAuthority("userId", validUtr.value), nameFromSession = Some("Ciccio"), governmentGatewayToken = None)
 
   val request = FakeRequest()
+
   def assignedCohort: OptInCohort = IPage
 
   val mockAuditConnector = mock[AuditConnector]
-  val mockEntityResolverConnector : EntityResolverConnector = {
+  val mockEntityResolverConnector: EntityResolverConnector = {
     val entityResolverMock = mock[EntityResolverConnector]
-    when(entityResolverMock.getPreferencesStatus(any())(any())).thenReturn(Future.successful(Right[Int,PreferenceStatus](PreferenceNotFound(None))))
-    when(entityResolverMock.getPreferencesStatusByToken(any(), any(), any())(any())).thenReturn(Future.successful(Right[Int,PreferenceStatus](PreferenceNotFound(None))))
+    when(entityResolverMock.getPreferencesStatus(any())(any())).thenReturn(Future.successful(Right[Int, PreferenceStatus](PreferenceNotFound(None))))
+    when(entityResolverMock.getPreferencesStatusByToken(any(), any(), any())(any())).thenReturn(Future.successful(Right[Int, PreferenceStatus](PreferenceNotFound(None))))
     entityResolverMock
   }
   val mockAuthConnector = mock[AuthConnector]
   val mockEmailConnector = mock[EmailConnector]
 
   val controller = new ChoosePaperlessController {
+
+    override val authorise: AuthAction = new MockAuthController(None, None, None, Some(validUtr.value))
 
     override def calculateCohort(user: HostContext) = assignedCohort
 
@@ -54,24 +52,7 @@ abstract class ChoosePaperlessControllerSetup extends MockitoSugar {
 
     override def auditConnector: AuditConnector = mockAuditConnector
 
-    override protected implicit def authConnector: AuthConnector = mockAuthConnector
-
-    override def authenticated = AuthenticatedBy(TestAuthenticationProvider, pageVisibility = GGConfidence)
   }
-
-  object TestAuthenticationProvider extends AuthenticationProvider {
-
-    override val id = "TST"
-
-    def login = "/login"
-
-    def redirectToLogin(implicit request: Request[_]) = Future.successful(Results.Redirect(login))
-
-    def handleNotAuthenticated(implicit request: Request[_]) = {
-      case _ => Future.successful(Left(user))
-    }
-  }
-
 }
 
 class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneAppPerSuite {
@@ -79,7 +60,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
   import org.mockito.Matchers.{any, eq => is}
   import play.api.test.Helpers._
 
-  override implicit lazy val app : Application = ConfigHelper.fakeApp
+  override implicit lazy val app: Application = ConfigHelper.fakeApp
 
   def allGoPaperlessFormElementsArePresent(document: Document) {
     document.getElementById("email.main") shouldNot be(null)
@@ -155,7 +136,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
       value.auditSource shouldBe "preferences-frontend"
       value.auditType shouldBe EventTypes.Succeeded
       value.request.tags should contain("transactionName" -> "Show Print Preference Option")
-      value.request.detail("cohort")shouldBe assignedCohort.toString
+      value.request.detail("cohort") shouldBe assignedCohort.toString
       value.request.detail("journey") shouldBe "AccountDetails"
       value.request.detail("utr") shouldBe validUtr.value
       value.request.detail("nino") shouldBe "N/A"
@@ -208,12 +189,12 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
     "render an email input field populated with the supplied readonly email address, and the Opt-in option selected if a preferences is not found for terms but an email do exist" in new ChoosePaperlessControllerSetup {
       val emailAddress = "bob@bob.com"
 
-      override val mockEntityResolverConnector : EntityResolverConnector = {
+      override val mockEntityResolverConnector: EntityResolverConnector = {
         val entityResolverMock = mock[EntityResolverConnector]
         val emailPreference = EmailPreference(emailAddress, true, false, false, None)
         when(entityResolverMock.getPreferencesStatus(any())(any())).
-          thenReturn(Future.successful(Right[Int,PreferenceStatus](PreferenceNotFound(Some(emailPreference))))
-        )
+          thenReturn(Future.successful(Right[Int, PreferenceStatus](PreferenceNotFound(Some(emailPreference))))
+          )
         entityResolverMock
       }
       val page = controller.displayForm(Some(assignedCohort), Some(Encrypted(EmailAddress(emailAddress))), TestFixtures.sampleHostContext)(request)
@@ -235,11 +216,11 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
     "render an email input field populated with the supplied readonly email address, and the Opt-in option selected if a opted out preferences with email is found" in new ChoosePaperlessControllerSetup {
       val emailAddress = "bob@bob.com"
 
-      override val mockEntityResolverConnector : EntityResolverConnector = {
+      override val mockEntityResolverConnector: EntityResolverConnector = {
         val entityResolverMock = mock[EntityResolverConnector]
         val emailPreference = EmailPreference(emailAddress, true, false, false, None)
         when(entityResolverMock.getPreferencesStatus(any())(any())).
-          thenReturn(Future.successful(Right[Int,PreferenceStatus](PreferenceFound(false,Some(emailPreference))))
+          thenReturn(Future.successful(Right[Int, PreferenceStatus](PreferenceFound(false, Some(emailPreference))))
           )
         entityResolverMock
       }
@@ -350,7 +331,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
     "when opting-in, validate the email address, save the preference and redirect to the thank you page with the email address encrpyted" in new ChoosePaperlessControllerSetup {
       val emailAddress = "someone@email.com"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(true)
-      when(mockEntityResolverConnector.updateTermsAndConditionsForSvc( is(GenericTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())).thenReturn(Future.successful(PreferencesCreated))
+      when(mockEntityResolverConnector.updateTermsAndConditionsForSvc(is(GenericTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())).thenReturn(Future.successful(PreferencesCreated))
 
       val page = Future.successful(controller.submitForm(TestFixtures.sampleHostContext)(FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), ("email.confirm", emailAddress), "accept-tc" -> "true")))
 
@@ -358,21 +339,21 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
       header("Location", page).get should include(routes.ChoosePaperlessController.displayNearlyDone(Some(Encrypted(EmailAddress(emailAddress))), TestFixtures.sampleHostContext).toString())
 
       verify(mockEmailConnector).isValid(is(emailAddress))(any())
-      verify(mockEntityResolverConnector).updateTermsAndConditionsForSvc( is(GenericTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())
+      verify(mockEntityResolverConnector).updateTermsAndConditionsForSvc(is(GenericTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())
 
       verifyNoMoreInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
     "when opting-in, validate the email address, failed to save the preference and so not activate user and redirect to the thank you page with the email address encrpyted" in new ChoosePaperlessControllerSetup {
       val emailAddress = "someone@email.com"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(true)
-      when(mockEntityResolverConnector.updateTermsAndConditionsForSvc( is(GenericTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())).thenReturn(Future.successful(PreferencesFailure))
+      when(mockEntityResolverConnector.updateTermsAndConditionsForSvc(is(GenericTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())).thenReturn(Future.successful(PreferencesFailure))
 
       val page = Future.successful(controller.submitForm(TestFixtures.sampleHostContext)(FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), ("email.confirm", emailAddress), "accept-tc" -> "true")))
 
       status(page) shouldBe 303
       header("Location", page).get should include(routes.ChoosePaperlessController.displayNearlyDone(Some(Encrypted(EmailAddress(emailAddress))), TestFixtures.sampleHostContext).toString())
 
-      verify(mockEntityResolverConnector).updateTermsAndConditionsForSvc( is(GenericTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())
+      verify(mockEntityResolverConnector).updateTermsAndConditionsForSvc(is(GenericTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())
       verify(mockEmailConnector).isValid(is(emailAddress))(any())
 
       verifyNoMoreInteractions(mockEntityResolverConnector, mockEmailConnector)
@@ -382,7 +363,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
     "when opting-in, validate the email address, save the preference and redirect to the thank you page with the email address encrpyted when the user has no email address stored" in new ChoosePaperlessControllerSetup {
       val emailAddress = "someone@email.com"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(true)
-      when(mockEntityResolverConnector.updateTermsAndConditionsForSvc( is(GenericTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())).thenReturn(Future.successful(PreferencesCreated))
+      when(mockEntityResolverConnector.updateTermsAndConditionsForSvc(is(GenericTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())).thenReturn(Future.successful(PreferencesCreated))
 
       val page = Future.successful(controller.submitForm(TestFixtures.sampleHostContext)(FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), ("email.confirm", emailAddress), "accept-tc" -> "true", "emailAlreadyStored" -> "false")))
 
@@ -390,7 +371,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
       header("Location", page).get should include(routes.ChoosePaperlessController.displayNearlyDone(Some(Encrypted(EmailAddress(emailAddress))), TestFixtures.sampleHostContext).toString())
 
       verify(mockEmailConnector).isValid(is(emailAddress))(any())
-      verify(mockEntityResolverConnector).updateTermsAndConditionsForSvc( is(GenericTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())
+      verify(mockEntityResolverConnector).updateTermsAndConditionsForSvc(is(GenericTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())
 
       verifyNoMoreInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
@@ -398,7 +379,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
     "when opting-in save the preference and redirect return url if the user has already an email (opting in for generic when the user has already opted in for TaxCredits)" in new ChoosePaperlessControllerSetup {
       val emailAddress = "someone@email.com"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(true)
-      when(mockEntityResolverConnector.updateTermsAndConditionsForSvc( is(GenericTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())).thenReturn(Future.successful(PreferencesCreated))
+      when(mockEntityResolverConnector.updateTermsAndConditionsForSvc(is(GenericTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())).thenReturn(Future.successful(PreferencesCreated))
 
       val page = Future.successful(controller.submitForm(TestFixtures.sampleHostContext)(FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), ("email.confirm", emailAddress), "accept-tc" -> "true", "emailAlreadyStored" -> "true")))
 
@@ -406,19 +387,19 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
       header("Location", page).get should include(TestFixtures.sampleHostContext.returnUrl)
 
       verify(mockEmailConnector).isValid(is(emailAddress))(any())
-      verify(mockEntityResolverConnector).updateTermsAndConditionsForSvc( is(GenericTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())
+      verify(mockEntityResolverConnector).updateTermsAndConditionsForSvc(is(GenericTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())
 
       verifyNoMoreInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
 
     "when opting-out, save the preference and redirect to the thank you page" in new ChoosePaperlessControllerSetup {
-      when(mockEntityResolverConnector.updateTermsAndConditionsForSvc( is(GenericTerms -> TermsAccepted(false)), is(None), any(), any(), any())(any(), any())).thenReturn(Future.successful(PreferencesCreated))
+      when(mockEntityResolverConnector.updateTermsAndConditionsForSvc(is(GenericTerms -> TermsAccepted(false)), is(None), any(), any(), any())(any(), any())).thenReturn(Future.successful(PreferencesCreated))
       val page = Future.successful(controller.submitForm(TestFixtures.sampleHostContext)(FakeRequest().withFormUrlEncodedBody("opt-in" -> "false")))
 
       status(page) shouldBe 303
       header("Location", page).get should be(TestFixtures.sampleHostContext.returnUrl)
 
-      verify(mockEntityResolverConnector).updateTermsAndConditionsForSvc( is(GenericTerms -> TermsAccepted(false)), is(None), any(), any(), any())(any(), any())
+      verify(mockEntityResolverConnector).updateTermsAndConditionsForSvc(is(GenericTerms -> TermsAccepted(false)), is(None), any(), any(), any())(any(), any())
 
       verifyNoMoreInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
@@ -512,7 +493,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
 
       val emailAddress = "someone@email.com"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(true)
-      when(mockEntityResolverConnector.updateTermsAndConditionsForSvc( is(GenericTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())).thenReturn(Future.successful(PreferencesCreated))
+      when(mockEntityResolverConnector.updateTermsAndConditionsForSvc(is(GenericTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())).thenReturn(Future.successful(PreferencesCreated))
 
       val page = Future.successful(controller.submitForm(TestFixtures.sampleHostContext)(FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), ("email.confirm", emailAddress), "accept-tc" -> "true")))
 
@@ -541,7 +522,7 @@ class ChoosePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
 
       val emailAddress = "someone@email.com"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(true)
-      when(mockEntityResolverConnector.updateTermsAndConditionsForSvc( is(GenericTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())).thenReturn(Future.successful(PreferencesExists))
+      when(mockEntityResolverConnector.updateTermsAndConditionsForSvc(is(GenericTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())).thenReturn(Future.successful(PreferencesExists))
 
       val page = Future.successful(controller.submitForm(TestFixtures.sampleHostContext)(FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), ("email.confirm", emailAddress), "accept-tc" -> "true")))
 
@@ -601,7 +582,7 @@ class ChoosePaperlessControllerSpecTC extends UnitSpec with MockitoSugar with On
   import org.mockito.Matchers.{any, eq => is}
   import play.api.test.Helpers._
 
-  override implicit lazy val app : Application = ConfigHelper.fakeApp
+  override implicit lazy val app: Application = ConfigHelper.fakeApp
 
   def allGoPaperlessFormElementsArePresent(document: Document) {
     document.getElementById("email.main") shouldNot be(null)
@@ -713,11 +694,11 @@ class ChoosePaperlessControllerSpecTC extends UnitSpec with MockitoSugar with On
 
       val emailAddress = "bob@bob.com"
 
-      override val mockEntityResolverConnector : EntityResolverConnector = {
+      override val mockEntityResolverConnector: EntityResolverConnector = {
         val entityResolverMock = mock[EntityResolverConnector]
         val emailPreference = EmailPreference(emailAddress, true, false, false, None)
         when(entityResolverMock.getPreferencesStatus(any())(any())).
-          thenReturn(Future.successful(Right[Int,PreferenceStatus](PreferenceNotFound(Some(emailPreference))))
+          thenReturn(Future.successful(Right[Int, PreferenceStatus](PreferenceNotFound(Some(emailPreference))))
           )
         entityResolverMock
       }
@@ -746,11 +727,11 @@ class ChoosePaperlessControllerSpecTC extends UnitSpec with MockitoSugar with On
 
       val emailAddress = "bob@bob.com"
 
-      override val mockEntityResolverConnector : EntityResolverConnector = {
+      override val mockEntityResolverConnector: EntityResolverConnector = {
         val entityResolverMock = mock[EntityResolverConnector]
         val emailPreference = EmailPreference(emailAddress, true, false, false, None)
         when(entityResolverMock.getPreferencesStatus(any())(any())).
-          thenReturn(Future.successful(Right[Int,PreferenceStatus](PreferenceFound(false,Some(emailPreference))))
+          thenReturn(Future.successful(Right[Int, PreferenceStatus](PreferenceFound(false, Some(emailPreference))))
           )
         entityResolverMock
       }
@@ -791,6 +772,7 @@ class ChoosePaperlessControllerSpecTC extends UnitSpec with MockitoSugar with On
 
     "show no error when opting-in if the email is incorrectly formatted (it has been prepopulated)" in new ChoosePaperlessControllerSetup {
       override def assignedCohort: OptInCohort = TCPage
+
       val emailAddress = "invalid-email"
 
       val page = Future.successful(controller.submitForm(TestFixtures.taxCreditsHostContext(emailAddress))(FakeRequest().withFormUrlEncodedBody("termsAndConditions.opt-in" -> "true", "email.main" -> emailAddress, "email.confirm" -> emailAddress, "termsAndConditions.accept-tc" -> "true", "emailAlreadyStored" -> "true")))
@@ -804,6 +786,7 @@ class ChoosePaperlessControllerSpecTC extends UnitSpec with MockitoSugar with On
 
     "show an error when opting-in if the T&C's are not accepted" in new ChoosePaperlessControllerSetup {
       override def assignedCohort: OptInCohort = TCPage
+
       val emailAddress = "someone@email.com"
       val page = Future.successful(controller.submitForm(TestFixtures.taxCreditsHostContext(""))(FakeRequest().withFormUrlEncodedBody("termsAndConditions.opt-in" -> "true", "email.main" -> emailAddress, "email.confirm" -> emailAddress, "termsAndConditions.accept-tc" -> "false")))
 
@@ -829,6 +812,7 @@ class ChoosePaperlessControllerSpecTC extends UnitSpec with MockitoSugar with On
 
     "not show an error when opting-in if the T&C's are not selected" in new ChoosePaperlessControllerSetup {
       override def assignedCohort: OptInCohort = TCPage
+
       val emailAddress = "someone@email.com"
       val page = Future.successful(controller.submitForm(TestFixtures.taxCreditsHostContext(""))(FakeRequest().withFormUrlEncodedBody("termsAndConditions.opt-in" -> "true", "email.main" -> emailAddress, "email.confirm" -> emailAddress)))
 
@@ -841,6 +825,7 @@ class ChoosePaperlessControllerSpecTC extends UnitSpec with MockitoSugar with On
 
     "show an error when opting-in if the T&C's accepted flag is not present" in new ChoosePaperlessControllerSetup {
       override def assignedCohort: OptInCohort = TCPage
+
       val emailAddress = "someone@email.com"
       val page = Future.successful(controller.submitForm(TestFixtures.taxCreditsHostContext(emailAddress))(FakeRequest().withFormUrlEncodedBody("termsAndConditions.opt-in" -> "true", "email.main" -> emailAddress, "email.confirm" -> emailAddress)))
 
@@ -854,6 +839,7 @@ class ChoosePaperlessControllerSpecTC extends UnitSpec with MockitoSugar with On
     "show a warning page when opting-in if the email has a valid structure but does not pass validation by the email micro service" in new ChoosePaperlessControllerSetup {
 
       override def assignedCohort: OptInCohort = TCPage
+
       val emailAddress = "someone@dodgy.domain"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(false)
 
@@ -868,9 +854,10 @@ class ChoosePaperlessControllerSpecTC extends UnitSpec with MockitoSugar with On
 
     "when opting-in, validate the email address, save the preference and redirect to the thank you page with the email address encrpyted" in new ChoosePaperlessControllerSetup {
       override def assignedCohort: OptInCohort = TCPage
+
       val emailAddress = "someone@email.com"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(true)
-      when(mockEntityResolverConnector.updateTermsAndConditionsForSvc( is(TaxCreditsTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())).thenReturn(Future.successful(PreferencesCreated))
+      when(mockEntityResolverConnector.updateTermsAndConditionsForSvc(is(TaxCreditsTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())).thenReturn(Future.successful(PreferencesCreated))
 
       val page = Future.successful(controller.submitForm(TestFixtures.taxCreditsHostContext(""))(FakeRequest().withFormUrlEncodedBody("termsAndConditions.opt-in" -> "true", ("email.main", emailAddress), ("email.confirm", emailAddress), "termsAndConditions.accept-tc" -> "true")))
 
@@ -884,16 +871,17 @@ class ChoosePaperlessControllerSpecTC extends UnitSpec with MockitoSugar with On
     }
     "when opting-in, validate the email address, failed to save the preference and so not activate user and redirect to the thank you page with the email address encrpyted" in new ChoosePaperlessControllerSetup {
       override def assignedCohort: OptInCohort = TCPage
+
       val emailAddress = "someone@email.com"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(true)
-      when(mockEntityResolverConnector.updateTermsAndConditionsForSvc( is(TaxCreditsTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())).thenReturn(Future.successful(PreferencesFailure))
+      when(mockEntityResolverConnector.updateTermsAndConditionsForSvc(is(TaxCreditsTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())).thenReturn(Future.successful(PreferencesFailure))
 
       val page = Future.successful(controller.submitForm(TestFixtures.taxCreditsHostContext(""))(FakeRequest().withFormUrlEncodedBody("termsAndConditions.opt-in" -> "true", ("email.main", emailAddress), ("email.confirm", emailAddress), "termsAndConditions.accept-tc" -> "true")))
 
       status(page) shouldBe 303
       header("Location", page).get should include(routes.ChoosePaperlessController.displayNearlyDone(Some(Encrypted(EmailAddress(emailAddress))), TestFixtures.taxCreditsHostContext("")).toString())
 
-      verify(mockEntityResolverConnector).updateTermsAndConditionsForSvc( is(TaxCreditsTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())
+      verify(mockEntityResolverConnector).updateTermsAndConditionsForSvc(is(TaxCreditsTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())
       verify(mockEmailConnector).isValid(is(emailAddress))(any())
 
       verifyNoMoreInteractions(mockEntityResolverConnector, mockEmailConnector)
@@ -902,9 +890,10 @@ class ChoosePaperlessControllerSpecTC extends UnitSpec with MockitoSugar with On
 
     "when opting-in, validate the email address, save the preference and redirect to the thank you page with the email address encrpyted when the user has no email address stored" in new ChoosePaperlessControllerSetup {
       override def assignedCohort: OptInCohort = TCPage
+
       val emailAddress = "someone@email.com"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(true)
-      when(mockEntityResolverConnector.updateTermsAndConditionsForSvc( is(TaxCreditsTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())).thenReturn(Future.successful(PreferencesCreated))
+      when(mockEntityResolverConnector.updateTermsAndConditionsForSvc(is(TaxCreditsTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())).thenReturn(Future.successful(PreferencesCreated))
 
       val page = Future.successful(controller.submitForm(TestFixtures.taxCreditsHostContext(""))(FakeRequest().withFormUrlEncodedBody("termsAndConditions.opt-in" -> "true", ("email.main", emailAddress), ("email.confirm", emailAddress), "termsAndConditions.accept-tc" -> "true", "emailAlreadyStored" -> "false")))
 
@@ -912,16 +901,17 @@ class ChoosePaperlessControllerSpecTC extends UnitSpec with MockitoSugar with On
       header("Location", page).get should include(routes.ChoosePaperlessController.displayNearlyDone(Some(Encrypted(EmailAddress(emailAddress))), TestFixtures.taxCreditsHostContext("")).toString())
 
       verify(mockEmailConnector).isValid(is(emailAddress))(any())
-      verify(mockEntityResolverConnector).updateTermsAndConditionsForSvc( is(TaxCreditsTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())
+      verify(mockEntityResolverConnector).updateTermsAndConditionsForSvc(is(TaxCreditsTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())
 
       verifyNoMoreInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
 
     "when opting-in save the preference and redirect return url if the user has already an email (opting in for generic when the user has already opted in for TaxCredits)" in new ChoosePaperlessControllerSetup {
       override def assignedCohort: OptInCohort = TCPage
+
       val emailAddress = "someone@email.com"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(true)
-      when(mockEntityResolverConnector.updateTermsAndConditionsForSvc( is(TaxCreditsTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())).thenReturn(Future.successful(PreferencesCreated))
+      when(mockEntityResolverConnector.updateTermsAndConditionsForSvc(is(TaxCreditsTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())).thenReturn(Future.successful(PreferencesCreated))
 
       val page = Future.successful(controller.submitForm(TestFixtures.taxCreditsHostContext(""))(FakeRequest().withFormUrlEncodedBody("termsAndConditions.opt-in" -> "true", ("email.main", emailAddress), ("email.confirm", emailAddress), "termsAndConditions.accept-tc" -> "true", "emailAlreadyStored" -> "true")))
 
@@ -929,20 +919,21 @@ class ChoosePaperlessControllerSpecTC extends UnitSpec with MockitoSugar with On
       header("Location", page).get should include(TestFixtures.taxCreditsHostContext("").returnUrl)
 
       verify(mockEmailConnector).isValid(is(emailAddress))(any())
-      verify(mockEntityResolverConnector).updateTermsAndConditionsForSvc( is(TaxCreditsTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())
+      verify(mockEntityResolverConnector).updateTermsAndConditionsForSvc(is(TaxCreditsTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())
 
       verifyNoMoreInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
 
     "when opting-out, save the preference and redirect to the thank you page" in new ChoosePaperlessControllerSetup {
       override def assignedCohort: OptInCohort = TCPage
-      when(mockEntityResolverConnector.updateTermsAndConditionsForSvc( is(TaxCreditsTerms -> TermsAccepted(false)), is(None), any(), any(), any())(any(), any())).thenReturn(Future.successful(PreferencesCreated))
+
+      when(mockEntityResolverConnector.updateTermsAndConditionsForSvc(is(TaxCreditsTerms -> TermsAccepted(false)), is(None), any(), any(), any())(any(), any())).thenReturn(Future.successful(PreferencesCreated))
       val page = Future.successful(controller.submitForm(TestFixtures.taxCreditsHostContext(""))(FakeRequest().withFormUrlEncodedBody("termsAndConditions.opt-in" -> "false")))
 
       status(page) shouldBe 303
       header("Location", page).get should be(TestFixtures.taxCreditsHostContext("").returnUrl)
 
-      verify(mockEntityResolverConnector).updateTermsAndConditionsForSvc( is(TaxCreditsTerms -> TermsAccepted(false)), is(None), any(), any(), any())(any(), any())
+      verify(mockEntityResolverConnector).updateTermsAndConditionsForSvc(is(TaxCreditsTerms -> TermsAccepted(false)), is(None), any(), any(), any())(any(), any())
 
       verifyNoMoreInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
@@ -952,15 +943,16 @@ class ChoosePaperlessControllerSpecTC extends UnitSpec with MockitoSugar with On
 
     "if the verified flag is true, save the preference and redirect to the thank you page without verifying the email address again" in new ChoosePaperlessControllerSetup {
       override def assignedCohort: OptInCohort = TCPage
+
       val emailAddress = "someone@email.com"
-      when(mockEntityResolverConnector.updateTermsAndConditionsForSvc( is(TaxCreditsTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())).thenReturn(Future.successful(PreferencesCreated))
+      when(mockEntityResolverConnector.updateTermsAndConditionsForSvc(is(TaxCreditsTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())).thenReturn(Future.successful(PreferencesCreated))
 
       val page = Future.successful(controller.submitForm(TestFixtures.taxCreditsHostContext(""))(FakeRequest().withFormUrlEncodedBody("termsAndConditions.opt-in" -> "true", ("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "true"), "termsAndConditions.accept-tc" -> "true")))
 
       status(page) shouldBe 303
       header("Location", page).get should include(routes.ChoosePaperlessController.displayNearlyDone(Some(Encrypted(EmailAddress(emailAddress))), TestFixtures.taxCreditsHostContext("")).toString())
 
-      verify(mockEntityResolverConnector).updateTermsAndConditionsForSvc( is(TaxCreditsTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())
+      verify(mockEntityResolverConnector).updateTermsAndConditionsForSvc(is(TaxCreditsTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())
 
       verifyNoMoreInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
@@ -968,6 +960,7 @@ class ChoosePaperlessControllerSpecTC extends UnitSpec with MockitoSugar with On
     "if the verified flag is false and the email does not pass validation by the email micro service, display the verify page" in new ChoosePaperlessControllerSetup {
 
       override def assignedCohort: OptInCohort = TCPage
+
       val emailAddress = "someone@dodgy.domain"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(false)
 
@@ -985,6 +978,7 @@ class ChoosePaperlessControllerSpecTC extends UnitSpec with MockitoSugar with On
     "if the verified flag is any value other than true, treat it as false" in new ChoosePaperlessControllerSetup {
 
       override def assignedCohort: OptInCohort = TCPage
+
       val emailAddress = "someone@dodgy.domain"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(false)
 
@@ -1005,9 +999,10 @@ class ChoosePaperlessControllerSpecTC extends UnitSpec with MockitoSugar with On
     "be created as EventTypes.Succeeded when a new user is activated on submitting a print preference from TCPage" in new ChoosePaperlessControllerSetup {
 
       override def assignedCohort: OptInCohort = TCPage
+
       val emailAddress = "someone@email.com"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(true)
-      when(mockEntityResolverConnector.updateTermsAndConditionsForSvc( is(TaxCreditsTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())).thenReturn(Future.successful(PreferencesCreated))
+      when(mockEntityResolverConnector.updateTermsAndConditionsForSvc(is(TaxCreditsTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())).thenReturn(Future.successful(PreferencesCreated))
 
       val page = Future.successful(controller.submitForm(TestFixtures.taxCreditsHostContext(""))(FakeRequest().withFormUrlEncodedBody("termsAndConditions.opt-in" -> "true", ("email.main", emailAddress), ("email.confirm", emailAddress), "termsAndConditions.accept-tc" -> "true")))
 
@@ -1033,9 +1028,10 @@ class ChoosePaperlessControllerSpecTC extends UnitSpec with MockitoSugar with On
     "be created as EventTypes.Succeeded when an existing user is activated on submitting a print preference from TCPage" in new ChoosePaperlessControllerSetup {
 
       override def assignedCohort: OptInCohort = TCPage
+
       val emailAddress = "someone@email.com"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(true)
-      when(mockEntityResolverConnector.updateTermsAndConditionsForSvc( is(TaxCreditsTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())).thenReturn(Future.successful(PreferencesExists))
+      when(mockEntityResolverConnector.updateTermsAndConditionsForSvc(is(TaxCreditsTerms -> TermsAccepted(true)), is(Some(emailAddress)), any(), any(), any())(any(), any())).thenReturn(Future.successful(PreferencesExists))
 
       val page = Future.successful(controller.submitForm(TestFixtures.taxCreditsHostContext(""))(FakeRequest().withFormUrlEncodedBody("termsAndConditions.opt-in" -> "true", ("email.main", emailAddress), ("email.confirm", emailAddress), "termsAndConditions.accept-tc" -> "true")))
 

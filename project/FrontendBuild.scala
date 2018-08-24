@@ -25,6 +25,7 @@ private object Dependencies {
     "uk.gov.hmrc"             %% "a-b-test"                 % "2.0.0",
     "uk.gov.hmrc"             %% "emailaddress"             % "2.0.0",
     "uk.gov.hmrc"             %% "frontend-bootstrap"       % "8.24.0",
+    "uk.gov.hmrc"             %% "auth-client"              % "2.6.0",
     "com.netaporter"          %% "scala-uri"                % "0.4.14",
     "uk.gov.hmrc"             %% "url-builder"              % "2.1.0",
     "uk.gov.hmrc"             %% "reactive-circuit-breaker" % "2.0.0",

@@ -1,4 +1,5 @@
-@(lastLogin: org.joda.time.DateTime, name: Option[String])(implicit request: Request[_], messages: Messages)
+@import controllers.auth.AuthenticatedRequest
+@(lastLogin: org.joda.time.DateTime, name: Option[String])(implicit request: AuthenticatedRequest[_], messages: Messages)
 
 @import views.html.helpers.LastSignInPeriod.{succinct, detailed}
 

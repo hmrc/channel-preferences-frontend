@@ -1,11 +1,11 @@
 package views.sa.prefs
 
 import _root_.helpers.ConfigHelper
+import controllers.auth.AuthenticatedRequest
 import controllers.internal._
 import org.jsoup.Jsoup
 import org.scalatestplus.play.OneAppPerSuite
 import play.api.Application
-import play.api.i18n.Lang
 import play.api.i18n.Messages.Implicits._
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -14,7 +14,7 @@ import views.html.sa.prefs.sa_printing_preference
 
 class SaPrintingPreferenceViewSpec extends UnitSpec with OneAppPerSuite {
 
-  override implicit lazy val app : Application = ConfigHelper.fakeApp
+  override implicit lazy val app: Application = ConfigHelper.fakeApp
 
   "preference print template" should {
     "render the correct content for the IPage cohort " in {
@@ -22,7 +22,7 @@ class SaPrintingPreferenceViewSpec extends UnitSpec with OneAppPerSuite {
         emailForm = EmailForm(),
         submitPrefsFormAction = Call("GET", "/"),
         cohort = IPage
-      )(FakeRequest("GET", "/"), applicationMessages).toString())
+      )(AuthenticatedRequest(FakeRequest("GET", "/"), None, None, None, None), applicationMessages).toString())
 
       document.getElementById("opt-in-in").hasAttr("checked") shouldBe false
     }
