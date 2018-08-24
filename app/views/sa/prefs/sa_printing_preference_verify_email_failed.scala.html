@@ -1,4 +1,5 @@
-@(returnUrl: Option[String], returnLinkText: Option[String])(implicit request: Request[_], messages: Messages)
+@import controllers.auth.AuthenticatedRequest
+@(returnUrl: Option[String], returnLinkText: Option[String])(implicit request: AuthenticatedRequest[_], messages: Messages)
 @import uk.gov.hmrc.urls.Link
 
 @main(title = Messages("sa_printing_preference.email.failed.verified.title"), navTitle = Some(""), navLinks = Some(HtmlFormat.empty)) {

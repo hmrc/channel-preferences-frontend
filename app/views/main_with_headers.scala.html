@@ -1,3 +1,4 @@
+@import controllers.auth.AuthenticatedRequest
 @import play.api.i18n.Messages.Implicits._
 @(title: String,
         navTitle: String = "",
@@ -5,7 +6,7 @@
         sidebarLinks: Option[Html] = None,
         contentHeader: Option[Html] = None,
         bodyClasses: Option[String] = None,
-        mainClass: Option[String] = None)(mainContent: Html)(implicit authContext: Option[uk.gov.hmrc.play.frontend.auth.AuthContext] = None, request: Request[_], messages: Messages)
+        mainClass: Option[String] = None)(mainContent: Html)(implicit  request: AuthenticatedRequest[_] , messages: Messages)
 
     @main(
         title = title,

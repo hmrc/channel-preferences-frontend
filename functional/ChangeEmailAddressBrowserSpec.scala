@@ -2,69 +2,75 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import conf.ServerSetup
 import org.openqa.selenium.support.ui.{ExpectedConditions, WebDriverWait}
 import org.scalatest.concurrent.{Eventually, ScalaFutures}
-import pages.{ChangeEmailAddressPage, CheckChangedEmailAddressPage}
+import pages.{AuthCredential, AuthWizardPage, ChangeEmailAddressPage, CheckChangedEmailAddressPage}
 import uk.gov.hmrc.endtoend
 import uk.gov.hmrc.endtoend.sa.config.{TestEmailAddresses, UserWithUtr}
 import utils.UserSetupHelper
 
-class ChangeEmailAddressBrowserSpec extends endtoend.sa.Spec with ServerSetup with ScalaFutures with Eventually{
-  import stubs._
-  implicit val user = new UserWithUtr { val utr = "1111111111" }
+class ChangeEmailAddressBrowserSpec extends endtoend.sa.Spec with ServerSetup with ScalaFutures with Eventually {
 
-  feature("Change email page validation") {
-    scenario("The change email page should throw a validation error if the User attempts to submit an invalid email address") {
-      val validEmailAddress = TestEmailAddresses.generateSafe
+    import stubs._
 
-      Given("I am logged in as an opted in user")
-        go to Auth.loginPage
-        UserSetupHelper.setUserAsOptedIn(validEmailAddress)
-
-      And("I am on Change email address Page")
-        val changeEmailAddressPage = ChangeEmailAddressPage(returnUrl = Host.ReturnPage, Host.returnLinkText)
-        go to changeEmailAddressPage
-        changeEmailAddressPage should be (displayed)
-
-      When("I attempt to submit the email change form with no email")
-        changeEmailAddressPage.completeForm("")
-
-      Then("I am shown a validation error message informing me that I need to enter an email address")
-        changeEmailAddressPage.`change email validation message` should include ("Enter a valid email address.")
-
-      When("I enter an invalid email address and submit")
-        changeEmailAddressPage.completeForm(TestEmailAddresses.invalidlyFormatted)
-
-      Then("I am shown a validation error message informing me that I need to enter a valid email address")
-        changeEmailAddressPage.`change email validation message` should include ("Enter a valid email address.")
+    implicit val user = new UserWithUtr {
+        val utr = "1111111111"
     }
-  }
 
-  feature("User changes email address") {
-    scenario("User is asked to confirm their new unconventional email address and can return back to correct it"){
-      val validEmailAddress = TestEmailAddresses.generateSafe
+    feature("Change email page validation") {
+        scenario("The change email page should throw a validation error if the User attempts to submit an invalid email address") {
+            val validEmailAddress = TestEmailAddresses.generateSafe
 
-      Given("I am logged in as an opted in user")
-        go to Auth.loginPage
-        UserSetupHelper.setUserAsOptedIn(validEmailAddress)
+            Given("I am logged in as an opted in user")
+            go to (AuthWizardPage.url)
+            AuthWizardPage should be(displayed)
+            UserSetupHelper.setUserAsOptedIn(validEmailAddress)
 
-      And("I am on Change email address Page")
-        val changeEmailAddressPage = ChangeEmailAddressPage(returnUrl = Host.ReturnPage, Host.returnLinkText)
-        go to changeEmailAddressPage
-        changeEmailAddressPage should be (displayed)
+            And("I am on Change email address Page")
+            val changeEmailAddressPage = ChangeEmailAddressPage(returnUrl = Host.ReturnPage, Host.returnLinkText)
+            AuthWizardPage.submitLogin(AuthCredential(changeEmailAddressPage.url))
+            changeEmailAddressPage should be(displayed)
+            When("I attempt to submit the email change form with no email")
+            changeEmailAddressPage.completeForm("")
 
-      When("I attempt to submit an unsafe email address")
-        val newEmailAddress = TestEmailAddresses.generateUnsafe
-        givenThat(Email.`POST /validate-email-address`(newEmailAddress) willReturn(aResponse withStatus 200 withBody Email.invalidEmailJson))
-        changeEmailAddressPage.completeForm(newEmailAddress)
+            Then("I am shown a validation error message informing me that I need to enter an email address")
+            changeEmailAddressPage.`change email validation message` should include("Enter a valid email address.")
 
-      Then("I am asked to confirm email address is correct")
-        val checkEmailAddressPage = CheckChangedEmailAddressPage(returnUrl = Host.ReturnPage, Host.returnLinkText)
-        checkEmailAddressPage should be (displayed)
+            When("I enter an invalid email address and submit")
+            changeEmailAddressPage.completeForm(TestEmailAddresses.invalidlyFormatted)
 
-      When("I confirm the changed email is correct")
-        click on checkEmailAddressPage.changedEmailIsNotCorrectLink
-
-      Then("I am taken back to change email page")
-        new WebDriverWait(webDriver, 2).until(ExpectedConditions.titleIs(changeEmailAddressPage.title))
+            Then("I am shown a validation error message informing me that I need to enter a valid email address")
+            changeEmailAddressPage.`change email validation message` should include("Enter a valid email address.")
+        }
     }
-  }
+
+    feature("User changes email address") {
+        scenario("User is asked to confirm their new unconventional email address and can return back to correct it") {
+            val validEmailAddress = TestEmailAddresses.generateSafe
+
+            Given("I am logged in as an opted in user")
+
+            go to (AuthWizardPage.url)
+            AuthWizardPage should be(displayed)
+            UserSetupHelper.setUserAsOptedIn(validEmailAddress)
+
+            And("I am on Change email address Page")
+            val changeEmailAddressPage = ChangeEmailAddressPage(returnUrl = Host.ReturnPage, Host.returnLinkText)
+            AuthWizardPage.submitLogin(AuthCredential(changeEmailAddressPage.url))
+            changeEmailAddressPage should be(displayed)
+
+            When("I attempt to submit an unsafe email address")
+            val newEmailAddress = TestEmailAddresses.generateUnsafe
+            givenThat(Email.`POST /validate-email-address`(newEmailAddress) willReturn (aResponse withStatus 200 withBody Email.invalidEmailJson))
+            changeEmailAddressPage.completeForm(newEmailAddress)
+
+            Then("I am asked to confirm email address is correct")
+            val checkEmailAddressPage = CheckChangedEmailAddressPage(returnUrl = Host.ReturnPage, Host.returnLinkText)
+            checkEmailAddressPage should be(displayed)
+
+            When("I confirm the changed email is correct")
+            click on checkEmailAddressPage.changedEmailIsNotCorrectLink
+
+            Then("I am taken back to change email page")
+            new WebDriverWait(webDriver, 2).until(ExpectedConditions.titleIs(changeEmailAddressPage.title))
+        }
+    }
 }

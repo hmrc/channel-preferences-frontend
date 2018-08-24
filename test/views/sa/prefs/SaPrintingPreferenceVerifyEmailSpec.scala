@@ -1,6 +1,7 @@
 package views.sa.prefs
 
 import _root_.helpers.{ConfigHelper, WelshLanguage}
+import controllers.auth.AuthenticatedRequest
 import org.jsoup.Jsoup
 import org.scalatestplus.play.OneAppPerSuite
 import play.api.Application
@@ -15,7 +16,7 @@ class SaPrintingPreferenceVerifyEmailSpec extends UnitSpec with OneAppPerSuite w
 
   "printing preferences verify email template" should {
     "render the correct content in english" in {
-      val document = Jsoup.parse(sa_printing_preference_verify_email(None, None)(FakeRequest("GET", "/"), applicationMessages).toString())
+      val document = Jsoup.parse(sa_printing_preference_verify_email(None, None)(AuthenticatedRequest(FakeRequest("GET", "/"), None, None, None, None), applicationMessages).toString())
 
       document.getElementsByTag("title").first().text() shouldBe "Email address verified"
     }

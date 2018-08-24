@@ -1,6 +1,7 @@
 package views
 
-import _root_.helpers.{TestFixtures, ConfigHelper, WelshLanguage}
+import _root_.helpers.{ConfigHelper, TestFixtures, WelshLanguage}
+import controllers.auth.AuthenticatedRequest
 import controllers.internal.EmailForm
 import org.jsoup.Jsoup
 import org.scalatestplus.play.OneAppPerSuite
@@ -18,7 +19,7 @@ class AccountDetailsUpdateEmailAddressSpec extends UnitSpec with OneAppPerSuite 
     "render the correct content in english" in {
       val currentEmail = "a@a.com"
       val form = EmailForm()
-      val document = Jsoup.parse(account_details_update_email_address(currentEmail, form)(None, FakeRequest("GET", "/"), applicationMessages, TestFixtures.sampleHostContext).toString())
+      val document = Jsoup.parse(account_details_update_email_address(currentEmail, form)(AuthenticatedRequest(FakeRequest("GET", "/"), None, None, None, None), applicationMessages, TestFixtures.sampleHostContext).toString())
 
       document.getElementsByTag("title").first().text() shouldBe "Change your email address"
       document.getElementsByTag("h1").get(0).text() shouldBe "Change your email address"
@@ -32,7 +33,7 @@ class AccountDetailsUpdateEmailAddressSpec extends UnitSpec with OneAppPerSuite 
     "render the correct content in welsh" in {
       val currentEmail = "a@a.com"
       val form = EmailForm()
-      val document = Jsoup.parse(account_details_update_email_address(currentEmail, form)(None, welshRequest, messagesInWelsh(applicationMessages), TestFixtures.sampleHostContext).toString())
+      val document = Jsoup.parse(account_details_update_email_address(currentEmail, form)(welshRequest, messagesInWelsh(applicationMessages), TestFixtures.sampleHostContext).toString())
 
       document.getElementsByTag("title").first().text() shouldBe "Newid eich cyfeiriad e-bost"
       document.getElementsByTag("h1").get(0).text() shouldBe "Newid eich cyfeiriad e-bost"

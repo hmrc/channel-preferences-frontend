@@ -1,8 +1,9 @@
 package controllers.internal
 
+import connectors.PreferenceResponse._
 import connectors._
-import controllers.AuthorityUtils._
-import helpers.{ConfigHelper, TestFixtures}
+import controllers.auth.{AuthAction, AuthenticatedRequest}
+import helpers.{ConfigHelper, MockAuthController, TestFixtures}
 import model.Encrypted
 import org.jsoup.Jsoup
 import org.mockito.Mockito._
@@ -13,15 +14,12 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
+import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.frontend.auth.AuthContext
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 import uk.gov.hmrc.play.test.UnitSpec
-import PreferenceResponse._
-
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.HttpResponse
 
 abstract class Setup extends MockitoSugar {
   val mockAuditConnector = mock[AuditConnector]
@@ -30,29 +28,29 @@ abstract class Setup extends MockitoSugar {
   val mockEmailConnector = mock[EmailConnector]
 
   val controller = new ManagePaperlessController {
-    implicit val authConnector = mockAuthConnector
+    val authorise: AuthAction = new MockAuthController(None, None, None, None)
     val entityResolverConnector = mockEntityResolverConnector
     val emailConnector = mockEmailConnector
     val auditConnector = mockAuditConnector
   }
 
-  val request = FakeRequest()
+  val request = new AuthenticatedRequest(FakeRequest(), None, None, None, None)
 }
 
 class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneAppPerSuite {
+
   import org.mockito.Matchers.{any, eq => is}
 
   val validUtr = SaUtr("1234567890")
-  val user = AuthContext(authority = saAuthority("userId", "1234567890"), nameFromSession = Some("Ciccio"), governmentGatewayToken = None)
 
-  override implicit lazy val app : Application = ConfigHelper.fakeApp
+  override implicit lazy val app: Application = ConfigHelper.fakeApp
 
   "clicking on Change email address link in the account details page" should {
     "display update email address form when accessed from Account Details" in new Setup {
       val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified))).toNewPreference()
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
 
-      val result = Future.successful(controller._displayChangeEmailAddress(None)(user, request, TestFixtures.sampleHostContext))
+      val result = Future.successful(controller._displayChangeEmailAddress(None)(request, TestFixtures.sampleHostContext))
 
       status(result) shouldBe 200
       val page = Jsoup.parse(contentAsString(result))
@@ -70,7 +68,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
 
       val existingEmailAddress = "existing@email.com"
-      val result = Future.successful(controller._displayChangeEmailAddress(Some(Encrypted(EmailAddress(existingEmailAddress))))(user, request, TestFixtures.sampleHostContext))
+      val result = Future.successful(controller._displayChangeEmailAddress(Some(Encrypted(EmailAddress(existingEmailAddress))))(request, TestFixtures.sampleHostContext))
 
       status(result) shouldBe 200
       val page = Jsoup.parse(contentAsString(result))
@@ -87,7 +85,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
       val saPreferences = SaPreference(false, None).toNewPreference()
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
 
-      val result = Future.successful(controller._displayChangeEmailAddress(None)(user, request, TestFixtures.sampleHostContext))
+      val result = Future.successful(controller._displayChangeEmailAddress(None)(request, TestFixtures.sampleHostContext))
 
       status(result) shouldBe 400
     }
@@ -102,7 +100,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
       when(mockEntityResolverConnector.changeEmailAddress(is("test@test.com"))(any())).thenReturn(Future.successful((HttpResponse(OK))))
 
-      val page = Future.successful(controller._resendVerificationEmail(user, FakeRequest(), TestFixtures.sampleHostContext))
+      val page = Future.successful(controller._resendVerificationEmail(request, TestFixtures.sampleHostContext))
 
       status(page) shouldBe 200
       val document = Jsoup.parse(contentAsString(page))
@@ -121,12 +119,12 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
 
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
 
-      val page = controller._displayChangeEmailAddressConfirmed(user, FakeRequest(), TestFixtures.sampleHostContext)
+      val page = controller._displayChangeEmailAddressConfirmed(request, TestFixtures.sampleHostContext)
 
       status(page) shouldBe 200
 
       val doc = Jsoup.parse(contentAsString(page))
-      doc.getElementById("updated-email-address") should have ('text ("s*****e@email.com"))
+      doc.getElementById("updated-email-address") should have('text ("s*****e@email.com"))
       doc.toString should not include emailAddress
     }
   }
@@ -141,7 +139,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
       when(mockEntityResolverConnector.changeEmailAddress(is(emailAddress))(any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND)))
 
-      val page = Future.successful(controller._submitChangeEmailAddress(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress),("email.confirm", emailAddress)), TestFixtures.sampleHostContext))
+      val page = Future.successful(controller._submitChangeEmailAddress(AuthenticatedRequest(FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress), ("email.confirm", emailAddress)), None, None, None, None), TestFixtures.sampleHostContext))
 
       status(page) shouldBe 303
       header("Location", page).get should include(routes.ManagePaperlessController.displayChangeEmailAddressConfirmed(TestFixtures.sampleHostContext).toString())
@@ -157,7 +155,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
 
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
 
-      val page = Future.successful(controller._submitChangeEmailAddress(user, FakeRequest().withFormUrlEncodedBody("email.main" -> "a@a.com", "email.confirm" -> "b@b.com"), TestFixtures.sampleHostContext))
+      val page = Future.successful(controller._submitChangeEmailAddress(AuthenticatedRequest(FakeRequest().withFormUrlEncodedBody("email.main" -> "a@a.com", "email.confirm" -> "b@b.com"), None, None, None, None), TestFixtures.sampleHostContext))
 
       status(page) shouldBe 400
 
@@ -170,7 +168,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
       val saPreferences = SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified))).toNewPreference()
 
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
-      val page = Future.successful(controller._submitChangeEmailAddress(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress)), TestFixtures.sampleHostContext))
+      val page = Future.successful(controller._submitChangeEmailAddress(AuthenticatedRequest(FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress)), None, None, None, None), TestFixtures.sampleHostContext))
 
       status(page) shouldBe 400
 
@@ -183,7 +181,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
 
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
 
-      val page = Future.successful(controller._submitChangeEmailAddress(user, FakeRequest().withFormUrlEncodedBody(("email.main", "")), TestFixtures.sampleHostContext))
+      val page = Future.successful(controller._submitChangeEmailAddress(AuthenticatedRequest(FakeRequest().withFormUrlEncodedBody(("email.main", "")), None, None, None, None), TestFixtures.sampleHostContext))
 
       status(page) shouldBe 400
 
@@ -199,7 +197,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(false)
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
 
-      val page = Future.successful(controller._submitChangeEmailAddress(user, FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress),("email.confirm", emailAddress)), TestFixtures.sampleHostContext))
+      val page = Future.successful(controller._submitChangeEmailAddress(AuthenticatedRequest(FakeRequest().withFormUrlEncodedBody(("email.main", emailAddress), ("email.confirm", emailAddress)), None, None, None, None), TestFixtures.sampleHostContext))
 
       status(page) shouldBe 200
 
@@ -221,8 +219,8 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
       when(mockEntityResolverConnector.changeEmailAddress(is(emailAddress))(any())).thenReturn(Future.successful(HttpResponse(OK)))
 
-      val page = Future.successful(controller._submitChangeEmailAddress(user, FakeRequest().withFormUrlEncodedBody
-        (("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "true")), TestFixtures.sampleHostContext))
+      val page = Future.successful(controller._submitChangeEmailAddress(AuthenticatedRequest(FakeRequest().withFormUrlEncodedBody
+      (("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "true")), None, None, None, None), TestFixtures.sampleHostContext))
 
       status(page) shouldBe 303
       header("Location", page).get should include(routes.ManagePaperlessController.displayChangeEmailAddressConfirmed(TestFixtures.sampleHostContext).toString())
@@ -241,8 +239,8 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
 
 
-      val page = Future.successful(controller._submitChangeEmailAddress(user, FakeRequest().withFormUrlEncodedBody
-        (("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "false")), TestFixtures.sampleHostContext))
+      val page = Future.successful(controller._submitChangeEmailAddress(AuthenticatedRequest(FakeRequest().withFormUrlEncodedBody
+      (("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "false")), None, None, None, None), TestFixtures.sampleHostContext))
 
       status(page) shouldBe 200
 
@@ -264,8 +262,8 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
 
 
-      val page = Future.successful(controller._submitChangeEmailAddress(user, FakeRequest().withFormUrlEncodedBody
-        (("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "hjgjhghjghjgj")), TestFixtures.sampleHostContext))
+      val page = Future.successful(controller._submitChangeEmailAddress(AuthenticatedRequest(FakeRequest().withFormUrlEncodedBody
+      (("email.main", emailAddress), ("email.confirm", emailAddress), ("emailVerified", "hjgjhghjghjgj")), None, None, None, None), TestFixtures.sampleHostContext))
 
       status(page) shouldBe 200
 
@@ -286,7 +284,7 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
 
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
 
-      val result = controller._displayStopPaperless(user, request, TestFixtures.sampleHostContext)
+      val result = controller._displayStopPaperless(request, TestFixtures.sampleHostContext)
 
       status(result) shouldBe 200
       val page = Jsoup.parse(contentAsString(result))
@@ -296,11 +294,11 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
       page.text() should not include "test@test.com"
     }
 
-    "return bad request if the user has not opted into digital" in new Setup{
+    "return bad request if the user has not opted into digital" in new Setup {
       val saPreferences = SaPreference(false, None).toNewPreference()
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
 
-      val result = controller._displayStopPaperless(user, request, TestFixtures.sampleHostContext)
+      val result = controller._displayStopPaperless(request, TestFixtures.sampleHostContext)
 
       status(result) shouldBe 400
     }
@@ -314,13 +312,13 @@ class ManagePaperlessControllerSpec extends UnitSpec with MockitoSugar with OneA
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
       when(mockEntityResolverConnector.updateTermsAndConditions(is(GenericTerms -> TermsAccepted(false)), is(None))(any(), any())).thenReturn(Future.successful(PreferencesExists))
 
-      val result = Future.successful(controller._submitStopPaperless(user, request, TestFixtures.sampleHostContext))
+      val result = Future.successful(controller._submitStopPaperless(request, TestFixtures.sampleHostContext))
 
       status(result) shouldBe 303
       header("Location", result).get should include(routes.ManagePaperlessController.displayStopPaperlessConfirmed(TestFixtures.sampleHostContext).url)
       val page = Jsoup.parse(contentAsString(result))
 
-      verify(mockEntityResolverConnector).updateTermsAndConditions(is(GenericTerms -> TermsAccepted(false)), is(None)) (any(), any())
+      verify(mockEntityResolverConnector).updateTermsAndConditions(is(GenericTerms -> TermsAccepted(false)), is(None))(any(), any())
     }
   }
 
