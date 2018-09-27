@@ -4,13 +4,16 @@ import sbt._
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 import play.sbt.routes.RoutesKeys.routesGenerator
 import play.routes.compiler.StaticRoutesGenerator
+import uk.gov.hmrc.{SbtArtifactory, SbtAutoBuildPlugin}
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
+import uk.gov.hmrc.versioning.SbtGitVersioning
 
 trait MicroService {
 
   import uk.gov.hmrc._
   import DefaultBuildSettings._
-  import uk.gov.hmrc.{SbtBuildInfo, ShellPrompt}
+  import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
+
 
   lazy val TemplateTest = config("tt") extend Test
   lazy val FunctionalTest = config("functional") extend Test
@@ -22,16 +25,17 @@ trait MicroService {
     }
 
   val appName: String
-  val appVersion: String
 
   lazy val appDependencies : Seq[ModuleID] = ???
   lazy val plugins : Seq[Plugins] = Seq(play.sbt.PlayScala, SbtDistributablesPlugin)
   lazy val playSettings : Seq[Setting[_]] = Seq.empty
 
   lazy val microservice = Project(appName, file("."))
+    .enablePlugins(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
+    .settings( majorVersion := 7 )
+
     .enablePlugins(plugins : _*)
     .settings(playSettings : _*)
-    .settings(version := appVersion)
     .settings(scalaSettings: _*)
     .settings(publishingSettings: _*)
     .settings(defaultSettings(): _*)
@@ -45,7 +49,6 @@ trait MicroService {
     .settings(scalaVersion := "2.11.11")
     .settings(
       targetJvm := "jvm-1.8",
-      shellPrompt := ShellPrompt(appVersion),
       libraryDependencies ++= appDependencies,
       parallelExecution in Test := false,
       fork in Test := false,
@@ -65,7 +68,6 @@ trait MicroService {
       unmanagedSourceDirectories in FunctionalTest <<= (baseDirectory in FunctionalTest)(base => Seq(base / "functional")),
       parallelExecution in FunctionalTest := false
     )
-    .settings(Repositories.playPublishingSettings : _*)
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
     .configs(IntegrationTest)
     .settings(inConfig(TemplateItTest)(Defaults.itSettings): _*)
@@ -75,25 +77,5 @@ trait MicroService {
       addTestReportOption(IntegrationTest, "int-test-reports"),
       testGrouping in IntegrationTest := oneForkedJvmPerTest((definedTests in IntegrationTest).value),
       parallelExecution in IntegrationTest := false)
-    .settings(SbtBuildInfo(): _*)
-    .settings(resolvers ++= Seq(Resolver.bintrayRepo("hmrc", "releases"), Resolver.jcenterRepo))
-}
-
-private object Repositories {
-
-  import uk.gov.hmrc._
-  import PublishingSettings._
-  import NexusPublishing._
-
-  lazy val playPublishingSettings : Seq[sbt.Setting[_]] = sbtrelease.ReleasePlugin.releaseSettings ++ Seq(
-
-    credentials += SbtCredentials,
-
-    publishArtifact in(Compile, packageDoc) := false,
-    publishArtifact in(Compile, packageSrc) := false
-
-  ) ++
-    publishAllArtefacts ++
-    nexusPublishingSettings
-
+    .settings(resolvers ++= Seq( Resolver.jcenterRepo))
 }

@@ -9,7 +9,6 @@ object FrontendBuild extends Build with MicroService {
   import Dependencies._
 
   val appName = "preferences-frontend"
-  val appVersion = envOrElse("PREFERENCES_FRONTEND_VERSION", "999-SNAPSHOT")
 
   override lazy val appDependencies = requiredDependencies
 
