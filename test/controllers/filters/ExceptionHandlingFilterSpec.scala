@@ -14,7 +14,7 @@ import uk.gov.hmrc.circuitbreaker.UnhealthyServiceException
 
 import scala.concurrent.Future
 
-class ExceptionHandlingFilterSpec extends WordSpec with ShouldMatchers with MockitoSugar with OneAppPerSuite with ScalaFutures {
+class ExceptionHandlingFilterSpec extends WordSpec with Matchers with MockitoSugar with OneAppPerSuite with ScalaFutures {
 
   implicit val timeout = Timeout(5, SECONDS)
   override implicit lazy val app : Application = ConfigHelper.fakeApp

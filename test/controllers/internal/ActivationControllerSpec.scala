@@ -12,6 +12,7 @@ import play.api.mvc.Results.{NotFound, Ok, PreconditionFailed}
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import play.api.{Configuration, Play}
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.{LegacyCredentials, ~}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
@@ -37,6 +38,8 @@ abstract class ActivationControllerSetup extends MockitoSugar {
     override def entityResolverConnector: EntityResolverConnector = mockEntityResolverConnector
 
     override val hostUrl: String = ""
+
+    override protected def appNameConfiguration: Configuration = Play.current.configuration
   }
 
   val retrievalResult: Future[~[LegacyCredentials, Enrolments]] = Future.successful(null)

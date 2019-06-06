@@ -1,7 +1,9 @@
 package config
 
 import controllers.ExternalUrls
+import play.api.Mode.Mode
 import play.api.Play.{configuration, current}
+import play.api.{Configuration, Play}
 import uk.gov.hmrc.play.config.RunMode
 
 trait AppConfig {
@@ -32,4 +34,8 @@ object YtaConfig extends AppConfig with RunMode {
 
   def fallbackURLForLanguageSwitcher: String = loadConfig(s"$env.languageSwitcher.fallback.url")
   def enableLanguageSwitching: Boolean = configuration.getBoolean(s"$env.enableLanguageSwitching").getOrElse(false)
+
+  override protected def mode: Mode = Play.current.mode
+
+  override protected def runModeConfiguration: Configuration = Play.current.configuration
 }

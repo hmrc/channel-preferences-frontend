@@ -2,11 +2,14 @@ package config
 
 import java.net.ConnectException
 
+import play.api.Mode.Mode
+import play.api.{Configuration, Play}
 import play.mvc.Http.Status._
+import uk.gov.hmrc.http.{BadRequestException, NotFoundException, Upstream4xxResponse, Upstream5xxResponse}
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.test.UnitSpec
+
 import scala.language.reflectiveCalls
-import uk.gov.hmrc.http.{ BadRequestException, NotFoundException, Upstream4xxResponse, Upstream5xxResponse }
 
 class ServicesCircuitBreakerSpec extends UnitSpec {
 
@@ -51,6 +54,10 @@ class ServicesCircuitBreakerSpec extends UnitSpec {
       override val externalServiceName: String = "test service"
 
       def breakOnExceptionDelegate(t: Throwable) = breakOnException(t)
+
+      override protected def mode: Mode = Play.current.mode
+
+      override protected def runModeConfiguration: Configuration = Play.current.configuration
     }
   }
 }

@@ -1,6 +1,7 @@
 package controllers.internal
 
 import controllers.Assets
+import play.api.{Configuration, Play}
 import uk.gov.hmrc.play.config.AppName
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 
@@ -8,4 +9,6 @@ import uk.gov.hmrc.play.frontend.controller.FrontendController
 class PlatformHealthCheckController extends FrontendController with AppName {
 
     def getAsset(fileName: String) = Assets.at(path="/public", file = fileName)
+
+    override protected def appNameConfiguration: Configuration = Play.current.configuration
 }

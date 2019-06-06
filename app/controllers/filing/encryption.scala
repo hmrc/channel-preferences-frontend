@@ -5,9 +5,10 @@ import java.net.URLDecoder
 import com.netaporter.uri.Uri
 import com.netaporter.uri.dsl._
 import org.joda.time.{DateTime, DateTimeZone}
-import play.api.{Play, Logger}
+import play.api.Mode.Mode
 import play.api.Play.current
 import play.api.mvc.{Action, AnyContent, Request, Results}
+import play.api.{Configuration, Logger, Play}
 import uk.gov.hmrc.crypto._
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.config.RunMode
@@ -39,7 +40,7 @@ private[filing] trait TokenEncryption extends Decrypter {
 }
 
 private[filing] object TokenEncryption extends TokenEncryption with CompositeSymmetricCrypto with KeysFromConfig {
-  override def configuration = Play.configuration
+ override def configuration = Play.configuration
 }
 
 private[filing] object DecryptAndValidate extends Results with RunMode {
@@ -59,4 +60,45 @@ private[filing] object DecryptAndValidate extends Results with RunMode {
           Future.successful(Redirect(returnUrl))
       }
   }
+
+  override protected def mode: Mode = Play.current.mode
+
+  override protected def runModeConfiguration: Configuration = Play.current.configuration
 }
+
+trait KeysFromConfig {
+  this: CompositeSymmetricCrypto =>
+
+  val baseConfigKey: String
+
+  def configuration: Configuration
+
+  override protected val currentCrypto = {
+    val configKey = baseConfigKey + ".key"
+    val currentEncryptionKey = configuration.getString(configKey).getOrElse {
+      Logger.error(s"Missing required configuration entry: $configKey")
+      throw new SecurityException(s"Missing required configuration entry: $configKey")
+    }
+    aesCrypto(currentEncryptionKey)
+  }
+
+  override protected val previousCryptos = {
+    val configKey = baseConfigKey + ".previousKeys"
+    val previousEncryptionKeys = configuration.getStringSeq(configKey).getOrElse(Seq.empty)
+    previousEncryptionKeys.map(aesCrypto)
+  }
+
+  private def aesCrypto(key: String) = {
+    try {
+      val crypto = new AesCrypto {
+        override val encryptionKey = key
+      }
+      crypto.decrypt(crypto.encrypt(PlainText("assert-valid-key")))
+      crypto
+    } catch {
+      case e: Exception => Logger.error(s"Invalid encryption key: $key", e); throw new SecurityException("Invalid encryption key", e)
+    }
+  }
+}
+
+case class CryptoWithKeysFromConfig(baseConfigKey: String, configuration: Configuration = Play.current.configuration) extends CompositeSymmetricCrypto with KeysFromConfig

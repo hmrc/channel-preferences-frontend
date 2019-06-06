@@ -6,6 +6,7 @@ import controllers.auth.{AuthAction, AuthController}
 import model.{Encrypted, FormType, HostContext}
 import play.api.libs.json.Json
 import play.api.mvc.Result
+import play.api.{Configuration, Play}
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.config.AppName
@@ -19,6 +20,7 @@ object ActivationController extends ActivationController {
 
   val hostUrl = ExternalUrlPrefixes.pfUrlPrefix
 
+  override protected def appNameConfiguration: Configuration = Play.current.configuration
 }
 
 trait ActivationController extends FrontendController with AppName {

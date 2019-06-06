@@ -2,13 +2,15 @@ package connectors
 
 import config.ServicesCircuitBreaker
 import model.{HostContext, ReturnLink}
+import play.api.Mode.Mode
 import play.api.http.Status
 import play.api.libs.json._
+import play.api.{Configuration, Play}
 import uk.gov.hmrc.domain.{Nino, SaUtr, TaxIdentifier}
+import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import scala.concurrent.Future
-import uk.gov.hmrc.http._
 
 case class Email(email: String)
 
@@ -76,6 +78,10 @@ object EntityResolverConnector extends EntityResolverConnector with ServicesConf
         standardConditions
     }
   }
+
+  override protected def mode: Mode = Play.current.mode
+
+  override protected def runModeConfiguration: Configuration = Play.current.configuration
 }
 
 trait PreferenceStatus

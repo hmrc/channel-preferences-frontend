@@ -7,9 +7,10 @@ import com.netaporter.uri.dsl._
 import com.netaporter.uri.encoding._
 import connectors.EntityResolverConnector
 import model.Encrypted
-import play.api.Play
+import play.api.Mode.Mode
 import play.api.Play.current
 import play.api.mvc._
+import play.api.{Configuration, Play}
 import uk.gov.hmrc.crypto.PlainText
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.config.RunMode
@@ -42,4 +43,8 @@ class FilingInterceptController(whiteList: Set[String], preferencesConnector: En
 
 object FilingInterceptController extends RunMode {
   lazy val redirectDomainWhiteList = Play.configuration.getStringList(s"govuk-tax.$env.portal.redirectDomainWhiteList").getOrElse(Collections.emptyList()).toSet
+
+  override protected def mode: Mode = Play.current.mode
+
+  override protected def runModeConfiguration: Configuration = Play.current.configuration
 }

@@ -4,7 +4,7 @@ import connectors.SaEmailPreference.Status
 import helpers.ConfigHelper
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.play.OneAppPerSuite
-import play.api.Application
+import play.api.{Application, Configuration, Play}
 import org.scalatest.mock.MockitoSugar
 import play.api.libs.json.{JsValue, Json, Writes}
 import uk.gov.hmrc.circuitbreaker.UnhealthyServiceException
@@ -14,10 +14,12 @@ import uk.gov.hmrc.play.config.{AppName, ServicesConfig}
 import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.test.UnitSpec
 import PreferenceResponse._
+import akka.actor.ActorSystem
 import model.HostContext
+import play.api.Mode.Mode
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{ BadRequestException, HeaderCarrier, HttpGet, HttpPost, HttpPut, HttpResponse, InternalServerException, NotFoundException, Upstream4xxResponse, Upstream5xxResponse }
+import uk.gov.hmrc.http.{BadRequestException, HeaderCarrier, HttpGet, HttpPost, HttpPut, HttpResponse, InternalServerException, NotFoundException, Upstream4xxResponse, Upstream5xxResponse}
 import uk.gov.hmrc.http.hooks.HttpHook
 
 class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with OneAppPerSuite with MockitoSugar {
@@ -43,6 +45,10 @@ class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with OneApp
   class TestPreferencesConnector extends EntityResolverConnector with ServicesConfig {
     val serviceUrl = "http://entity-resolver.service/"
     def http: HttpGet with HttpPost with HttpPut = ???
+
+    override protected def mode: Mode = Play.current.mode
+
+    override protected def runModeConfiguration: Configuration = Play.current.configuration
   }
 
   def entityResolverConnector(returnFromDoGet: String => Future[HttpResponse] = defaultGetHandler,
@@ -65,7 +71,13 @@ class EntityResolverConnectorSpec extends UnitSpec with ScalaFutures with OneApp
 
       def auditConnector = ???
 
-      override def configuration = ???
+      override def configuration = Some(Play.current.configuration.underlying)
+
+      override protected def appNameConfiguration: Configuration = Play.current.configuration
+
+      override def doPutString(url: String, body: String, headers: Seq[(String, String)])(implicit hc: HeaderCarrier): Future[HttpResponse] = ???
+
+      override protected def actorSystem: ActorSystem = Play.current.actorSystem
     }
   }
 

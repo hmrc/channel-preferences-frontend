@@ -3,7 +3,7 @@ resolvers += "HMRC Releases" at "https://dl.bintray.com/hmrc/releases"
 
 addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "1.6.0")
 
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.5.12")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.5.19")
 
 addSbtPlugin("uk.gov.hmrc" % "sbt-settings" % "3.8.0")
 

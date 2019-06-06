@@ -15,7 +15,7 @@ import play.api.mvc.{Action, AnyContent, Results}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 
-class DecodeAndWhitelistSpec extends WordSpec with ShouldMatchers with MockitoSugar with ScalaFutures with OneAppPerSuite {
+class DecodeAndWhitelistSpec extends WordSpec with Matchers with MockitoSugar with ScalaFutures with OneAppPerSuite {
   val allowedHost = "localhost"
 
   override implicit lazy val app : Application = ConfigHelper.fakeApp

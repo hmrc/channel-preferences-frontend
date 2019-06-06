@@ -1,8 +1,9 @@
 package config
 
-import play.api.Play
+import play.api.Mode.Mode
+import play.api.{Configuration, Play}
 import uk.gov.hmrc.play.config.{AppName, RunMode}
-import uk.gov.hmrc.play.frontend.filters.{ FrontendAuditFilter, FrontendLoggingFilter, MicroserviceFilterSupport }
+import uk.gov.hmrc.play.frontend.filters.{FrontendAuditFilter, FrontendLoggingFilter, MicroserviceFilterSupport}
 
 object FrontendFilters extends RunMode {
 
@@ -19,5 +20,11 @@ object FrontendFilters extends RunMode {
 
     def controllerNeedsAuditing(controllerName: String) =
       Play.configuration.getBoolean(s"controllers.$controllerName.needsAuditing").getOrElse(true)
+
+    override protected def appNameConfiguration: Configuration = Play.current.configuration
   }
+
+  override protected def mode: Mode = Play.current.mode
+
+  override protected def runModeConfiguration: Configuration = Play.current.configuration
 }

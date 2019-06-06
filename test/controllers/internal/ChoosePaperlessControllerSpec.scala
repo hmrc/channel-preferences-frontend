@@ -11,8 +11,8 @@ import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.OneAppPerSuite
-import play.api.Application
 import play.api.test.FakeRequest
+import play.api.{Application, Configuration, Play}
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
@@ -52,6 +52,7 @@ abstract class ChoosePaperlessControllerSetup extends MockitoSugar {
 
     override def auditConnector: AuditConnector = mockAuditConnector
 
+    override protected def appNameConfiguration: Configuration = Play.current.configuration
   }
 }
 

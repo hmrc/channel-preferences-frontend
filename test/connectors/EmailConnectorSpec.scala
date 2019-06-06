@@ -1,17 +1,20 @@
 package connectors
 
 import _root_.helpers.ConfigHelper
+import akka.actor.ActorSystem
+import com.typesafe.config.Config
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.play.OneAppPerSuite
-import play.api.Application
+import play.api.Mode.Mode
 import play.api.libs.json.{Json, Writes}
+import play.api.{Application, Configuration, Play}
+import uk.gov.hmrc.http.hooks.HttpHook
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.audit.http.HttpAuditing
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.test._
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.http.hooks.HttpHook
 
 class EmailConnectorSpec extends UnitSpec with ScalaFutures with OneAppPerSuite {
 
@@ -43,8 +46,6 @@ class EmailConnectorSpec extends UnitSpec with ScalaFutures with OneAppPerSuite 
 
         def auditConnector = ???
 
-        override def configuration = ???
-
         override def doPost[A](url: String, body: A, headers: Seq[(String, String)])(implicit wts: Writes[A], hc: HeaderCarrier): Future[HttpResponse]= Future.successful(responseFromEmailService)
 
         override def doPostString(url: String, body: String, headers: Seq[(String, String)])(implicit hc: HeaderCarrier) = ???
@@ -52,6 +53,16 @@ class EmailConnectorSpec extends UnitSpec with ScalaFutures with OneAppPerSuite 
         override def doEmptyPost[A](url: String)(implicit hc: HeaderCarrier) = ???
 
         override def doFormPost(url: String, body: Map[String, Seq[String]])(implicit hc: HeaderCarrier) = ???
+
+        override protected def appNameConfiguration: Configuration = Play.current.configuration
+
+        override protected def mode: Mode = Play.current.mode
+
+        override protected def runModeConfiguration: Configuration = Play.current.configuration
+
+        override protected def actorSystem: ActorSystem = Play.current.actorSystem
+
+        override protected def configuration: Option[Config] = Some(Play.current.configuration.underlying)
       }
 
       val exampleEmailAddress = "bob@somewhere.com"
@@ -66,7 +77,7 @@ class EmailConnectorSpec extends UnitSpec with ScalaFutures with OneAppPerSuite 
 
         def auditConnector = ???
 
-        override def configuration = ???
+        override def configuration = Some(Play.current.configuration.underlying)
 
         override def doPost[A](url: String, body: A, headers: Seq[(String, String)])(implicit wts: Writes[A], hc: HeaderCarrier): Future[HttpResponse]= Future.failed(new Exception("Service down"))
 
@@ -75,6 +86,14 @@ class EmailConnectorSpec extends UnitSpec with ScalaFutures with OneAppPerSuite 
         override def doEmptyPost[A](url: String)(implicit hc: HeaderCarrier) = ???
 
         override def doFormPost(url: String, body: Map[String, Seq[String]])(implicit hc: HeaderCarrier) = ???
+
+        override protected def appNameConfiguration: Configuration = Play.current.configuration
+
+        override protected def mode: Mode = Play.current.mode
+
+        override protected def runModeConfiguration: Configuration = Play.current.configuration
+
+        override protected def actorSystem: ActorSystem = Play.current.actorSystem
       }
 
     }

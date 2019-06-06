@@ -4,9 +4,11 @@ import config.Global
 import connectors._
 import controllers.auth.{AuthAction, AuthController, AuthenticatedRequest}
 import model.{Encrypted, HostContext}
+import play.api.Mode.Mode
 import play.api.Play.current
 import play.api.i18n.Messages.Implicits._
 import play.api.mvc.Result
+import play.api.{Configuration, Play}
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.config.ServicesConfig
@@ -49,6 +51,10 @@ object ManagePaperlessController extends ManagePaperlessController with Services
   def resendVerificationEmail(implicit hostContext: HostContext) = authorise.async { implicit authenticatedRequest =>
     _resendVerificationEmail
   }
+
+    override protected def mode: Mode = Play.current.mode
+
+    override protected def runModeConfiguration: Configuration = Play.current.configuration
 }
 
 trait ManagePaperlessController

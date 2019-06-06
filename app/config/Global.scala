@@ -1,26 +1,21 @@
 package config
 
 import com.kenshoo.play.metrics.{Metrics, MetricsFilterImpl}
-import connectors.WsHttp
 import controllers.auth.AuthenticatedRequest
 import controllers.filters.ExceptionHandlingFilter
 import controllers.internal.OptInCohortConfigurationValues
+import play.api.Mode.Mode
 import play.api.Play.current
 import play.api.i18n.Messages.Implicits._
-import play.api.mvc.{EssentialFilter, Request, RequestHeader, Result}
+import play.api.mvc.{EssentialFilter, Request}
 import play.api.{Application, Configuration, Play}
 import play.twirl.api.Html
 import uk.gov.hmrc.crypto.ApplicationCrypto
-import uk.gov.hmrc.http.HttpGet
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.config.{AppName, RunMode, ServicesConfig}
-import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 import uk.gov.hmrc.play.frontend.bootstrap.DefaultFrontendGlobal
 import uk.gov.hmrc.play.frontend.config.LoadAuditingConfig
 import uk.gov.hmrc.play.frontend.filters.{FrontendAuditFilter, FrontendLoggingFilter}
-import play.api.mvc.{Request, RequestHeader, Result, Results}
-
-import uk.gov.hmrc.auth.core._
 
 object Global extends DefaultFrontendGlobal with RunMode with ServicesConfig {
 
@@ -30,7 +25,7 @@ object Global extends DefaultFrontendGlobal with RunMode with ServicesConfig {
 
   override def onStart(app: Application) {
     super.onStart(app)
-    ApplicationCrypto.verifyConfiguration()
+    new ApplicationCrypto(Play.current.configuration.underlying).verifyConfiguration()
     OptInCohortConfigurationValues.verifyConfiguration()
   }
 
@@ -56,10 +51,19 @@ object Global extends DefaultFrontendGlobal with RunMode with ServicesConfig {
     )
   }
 
+  override protected def mode: Mode = Play.current.mode
+
+  override protected def runModeConfiguration: Configuration = Play.current.configuration
 }
 
 object Audit extends AuditConnector with AppName with RunMode {
   override lazy val auditingConfig = LoadAuditingConfig(s"$env.auditing")
+
+  override protected def appNameConfiguration: Configuration = Play.current.configuration
+
+  override protected def mode: Mode = Play.current.mode
+
+  override protected def runModeConfiguration: Configuration = Play.current.configuration
 }
 
 

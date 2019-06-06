@@ -12,6 +12,7 @@ import play.api.Play.current
 import play.api.data.Form
 import play.api.i18n.Messages.Implicits._
 import play.api.mvc._
+import play.api.{Configuration, Play}
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.AuditExtensions._
@@ -28,6 +29,7 @@ object ChoosePaperlessController extends ChoosePaperlessController {
   val entityResolverConnector = EntityResolverConnector
   val emailConnector = EmailConnector
 
+  override protected def appNameConfiguration: Configuration = Play.current.configuration
 }
 
 trait ChoosePaperlessController extends FrontendController with OptInCohortCalculator with AppName {

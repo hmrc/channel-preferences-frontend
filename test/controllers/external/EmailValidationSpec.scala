@@ -15,7 +15,7 @@ import play.api.test.Helpers._
 import scala.concurrent.Future
 import uk.gov.hmrc.http.HeaderCarrier
 
-class EmailValidationSpec extends WordSpec with ShouldMatchers with MockitoSugar with OneAppPerSuite {
+class EmailValidationSpec extends WordSpec with Matchers with MockitoSugar with OneAppPerSuite {
 
   def createController = new EmailValidationController {
     override lazy val entityResolverConnector = mock[EntityResolverConnector]

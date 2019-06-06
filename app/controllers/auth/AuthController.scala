@@ -16,8 +16,13 @@
 
 package controllers.auth
 
+import akka.actor.ActorSystem
+import com.typesafe.config.Config
 import org.joda.time.DateTime
-import play.api.mvc._
+import play.api.Mode.Mode
+import play.api.mvc.{Request, Result, Results, _}
+import play.api.{Configuration, Play}
+import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.{Retrievals, ~}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, HttpPost, HttpPut, Request => _, _}
 import uk.gov.hmrc.play.HeaderCarrierConverter
@@ -27,8 +32,6 @@ import uk.gov.hmrc.play.http.ws.{WSDelete, WSGet, WSPost, WSPut}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import play.api.mvc.{Request, Result, Results}
-import uk.gov.hmrc.auth.core.{AuthorisationException, _}
 
 trait AuthController extends AuthorisedFunctions with AuthAction {
   def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
@@ -68,6 +71,10 @@ object AuthConnector extends PlayAuthConnector with ServicesConfig {
 
   val serviceUrl: String =baseUrl("auth")
   def http: CorePost = WSHttp
+
+  override protected def mode: Mode = Play.current.mode
+
+  override protected def runModeConfiguration: Configuration = Play.current.configuration
 }
 
 trait WSHttp extends HttpGet with WSGet with HttpPut with WSPut with HttpPost with WSPost with HttpDelete with WSDelete with AppName with HttpAuditing with RunMode
@@ -76,6 +83,16 @@ trait WSHttp extends HttpGet with WSGet with HttpPut with WSPut with HttpPost wi
 object WSHttp extends WSHttp {
   override val auditConnector = config.Audit
   override val hooks = Seq(AuditingHook)
+
+  override protected def actorSystem: ActorSystem = Play.current.actorSystem
+
+  override protected def configuration: Option[Config] = Some(Play.current.configuration.underlying)
+
+  override protected def appNameConfiguration: Configuration = Play.current.configuration
+
+  override protected def mode: Mode = Play.current.mode
+
+  override protected def runModeConfiguration: Configuration = Play.current.configuration
 }
 
 trait AuthAction extends ActionBuilder[AuthenticatedRequest] with ActionFunction[Request, AuthenticatedRequest]
