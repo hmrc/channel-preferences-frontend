@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,38 +16,42 @@
 
 package controllers.auth
 
-import akka.actor.ActorSystem
-import com.typesafe.config.Config
+import javax.inject.Inject
 import org.joda.time.DateTime
-import play.api.Mode.Mode
-import play.api.mvc.{Request, Result, Results, _}
-import play.api.{Configuration, Play}
+import play.api.mvc.{ Request, Result, Results, _ }
 import uk.gov.hmrc.auth.core._
-import uk.gov.hmrc.auth.core.retrieve.{Retrievals, ~}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, HttpPost, HttpPut, Request => _, _}
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
+
+import uk.gov.hmrc.auth.core.retrieve.~
+import uk.gov.hmrc.http.{ HeaderCarrier, Request => _ }
 import uk.gov.hmrc.play.HeaderCarrierConverter
-import uk.gov.hmrc.play.audit.http.HttpAuditing
-import uk.gov.hmrc.play.config.{AppName, RunMode, ServicesConfig}
-import uk.gov.hmrc.play.http.ws.{WSDelete, WSGet, WSPost, WSPut}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ ExecutionContext, Future }
 
-trait AuthController extends AuthorisedFunctions with AuthAction {
-  def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
-    authorised().retrieve(Retrievals.name and Retrievals.loginTimes and Retrievals.nino and Retrievals.saUtr) {
-      case name ~ retLoginTimes ~ nino ~ utr => {
-        val previousLoginTime: Option[DateTime] = retLoginTimes.previousLogin
-        val fullName = (name.name, name.lastName) match {
-          case (None, None) => None
-          case (None, Some(l)) => Some(l)
-          case (Some(n), None) => Some(n)
-          case (Some(n), Some(l)) => Some(s"${n} ${l}")
+class PreferenceFrontendAuthActionImpl @Inject()(
+  override val authConnector: AuthConnector,
+  val parser: BodyParsers.Default)(implicit val executionContext: ExecutionContext)
+    extends PreferenceFrontendAuthAction with AuthorisedFunctions {
+  override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
+    implicit val hc: HeaderCarrier =
+      HeaderCarrierConverter.fromHeadersAndSession(request.headers)
+    authorised()
+      .retrieve(Retrievals.name and Retrievals.loginTimes and Retrievals.nino and Retrievals.saUtr) {
+        case name ~ retLoginTimes ~ nino ~ utr => {
+          val previousLoginTime: Option[DateTime] = retLoginTimes.previousLogin
+          val fullName = name.map { n =>
+            (n.name, n.lastName) match {
+              case (None, None)       => None
+              case (None, Some(l))    => Some(l)
+              case (Some(n), None)    => Some(n)
+              case (Some(n), Some(l)) => Some(s"$n $l")
+            }
+          }.flatten
+          block(AuthenticatedRequest(request, fullName, previousLoginTime, nino, utr))
         }
-        block(AuthenticatedRequest(request, fullName, previousLoginTime, nino, utr))
-      }
-    } recover {
+        case _ => Future.successful(Results.Unauthorized)
+      } recover {
       case _: InsufficientConfidenceLevel => Results.Unauthorized
       case _: UnsupportedAffinityGroup    => Results.Unauthorized
       case _: UnsupportedCredentialRole   => Results.Unauthorized
@@ -58,46 +62,23 @@ trait AuthController extends AuthorisedFunctions with AuthAction {
       case _: SessionRecordNotFound       => Results.Unauthorized
       case _: IncorrectCredentialStrength => Results.Unauthorized
       case _: InsufficientEnrolments      => Results.Unauthorized
-      case e => throw e
+      case e                              => throw e
     }
   }
 }
 
-object AuthController extends AuthController {
-  val authConnector = AuthConnector
-}
+trait PreferenceFrontendAuthAction
+    extends ActionBuilder[AuthenticatedRequest, AnyContent] with ActionFunction[Request, AuthenticatedRequest]
 
-object AuthConnector extends PlayAuthConnector with ServicesConfig {
+trait AuthAction
+    extends ActionBuilder[AuthenticatedRequest, AnyContent] with ActionFunction[Request, AuthenticatedRequest]
 
-  val serviceUrl: String =baseUrl("auth")
-  def http: CorePost = WSHttp
-
-  override protected def mode: Mode = Play.current.mode
-
-  override protected def runModeConfiguration: Configuration = Play.current.configuration
-}
-
-trait WSHttp extends HttpGet with WSGet with HttpPut with WSPut with HttpPost with WSPost with HttpDelete with WSDelete with AppName with HttpAuditing with RunMode
-
-
-object WSHttp extends WSHttp {
-  override val auditConnector = config.Audit
-  override val hooks = Seq(AuditingHook)
-
-  override protected def actorSystem: ActorSystem = Play.current.actorSystem
-
-  override protected def configuration: Option[Config] = Some(Play.current.configuration.underlying)
-
-  override protected def appNameConfiguration: Configuration = Play.current.configuration
-
-  override protected def mode: Mode = Play.current.mode
-
-  override protected def runModeConfiguration: Configuration = Play.current.configuration
-}
-
-trait AuthAction extends ActionBuilder[AuthenticatedRequest] with ActionFunction[Request, AuthenticatedRequest]
-
-
-case class AuthenticatedRequest[A](request: Request[A], fullName: Option[String], previousLoginTime: Option[DateTime], nino: Option[String], saUtr: Option[String]) extends WrappedRequest[A](request)
+case class AuthenticatedRequest[A](
+  request: Request[A],
+  fullName: Option[String],
+  previousLoginTime: Option[DateTime],
+  nino: Option[String],
+  saUtr: Option[String])
+    extends WrappedRequest[A](request)
 
 class MCIUserException extends Exception

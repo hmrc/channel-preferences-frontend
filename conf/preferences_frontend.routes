@@ -4,6 +4,7 @@ PUT         /paperless/activate/:formType/:taxIdentifier                        
 PUT         /paperless/activate                                                     controllers.internal.ActivationController.preferencesStatus(hostContext: model.HostContext)
 PUT         /paperless/activate-from-token/:svc/:token                              controllers.internal.ActivationController.preferencesStatusBySvc(svc: String, token: String, hostContext: model.HostContext)
 GET         /paperless/preferences                                                  controllers.internal.ActivationController.preferences()
+GET         /paperless/test                                                      controllers.internal.ActivationController.test()
 
 GET         /paperless/email-address/change                                         controllers.internal.ManagePaperlessController.displayChangeEmailAddress(email: Option[model.EncryptedEmail], hostContext: model.HostContext)
 POST        /paperless/email-address/change                                         controllers.internal.ManagePaperlessController.submitChangeEmailAddress(hostContext: model.HostContext)

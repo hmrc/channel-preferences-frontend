@@ -1,16 +1,37 @@
+/*
+ * Copyright 2019 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package controllers
 
-
 import config.YtaConfig
-import play.api.Logger
-import play.api.Play.current
+import javax.inject.Inject
 import play.api.i18n.Lang
-import play.api.mvc.{Action, AnyContent, LegacyI18nSupport}
-import uk.gov.hmrc.play.frontend.controller.FrontendController
-import play.api.i18n.Messages.Implicits._
+import play.api.mvc.{ Action, AnyContent, LegacyI18nSupport, MessagesControllerComponents }
+import play.api.{ Configuration, Logger }
+import uk.gov.hmrc.play.bootstrap.config.RunMode
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
+import scala.concurrent.ExecutionContext
 
-trait LanguageController extends FrontendController  with LegacyI18nSupport {
+class LanguageController @Inject()(
+  configuration: Configuration,
+  ytaConfig: YtaConfig,
+  runMode: RunMode,
+  mcc: MessagesControllerComponents)(implicit ec: ExecutionContext)
+    extends FrontendController(mcc) with LegacyI18nSupport {
 
   val english = Lang("en")
   val welsh = Lang("cy")
@@ -22,12 +43,9 @@ trait LanguageController extends FrontendController  with LegacyI18nSupport {
     request.headers.get(REFERER) match {
       case Some(referrer) => Redirect(referrer).withLang(newLang)
       case None =>
-        Logger.warn(s"Unable to get the referrer, so sending them to ${YtaConfig.fallbackURLForLanguageSwitcher}")
-        Redirect(YtaConfig.fallbackURLForLanguageSwitcher).withLang(newLang)
+        Logger.warn(s"Unable to get the referrer, so sending them to ${ytaConfig.fallbackURLForLanguageSwitcher}")
+        Redirect(ytaConfig.fallbackURLForLanguageSwitcher).withLang(newLang)
     }
   }
 
 }
-
-
-object LanguageController extends LanguageController

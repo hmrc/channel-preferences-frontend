@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,36 +16,79 @@
 
 package controllers
 
-import controllers.auth.AuthAction
-import helpers.{MockAuthController, MockFailingAuthController}
-import org.scalatestplus.play.OneAppPerSuite
-import play.api.mvc.Controller
+import controllers.auth.PreferenceFrontendAuthAction
+import org.joda.time.{ DateTime, DateTimeZone }
+import org.mockito.Matchers.any
+import org.mockito.Mockito.when
+import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.play.PlaySpec
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.Application
+import play.api.inject.bind
+import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core._
-import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.auth.core.retrieve.{ LoginTimes, Name, ~ }
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
-class AuthControllerSpecs extends UnitSpec with OneAppPerSuite {
+import scala.concurrent.Future
+
+class AuthControllerSpecs extends PlaySpec with MockitoSugar with GuiceOneAppPerSuite {
 
   val fakeRequest = FakeRequest("GET", "/")
 
-  class FakeController(authAction: AuthAction) extends Controller {
-    def onPageLoad() = authAction { request => Ok }
+  type AuthRetrievals = Option[Name] ~ LoginTimes ~ Option[String] ~ Option[String]
+
+  val currentLogin = new DateTime(2015, 1, 1, 12, 0).withZone(DateTimeZone.UTC)
+  val previousLogin = new DateTime(2012, 1, 1, 12, 0).withZone(DateTimeZone.UTC)
+
+  val retrievalResult: Future[Option[Name] ~ LoginTimes ~ Option[String] ~ Option[String]] =
+    Future.successful(
+      new ~(
+        new ~(
+          new ~(Some(Name(Some("Alex"), Some("Brown"))), LoginTimes(currentLogin, Some(previousLogin))),
+          //Some("AB123456D")),
+          Option.empty[String]),
+        Some("1234567890")
+      ))
+
+  val mockAuthConnector: AuthConnector = mock[AuthConnector]
+
+  override def fakeApplication(): Application =
+    new GuiceApplicationBuilder()
+      .overrides(
+        bind[AuthConnector].toInstance(mockAuthConnector)
+      )
+      .build()
+  val authorise = app.injector.instanceOf[PreferenceFrontendAuthAction]
+  class FakeController(
+    authorise: PreferenceFrontendAuthAction,
+    val authConnector: AuthConnector,
+    mcc: MessagesControllerComponents)
+      extends FrontendController(mcc) {
+    def onPageLoad() = authorise.async { request =>
+      Future.successful(Ok)
+    }
   }
+  val mcc = app.injector.instanceOf[MessagesControllerComponents]
+  val authAction = app.injector.instanceOf[PreferenceFrontendAuthAction]
+  val controller = new FakeController(authAction, mockAuthConnector, mcc)
 
   "Auth Action" when {
     "the user has authenticated should return a successful response" in {
-      val authAction = new MockAuthController(None, None, None, None)
-      val controller = new FakeController(authAction)
+      when(mockAuthConnector.authorise[AuthRetrievals](any(), any())(any(), any()))
+        .thenReturn(retrievalResult)
       val result = controller.onPageLoad()(fakeRequest)
-      status(result) shouldBe OK
+      status(result) mustBe OK
     }
 
     "return not authorised then no credentials supplied" in {
-      val authAction = new MockFailingAuthController(SessionRecordNotFound())
-      val controller = new FakeController(authAction)
+      when(mockAuthConnector.authorise[AuthRetrievals](any(), any())(any(), any()))
+        .thenReturn(Future.failed(SessionRecordNotFound()))
       val result = controller.onPageLoad()(fakeRequest)
-      status(result) shouldBe 401
+      status(result) mustBe 401
     }
 
   }

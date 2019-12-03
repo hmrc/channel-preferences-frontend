@@ -1,11 +1,28 @@
+@*
+ * Copyright 2019 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import controllers.ExternalUrlPrefixes
+@this(externalUrlPrefixes: ExternalUrlPrefixes)
 @(email: connectors.EmailPreference, changeEmailAddressLinkId: String)(implicit request: Request[_], messages: Messages, hostContext: model.HostContext)
 @import uk.gov.hmrc.urls.Link
-@import controllers.ExternalUrlPrefixes._
 
 <p>
     @Link.toInternalPage(
         id = Some(changeEmailAddressLinkId),
-        url = pfUrlPrefix + controllers.internal.routes.ManagePaperlessController.displayChangeEmailAddress(None, hostContext),
+        url = externalUrlPrefixes.pfUrlPrefix + controllers.internal.routes.ManagePaperlessController.displayChangeEmailAddress(None, hostContext),
         value = Some(Messages("manage.paperless.change.email")),
         dataAttributes = Some(Map("journey-click" -> "self-assessment-preferences:Click:Change your email address"))
     ).toHtml
@@ -13,7 +30,7 @@
 <p>
     @Link.toInternalPage(
         id = Some("opt-out-of-email-link"),
-        url = pfUrlPrefix + controllers.internal.routes.ManagePaperlessController.displayStopPaperless(hostContext),
+        url = externalUrlPrefixes.pfUrlPrefix + controllers.internal.routes.ManagePaperlessController.displayStopPaperless(hostContext),
         value = Some(Messages("manage.paperless.stop.email")),
         dataAttributes = Some(Map("journey-click" -> "self-assessment-preferences:Click:Stop emails from HMRC"))
     )(messages).toHtml

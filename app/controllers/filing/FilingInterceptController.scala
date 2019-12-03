@@ -1,50 +1,70 @@
-package controllers.filing
+/*
+ * Copyright 2019 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-import java.util.Collections
+package controllers.filing
 
 import com.netaporter.uri.config.UriConfig
 import com.netaporter.uri.dsl._
 import com.netaporter.uri.encoding._
 import connectors.EntityResolverConnector
+import javax.inject.Inject
 import model.Encrypted
-import play.api.Mode.Mode
-import play.api.Play.current
+import play.api.Configuration
 import play.api.mvc._
-import play.api.{Configuration, Play}
 import uk.gov.hmrc.crypto.PlainText
 import uk.gov.hmrc.emailaddress.EmailAddress
-import uk.gov.hmrc.play.config.RunMode
-import uk.gov.hmrc.play.frontend.controller.FrontendController
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.HeaderCarrierConverter
+import uk.gov.hmrc.play.bootstrap.config.RunMode
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
-import scala.collection.JavaConversions._
+import scala.concurrent.ExecutionContext
 
-class FilingInterceptController(whiteList: Set[String], preferencesConnector: EntityResolverConnector) extends FrontendController {
+class FilingInterceptController @Inject()(
+  entityResolverConnector: EntityResolverConnector,
+  configuration: Configuration,
+  runMode: RunMode,
+  decryptAndValidate: DecryptAndValidate,
+  tokenEncryption: TokenEncryption,
+  mcc: MessagesControllerComponents)(implicit ec: ExecutionContext)
+    extends FrontendController(mcc) {
 
-  implicit val wl: Set[String] = whiteList
+  lazy val redirectDomainWhiteList = configuration
+    .getOptional[Seq[String]](s"govuk-tax.${runMode.env}.portal.redirectDomainWhiteList")
+    .getOrElse(List())
+    .toSet
+  implicit val wl: Set[String] = redirectDomainWhiteList
   implicit val config = UriConfig(encoder = percentEncode)
 
-  def this() = this(FilingInterceptController.redirectDomainWhiteList, EntityResolverConnector)
-
-  def redirectWithEmailAddress(encryptedToken: String, encodedReturnUrl: String, emailAddressToPrefill: Option[Encrypted[EmailAddress]]) =
+  def redirectWithEmailAddress(
+    encryptedToken: String,
+    encodedReturnUrl: String,
+    emailAddressToPrefill: Option[Encrypted[EmailAddress]]) =
     DecodeAndWhitelist(encodedReturnUrl) { returnUrl =>
-      DecryptAndValidate(encryptedToken, returnUrl) { token =>
+      decryptAndValidate(encryptedToken, returnUrl) { token =>
         Action.async { implicit request =>
+          implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
           val utr = token.utr
-          preferencesConnector.getEmailAddress(utr) map {
+          entityResolverConnector.getEmailAddress(utr) map {
             case Some(emailAddress) =>
-              Redirect(returnUrl ? ("email" -> TokenEncryption.encrypt(PlainText(emailAddress)).value))
+              Redirect(returnUrl ? ("email" -> tokenEncryption.encrypt(PlainText(emailAddress)).value))
             case _ =>
               Redirect(returnUrl)
           }
         }
       }
     }
-}
-
-object FilingInterceptController extends RunMode {
-  lazy val redirectDomainWhiteList = Play.configuration.getStringList(s"govuk-tax.$env.portal.redirectDomainWhiteList").getOrElse(Collections.emptyList()).toSet
-
-  override protected def mode: Mode = Play.current.mode
-
-  override protected def runModeConfiguration: Configuration = Play.current.configuration
 }
