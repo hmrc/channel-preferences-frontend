@@ -1,51 +1,34 @@
-/*
- * Copyright 2019 HM Revenue & Customs
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package views
 
-import _root_.helpers.{ ConfigHelper, LanguageHelper }
+import _root_.helpers.{ConfigHelper, WelshLanguage}
 import controllers.auth.AuthenticatedRequest
 import org.jsoup.Jsoup
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import org.scalatestplus.play.OneAppPerSuite
 import play.api.Application
 import play.api.i18n.Messages.Implicits.applicationMessages
 import play.api.test.FakeRequest
 import play.twirl.api.Html
 import uk.gov.hmrc.emailaddress.ObfuscatedEmailAddress
-import org.scalatestplus.play.PlaySpec
+import uk.gov.hmrc.play.test.UnitSpec
 import views.html.main
 
-class MainSpec extends PlaySpec with GuiceOneAppPerSuite with LanguageHelper with ConfigHelper {
+class MainSpec extends UnitSpec with OneAppPerSuite with WelshLanguage {
 
-  override implicit lazy val app: Application = fakeApp
-  val template = app.injector.instanceOf[main]
+  override implicit lazy val app: Application = ConfigHelper.fakeApp
 
   "main template" should {
     "render the correct content in english" in {
       val email = ObfuscatedEmailAddress("a@a.com")
-      val document = Jsoup.parse(template("title")(Html("Some HTML"))(engRequest, messagesInEnglish()).toString())
+      val document = Jsoup.parse(main("title")(Html("Some HTML"))(AuthenticatedRequest(FakeRequest("GET", "/"), None, None, None, None), applicationMessages).toString())
 
-      document.getElementsByClass("header__menu__proposition-name").get(0).text() mustBe "Your tax account"
+      document.getElementsByClass("header__menu__proposition-name").get(0).text() shouldBe "Your tax account"
     }
 
     "render the correct content in welsh" in {
       val email = ObfuscatedEmailAddress("a@a.com")
-      val document = Jsoup.parse(template("title")(Html("Some HTML"))(welshRequest, messagesInWelsh()).toString())
+      val document = Jsoup.parse(main("title")(Html("Some HTML"))(welshRequest, messagesInWelsh(applicationMessages)).toString())
 
-      document.getElementsByClass("header__menu__proposition-name").get(0).text() mustBe "Eich cyfrif treth"
+      document.getElementsByClass("header__menu__proposition-name").get(0).text() shouldBe "Eich cyfrif treth"
     }
   }
 }

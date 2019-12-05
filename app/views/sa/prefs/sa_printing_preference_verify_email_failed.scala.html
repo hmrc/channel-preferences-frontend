@@ -1,32 +1,14 @@
-@*
- * Copyright 2019 HM Revenue & Customs
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *@
-
 @import controllers.auth.AuthenticatedRequest
-@import play.twirl.api.HtmlFormat
-@this(mainTemplate: views.html.main, externalUrls: controllers.ExternalUrls)
 @(returnUrl: Option[String], returnLinkText: Option[String])(implicit request: AuthenticatedRequest[_], messages: Messages)
 @import uk.gov.hmrc.urls.Link
 
-@mainTemplate(title = Messages("sa_printing_preference.email.failed.verified.title"), navTitle = Some(""), navLinks = Some(HtmlFormat.empty)) {
+@main(title = Messages("sa_printing_preference.email.failed.verified.title"), navTitle = Some(""), navLinks = Some(HtmlFormat.empty)) {
 <header class="page-header">
     <h1 id="failure-heading">@Messages("sa_printing_preference.verification.heading.already")</h1>
 </header>
 <p id="success-message">@Messages("sa_printing_preference.verification.already.paragraph.1")</p>
 <p id="link-to-home">@Link.toInternalPage(
-    url = returnUrl.getOrElse(externalUrls.businessTaxHome),
+    url = returnUrl.getOrElse(controllers.ExternalUrls.businessTaxHome),
     value = Some(returnLinkText.getOrElse(Messages("sa_printing_preference.verification.action")))
     ).toHtml</p>
 }

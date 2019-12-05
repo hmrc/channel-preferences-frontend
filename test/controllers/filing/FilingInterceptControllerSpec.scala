@@ -1,36 +1,19 @@
-/*
- * Copyright 2019 HM Revenue & Customs
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package controllers.filing
 
-import java.net.URLEncoder.{ encode => urlEncode }
+import java.net.URLEncoder.{encode => urlEncode}
 
 import connectors.EntityResolverConnector
+import helpers.ConfigHelper
 import model.Encrypted
-import org.joda.time.{ DateTime, DateTimeZone }
-import org.mockito.Matchers.{ eq => meq, _ }
+import org.joda.time.{DateTime, DateTimeZone}
+import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.mockito.MockitoSugar
-import org.scalatest.{ BeforeAndAfterEach, Matchers, OptionValues, WordSpec }
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import org.scalatest.mock.MockitoSugar
+import org.scalatest.{BeforeAndAfter, Matchers, OptionValues, WordSpec}
+import org.scalatestplus.play.OneAppPerSuite
 import play.api.Application
-import play.api.inject._
-import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.mvc.{ AnyContent, Request }
+import play.api.mvc.{AnyContent, Request}
 import play.api.test.FakeRequest
 import uk.gov.hmrc.crypto.PlainText
 import uk.gov.hmrc.domain.SaUtr
@@ -39,63 +22,44 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
-class FilingInterceptControllerSpec
-    extends WordSpec with Matchers with MockitoSugar with BeforeAndAfterEach with ScalaFutures with OptionValues
-    with GuiceOneAppPerSuite {
+class FilingInterceptControllerSpec extends WordSpec with Matchers with MockitoSugar with BeforeAndAfter with ScalaFutures with OptionValues with OneAppPerSuite {
 
   import play.api.test.Helpers._
-
-  val mockEntityResolverConnector = mock[EntityResolverConnector]
-  override def fakeApplication(): Application =
-    new GuiceApplicationBuilder()
-      .configure(
-        "sso.encryption.key"          -> "P5xsJ9Nt+quxGZzB4DeLfw==",
-        "sso.encryption.previousKeys" -> Seq.empty
-      )
-      .overrides(bind[EntityResolverConnector].toInstance(mockEntityResolverConnector))
-      .build()
-
-  val crypto = app.injector.instanceOf[TokenEncryption]
-  val controller = app.injector.instanceOf[FilingInterceptController]
-
-  override def beforeEach() = reset(mockEntityResolverConnector)
+  override implicit lazy val app : Application = ConfigHelper.fakeApp
 
   "Preferences pages" should {
     "redirect to the portal when no preference exists for a specific utr" in new TestCase {
-      when(mockEntityResolverConnector.getEmailAddress(meq(validUtr))).thenReturn(Future.successful(None))
+      when(preferencesConnector.getEmailAddress(meq(validUtr))).thenReturn(Future.successful(None))
 
       val page = controller.redirectWithEmailAddress(validToken, encodedReturnUrl, None)(FakeRequest())
       status(page) shouldBe 303
       header("Location", page).value should be(decodedReturnUrl)
-      verify(mockEntityResolverConnector, times(1)).getEmailAddress(meq(validUtr))
+      verify(preferencesConnector, times(1)).getEmailAddress(meq(validUtr))
     }
 
     "redirect to the portal when a preference for email already exists for a specific utr" in new TestCase {
-      when(mockEntityResolverConnector.getEmailAddress(meq(validUtr))).thenReturn(Future.successful(Some(emailAddress)))
+      when(preferencesConnector.getEmailAddress(meq(validUtr))).thenReturn(Future.successful(Some(emailAddress)))
 
       val page = controller.redirectWithEmailAddress(validToken, encodedReturnUrl, None)(FakeRequest())
       status(page) shouldBe 303
       private val value = header("Location", page).value
       value should be(decodedReturnUrlWithEmailAddress)
-      verify(mockEntityResolverConnector, times(1)).getEmailAddress(meq(validUtr))
+      verify(preferencesConnector, times(1)).getEmailAddress(meq(validUtr))
     }
 
     "redirect to the portal when a preference for paper already exists for a specific utr" in new TestCase {
-      when(mockEntityResolverConnector.getEmailAddress(meq(validUtr))).thenReturn(Future.successful(None))
+      when(preferencesConnector.getEmailAddress(meq(validUtr))).thenReturn(Future.successful(None))
 
       val page = controller.redirectWithEmailAddress(validToken, encodedReturnUrl, None)(FakeRequest())
       status(page) shouldBe 303
       header("Location", page).value should be(decodedReturnUrl)
-      verify(mockEntityResolverConnector, times(1)).getEmailAddress(meq(validUtr))
+      verify(preferencesConnector, times(1)).getEmailAddress(meq(validUtr))
     }
 
     "redirect to the portal when preferences already exist for a specific utr and an email address was passed to the platform" in new TestCase {
-      when(mockEntityResolverConnector.getEmailAddress(meq(validUtr))).thenReturn(Future.successful(Some(emailAddress)))
+      when(preferencesConnector.getEmailAddress(meq(validUtr))).thenReturn(Future.successful(Some(emailAddress)))
 
-      val page = controller.redirectWithEmailAddress(
-        validToken,
-        encodedReturnUrl,
-        Some(Encrypted(EmailAddress("other@me.com"))))(FakeRequest())
+      val page = controller.redirectWithEmailAddress(validToken, encodedReturnUrl, Some(Encrypted(EmailAddress("other@me.com"))))(FakeRequest())
       status(page) shouldBe 303
       header("Location", page).value should be(decodedReturnUrlWithEmailAddress)
     }
@@ -122,41 +86,32 @@ class FilingInterceptControllerSpec
   }
 
   trait TestCase {
-    //   val crypto = CryptoWithKeysFromConfig(baseConfigKey = "sso.encryption")
+    val crypto = CryptoWithKeysFromConfig(baseConfigKey = "sso.encryption")
+
+    val preferencesConnector = mock[EntityResolverConnector]
+    val controller = new FilingInterceptController(whiteList = Set("localhost"), preferencesConnector)
+
     val emailAddress = "foo@bar.com"
     val validUtr = SaUtr("1234567")
-    lazy val validToken =
-      urlEncode(crypto.encrypt(PlainText(s"$validUtr:${DateTime.now(DateTimeZone.UTC).getMillis}")).value, "UTF-8")
-    lazy val expiredToken = urlEncode(
-      crypto.encrypt(PlainText(s"$validUtr:${DateTime.now(DateTimeZone.UTC).minusDays(1).getMillis}")).value,
-      "UTF-8")
+    lazy val validToken = urlEncode(crypto.encrypt(PlainText(s"$validUtr:${DateTime.now(DateTimeZone.UTC).getMillis}")).value, "UTF-8")
+    lazy val expiredToken = urlEncode(crypto.encrypt(PlainText(s"$validUtr:${DateTime.now(DateTimeZone.UTC).minusDays(1).getMillis}")).value, "UTF-8")
     lazy val incorrectToken = "this is an incorrect token khdskjfhasduiy3784y37yriuuiyr3i7rurkfdsfhjkdskh"
     val decodedReturnUrl = "http://localhost:8080/portal?exampleQuery=exampleValue"
     val encodedReturnUrl = urlEncode(decodedReturnUrl, "UTF-8")
-    lazy val decodedReturnUrlWithEmailAddress =
-      s"$decodedReturnUrl&email=${urlEncode(crypto.encrypt(PlainText(emailAddress)).value, "UTF-8")}"
+    lazy val decodedReturnUrlWithEmailAddress = s"$decodedReturnUrl&email=${urlEncode(crypto.encrypt(PlainText(emailAddress)).value, "UTF-8")}"
     val encodedUrlNotOnWhitelist = urlEncode("http://notOnWhiteList/something", "UTF-8")
 
     val request = FakeRequest()
 
     implicit def hc: HeaderCarrier = any()
 
-    def request(
-      optIn: Option[Boolean],
-      mainEmail: Option[String] = None,
-      mainEmailConfirmation: Option[String] = None): Request[AnyContent] = {
+    def request(optIn: Option[Boolean], mainEmail: Option[String] = None, mainEmailConfirmation: Option[String] = None): Request[AnyContent] = {
 
       val params = (
-        Seq(mainEmail.map { v =>
-          "email.main" -> v
-        })
-          ++ Seq(mainEmailConfirmation.map { v =>
-            ("email.confirm", v)
-          })
-          ++ Seq(optIn.map { v =>
-            ("opt-in", v.toString)
-          })
-      ).flatten
+        Seq(mainEmail.map { v => "email.main" -> v})
+          ++ Seq(mainEmailConfirmation.map { v => ("email.confirm", v)})
+          ++ Seq(optIn.map { v => ("opt-in", v.toString)})
+        ).flatten
 
       FakeRequest().withFormUrlEncodedBody(params: _*)
 

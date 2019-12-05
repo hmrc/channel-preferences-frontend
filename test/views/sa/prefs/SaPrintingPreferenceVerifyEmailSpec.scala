@@ -1,50 +1,33 @@
-/*
- * Copyright 2019 HM Revenue & Customs
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package views.sa.prefs
 
-import _root_.helpers.{ ConfigHelper, LanguageHelper }
+import _root_.helpers.{ConfigHelper, WelshLanguage}
+import controllers.auth.AuthenticatedRequest
 import org.jsoup.Jsoup
-import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import org.scalatestplus.play.OneAppPerSuite
 import play.api.Application
+import play.api.i18n.Messages.Implicits.applicationMessages
+import play.api.test.FakeRequest
+import uk.gov.hmrc.play.test.UnitSpec
 import views.html.sa.prefs.sa_printing_preference_verify_email
 
-class SaPrintingPreferenceVerifyEmailSpec
-    extends PlaySpec with GuiceOneAppPerSuite with LanguageHelper with ConfigHelper {
+class SaPrintingPreferenceVerifyEmailSpec extends UnitSpec with OneAppPerSuite with WelshLanguage {
 
-  override implicit lazy val app: Application = fakeApp
-  val template = app.injector.instanceOf[sa_printing_preference_verify_email]
+  override implicit lazy val app: Application = ConfigHelper.fakeApp
 
   "printing preferences verify email template" should {
     "render the correct content in english" in {
-      val document = Jsoup.parse(template(None, None)(engRequest, messagesInEnglish()).toString())
+      val document = Jsoup.parse(sa_printing_preference_verify_email(None, None)(AuthenticatedRequest(FakeRequest("GET", "/"), None, None, None, None), applicationMessages).toString())
 
-      document.getElementsByTag("title").first().text() mustBe "Email address verified"
+      document.getElementsByTag("title").first().text() shouldBe "Email address verified"
     }
 
     "render the correct content in welsh" in {
-      val document = Jsoup.parse(template(None, None)(welshRequest, messagesInWelsh()).toString())
+      val document = Jsoup.parse(sa_printing_preference_verify_email(None, None)(welshRequest, messagesInWelsh(applicationMessages)).toString())
 
-      document.getElementsByTag("title").first().text() mustBe "Cyfeiriad e-bost wedi'i ddilysu"
-      document.getElementById("success-heading").text() mustBe "Cyfeiriad e-bost wedi'i ddilysu"
-      document
-        .getElementById("success-message")
-        .text() mustBe "Rydych nawr wedi cofrestru ar gyfer hysbysiadau di-bapur."
-      document.getElementById("link-to-home").child(0).text() mustBe "Yn eich blaen i'ch cyfrif ar-lein gyda CThEM"
+      document.getElementsByTag("title").first().text() shouldBe "Cyfeiriad e-bost wedi'i ddilysu"
+      document.getElementById("success-heading").text() shouldBe "Cyfeiriad e-bost wedi'i ddilysu"
+      document.getElementById("success-message").text() shouldBe "Rydych nawr wedi cofrestru ar gyfer hysbysiadau di-bapur."
+      document.getElementById("link-to-home").child(0).text() shouldBe "Yn eich blaen i'ch cyfrif ar-lein gyda CThEM"
     }
   }
 }
