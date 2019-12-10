@@ -3,10 +3,12 @@ import sbt.Tests.{Group, SubProcess}
 import sbt._
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 import play.sbt.routes.RoutesKeys.routesGenerator
-import play.routes.compiler.StaticRoutesGenerator
+import play.routes.compiler.InjectedRoutesGenerator
 import uk.gov.hmrc.{SbtArtifactory, SbtAutoBuildPlugin}
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
 import uk.gov.hmrc.versioning.SbtGitVersioning
+import uk.gov.hmrc.ServiceManagerPlugin.Keys.itDependenciesList
+
 
 trait MicroService {
 
@@ -18,6 +20,19 @@ trait MicroService {
   lazy val TemplateTest = config("tt") extend Test
   lazy val FunctionalTest = config("functional") extend Test
   lazy val TemplateItTest = config("tit") extend IntegrationTest
+
+    lazy val externalServices = List(
+        ExternalService("AUTH"),
+        ExternalService("AUTH_LOGIN_API"),
+        ExternalService("USER_DETAILS"),
+        ExternalService("PREFERENCES"),
+        ExternalService("DATASTREAM"),
+        ExternalService("ENTITY_RESOLVER"),
+        ExternalService("MAILGUN_STUB"),
+        ExternalService("HMRC_EMAIL_RENDERER"),
+        ExternalService("IDENTITY_VERIFICATION", enableTestOnlyEndpoints = true),
+        ExternalService("EMAIL")
+    )
 
   def oneForkedJvmPerTest(tests: Seq[TestDefinition]) =
     tests map {
@@ -32,7 +47,7 @@ trait MicroService {
 
   lazy val microservice = Project(appName, file("."))
     .enablePlugins(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
-    .settings( majorVersion := 7 )
+    .settings( majorVersion := 8 )
 
     .enablePlugins(plugins : _*)
     .settings(playSettings : _*)
@@ -46,14 +61,14 @@ trait MicroService {
         "-language:reflectiveCalls"
       )
     )
-    .settings(scalaVersion := "2.11.11")
+    .settings(scalaVersion := "2.11.12")
     .settings(
       targetJvm := "jvm-1.8",
       libraryDependencies ++= appDependencies,
       parallelExecution in Test := false,
       fork in Test := false,
       retrieveManaged := true,
-      routesGenerator := StaticRoutesGenerator
+      routesGenerator := InjectedRoutesGenerator
     )
     .settings(inConfig(FunctionalTest)(Defaults.testSettings): _*)
     .configs(FunctionalTest)
@@ -71,11 +86,16 @@ trait MicroService {
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
     .configs(IntegrationTest)
     .settings(inConfig(TemplateItTest)(Defaults.itSettings): _*)
+    .settings(ServiceManagerPlugin.serviceManagerSettings)
+    .settings(itDependenciesList := externalServices)
     .settings(
       Keys.fork in IntegrationTest := false,
       unmanagedSourceDirectories in IntegrationTest <<= (baseDirectory in IntegrationTest)(base => Seq(base / "it")),
       addTestReportOption(IntegrationTest, "int-test-reports"),
       testGrouping in IntegrationTest := oneForkedJvmPerTest((definedTests in IntegrationTest).value),
       parallelExecution in IntegrationTest := false)
-    .settings(resolvers ++= Seq( Resolver.jcenterRepo))
+      .settings(
+        resolvers +=  Resolver.jcenterRepo,
+        resolvers += Resolver.bintrayRepo("hmrc", "releases"),
+        resolvers += "hmrc-releases" at "https://artefacts.tax.service.gov.uk/artifactory/hmrc-releases/")
 }

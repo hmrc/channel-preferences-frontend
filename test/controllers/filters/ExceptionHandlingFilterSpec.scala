@@ -1,24 +1,43 @@
+/*
+ * Copyright 2019 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package controllers.filters
 
 import java.util.concurrent.TimeUnit.SECONDS
 
 import akka.util.Timeout
-import helpers.ConfigHelper
 import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.mock.MockitoSugar
-import org.scalatestplus.play.OneAppPerSuite
+import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
-import play.api.test.{FakeRequest, Helpers}
+import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.test.{ FakeRequest, Helpers }
 import uk.gov.hmrc.circuitbreaker.UnhealthyServiceException
 
 import scala.concurrent.Future
 
-class ExceptionHandlingFilterSpec extends WordSpec with Matchers with MockitoSugar with OneAppPerSuite with ScalaFutures {
+class ExceptionHandlingFilterSpec
+    extends WordSpec with Matchers with MockitoSugar with GuiceOneAppPerSuite with ScalaFutures {
 
   implicit val timeout = Timeout(5, SECONDS)
-  override implicit lazy val app : Application = ConfigHelper.fakeApp
-
+  override def fakeApplication(): Application =
+    new GuiceApplicationBuilder()
+      .build()
+  val exceptionHandlingFilter = app.injector.instanceOf[ExceptionHandlingFilter]
 
   "ExceptionHandlingFilter" should {
 
@@ -28,7 +47,7 @@ class ExceptionHandlingFilterSpec extends WordSpec with Matchers with MockitoSug
 
       val fakeRequest = FakeRequest("GET", s"testUrl?returnUrl=$returnUrl")
 
-      val filterResult = ExceptionHandlingFilter(_ => Future.failed(new RuntimeException))(fakeRequest)
+      val filterResult = exceptionHandlingFilter(_ => Future.failed(new RuntimeException))(fakeRequest)
 
       Helpers.redirectLocation(filterResult) shouldBe Some("foo&value")
     }
@@ -40,7 +59,7 @@ class ExceptionHandlingFilterSpec extends WordSpec with Matchers with MockitoSug
       implicit val queryStringBindable = model.Encrypted.encryptedStringToDecryptedString
       val actionException = new UnhealthyServiceException("She kanna take any more captain!")
 
-      val filterResult = ExceptionHandlingFilter(_ => Future.failed(actionException))(fakeRequest)
+      val filterResult = exceptionHandlingFilter(_ => Future.failed(actionException))(fakeRequest)
 
       filterResult.failed.futureValue shouldBe actionException
     }
@@ -50,7 +69,7 @@ class ExceptionHandlingFilterSpec extends WordSpec with Matchers with MockitoSug
       implicit val queryStringBindable = model.Encrypted.encryptedStringToDecryptedString
       val actionException = new RuntimeException
 
-      val filterResult = ExceptionHandlingFilter(_ => Future.failed(actionException))(fakeRequest)
+      val filterResult = exceptionHandlingFilter(_ => Future.failed(actionException))(fakeRequest)
 
       filterResult.failed.futureValue shouldBe actionException
     }

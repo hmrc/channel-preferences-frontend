@@ -1,28 +1,45 @@
+/*
+ * Copyright 2019 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package controllers.filing
 
 import java.net.URLDecoder
 
 import com.netaporter.uri.Uri
 import com.netaporter.uri.dsl._
-import org.joda.time.{DateTime, DateTimeZone}
-import play.api.Mode.Mode
-import play.api.Play.current
-import play.api.mvc.{Action, AnyContent, Request, Results}
-import play.api.{Configuration, Logger, Play}
+import javax.inject.{ Inject, Singleton }
+import org.joda.time.{ DateTime, DateTimeZone }
+import play.api.mvc.{ Action, AnyContent, Request, Results }
+import play.api.{ Configuration, Logger }
 import uk.gov.hmrc.crypto._
 import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.play.config.RunMode
+import uk.gov.hmrc.play.bootstrap.config.RunMode
 
 import scala.concurrent.Future
 
-private[filing] case class TokenExpiredException(token: String, time: Long) extends Exception(s"Token expired: $token. Timestamp: $time, Now: ${DateTime.now(DateTimeZone.UTC).getMillis}")
+private[filing] case class TokenExpiredException(token: String, time: Long)
+    extends Exception(s"Token expired: $token. Timestamp: $time, Now: ${DateTime.now(DateTimeZone.UTC).getMillis}")
 
 private[filing] case class Token(utr: SaUtr, timestamp: Long, encryptedToken: String)
-
-private[filing] trait TokenEncryption extends Decrypter {
+@Singleton
+private[filing] class TokenEncryption @Inject()(config: Configuration)
+    extends Decrypter with CompositeSymmetricCrypto with KeysFromConfig {
+  override def configuration = config
 
   val base64 = "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$"
-  val baseConfigKey = "sso.encryption"
 
   def decryptToken(encryptedToken: String, timeout: Int): Token = {
     val tokenAsString =
@@ -39,17 +56,19 @@ private[filing] trait TokenEncryption extends Decrypter {
   def currentTime: DateTime = DateTime.now(DateTimeZone.UTC)
 }
 
-private[filing] object TokenEncryption extends TokenEncryption with CompositeSymmetricCrypto with KeysFromConfig {
- override def configuration = Play.configuration
-}
-
-private[filing] object DecryptAndValidate extends Results with RunMode {
-  private lazy val tokenTimeout = Play.configuration.getInt(s"govuk-tax.$env.portal.tokenTimeout").getOrElse(240)
+@Singleton
+private[filing] class DecryptAndValidate @Inject()(
+  configuration: Configuration,
+  runMode: RunMode,
+  tokenEncryption: TokenEncryption)
+    extends Results {
+  private lazy val tokenTimeout =
+    configuration.getOptional[Int](s"govuk-tax.${runMode.env}.portal.tokenTimeout").getOrElse(240)
 
   def apply(encryptedToken: String, returnUrl: Uri)(action: Token => (Action[AnyContent])) = Action.async {
     request: Request[AnyContent] =>
       try {
-        implicit val token = TokenEncryption.decryptToken(encryptedToken, tokenTimeout)
+        implicit val token = tokenEncryption.decryptToken(encryptedToken, tokenTimeout)
         action(token)(request)
       } catch {
         case e: TokenExpiredException =>
@@ -60,35 +79,31 @@ private[filing] object DecryptAndValidate extends Results with RunMode {
           Future.successful(Redirect(returnUrl))
       }
   }
-
-  override protected def mode: Mode = Play.current.mode
-
-  override protected def runModeConfiguration: Configuration = Play.current.configuration
 }
 
 trait KeysFromConfig {
   this: CompositeSymmetricCrypto =>
 
-  val baseConfigKey: String
+  val baseConfigKey: String = "sso.encryption"
 
   def configuration: Configuration
 
   override protected val currentCrypto = {
     val configKey = baseConfigKey + ".key"
-    val currentEncryptionKey = configuration.getString(configKey).getOrElse {
-      Logger.error(s"Missing required configuration entry: $configKey")
-      throw new SecurityException(s"Missing required configuration entry: $configKey")
+    val currentEncryptionKey = configuration.getOptional[String](configKey).getOrElse {
+      Logger.error(s"Missing required 1 configuration entry: $configKey")
+      throw new SecurityException(s"Missing required 2 configuration entry: $configKey")
     }
     aesCrypto(currentEncryptionKey)
   }
 
   override protected val previousCryptos = {
     val configKey = baseConfigKey + ".previousKeys"
-    val previousEncryptionKeys = configuration.getStringSeq(configKey).getOrElse(Seq.empty)
+    val previousEncryptionKeys = configuration.getOptional[Seq[String]](configKey).getOrElse(Seq.empty)
     previousEncryptionKeys.map(aesCrypto)
   }
 
-  private def aesCrypto(key: String) = {
+  private def aesCrypto(key: String) =
     try {
       val crypto = new AesCrypto {
         override val encryptionKey = key
@@ -96,9 +111,7 @@ trait KeysFromConfig {
       crypto.decrypt(crypto.encrypt(PlainText("assert-valid-key")))
       crypto
     } catch {
-      case e: Exception => Logger.error(s"Invalid encryption key: $key", e); throw new SecurityException("Invalid encryption key", e)
+      case e: Exception =>
+        Logger.error(s"Invalid encryption key: $key", e); throw new SecurityException("Invalid encryption key", e)
     }
-  }
 }
-
-case class CryptoWithKeysFromConfig(baseConfigKey: String, configuration: Configuration = Play.current.configuration) extends CompositeSymmetricCrypto with KeysFromConfig

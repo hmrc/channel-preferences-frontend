@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package controllers.filing
 
 import java.net.URLEncoder
@@ -8,46 +24,47 @@ import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.mock.MockitoSugar
-import org.scalatestplus.play.OneAppPerSuite
+import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
-import play.api.mvc.{Action, AnyContent, Results}
+import play.api.mvc.{ Action, AnyContent, Results }
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 
-class DecodeAndWhitelistSpec extends WordSpec with Matchers with MockitoSugar with ScalaFutures with OneAppPerSuite {
+class DecodeAndWhitelistSpec
+    extends WordSpec with Matchers with MockitoSugar with ScalaFutures with GuiceOneAppPerSuite with ConfigHelper {
   val allowedHost = "localhost"
 
-  override implicit lazy val app : Application = ConfigHelper.fakeApp
+  override implicit lazy val app: Application = fakeApp
 
   "The DecodeAndWhitelist wrapper" should {
 
     "pass through an allowed host" in new TestCase {
-      allow (s"http://$allowedHost:8080/portal")
+      allow(s"http://$allowedHost:8080/portal")
     }
 
     "pass through a subdomain of an allowed host" in new TestCase {
-      allow (s"http://something.$allowedHost:8080/portal")
+      allow(s"http://something.$allowedHost:8080/portal")
     }
 
     "reject a disallowed host" in new TestCase {
-      reject (s"http://monkey:8080/portal")
+      reject(s"http://monkey:8080/portal")
     }
 
     "reject a superdomain of an allowed host" in new TestCase {
-      reject (s"http://$allowedHost.something:8080/portal")
+      reject(s"http://$allowedHost.something:8080/portal")
     }
 
     "reject a URL without a host" in new TestCase {
-      reject (s"/portal")
+      reject(s"/portal")
     }
 
     "reject a URL which has the wrong encoding" in new TestCase {
-      reject (s"http://$allowedHost:8080/portal", "UTF-16")
+      reject(s"http://$allowedHost:8080/portal", "UTF-16")
     }
 
     "reject an empty URL" in new TestCase {
-      reject ("")
+      reject("")
     }
   }
 
@@ -57,13 +74,13 @@ class DecodeAndWhitelistSpec extends WordSpec with Matchers with MockitoSugar wi
 
     def allow(url: String) {
       val response = DecodeAndWhitelist(URLEncoder.encode(url, "UTF-8"))(action)(Set(allowedHost))(FakeRequest())
-      status(response) should be (200)
+      status(response) should be(200)
       verify(action).apply(Uri.parse(url))
     }
 
     def reject(url: String, encoding: String = "UTF-8") {
       val response = DecodeAndWhitelist(URLEncoder.encode(url, encoding))(action)(Set(allowedHost))(FakeRequest())
-      status(response) should be (400)
+      status(response) should be(400)
       verify(action, never()).apply(any())
     }
   }

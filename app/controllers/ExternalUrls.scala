@@ -1,39 +1,53 @@
+/*
+ * Copyright 2019 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package controllers
 
-import play.api.Mode.Mode
-import play.api.{Configuration, Play}
-import uk.gov.hmrc.play.config.RunMode
+import javax.inject.{ Inject, Singleton }
+import play.api.Configuration
+import uk.gov.hmrc.play.bootstrap.config.RunMode
 
-object ExternalUrlPrefixes extends RunMode {
-  import play.api.Play.current
-  lazy val pfUrlPrefix             = Play.configuration.getString(s"govuk-tax.$env.preferences-frontend.host").getOrElse("")
-  lazy val ytaUrlPrefix            = Play.configuration.getString(s"govuk-tax.$env.yta.host").getOrElse("")
-  lazy val taiUrlPrefix            = Play.configuration.getString(s"govuk-tax.$env.tai.host").getOrElse("")
-  lazy val caUrlPrefix             = Play.configuration.getString(s"govuk-tax.$env.company-auth.host").getOrElse("")
+@Singleton
+class ExternalUrlPrefixes @Inject()(configuration: Configuration, runMode: RunMode) {
+  lazy val pfUrlPrefix =
+    configuration.getOptional[String](s"govuk-tax.${runMode.env}.preferences-frontend.host").getOrElse("")
+  lazy val ytaUrlPrefix = configuration.getOptional[String](s"govuk-tax.${runMode.env}.yta.host").getOrElse("")
+  lazy val taiUrlPrefix = configuration.getOptional[String](s"govuk-tax.${runMode.env}.tai.host").getOrElse("")
+  lazy val caUrlPrefix = configuration.getOptional[String](s"govuk-tax.${runMode.env}.company-auth.host").getOrElse("")
 
-  override protected def mode: Mode = Play.current.mode
-
-  override protected def runModeConfiguration: Configuration = Play.current.configuration
 }
 
-object ExternalUrls extends RunMode {
-  import ExternalUrlPrefixes._
-  import play.api.Play.current
+@Singleton
+class ExternalUrls @Inject()(configuration: Configuration, runMode: RunMode, externalUrlPrefixes: ExternalUrlPrefixes) {
 
-  lazy val betaFeedbackUrl                = s"$caUrlPrefix/contact/beta-feedback"
-  lazy val betaFeedbackUnauthenticatedUrl = s"$caUrlPrefix/contact/beta-feedback-unauthenticated"
-  lazy val helpUrl                        = s"$caUrlPrefix/contact/contact-hmrc"
+  lazy val betaFeedbackUrl = s"${externalUrlPrefixes.caUrlPrefix}/contact/beta-feedback"
+  lazy val betaFeedbackUnauthenticatedUrl = s"${externalUrlPrefixes.caUrlPrefix}/contact/beta-feedback-unauthenticated"
+  lazy val helpUrl = s"${externalUrlPrefixes.caUrlPrefix}/contact/contact-hmrc"
 
-  lazy val manageAccount                  = s"$ytaUrlPrefix/account/account-details"
-  lazy val accountDetails                 = manageAccount
-  lazy val businessTaxHome                = s"$ytaUrlPrefix/account"
-  lazy val survey                         = s"$businessTaxHome/sso-sign-out"
+  lazy val manageAccount = s"${externalUrlPrefixes.ytaUrlPrefix}/account/account-details"
+  lazy val accountDetails = manageAccount
+  lazy val businessTaxHome = s"${externalUrlPrefixes.ytaUrlPrefix}/account"
+  lazy val survey = s"$businessTaxHome/sso-sign-out"
 
-  lazy val loginCallback                  = Play.configuration.getString(s"govuk-tax.$env.login-callback.url").getOrElse(businessTaxHome)
-  lazy val assets                         = Play.configuration.getString(s"govuk-tax.$env.assets.url").getOrElse(throw new RuntimeException("no assets url set")) +
-                                            Play.configuration.getString(s"govuk-tax.$env.assets.version").getOrElse(throw new RuntimeException("no assets version set"))
-
-  override protected def mode: Mode = Play.current.mode
-
-  override protected def runModeConfiguration: Configuration = Play.current.configuration
+  lazy val loginCallback =
+    configuration.getOptional[String](s"govuk-tax.${runMode.env}.login-callback.url").getOrElse(businessTaxHome)
+  lazy val assets = configuration
+    .getOptional[String](s"govuk-tax.${runMode.env}.assets.url")
+    .getOrElse(throw new RuntimeException("no assets url set")) +
+    configuration
+      .getOptional[String](s"govuk-tax.${runMode.env}.assets.version")
+      .getOrElse(throw new RuntimeException("no assets version set"))
 }
