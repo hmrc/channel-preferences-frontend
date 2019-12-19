@@ -394,7 +394,7 @@ class ChoosePaperlessController @Inject()(
     val terms = hostContext.termsAndConditions.getOrElse("generic")
     val f: Any => Boolean = (v: Any) =>
       v match {
-        case Right(PreferenceNotFound(Some(_))) | Right(PreferenceFound(false, Some(_), _)) => true
+        case Right(PreferenceNotFound(Some(_))) | Right(PreferenceFound(false, Some(_))) => true
         case _                                                                           => false
     }
 

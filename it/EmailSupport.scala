@@ -15,9 +15,7 @@
  */
 
 import org.scalatest.concurrent.{ Eventually, IntegrationPatience }
-import org.scalatest.matchers.{ HavePropertyMatchResult, HavePropertyMatcher, Matcher }
 import play.api.libs.json.Json
-import play.api.libs.ws.WSResponse
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ Await, Future }
@@ -36,8 +34,6 @@ trait EmailSupport extends TestCaseWithFrontEndAuthentication with IntegrationPa
   private lazy val emailBaseUrl = servicesConfig.baseUrl("email")
   private lazy val prefsBaseUrl = servicesConfig.baseUrl("preferences")
   private lazy val timeout = 5.seconds
-
-  val emptyJsonValue = Json.parse("{}")
 
   def clearEmails() = {
     eventually(
@@ -71,51 +67,6 @@ trait EmailSupport extends TestCaseWithFrontEndAuthentication with IntegrationPa
     token.map(matches => matches.group(1)).get
   }
 
-  val `/sa/print-preferences/verification` = new {
-    def verify(token: String) = wsUrl(s"/sa/print-preferences/verification/$token").get()
-  }
-
-  def withReceivedEmails(expectedCount: Int)(assertions: List[Email] => Unit) {
-    val listOfMails = eventually {
-      val emailList = emails.futureValue
-      emailList must have size expectedCount
-      emailList
-    }
-    assertions(listOfMails)
-  }
-
-  def aVerificationEmailIsReceivedFor(email: String) {
-    withReceivedEmails(1) {
-      case List(mail) =>
-        mail must have(
-          'to (Some(email)),
-          'subject ("HMRC electronic communications: verify your email address")
-        )
-    }
-  }
-
-  def beForAnExpiredOldEmail: Matcher[Future[WSResponse]] =
-    have(statusWith(200)) and
-      have(bodyWith("You&#x27;ve used a link that has now expired")) and
-      have(bodyWith("It may have been sent to an old or alternative email address.")) and
-      have(bodyWith("Please use the link in the latest verification email sent to your specified email address."))
-
-  def bodyWith(expected: String) = new HavePropertyMatcher[Future[WSResponse], String] {
-    def apply(response: Future[WSResponse]) = HavePropertyMatchResult(
-      matches = response.futureValue.body.contains(expected),
-      propertyName = "Response Body",
-      expectedValue = expected,
-      actualValue = response.futureValue.body
-    )
-  }
-  def statusWith(expected: Int) = new HavePropertyMatcher[Future[WSResponse], Int] {
-    def apply(response: Future[WSResponse]) = HavePropertyMatchResult(
-      matches = response.futureValue.status.equals(expected),
-      propertyName = "Response Status",
-      expectedValue = expected,
-      actualValue = response.futureValue.status
-    )
-  }
 }
 
 object EmailSupport {

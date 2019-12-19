@@ -21,34 +21,24 @@ import controllers.ExternalUrlPrefixes
 import controllers.auth.{ AuthenticatedRequest, WithAuthRetrievals }
 import javax.inject.Inject
 import model.{ Encrypted, FormType, HostContext }
-import org.joda.time.DateTime
-import play.api.Configuration
 import play.api.libs.json.Json
 import play.api.mvc.{ MessagesControllerComponents, Result }
-import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.auth.core.{ AuthConnector, _ }
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.bootstrap.config.RunMode
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
 import scala.concurrent.{ ExecutionContext, Future }
 
 class ActivationController @Inject()(
+//  authorise: PreferenceFrontendAuthActionImpl,
   entityResolverConnector: EntityResolverConnector,
   val authConnector: AuthConnector,
   externalUrlPrefixes: ExternalUrlPrefixes,
-  mcc: MessagesControllerComponents,
-  runMode: RunMode,
-  config: Configuration
-)(implicit ec: ExecutionContext)
+  mcc: MessagesControllerComponents)(implicit ec: ExecutionContext)
     extends FrontendController(mcc) with WithAuthRetrievals {
 
   val hostUrl = externalUrlPrefixes.pfUrlPrefix
-
-  private lazy val gracePeriod =
-    config
-      .getOptional[Int](s"${runMode.env}.activation.gracePeriodInMin")
-      .getOrElse(throw new RuntimeException(s"missing ${runMode.env}.activation.gracePeriodInMin"))
 
   def preferences() = Action.async { implicit request =>
     withAuthenticatedRequest { implicit authenticatedRequest: AuthenticatedRequest[_] => implicit hc: HeaderCarrier =>
@@ -88,13 +78,13 @@ class ActivationController @Inject()(
           .redirectToDisplayFormWithCohortBySvc(svc, token, encryptedEmail, hostContext)
           .url
         PreconditionFailed(Json.obj("redirectUserTo" -> redirectUrl))
-      case Right(PreferenceFound(true, emailPreference, _)) =>
+      case Right(PreferenceFound(true, emailPreference)) =>
         Ok(
           Json.obj(
             "optedIn"       -> true,
             "verifiedEmail" -> emailPreference.fold(false)(_.isVerified)
           ))
-      case Right(PreferenceFound(false, email, _)) =>
+      case Right(PreferenceFound(false, email)) =>
         val encryptedEmail = email.map(e => Encrypted(EmailAddress(e.email)))
         val redirectUrl = hostUrl + routes.ChoosePaperlessController
           .redirectToDisplayFormWithCohortBySvc(svc, token, encryptedEmail, hostContext)
@@ -111,37 +101,19 @@ class ActivationController @Inject()(
 
     val terms = hostContext.termsAndConditions.getOrElse("generic")
     entityResolverConnector.getPreferencesStatus(terms) map {
-      case Right(PreferenceFound(true, emailPreference, updatedAt)) if hostContext.alreadyOptedInUrl.isDefined =>
+      case Right(PreferenceFound(true, emailPreference)) if hostContext.alreadyOptedInUrl.isDefined =>
         Redirect(hostContext.alreadyOptedInUrl.get)
-      case Right(PreferenceFound(true, emailPreference, _)) =>
+      case Right(PreferenceFound(true, emailPreference)) =>
         Ok(
           Json.obj(
             "optedIn"       -> true,
             "verifiedEmail" -> emailPreference.fold(false)(_.isVerified)
           ))
-      case Right(PreferenceFound(false, None, updatedAt)) =>
-        updatedAt
-          .flatMap(u =>
-            if (u.plusMinutes(gracePeriod).isAfter(DateTime.now)) {
-              Some(
-                Ok(
-                  Json.obj(
-                    "optedIn" -> false
-                  )))
-            } else None)
-          .getOrElse {
-
-            val encryptedEmail = None
-            val redirectUrl = hostUrl + routes.ChoosePaperlessController
-              .redirectToDisplayFormWithCohort(encryptedEmail, hostContext)
-              .url
-            PreconditionFailed(Json.obj("redirectUserTo" -> redirectUrl))
-          }
-
-      case Right(PreferenceFound(false, email, updatedAt)) =>
+      case Right(PreferenceFound(false, _)) =>
         Ok(
-          Json.obj( //
-            "optedIn" -> false))
+          Json.obj(
+            "optedIn" -> false
+          ))
       case Right(PreferenceNotFound(Some(email))) if (hostContext.email.exists(_ != email.email)) =>
         Conflict
       case Right(PreferenceNotFound(email)) =>

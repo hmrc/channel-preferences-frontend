@@ -14,17 +14,24 @@
  * limitations under the License.
  */
 
+import java.util.UUID
+
+import EmailSupport.Email
 import org.jsoup.Jsoup
+import org.scalatest.matchers.{ HavePropertyMatchResult, HavePropertyMatcher, Matcher }
+import play.api.libs.json.Json
+import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.http.SessionKeys
+
+import scala.concurrent.Future
 
 class VerificationEmailISpec extends EmailSupport with SessionCookieEncryptionSupport {
 
   "Verification email confirmation" should {
-    "confirm email has been sent to the users verification email address" in {
-      val utr = Generate.utr
+    "confirm email has been sent to the users verification email address" in new VerificationEmailTestCase {
       val email = uniqueEmail
-      clearEmails()
 
+      val generatedSessionId = s"session-${UUID.randomUUID}"
       val (bearerToken, userId) = authHelper.authExchange(utr)
 
       val result =
@@ -48,15 +55,9 @@ class VerificationEmailISpec extends EmailSupport with SessionCookieEncryptionSu
 
   "Attempt to verify an email" should {
 
-    "display success message if the email link is valid" in {
-
-      val utr = Generate.utr
+    "display success message if the email link is valid" in new VerificationEmailTestCase {
       val email = uniqueEmail
-      clearEmails()
-      `/preferences/terms-and-conditions`(authHelper.authHeader(utr))
-        .postGenericOptIn(email)
-        .futureValue
-        .status must be(201)
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email).futureValue.status must be(201)
 
       aVerificationEmailIsReceivedFor(email)
 
@@ -70,14 +71,9 @@ class VerificationEmailISpec extends EmailSupport with SessionCookieEncryptionSu
       Jsoup.parse(response.futureValue.body).getElementById("link-to-home").toString() must include("/account")
     }
 
-    "display expiry message if the link has expired" in {
-      val utr = Generate.utr
+    "display expiry message if the link has expired" in new VerificationEmailTestCase {
       val email = uniqueEmail
-      clearEmails()
-      `/preferences/terms-and-conditions`(authHelper.authHeader(utr))
-        .postGenericOptIn(email)
-        .futureValue
-        .status must be(201)
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email).futureValue.status must be(201)
 
       aVerificationEmailIsReceivedFor(email)
 
@@ -94,14 +90,9 @@ class VerificationEmailISpec extends EmailSupport with SessionCookieEncryptionSu
       Jsoup.parse(response.futureValue.body).getElementById("link-to-home").toString() must include("/account")
     }
 
-    "display already verified message if the email has been verified already" in {
-      val utr = Generate.utr
+    "display already verified message if the email has been verified already" in new VerificationEmailTestCase {
       val email = uniqueEmail
-      clearEmails()
-      `/preferences/terms-and-conditions`(authHelper.authHeader(utr))
-        .postGenericOptIn(email)
-        .futureValue
-        .status must be(201)
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email).futureValue.status must be(201)
 
       aVerificationEmailIsReceivedFor(email)
 
@@ -117,21 +108,16 @@ class VerificationEmailISpec extends EmailSupport with SessionCookieEncryptionSu
       Jsoup.parse(response.futureValue.body).getElementById("link-to-home").toString() must include("/account")
     }
 
-    "display expired old email address message if verification link is not valid due to opt out" in {
-      val utr = Generate.utr
+    "display expired old email address message if verification link is not valid due to opt out" in new VerificationEmailTestCase {
       val email = uniqueEmail
-      clearEmails()
-      `/preferences/terms-and-conditions`(authHelper.authHeader(utr))
-        .postGenericOptIn(email)
-        .futureValue
-        .status must be(201)
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email).futureValue.status must be(201)
 
       withReceivedEmails(1) {
         case List(mail) =>
           mail must have('to (Some(email)), 'subject ("HMRC electronic communications: verify your email address"))
       }
 
-      `/preferences/terms-and-conditions`(authHelper.authHeader(utr)).postGenericOptOut.futureValue.status must be(200)
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptOut.futureValue.status must be(200)
 
       `/sa/print-preferences/verification`.verify(verificationTokenFromEmail()) must beForAnExpiredOldEmail
     }
@@ -139,17 +125,11 @@ class VerificationEmailISpec extends EmailSupport with SessionCookieEncryptionSu
 
   "Attempt to verify a change of address with an old link" should {
 
-    "display expired old email address message if the old email is verified and new email has been verified" in {
-
-      val utr = Generate.utr
+    "display expired old email address message if the old email is verified and new email has been verified" in new VerificationEmailTestCase {
       val email = uniqueEmail
-      clearEmails()
       val newEmail = uniqueEmail
 
-      `/preferences/terms-and-conditions`(authHelper.authHeader(utr))
-        .postGenericOptIn(email)
-        .futureValue
-        .status must be(201)
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email).futureValue.status must be(201)
 
       aVerificationEmailIsReceivedFor(email)
 
@@ -158,7 +138,7 @@ class VerificationEmailISpec extends EmailSupport with SessionCookieEncryptionSu
 
       clearEmails()
 
-      `/preferences`(authHelper.authHeader(utr)).putPendingEmail(newEmail).futureValue.status must be(200)
+      `/preferences`(ggAuthHeaderWithUtr).putPendingEmail(newEmail).futureValue.status must be(200)
 
       withReceivedEmails(2) { emails =>
         emails.flatMap(_.to) must contain(newEmail)
@@ -170,63 +150,46 @@ class VerificationEmailISpec extends EmailSupport with SessionCookieEncryptionSu
       `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) must beForAnExpiredOldEmail
     }
 
-    "display expired old email address message if the old email is verified and the new email has not been verified" in {
-      val utr = Generate.utr
+    "display expired old email address message if the old email is verified and the new email has not been verified" in new VerificationEmailTestCase {
       val email = uniqueEmail
-      clearEmails()
       val newEmail = uniqueEmail
-      `/preferences/terms-and-conditions`(authHelper.authHeader(utr))
-        .postGenericOptIn(email)
-        .futureValue
-        .status must be(201)
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email).futureValue.status must be(201)
 
       aVerificationEmailIsReceivedFor(email)
 
       val verificationTokenFromFirstEmail = verificationTokenFromEmail()
       `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail).futureValue.status must be(200)
 
-      `/preferences`(authHelper.authHeader(utr)).putPendingEmail(newEmail).futureValue.status must be(200)
+      `/preferences`(ggAuthHeaderWithUtr).putPendingEmail(newEmail).futureValue.status must be(200)
 
       `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) must beForAnExpiredOldEmail
     }
 
-    "display expired old email address message if the old email is not verified and the new email has not been verified" in {
-
-      val utr = Generate.utr
+    "display expired old email address message if the old email is not verified and the new email has not been verified" in new VerificationEmailTestCase {
       val email = uniqueEmail
-      clearEmails()
       val newEmail = uniqueEmail
-      `/preferences/terms-and-conditions`(authHelper.authHeader(utr))
-        .postGenericOptIn(email)
-        .futureValue
-        .status must be(201)
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email).futureValue.status must be(201)
 
       aVerificationEmailIsReceivedFor(email)
 
       val verificationTokenFromFirstEmail = verificationTokenFromEmail()
 
-      `/preferences`(authHelper.authHeader(utr)).putPendingEmail(newEmail).futureValue.status must be(200)
+      `/preferences`(ggAuthHeaderWithUtr).putPendingEmail(newEmail).futureValue.status must be(200)
 
       `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) must beForAnExpiredOldEmail
     }
 
-    "display expired old email address message if the old email is not verified and the new email is verified" in {
-
-      val utr = Generate.utr
+    "display expired old email address message if the old email is not verified and the new email is verified" in new VerificationEmailTestCase {
       val email = uniqueEmail
-      clearEmails()
       val newEmail = uniqueEmail
-      `/preferences/terms-and-conditions`(authHelper.authHeader(utr))
-        .postGenericOptIn(email)
-        .futureValue
-        .status must be(201)
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email).futureValue.status must be(201)
 
       aVerificationEmailIsReceivedFor(email)
 
       val verificationTokenFromFirstEmail = verificationTokenFromEmail()
       clearEmails()
 
-      `/preferences`(authHelper.authHeader(utr)).putPendingEmail(newEmail).futureValue.status must be(200)
+      `/preferences`(ggAuthHeaderWithUtr).putPendingEmail(newEmail).futureValue.status must be(200)
 
       aVerificationEmailIsReceivedFor(newEmail)
 
@@ -236,18 +199,13 @@ class VerificationEmailISpec extends EmailSupport with SessionCookieEncryptionSu
 
     }
 
-    "display expired old email address message if another old email is verified and the new email is verified" in {
-
-      val utr = Generate.utr
+    "display expired old email address message if another old email is verified and the new email is verified" in new VerificationEmailTestCase {
       val firstEmail = uniqueEmail
       val newEmail = uniqueEmail
       val secondEmail = uniqueEmail
-      clearEmails()
 
-      `/preferences/terms-and-conditions`(authHelper.authHeader(utr))
-        .postGenericOptIn(firstEmail)
-        .futureValue
-        .status must be(201)
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(firstEmail).futureValue.status must be(
+        201)
 
       aVerificationEmailIsReceivedFor(firstEmail)
       val verificationTokenFromFirstEmail = verificationTokenFromEmail()
@@ -255,9 +213,9 @@ class VerificationEmailISpec extends EmailSupport with SessionCookieEncryptionSu
 
       `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail).futureValue.status must be(200)
 
-      `/preferences`(authHelper.authHeader(utr)).putPendingEmail(secondEmail).futureValue.status must be(200)
+      `/preferences`(ggAuthHeaderWithUtr).putPendingEmail(secondEmail).futureValue.status must be(200)
       clearEmails()
-      `/preferences`(authHelper.authHeader(utr)).putPendingEmail(newEmail).futureValue.status must be(200)
+      `/preferences`(ggAuthHeaderWithUtr).putPendingEmail(newEmail).futureValue.status must be(200)
 
       withReceivedEmails(2) { emails =>
         emails.flatMap(_.to) must contain(newEmail)
@@ -270,30 +228,82 @@ class VerificationEmailISpec extends EmailSupport with SessionCookieEncryptionSu
 
     }
 
-    "display expired old email address message if another old email is verified and the new email has not been verified" in {
-
-      val utr = Generate.utr
-      clearEmails()
+    "display expired old email address message if another old email is verified and the new email has not been verified" in new VerificationEmailTestCase {
       val firstEmail = uniqueEmail
       val secondEmail = uniqueEmail
       val newEmail = uniqueEmail
 
-      `/preferences/terms-and-conditions`(authHelper.authHeader(utr))
-        .postGenericOptIn(firstEmail)
-        .futureValue
-        .status must be(201)
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(firstEmail).futureValue.status must be(
+        201)
 
       aVerificationEmailIsReceivedFor(firstEmail)
       val verificationTokenFromFirstEmail = verificationTokenFromEmail()
 
       `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail).futureValue.status must be(200)
 
-      `/preferences`(authHelper.authHeader(utr)).putPendingEmail(secondEmail).futureValue.status must be(200)
+      `/preferences`(ggAuthHeaderWithUtr).putPendingEmail(secondEmail).futureValue.status must be(200)
 
-      `/preferences`(authHelper.authHeader(utr)).putPendingEmail(newEmail).futureValue.status must be(200)
+      `/preferences`(ggAuthHeaderWithUtr).putPendingEmail(newEmail).futureValue.status must be(200)
 
       `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) must beForAnExpiredOldEmail
     }
   }
 
+  trait VerificationEmailTestCase {
+    val utr = Generate.utr
+    val nino = Generate.nino
+    val ggAuthHeaderWithUtr = authHelper.authHeader(utr)
+    val ggAuthHeaderWithNino = authHelper.authHeader(nino)
+    val cookieWithUtr = ggAuthHeaderWithUtr
+    val cookieWithNino = ggAuthHeaderWithNino
+    clearEmails()
+
+    val emptyJsonValue = Json.parse("{}")
+
+    val `/sa/print-preferences/verification` = new {
+      def verify(token: String) = wsUrl(s"/sa/print-preferences/verification/$token").get()
+    }
+
+    def withReceivedEmails(expectedCount: Int)(assertions: List[Email] => Unit) {
+      val listOfMails = eventually {
+        val emailList = emails.futureValue
+        emailList must have size expectedCount
+        emailList
+      }
+      assertions(listOfMails)
+    }
+
+    def aVerificationEmailIsReceivedFor(email: String) {
+      withReceivedEmails(1) {
+        case List(mail) =>
+          mail must have(
+            'to (Some(email)),
+            'subject ("HMRC electronic communications: verify your email address")
+          )
+      }
+    }
+
+    def beForAnExpiredOldEmail: Matcher[Future[WSResponse]] =
+      have(statusWith(200)) and
+        have(bodyWith("You&#x27;ve used a link that has now expired")) and
+        have(bodyWith("It may have been sent to an old or alternative email address.")) and
+        have(bodyWith("Please use the link in the latest verification email sent to your specified email address."))
+  }
+
+  def bodyWith(expected: String) = new HavePropertyMatcher[Future[WSResponse], String] {
+    def apply(response: Future[WSResponse]) = HavePropertyMatchResult(
+      matches = response.futureValue.body.contains(expected),
+      propertyName = "Response Body",
+      expectedValue = expected,
+      actualValue = response.futureValue.body
+    )
+  }
+  def statusWith(expected: Int) = new HavePropertyMatcher[Future[WSResponse], Int] {
+    def apply(response: Future[WSResponse]) = HavePropertyMatchResult(
+      matches = response.futureValue.status.equals(expected),
+      propertyName = "Response Status",
+      expectedValue = expected,
+      actualValue = response.futureValue.status
+    )
+  }
 }

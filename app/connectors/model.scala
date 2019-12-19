@@ -20,9 +20,6 @@ import org.joda.time.LocalDate
 import play.api.libs.json._
 
 import scala.language.implicitConversions
-import org.joda.time.{DateTime, LocalDate}
-import play.api.libs.json.JodaWrites.{JodaDateTimeWrites => _, _}
-import play.api.libs.json.JodaReads._
 
 sealed trait EmailVerificationLinkResponse
 case object Validated extends EmailVerificationLinkResponse
@@ -107,13 +104,8 @@ object EmailPreference {
   implicit val formats = Json.format[EmailPreference]
 }
 
-case class TermsAndConditonsAcceptance(accepted: Boolean, updatedAt: Option[DateTime] = None)
+case class TermsAndConditonsAcceptance(accepted: Boolean)
 object TermsAndConditonsAcceptance {
-
-  implicit val dateFormatDefault = new Format[DateTime] {
-      override def reads(json: JsValue): JsResult[DateTime] = JodaReads.DefaultJodaDateTimeReads.reads(json)
-      override def writes(o: DateTime): JsValue = JodaWrites.JodaDateTimeNumberWrites.writes(o)
-  }
   implicit val formats = Json.format[TermsAndConditonsAcceptance]
 }
 
