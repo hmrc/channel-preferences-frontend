@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -212,7 +212,6 @@ class ChoosePaperlessControllerSpec
       val document = Jsoup.parse(contentAsString(page))
 
       document.getElementById("email.main").attr("value") mustBe ""
-      document.getElementById("email.confirm").attr("value") mustBe ""
       document.getElementById("opt-in-in").attr("checked") must be(empty)
       document.getElementById("opt-in-out").attr("checked") must be(empty)
     }
@@ -232,61 +231,7 @@ class ChoosePaperlessControllerSpec
       document.getElementById("email.main") mustNot be(null)
       document.getElementById("email.main").attr("value") mustBe emailAddress
       document.getElementById("email.main").hasAttr("readonly") mustBe false
-      document.getElementById("email.confirm") mustNot be(null)
-      document.getElementById("email.confirm").attr("value") mustBe emailAddress
       document.getElementById("email.main").hasAttr("readonly") mustBe false
-      document.getElementById("opt-in-in").attr("checked") must be(empty)
-      document.getElementById("opt-in-out").attr("checked") must be(empty)
-    }
-
-    "render an email input field populated with the supplied readonly email address, and the Opt-in option selected if a preferences is not found for terms but an email do exist" in new ChoosePaperlessControllerSetup {
-      val emailAddress = "bob@bob.com"
-
-      val emailPreference = EmailPreference(emailAddress, true, false, false, None)
-
-      when(mockEntityResolverConnector.getPreferencesStatus(any())(any()))
-        .thenReturn(Future.successful(Right[Int, PreferenceStatus](PreferenceNotFound(Some(emailPreference)))))
-      val page = controller.displayForm(
-        Some(assignedCohort),
-        Some(Encrypted(EmailAddress(emailAddress))),
-        TestFixtures.sampleHostContext)(request)
-
-      status(page) mustBe 200
-
-      val document = Jsoup.parse(contentAsString(page))
-
-      document.getElementById("email.main") mustNot be(null)
-      document.getElementById("email.main").attr("value") mustBe emailAddress
-      document.getElementById("email.main").hasAttr("readonly") mustBe true
-      document.getElementById("email.confirm") mustNot be(null)
-      document.getElementById("email.confirm").attr("value") mustBe emailAddress
-      document.getElementById("email.confirm").hasAttr("hidden") mustBe true
-      document.getElementById("opt-in-in").attr("checked") must be(empty)
-      document.getElementById("opt-in-out").attr("checked") must be(empty)
-    }
-
-    "render an email input field populated with the supplied readonly email address, and the Opt-in option selected if a opted out preferences with email is found" in new ChoosePaperlessControllerSetup {
-      val emailAddress = "bob@bob.com"
-
-      val emailPreference = EmailPreference(emailAddress, true, false, false, None)
-
-      when(mockEntityResolverConnector.getPreferencesStatus(any())(any()))
-        .thenReturn(Future.successful(Right[Int, PreferenceStatus](PreferenceFound(false, Some(emailPreference)))))
-      val page = controller.displayForm(
-        Some(assignedCohort),
-        Some(Encrypted(EmailAddress(emailAddress))),
-        TestFixtures.sampleHostContext)(request)
-
-      status(page) mustBe 200
-
-      val document = Jsoup.parse(contentAsString(page))
-
-      document.getElementById("email.main") mustNot be(null)
-      document.getElementById("email.main").attr("value") mustBe emailAddress
-      document.getElementById("email.main").hasAttr("readonly") mustBe true
-      document.getElementById("email.confirm") mustNot be(null)
-      document.getElementById("email.confirm").attr("value") mustBe emailAddress
-      document.getElementById("email.confirm").hasAttr("hidden") mustBe true
       document.getElementById("opt-in-in").attr("checked") must be(empty)
       document.getElementById("opt-in-out").attr("checked") must be(empty)
     }
@@ -329,7 +274,6 @@ class ChoosePaperlessControllerSpec
         FakeRequest().withFormUrlEncodedBody(
           "opt-in"        -> "true",
           "email.main"    -> emailAddress,
-          "email.confirm" -> emailAddress,
           "accept-tc"     -> "false"))
 
       status(page) mustBe 400
@@ -366,25 +310,6 @@ class ChoosePaperlessControllerSpec
       verifyZeroInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
 
-    "show an error when opting-in if the two email fields are not equal" in new ChoosePaperlessControllerSetup {
-      val emailAddress = "someone@email.com"
-
-      val page = controller.submitForm(TestFixtures.sampleHostContext)(
-        FakeRequest().withFormUrlEncodedBody(
-          "opt-in"        -> "true",
-          "email.main"    -> emailAddress,
-          "email.confirm" -> "other",
-          "accept-tc"     -> "true"))
-
-      status(page) mustBe 400
-
-      val document = Jsoup.parse(contentAsString(page))
-      document
-        .select("#form-submit-email-address .error-notification")
-        .text mustBe "Check your email addresses - they don't match."
-      verifyZeroInteractions(mockEntityResolverConnector, mockEmailConnector)
-    }
-
     "show a warning page when opting-in if the email has a valid structure but does not pass validation by the email micro service" in new ChoosePaperlessControllerSetup {
 
       val emailAddress = "someone@dodgy.domain"
@@ -394,7 +319,6 @@ class ChoosePaperlessControllerSpec
         FakeRequest().withFormUrlEncodedBody(
           "opt-in" -> "true",
           ("email.main", emailAddress),
-          ("email.confirm", emailAddress),
           "accept-tc" -> "true"))
 
       status(page) mustBe 200
@@ -421,7 +345,6 @@ class ChoosePaperlessControllerSpec
         FakeRequest().withFormUrlEncodedBody(
           "opt-in" -> "true",
           ("email.main", emailAddress),
-          ("email.confirm", emailAddress),
           "accept-tc" -> "true"))
 
       status(page) mustBe 303
@@ -455,7 +378,6 @@ class ChoosePaperlessControllerSpec
         FakeRequest().withFormUrlEncodedBody(
           "opt-in" -> "true",
           ("email.main", emailAddress),
-          ("email.confirm", emailAddress),
           "accept-tc" -> "true"))
 
       status(page) mustBe 303
@@ -492,7 +414,6 @@ class ChoosePaperlessControllerSpec
         FakeRequest().withFormUrlEncodedBody(
           "opt-in" -> "true",
           ("email.main", emailAddress),
-          ("email.confirm", emailAddress),
           "accept-tc"          -> "true",
           "emailAlreadyStored" -> "false"))
 
@@ -727,7 +648,6 @@ class ChoosePaperlessControllerSpec
         FakeRequest().withFormUrlEncodedBody(
           "opt-in" -> "true",
           ("email.main", emailAddress),
-          ("email.confirm", emailAddress),
           "accept-tc" -> "true"))
 
       status(page) mustBe 303
@@ -767,7 +687,6 @@ class ChoosePaperlessControllerSpec
         FakeRequest().withFormUrlEncodedBody(
           "opt-in" -> "true",
           ("email.main", emailAddress),
-          ("email.confirm", emailAddress),
           "accept-tc" -> "true"))
 
       status(page) mustBe 303

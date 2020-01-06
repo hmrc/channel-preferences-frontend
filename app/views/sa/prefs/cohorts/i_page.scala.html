@@ -1,5 +1,5 @@
 @*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,114 +18,102 @@
 @import play.api.i18n.Messages.Implicits._
 @this(mainWithHeaders: views.html.main_with_headers, singleCheckbox26: helpers.SingleCheckbox26  )
 @(emailForm: Form[_], submitPrefsFormAction: Call)(implicit request: AuthenticatedRequest[_], messages: Messages)
-
 @import uk.gov.hmrc.urls.Link
 @import uk.gov.hmrc.play.views.html.helpers._
 
-@mainWithHeaders(title = Messages(s"sa_printing_preference.fg_page.title")) {
+@mainWithHeaders(title = Messages("sa_printing_preference.fg_page.title")) {
 
-    <header class="page-header">
-        <h1>@Messages(s"sa_printing_preference.fg_page.title")</h1>
-    </header>
+<header class="page-header">
+    <h1>@Messages(s"sa_printing_preference.fg_page.title")</h1>
+</header>
 
-    <p class="lede">@Messages("sa_printing_preference.fg_page.choose_1")</p>
-    <p>@Messages("sa_printing_preference.fg_page.choose_2")</p>
-    <p>@Messages("sa_printing_preference.fg_page.choose_3")</p>
-    <br />
-    <h2>@Messages("sa_printing_preference.fg_page.paperless")</h2>
+<p class="lede">@Messages("sa_printing_preference.fg_page.choose_1")</p>
+<p>@Messages("sa_printing_preference.fg_page.choose_2")</p>
 
-    <script>
+<ul class="list list-bullet">
+    <li>@Messages("sa_printing_preference.fg_page.list_1")</li>
+    <li>@Messages("sa_printing_preference.fg_page.list_2")</li>
+    <li>@Messages("sa_printing_preference.fg_page.list_3")</li>
+</ul>
+
+<p>@Messages("sa_printing_preference.fg_page.choose_3")</p>
+
+<h2>@Messages("sa_printing_preference.fg_page.paperless")</h2>
+
+<script>
       function radioChanged() {$("#submitEmailButton").removeAttr("disabled")};
-    </script>
 
-    @form(action = submitPrefsFormAction, 'id -> "form-submit-email-address") {
 
-        <label class="selectable">
-            <input
+</script>
+
+@form(action = submitPrefsFormAction, 'id -> "form-submit-email-address") {
+
+<label class="selectable" style="display: block">
+    <input
             id="opt-in-in"
             type="radio"
             name="opt-in"
             value="true"
             class="email-prefs__toggle"
             onchange="radioChanged()"
-            />
-            @Messages("sa_printing_preference.fg_page.yes_send_email")
-        </label>
+    />
+    @Messages("sa_printing_preference.fg_page.yes_send_email")
+</label>
 
-        @if(emailForm("opt-in").value.contains("false")) { checked="checked" }
+@if(emailForm("opt-in").value.contains("false")) { checked="checked" }
 
-        <fieldset class="connected">
+<fieldset class="connected js-hidden">
+    @input(
+    emailForm("email.main"),
+    '_label -> Messages("sa_printing_preference.tc.email.label"),
+    '_labelClass -> "bold",
+    '_labelHighlight -> true,
+    '_divClass -> "row",
+    '_inputClass -> "input--medium input--cleared",
+    '_type -> "email",
+    'parentField -> emailForm("email")
+    )
 
-            @if(emailForm("emailAlreadyStored").value.contains("true")) {
-                    <input type="email" class="input--medium input--cleared" id="email.main" name="email.main" value="@emailForm("email.main").value" readonly>
-                    <p style="font-size:75%;">
-                        @Messages("sa_printing_preference.fg_page.you_have_signed_up_1")<br/>
-                        @Messages("sa_printing_preference.fg_page.you_have_signed_up_2")
-                    </p>
-                <input type="email" id="email.confirm" name="email.confirm" value="@emailForm("email.main").value" hidden>
-                <input type="hidden" id="emailVerified" name="emailVerified" value="true">
-                <input type="hidden" id="emailAlreadyStored" name="emailAlreadyStored" value="@emailForm("emailAlreadyStored").value" >
+    <p id="message-after-email-input-para-1">@Messages("sa_printing_preference.fg_page.yes_send_email_info_1")</p>
+    <p id="message-after-email-input">@Messages("sa_printing_preference.fg_page.yes_send_email_info_2")</p>
 
-                @singleCheckbox26(
-                emailForm("accept-tc"),
-                Html(Messages("sa_printing_preference.tc.preLinkText", Link.toExternalPage(id = Some("terms-and-conditions"), url = "https://www.tax.service.gov.uk/information/terms#secure", value = Some(Messages("sa_printing_preference.tc.linkText"))).toHtml)),
-                '_labelClass -> "label"
-                )
-            } else {
-                @input(
-                emailForm("email.main"),
-                    '_label -> Messages("sa_printing_preference.tc.email.label"),
-                    '_labelClass -> "bold",
-                    '_labelHighlight -> true,
-                    '_divClass -> "row",
-                    '_inputClass -> "input--medium input--cleared",
-                    '_type -> "email",
-                    'parentField -> emailForm("email")
-                )
-                @input(
-                emailForm("email.confirm"),
-                    '_label -> Messages("sa_printing_preference.tc.confirm.email.label"),
-                    '_labelClass -> "bold",
-                    '_labelHighlight -> true,
-                    '_divClass -> "row",
-                    '_type -> "email",
-                    '_inputClass -> "input--medium input--cleared",
-                    'readonly -> "readonly"
-                )
-                @singleCheckbox26(
-                    emailForm("accept-tc"),
-                    Html(Messages("sa_printing_preference.tc.preLinkText", Link.toExternalPage(id = Some("terms-and-conditions"), url = "https://www.tax.service.gov.uk/information/terms#secure", value = Some(Messages("sa_printing_preference.tc.linkText"))).toHtml)),
-                    '_labelClass -> "label--inline"
-                )
-            }
-            <p>@Messages("sa_printing_preference.fg_page.by_signing_up_1")</p>
-            <ul class="bullets form-hint">
-                <li>@Messages("sa_printing_preference.fg_page.by_signing_up_2")</li>
-                <li>@Messages("sa_printing_preference.fg_page.by_signing_up_3")</li>
-            </ul>
+    @singleCheckbox26(
+    emailForm("accept-tc"),
+    Html(Messages("sa_printing_preference.tc.preLinkText", Link.toExternalPage(id = Some("terms-and-conditions"), url =
+    "https://www.tax.service.gov.uk/information/terms#secure", value =
+    Some(Messages("sa_printing_preference.tc.linkText"))).toHtml)),
+    '_labelClass -> "label--inline"
+    )
 
-        </fieldset>
-        <label class="selectable">
-            <input
+</fieldset>
+
+<label class="selectable" style="display: block">
+    <input
             id="opt-in-out"
             type="radio"
             name="opt-in"
             value="false"
             onchange="radioChanged()"
             class="email-prefs__toggle"
-                @if(emailForm("opt-in").value == Some("false")) { checked="checked" }
-            />
-            @Messages("sa_printing_preference.fg_page.keep_receiving")
-        </label>
-        <div class="email-form-errors">
-            @emailForm("opt-in").errors.map { error => <label class="error-notification">@Messages(error.message)</label>}
-            @emailForm.globalErrors.map { error => <label class="error-notification">@Messages(error.message)</label>}
-        </div>
-        <br>
-        <div class="form-field">
-            <button id="submitEmailButton" class="button" name="submitButton" type="submit" disabled="disabled">@Messages("sa_printing_preference.submitButton")</button>
-        </div>
+            @if(emailForm("opt-in").value == Some("false")) { checked="checked" }
+    />
+    @Messages("sa_printing_preference.fg_page.keep_receiving")
+</label>
+<div class="email-form-errors">
+    @emailForm("opt-in").errors.map { error => <label class="error-notification">@Messages(error.message)</label>}
+    @emailForm.globalErrors.map { error => <label class="error-notification">@Messages(error.message)</label>}
+</div>
+<p>
+    @Html(Messages("sa_printing_preference.fg_page_privacy_notice", Link.toExternalPage(id = Some("privacy-policy"), url
+    = "https://www.tax.service.gov.uk/help/privacy", value =
+    Some(Messages("sa_printing_preference.privacy_policy_linkText"))).toHtml))
+</p>
 
-    }
+<div class="form-field">
+    <button id="submitEmailButton" class="button" name="submitButton" type="submit" disabled="disabled">
+        @Messages("sa_printing_preference.submitButton")
+    </button>
+</div>
 
+}
 }

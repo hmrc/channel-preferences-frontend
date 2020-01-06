@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,9 @@ package views.sa.prefs.cohorts
 import controllers.auth.AuthenticatedRequest
 import controllers.internal
 import controllers.internal.EmailForm
-import helpers.{ ConfigHelper, LanguageHelper, TestFixtures }
+import helpers.{ConfigHelper, LanguageHelper, TestFixtures}
 import org.jsoup.Jsoup
+import org.junit.Ignore
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.i18n.Messages.Implicits.applicationMessages
@@ -35,95 +36,116 @@ class IPageSpec extends PlaySpec with GuiceOneAppPerSuite with LanguageHelper wi
   val template = app.injector.instanceOf[i_page]
   "I Page Template" should {
     "render the correct content in english" in {
-      val form = EmailForm().bind(Map("emailAlreadyStored" -> "true"))
+      val form = EmailForm()
       val document = Jsoup.parse(
         template(form, internal.routes.ChoosePaperlessController.submitForm(TestFixtures.sampleHostContext))(
           engRequest,
           messagesInEnglish()).toString())
+
+      document.getElementsByTag("title").text() mustBe "Choose how to get your legal notices, penalty notices and tax letters"
+      document.getElementsByTag("h1").text() mustBe "Choose how to get your legal notices, penalty notices and tax letters"
       document
         .getElementsByClass("lede")
         .first()
-        .text() mustBe "You can choose to get electronic communications instead of letters from HMRC."
+        .text() mustBe "You can choose to get some of your tax documents and information sent through your HMRC online account instead of by post."
       document
         .getElementsByTag("p")
         .get(2)
-        .text() mustBe "These electronic communications include statutory notices, decisions, estimates and reminders relating to your tax affairs, such as notices to file a tax return, make a payment, penalties due, or information about other matters."
+        .text() mustBe "You will need to take action when you receive some of the documents. They include:"
+
+      document
+          .getElementsByTag("li").get(1).text() mustBe "Legal notice to file tax return"
+
+      document
+        .getElementsByTag("li").get(2).text() mustBe "Late filing penalty notice"
+
+      document
+        .getElementsByTag("li").get(3).text() mustBe "Late payment penalty notice"
+
       document
         .getElementsByTag("p")
         .get(3)
-        .text() mustBe "When you have a new electronic communication we will send you an email notification requiring you to log in to your HMRC online account."
-      document.getElementsByTag("h2").get(0).text() mustBe "Go paperless now"
-      document.getElementsByClass("selectable").get(0).text() mustBe "Yes, send me electronic communications"
+        .text() mustBe "We may also send you other information, including letting you know about a change to your personal tax code, if you have one."
+
+     document.getElementsByTag("h2").get(0).text() mustBe "How do you want to get you legal notices, penalty notices and tax letters?"
+
       document
         .getElementsByTag("p")
         .get(4)
         .childNodes()
         .get(0)
         .toString
-        .trim mustBe "You have signed up for digital communications for Tax Credits with this email address."
+        .trim mustBe "We’ll email to tell you when you have a new item in your online account. This email cannot include personal information, so it is your responsibility to sign into your online account and read the full details."
+      document.getElementsByClass("selectable").get(0).text() mustBe "Through my HMRC online account"
+
       document
         .getElementsByTag("p")
-        .get(4)
+        .get(5)
         .childNodes()
-        .get(2)
+        .get(0)
         .toString
-        .trim mustBe "If you wish to change the email address you can do this later within manage your account"
-      document.getElementsByTag("p").get(5).text() mustBe "By signing up, you confirm that you:"
-      document
-        .getElementsByTag("li")
-        .get(1)
-        .text() mustBe "want to receive statutory notices, decisions, estimates and reminders electronically in connection with your tax affairs"
-      document
-        .getElementsByTag("li")
-        .get(2)
-        .text() mustBe "will keep your communications preferences and email address up to date using your HMRC online account to make sure you get your email notifications"
-      document.getElementsByClass("selectable").get(1).text() mustBe "No, I want to keep receiving letters"
+        .trim mustBe "Because we cannot send all letters online yet, you will continue to get some by post."
+
+      document.getElementsByClass("selectable").get(1).text() mustBe "By post only"
+      document.getElementById("privacy-policy").text() must include("read the privacy notice")
+      document.getElementsByAttributeValue("name", "submitButton").text()  mustBe "Continue"
+
     }
 
-    "render the correct content in welsh" in {
-      val form = EmailForm().bind(Map("emailAlreadyStored" -> "true"))
+    "render the correct content in welsh" in  {
+      val form = EmailForm()
       val document = Jsoup.parse(
         template(form, internal.routes.ChoosePaperlessController.submitForm(TestFixtures.sampleHostContext))(
           welshRequest,
           messagesInWelsh()).toString())
+
+      document.getElementsByTag("title").text() mustBe "Dewis sut i gael eich hysbysiadau cyfreithiol, hysbysiadau o gosb a llythyrau treth"
+      document.getElementsByTag("h1").text() mustBe "Dewis sut i gael eich hysbysiadau cyfreithiol, hysbysiadau o gosb a llythyrau treth"
       document
         .getElementsByClass("lede")
         .first()
-        .text() mustBe "Gallwch ddewis cyfathrebu drwy ddull electronig, yn hytrach nag ar bapur, gyda CThEM."
+        .text() mustBe "Gallwch ddewis cael rhai o’ch dogfennau treth a gwybodaeth drwy’ch cyfrif CThEM ar-lein, yn hytrach na thrwy’r post."
       document
         .getElementsByTag("p")
         .get(2)
-        .text() mustBe "Mae'r cyfathrebu electronig hyn yn cynnwys hysbysiadau statudol, penderfyniadau, amcangyfrifon a nodynnau atgoffa sy'n ymwneud â'ch materion treth, megis hysbysiadau i gyflwyno Ffurflen Dreth, gwneud taliad, cosbau sy'n ddyledus, neu wybodaeth am faterion eraill."
+        .text() mustBe "Bydd yn rhaid i chi gymryd camau pan fyddwch yn cael rhai o’r dogfennau. Maent yn cynnwys:"
+
+      document
+        .getElementsByTag("li").get(1).text() mustBe "Hysbysiad cyfreithiol i gyflwyno Ffurflen Dreth"
+
+      document
+        .getElementsByTag("li").get(2).text() mustBe "Hysbysiad cyfreithiol i gyflwyno Ffurflen Dreth"
+
+      document
+        .getElementsByTag("li").get(3).text() mustBe "Hysbysiad o gosb am dalu’n hwyr"
+
       document
         .getElementsByTag("p")
         .get(3)
-        .text() mustBe "Pan fo gennych ddogfen gyfathrebu electronig newydd, byddwn yn anfon hysbysiad e-bost atoch yn gofyn i chi fewngofnodi i'ch cyfrif ar-lein gyda CThEM."
-      document.getElementsByTag("h2").get(0).text() mustBe "Ewch yn ddi-bapur nawr"
-      document.getElementsByClass("selectable").get(0).text() mustBe "Iawn, cyfathrebwch â mi drwy ddull electronig"
+        .text() mustBe "Mae’n bosibl y byddwn hefyd yn anfon gwybodaeth arall atoch, gan gynnwys rhoi gwybod i chi am newid i’ch cod treth personol, os oes un gennych."
+
+      document.getElementsByTag("h2").get(0).text() mustBe "Sut yr hoffech gael eich hysbysiadau cyfreithiol, hysbysiadau o gosb a llythyrau treth?"
+
       document
         .getElementsByTag("p")
         .get(4)
         .childNodes()
         .get(0)
         .toString
-        .trim mustBe "Rydych wedi cofrestru i gyfathrebu'n ddigidol ar gyfer Credydau Treth gyda'r cyfeiriad e-bost hwn."
+        .trim mustBe "Byddwn yn anfon e-bost atoch i roi gwybod i chi pan fydd eitem newydd yn eich cyfrif ar-lein. Ni all yr e-bost hwn gynnwys gwybodaeth bersonol, felly, eich cyfrifoldeb chi yw mewngofnodi i’ch cyfrif ar-lein a darllen y manylion llawn."
+      document.getElementsByClass("selectable").get(0).text() mustBe "Drwy fy nghyfrif CThEM ar-lein"
+
       document
         .getElementsByTag("p")
-        .get(4)
+        .get(5)
         .childNodes()
-        .get(2)
+        .get(0)
         .toString
-        .trim mustBe "Os ydych am newid y cyfeiriad e-bost, gallwch wneud hyn nes ymlaen yn yr adran rheoli'ch cyfrif"
-      document.getElementsByTag("p").get(5).text() mustBe "Drwy gofrestru, rydych yn cadarnhau'r canlynol:"
-      document
-        .getElementsByTag("li")
-        .get(1)
-        .text() mustBe "rydych am gael hysbysiadau statudol, penderfyniadau, amcangyfrifon a nodynnau atgoffa sy'n ymwneud â'ch materion treth drwy ddull electronig"
-      document
-        .getElementsByTag("li")
-        .get(2)
-        .text() mustBe "byddwch yn cadw'ch dewisiadau o ran cyfathrebu a'ch cyfeiriad e‑bost wedi'u diweddaru drwy ddefnyddio'ch cyfrif ar-lein gyda CThEM, er mwyn gwneud yn siŵr eich bod yn cael eich hysbysiadau e-bost"
-      document.getElementsByClass("selectable").get(1).text() mustBe "Na, rwyf am barhau i gael llythyrau"
+        .trim mustBe "Oherwydd na allwn anfon pob llythyr ar-lein eto, byddwch yn parhau i gael rhai llythyrau drwy’r post."
+
+      document.getElementsByClass("selectable").get(1).text() mustBe "Drwy’r post yn unig"
+      document.getElementById("privacy-policy").text() must include("darllenwch yr hysbysiad preifatrwydd")
+      document.getElementsByAttributeValue("name", "submitButton").text()  mustBe "Yn eich blaen"
     }
   }
 }

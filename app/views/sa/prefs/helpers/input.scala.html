@@ -1,5 +1,5 @@
 @*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,15 +30,15 @@
 <div class="@elements.args.get('_divClass) @if(elements.hasErrors || (parentElements.isDefined && parentElements.get.hasErrors)) {error}">
     @elements.errors.map { error => <span class="error-notification">@Messages(error)</span>}
     @if(parentElements.isDefined) {
-        @parentElements.get.errors.map { error => <span class="error-notification">@Messages(error)</span>}
+    @parentElements.get.errors.map { error => <span class="error-notification">@Messages(error)</span>}
     }
     <label for="@elements.field.name" @if( elements.args.get('_labelClass) ){ class="@elements.args.get('_labelClass)" }>
     @if(!labelAfter && elements.args.contains('_label)) { @elements.label }
     <input @if(elements.args.contains('_type)){type="@elements.args.get('_type)" }else{type="text" }
-	   @if( elements.args.get('_inputClass) ){ class="@elements.args.get('_inputClass)" }
-           name="@elements.field.name"
-           id="@elements.field.name"
-           value="@value" />
+    @if( elements.args.get('_inputClass) ){ class="@elements.args.get('_inputClass)" }
+    name="@elements.field.name"
+    id="@elements.field.name"
+    value="@value" />
     @if(labelAfter && elements.args.contains('_label)) { @elements.label }
-</label>
+    </label>
 </div>

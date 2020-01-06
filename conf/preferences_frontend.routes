@@ -1,4 +1,5 @@
 #Deprecated - use /paperless/activate
+#Deprecated - use /paperless/activate
 PUT         /paperless/activate/:formType/:taxIdentifier                            controllers.internal.ActivationController.legacyPreferencesStatus(formType: model.FormType, taxIdentifier: String, hostContext: model.HostContext)
 
 PUT         /paperless/activate                                                     controllers.internal.ActivationController.preferencesStatus(hostContext: model.HostContext)

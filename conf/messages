@@ -18,7 +18,7 @@ sa_printing_preference.tc.8.3.1=8.3 If you give the consent referred to in parag
 sa_printing_preference.tc.8.3.2=you may also be asked to register a telephone number with HMRC. When a statutory notice or reminder is issued to you HMRC may also send a text message to this telephone number, or to a daytime telephone number that you have already provided to HMRC, to inform you of this. You should keep the details of your registered telephone number up-to-date and notify HMRC of any changes.
 
 sa_printing_preference.title=Sign up for paperless notifications
-sa_printing_preference.fg_page.title=Go paperless with HMRC
+sa_printing_preference.fg_page.title=Choose how to get your legal notices, penalty notices and tax letters
 
 tc_printing_preference.fg_page.title=Would you like to receive other email notifications about your tax credits?
 tc_printing_preference.submitButton=Continue
@@ -70,18 +70,24 @@ last.sign.in.not_you=if it wasn''t you.
 yta.header.nav.home=Home
 yta.header.nav.help=Help and contact
 
-sa_printing_preference.fg_page.choose_1=You can choose to get electronic communications instead of letters from HMRC.
-sa_printing_preference.fg_page.choose_2=These electronic communications include statutory notices, decisions, estimates and reminders relating to your tax affairs, such as notices to file a tax return, make a payment, penalties due, or information about other matters.
-sa_printing_preference.fg_page.choose_3=When you have a new electronic communication we will send you an email notification requiring you to log in to your HMRC online account.
-sa_printing_preference.fg_page.paperless=Go paperless now
-sa_printing_preference.fg_page.yes_send_email=Yes, send me electronic communications
-sa_printing_preference.fg_page.you_have_signed_up_1=You have signed up for digital communications for Tax Credits with this email address.
+sa_printing_preference.fg_page.choose_1=You can choose to get some of your tax documents and information sent through your HMRC online account instead of by post.
+sa_printing_preference.fg_page.choose_2=You will need to take action when you receive some of the documents. They include:
+sa_printing_preference.fg_page.list_1=Legal notice to file tax return
+sa_printing_preference.fg_page.list_2=Late filing penalty notice
+sa_printing_preference.fg_page.list_3=Late payment penalty notice
+sa_printing_preference.fg_page.choose_3=We may also send you other information, including letting you know about a change to your personal tax code, if you have one.
+sa_printing_preference.fg_page.choose_4=Read online, download and print whenever you need.
+sa_printing_preference.fg_page.paperless=How do you want to get you legal notices, penalty notices and tax letters?
+sa_printing_preference.fg_page.yes_send_email=Through my HMRC online account
+sa_printing_preference.fg_page.yes_send_email_info_1=We’ll email to tell you when you have a new item in your online account. This email cannot include personal information, so it is your responsibility to sign into your online account and read the full details.
+sa_printing_preference.fg_page.yes_send_email_info_2=Because we cannot send all letters online yet, you will continue to get some by post.
+sa_printing_preference.fg_page_privacy_notice=For more information about how HMRC uses your data, {0}.
+sa_printing_preference.privacy_policy_linkText=read the privacy notice
+sa_printing_preference.fg_page.you_have_signed_up_1=We’ll email to tell you when you have a new item in your online account. This email cannot include personal information, so it is your responsibility to sign into your online account and read the full details..
 sa_printing_preference.fg_page.you_have_signed_up_2=If you wish to change the email address you can do this later within manage your account
-sa_printing_preference.fg_page.by_signing_up_1=By signing up, you confirm that you:
-sa_printing_preference.fg_page.by_signing_up_2=want to receive statutory notices, decisions, estimates and reminders electronically in connection with your tax affairs
-sa_printing_preference.fg_page.by_signing_up_3=will keep your communications preferences and email address up to date using your HMRC online account to make sure you get your email notifications
-sa_printing_preference.fg_page.keep_receiving=No, I want to keep receiving letters
-sa_printing_preference.tc.email.label=Email address
+sa_printing_preference.fg_page.keep_receiving=By post only
+sa_printing_preference.tc.email.label=Enter your email
+sa_printing_preference.tc.email.hint=We’ll use this to tell you when you have a new online tax letter. It is your responsibility to check for emails from HMRC.
 sa_printing_preference.tc.confirm.email.label=Confirm email address
 tc_printing_preference.fg_page.nav_title=Tax credits service
 tc_printing_preference.fg_page.email_address=The email address we we will store securely is
@@ -128,7 +134,7 @@ manage.paperless.go.paperless=Go paperless
 manage.paperless.optout=Replace the letters you get about taxes with emails.
 manage.paperless.signup=Sign up for paperless notifications
 
-manage.paperless.bounce_status=You need to verify 
+manage.paperless.bounce_status=You need to verify
 manage.paperless.bounce.reason.full=The email telling you how to do this can''t be sent because your inbox is full.
 manage.paperless.bounce.reason.full.more=Clear your inbox or use a different email address.
 manage.paperless.bounce.reason.not_full=The email telling you how to do this can''t be delivered.
@@ -167,5 +173,3 @@ language-switcher.english=English
 language-switcher.english.hover=Use this account in English
 language-switcher.welsh=Cymraeg
 language-switcher.welsh.hover=Defnyddio''r cyfrif hwn yn Cymraeg
-
-

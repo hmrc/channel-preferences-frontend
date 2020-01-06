@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,6 @@ object OptInDetailsForm {
     case Data((None, _), _, Some(PaperlessChoice.OptedIn), _, _) => false
     case _ => true
   })
-    .verifying("email.confirmation.emails.unequal", formData => formData.email._1 == formData.email._2)
   )
 
   case class Data(email: (Option[String], Option[String]), emailVerified: Option[String], choice: Option[PaperlessChoice], acceptedTCs: Option[Boolean], emailAlreadyStored: Option[Boolean]) {
