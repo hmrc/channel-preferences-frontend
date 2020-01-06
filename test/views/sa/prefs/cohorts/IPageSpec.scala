@@ -67,7 +67,7 @@ class IPageSpec extends PlaySpec with GuiceOneAppPerSuite with LanguageHelper wi
         .get(3)
         .text() mustBe "We may also send you other information, including letting you know about a change to your personal tax code, if you have one."
 
-     document.getElementsByTag("h2").get(0).text() mustBe "How do you want to get you legal notices, penalty notices and tax letters?"
+     document.getElementsByTag("h2").get(0).text() mustBe "How do you want to get your legal notices, penalty notices and tax letters?"
 
       document
         .getElementsByTag("p")
