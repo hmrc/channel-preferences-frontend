@@ -17,9 +17,9 @@
 package controllers.internal
 
 import _root_.connectors._
-import org.joda.time.{ DateTime, DateTimeZone }
-import org.scalatest.BeforeAndAfterEach
-import uk.gov.hmrc.auth.core.retrieve.{ LoginTimes, Name }
+import org.joda.time.{DateTime, DateTimeZone}
+import org.scalatest.{BeforeAndAfterEach, FeatureSpec, GivenWhenThen, MustMatchers}
+import uk.gov.hmrc.auth.core.retrieve.{LoginTimes, Name}
 import helpers.TestFixtures
 import org.jsoup.Jsoup
 import org.mockito.Matchers.any
@@ -30,26 +30,30 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject._
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.mvc.Results.{ NotFound, Ok, PreconditionFailed }
+import play.api.mvc.Results.{NotFound, Ok, PreconditionFailed}
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.~
+import org.scalatest.concurrent.ScalaFutures
 
 import scala.concurrent.Future
+import org.scalatest.concurrent.ScalaFutures
 
-class ActivationControllerSpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAndAfterEach with MockitoSugar {
+class ActivationControllerSpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAndAfterEach with MockitoSugar with ScalaFutures {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
+  val gracePeriod = 10
   val request = FakeRequest()
   val mockEntityResolverConnector = mock[EntityResolverConnector]
   val mockAuthConnector = mock[AuthConnector]
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder()
       .configure(
-        "govuk-tax.Test.preferences-frontend.host" -> ""
+        "govuk-tax.Test.preferences-frontend.host" -> "",
+        "Test.activation.gracePeriodInMin" -> gracePeriod
       )
       .overrides(
         bind[AuthConnector].toInstance(mockAuthConnector),
@@ -106,15 +110,39 @@ class ActivationControllerSpec extends PlaySpec with GuiceOneAppPerSuite with Be
       val res: Future[Result] = controller.preferencesStatus(TestFixtures.sampleHostContext)(request)
 
       status(res) mustBe Ok.header.status
-      val document = Jsoup.parse(contentAsString(res))
-      document.getElementsByTag("body").first().html() must include("""{"optedIn":false}""")
     }
 
-    "return a json body with optedIn set to false if preference is found and opted-in and an alreadyOptedInUrl is present" in {
+    "return OK if customer is opted-out but with exsiting email" in {
       val email = EmailPreference("test@test.com", false, false, false, None)
       when(mockEntityResolverConnector.getPreferencesStatus(any())(any()))
         .thenReturn(Future.successful(Right(PreferenceFound(false, Some(email)))))
       val res: Future[Result] = controller.preferencesStatus(TestFixtures.alreadyOptedInUrlHostContext)(request)
+
+      status(res) mustBe OK
+    }
+
+    "return a json body with optedIn set to false if T&C accepted is false and updatedAt is within the grace period" in {
+      val now = DateTime.now
+      val lastUpdated = now.minusMinutes(gracePeriod - gracePeriod/2)
+      val email = EmailPreference("test@test.com", false, false, false, None)
+
+      when(mockEntityResolverConnector.getPreferencesStatus(any())(any()))
+        .thenReturn(Future.successful(Right(PreferenceFound(false, Some(email), Some(lastUpdated)))))
+      val res: Future[Result] = controller.preferencesStatus(TestFixtures.sampleHostContext)(request)
+
+      status(res) mustBe Ok.header.status
+      val document = Jsoup.parse(contentAsString(res))
+      document.getElementsByTag("body").first().html() must include("""{"optedIn":false}""")
+    }
+
+    "return a json body with optedIn set to false if T&C accepted is false and updatedAt is outside of the grace period" in {
+      val now = DateTime.now
+      val lastUpdated = now.minusMinutes(gracePeriod + gracePeriod/2)
+      val email = EmailPreference("test@test.com", false, false, false, None)
+
+      when(mockEntityResolverConnector.getPreferencesStatus(any())(any()))
+        .thenReturn(Future.successful(Right(PreferenceFound(false, Some(email), Some(lastUpdated)))))
+      val res: Future[Result] = controller.preferencesStatus(TestFixtures.sampleHostContext)(request)
 
       status(res) mustBe Ok.header.status
       val document = Jsoup.parse(contentAsString(res))
@@ -204,3 +232,4 @@ class ActivationControllerSpec extends PlaySpec with GuiceOneAppPerSuite with Be
     }
   }
 }
+

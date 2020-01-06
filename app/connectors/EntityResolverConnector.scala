@@ -16,6 +16,7 @@
 
 package connectors
 
+import org.joda.time.{DateTime, LocalDate}
 import config.ServicesCircuitBreaker
 import javax.inject.{ Inject, Singleton }
 import model.{ HostContext, ReturnLink }
@@ -50,6 +51,10 @@ case object PreferencesCreated extends PreferencesStatus
 
 case object PreferencesFailure extends PreferencesStatus
 
+
+import play.api.libs.json.JodaWrites.{JodaDateTimeWrites => _, _}
+import play.api.libs.json.JodaReads._
+
 case class TermsAccepted(accepted: Boolean)
 
 object TermsAccepted {
@@ -57,7 +62,7 @@ object TermsAccepted {
 }
 
 trait PreferenceStatus
-case class PreferenceFound(accepted: Boolean, email: Option[EmailPreference]) extends PreferenceStatus
+case class PreferenceFound(accepted: Boolean, email: Option[EmailPreference], updatedAt: Option[DateTime] = None) extends PreferenceStatus
 case class PreferenceNotFound(email: Option[EmailPreference]) extends PreferenceStatus
 
 protected[connectors] case class TermsAndConditionsUpdate(
@@ -116,7 +121,7 @@ class EntityResolverConnector @Inject()(config: Configuration, runMode: RunMode,
           preference.termsAndConditions
             .get(termsAndCond)
             .fold[Either[Int, PreferenceStatus]](Right(PreferenceNotFound(preference.email))) { acceptance =>
-              Right(PreferenceFound(acceptance.accepted, preference.email))
+              Right(PreferenceFound(acceptance.accepted, preference.email, acceptance.updatedAt))
             }
         case None => Right(PreferenceNotFound(None))
       }
