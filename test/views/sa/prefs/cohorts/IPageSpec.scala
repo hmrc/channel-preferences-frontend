@@ -86,6 +86,7 @@ class IPageSpec extends PlaySpec with GuiceOneAppPerSuite with LanguageHelper wi
         .toString
         .trim mustBe "Because we cannot send all letters online yet, you will continue to get some by post."
 
+      document.getElementById("terms-and-conditions").attr("href") mustBe "https://www.tax.service.gov.uk/information/terms?lang=eng#secure"
       document.getElementsByClass("selectable").get(1).text() mustBe "By post only"
       document.getElementById("privacy-policy").text() must include("read the privacy notice")
       document.getElementsByAttributeValue("name", "submitButton").text()  mustBe "Continue"
@@ -143,6 +144,7 @@ class IPageSpec extends PlaySpec with GuiceOneAppPerSuite with LanguageHelper wi
         .toString
         .trim mustBe "Oherwydd na allwn anfon pob llythyr ar-lein eto, byddwch yn parhau i gael rhai llythyrau drwy’r post."
 
+      document.getElementById("terms-and-conditions").attr("href") mustBe "https://www.tax.service.gov.uk/information/terms?lang=cym"
       document.getElementsByClass("selectable").get(1).text() mustBe "Drwy’r post yn unig"
       document.getElementById("privacy-policy").text() must include("darllenwch yr hysbysiad preifatrwydd")
       document.getElementsByAttributeValue("name", "submitButton").text()  mustBe "Yn eich blaen"

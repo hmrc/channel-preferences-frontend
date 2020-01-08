@@ -48,6 +48,7 @@ tc_printing_preference.tc.preLinkText=Rwy''n cytuno â''r {0}
 tc_printing_preference.tc.linkText=telerau ac amodau
 sa_printing_preference.tc.preLinkText=Rwy’n cytuno â’r {0}
 sa_printing_preference.tc.linkText=telerau ac amodau
+sa_pirnting_preference.tc.linkUrl=https://www.tax.service.gov.uk/information/terms?lang=cym
 sa_printing_preference.tc.legal.1=Anfonir negeseuon i flwch post diogel yn eich cyfrif ar-lein gyda CThEM.
 sa_printing_preference.tc.legal.2=Mae ganddynt yr un dilysrwydd cyfreithiol â nodyn atgoffa gan CThEM a anfonir drwy''r post.
 sa_printing_preference.tc.legal.3=Cadwch eich cyfeiriad e-bost wedi''i ddiweddaru - gallwch wneud hyn yn eich cyfrif ar-lein.

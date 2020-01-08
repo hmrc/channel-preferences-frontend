@@ -79,9 +79,9 @@
 
     @singleCheckbox26(
     emailForm("accept-tc"),
-    Html(Messages("sa_printing_preference.tc.preLinkText", Link.toExternalPage(id = Some("terms-and-conditions"), url =
-    "https://www.tax.service.gov.uk/information/terms#secure", value =
-    Some(Messages("sa_printing_preference.tc.linkText"))).toHtml)),
+    Html(Messages("sa_printing_preference.tc.preLinkText", Link.toExternalPage(id = Some("terms-and-conditions"),
+    url = Messages("sa_pirnting_preference.tc.linkUrl"),
+    value = Some(Messages("sa_printing_preference.tc.linkText"))).toHtml)),
     '_labelClass -> "label--inline"
     )
 
