@@ -24,8 +24,7 @@ private object Dependencies {
     "uk.gov.hmrc"             %% "a-b-test"                 % "3.1.0",
     "uk.gov.hmrc"             %% "emailaddress"             % "3.2.0",
     "uk.gov.hmrc"             %% "bootstrap-play-26"        % "1.1.0",
-
-    "uk.gov.hmrc"             %% "metrix"                   % "3.8.0-play-26",
+    "uk.gov.hmrc"             %% "metrix"                   % "3.11.0-play-26",
     "uk.gov.hmrc"             %% "play-ui"                  % "8.3.0-play-26",
     "uk.gov.hmrc"             %% "govuk-template"           % "5.42.0-play-26",
     "com.typesafe.play"       %% "play-json-joda"           % "2.6.13",
@@ -36,10 +35,8 @@ private object Dependencies {
     "uk.gov.hmrc"             %% "reactive-circuit-breaker" % "3.3.0",
     "org.mockito"             %  "mockito-all"              % "1.10.19"   % "test",
     "org.scalatestplus.play"  %% "scalatestplus-play"       % "3.1.0"     % "test, it",
-
     "org.jsoup"               %  "jsoup"                    % "1.12.1"     % "test, it",
     "org.pegdown"             %  "pegdown"                  % "1.6.0"     % "test, it",
-
     "uk.gov.hmrc"             %% "browser-test"             % "2.3.0"    % "functional",
     "com.github.tomakehurst"  %  "wiremock"                 % "2.18.0"    % "functional"
   )
