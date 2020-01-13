@@ -73,10 +73,10 @@ yta.header.nav.help=Help and contact
 
 sa_printing_preference.fg_page.choose_1=You can choose to get some of your tax documents and information sent through your HMRC online account instead of by post.
 sa_printing_preference.fg_page.choose_2=You will need to take action when you receive some of the documents. They include:
-sa_printing_preference.fg_page.list_1=Legal notice to file tax return
-sa_printing_preference.fg_page.list_2=Late filing penalty notice
-sa_printing_preference.fg_page.list_3=Late payment penalty notice
-sa_printing_preference.fg_page.choose_3=We may also send you other information, including letting you know about a change to your personal tax code, if you have one.
+sa_printing_preference.fg_page.list_1=Legal notices to file tax return
+sa_printing_preference.fg_page.list_2=Late filing penalty notices
+sa_printing_preference.fg_page.list_3=Late payment penalty notices
+sa_printing_preference.fg_page.choose_3=We may also send you other messages, including information about your personal tax code, if you have one.
 sa_printing_preference.fg_page.choose_4=Read online, download and print whenever you need.
 sa_printing_preference.fg_page.paperless=How do you want to get your legal notices, penalty notices and tax letters?
 sa_printing_preference.fg_page.yes_send_email=Through my HMRC online account

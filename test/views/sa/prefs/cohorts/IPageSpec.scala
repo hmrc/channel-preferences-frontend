@@ -54,18 +54,18 @@ class IPageSpec extends PlaySpec with GuiceOneAppPerSuite with LanguageHelper wi
         .text() mustBe "You will need to take action when you receive some of the documents. They include:"
 
       document
-          .getElementsByTag("li").get(1).text() mustBe "Legal notice to file tax return"
+          .getElementsByTag("li").get(1).text() mustBe "Legal notices to file tax return"
 
       document
-        .getElementsByTag("li").get(2).text() mustBe "Late filing penalty notice"
+        .getElementsByTag("li").get(2).text() mustBe "Late filing penalty notices"
 
       document
-        .getElementsByTag("li").get(3).text() mustBe "Late payment penalty notice"
+        .getElementsByTag("li").get(3).text() mustBe "Late payment penalty notices"
 
       document
         .getElementsByTag("p")
         .get(3)
-        .text() mustBe "We may also send you other information, including letting you know about a change to your personal tax code, if you have one."
+        .text() mustBe "We may also send you other messages, including information about your personal tax code, if you have one."
 
      document.getElementsByTag("h2").get(0).text() mustBe "How do you want to get your legal notices, penalty notices and tax letters?"
 
@@ -112,18 +112,18 @@ class IPageSpec extends PlaySpec with GuiceOneAppPerSuite with LanguageHelper wi
         .text() mustBe "Bydd yn rhaid i chi gymryd camau pan fyddwch yn cael rhai o’r dogfennau. Maent yn cynnwys:"
 
       document
-        .getElementsByTag("li").get(1).text() mustBe "Hysbysiad cyfreithiol i gyflwyno Ffurflen Dreth"
+        .getElementsByTag("li").get(1).text() mustBe "Hysbysiadau cyfreithiol i gyflwyno Ffurflen Dreth"
 
       document
-        .getElementsByTag("li").get(2).text() mustBe "Hysbysiad cyfreithiol i gyflwyno Ffurflen Dreth"
+        .getElementsByTag("li").get(2).text() mustBe "Hysbysiadau o gosb am gyflwyno’n hwyr"
 
       document
-        .getElementsByTag("li").get(3).text() mustBe "Hysbysiad o gosb am dalu’n hwyr"
+        .getElementsByTag("li").get(3).text() mustBe "Hysbysiadau o gosb am dalu’n hwyr"
 
       document
         .getElementsByTag("p")
         .get(3)
-        .text() mustBe "Mae’n bosibl y byddwn hefyd yn anfon gwybodaeth arall atoch, gan gynnwys rhoi gwybod i chi am newid i’ch cod treth personol, os oes un gennych."
+        .text() mustBe "Mae’n bosibl y byddwn hefyd yn anfon negeseuon arall atoch, gan gynnwys gwybodaeth i chi am eich cod treth personol, os oes un gennych."
 
       document.getElementsByTag("h2").get(0).text() mustBe "Sut yr hoffech gael eich hysbysiadau cyfreithiol, hysbysiadau o gosb a llythyrau treth?"
 
