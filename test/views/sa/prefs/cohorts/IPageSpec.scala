@@ -123,7 +123,7 @@ class IPageSpec extends PlaySpec with GuiceOneAppPerSuite with LanguageHelper wi
       document
         .getElementsByTag("p")
         .get(3)
-        .text() mustBe "Mae’n bosibl y byddwn hefyd yn anfon negeseuon arall atoch, gan gynnwys gwybodaeth i chi am eich cod treth personol, os oes un gennych."
+        .text() mustBe "Mae’n bosibl y byddwn hefyd yn anfon negeseuon eraill atoch, gan gynnwys gwybodaeth am eich cod treth personol, os oes un gennych."
 
       document.getElementsByTag("h2").get(0).text() mustBe "Sut yr hoffech gael eich hysbysiadau cyfreithiol, hysbysiadau o gosb a llythyrau treth?"
 
