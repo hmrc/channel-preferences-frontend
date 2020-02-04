@@ -49,11 +49,11 @@ class TcPageSpec extends PlaySpec with GuiceOneAppPerSuite with LanguageHelper w
         .text() mustBe "By letting us store your email address, you confirm that you:"
       document
         .getElementsByTag("li")
-        .get(1)
+        .get(2)
         .text() mustBe "want to get notifications and prompts about your tax credits"
       document
         .getElementsByTag("li")
-        .get(2)
+        .get(3)
         .text() mustBe "will keep your email address up to date using your HMRC online account to make sure you get your email notifications"
       document.getElementsByClass("selectable").get(0).text() mustBe "Yes, store my email address"
       document.getElementsByClass("selectable").get(1).text() mustBe "No, I do not want my email address stored"
@@ -83,11 +83,11 @@ class TcPageSpec extends PlaySpec with GuiceOneAppPerSuite with LanguageHelper w
         .text() mustBe "Drwy ganiatáu i ni storio'ch cyfeiriad e-bost, rydych yn cadarnhau'r canlynol:"
       document
         .getElementsByTag("li")
-        .get(1)
+        .get(2)
         .text() mustBe "eich bod am gael hysbysiadau a negeseuon annog ynghylch eich credydau treth"
       document
         .getElementsByTag("li")
-        .get(2)
+        .get(3)
         .text() mustBe "byddwch yn cadw'ch cyfeiriad e-bost wedi'i ddiweddaru drwy ddefnyddio'ch cyfrif ar-lein gyda CThEM i wneud yn siŵr eich bod yn cael eich hysbysiadau"
       document
         .getElementById("termsAndConditions_accept-tc")

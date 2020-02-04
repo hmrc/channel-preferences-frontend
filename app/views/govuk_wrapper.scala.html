@@ -17,8 +17,10 @@
 @import controllers.auth.AuthenticatedRequest
 @import play.twirl.api.HtmlFormat
 
+@import scala.collection.immutable
+
 @this(ytaConfig: config.YtaConfig)
-@(appConfig: config.AppConfig,
+@(appConfig: config.AppConfig = ytaConfig,
   title: String,
   navTitle: String,
   navLinks: Html = HtmlFormat.empty,
@@ -70,12 +72,22 @@
       serviceInfoContent = Some(serviceInfoContent))
 }
 
+@contentLanguageHeader = {
+     <div class="float--right">@partials.language_selection(ytaConfig.enableLanguageSwitching)(messages)</div>
+}
+@mainContentHeader = {
+    @if(contentHeader.isDefined) {
+        @uiLayouts.main_content_header(contentHeader = HtmlFormat.fill(immutable.Seq(contentHeader.get, contentLanguageHeader)))
+    } else {@contentLanguageHeader}
+}
+
 @content = {
     @uiLayouts.main_content(
       article = mainContent,
       mainClass = mainClass,
       mainDataAttributes = mainDataAttributes,
+      mainContentHeader = mainContentHeader,
       serviceInfo = serviceInfo,
       sidebar = sidebar)
 }
-@hmrcGovUkTemplate(Some(title), bodyClasses)(head, bodyEnd, insideHeader, afterHeader, footerTop, Some(uiLayouts.footer_links(Some(partials.language_selection(ytaConfig.enableLanguageSwitching)))), true)(content)
+@hmrcGovUkTemplate(Some(title), bodyClasses)(head, bodyEnd, insideHeader, afterHeader, footerTop, Some(uiLayouts.footer_links(None)), true)(content)

@@ -54,13 +54,13 @@ class IPageSpec extends PlaySpec with GuiceOneAppPerSuite with LanguageHelper wi
         .text() mustBe "You will need to take action when you receive some of the documents. They include:"
 
       document
-          .getElementsByTag("li").get(1).text() mustBe "Legal notices to file tax return"
+          .getElementsByTag("li").get(2).text() mustBe "Legal notices to file tax return"
 
       document
-        .getElementsByTag("li").get(2).text() mustBe "Late filing penalty notices"
+        .getElementsByTag("li").get(3).text() mustBe "Late filing penalty notices"
 
       document
-        .getElementsByTag("li").get(3).text() mustBe "Late payment penalty notices"
+        .getElementsByTag("li").get(4).text() mustBe "Late payment penalty notices"
 
       document
         .getElementsByTag("p")
@@ -112,13 +112,13 @@ class IPageSpec extends PlaySpec with GuiceOneAppPerSuite with LanguageHelper wi
         .text() mustBe "Bydd yn rhaid i chi gymryd camau pan fyddwch yn cael rhai o’r dogfennau. Maent yn cynnwys:"
 
       document
-        .getElementsByTag("li").get(1).text() mustBe "Hysbysiadau cyfreithiol i gyflwyno Ffurflen Dreth"
+        .getElementsByTag("li").get(2).text() mustBe "Hysbysiadau cyfreithiol i gyflwyno Ffurflen Dreth"
 
       document
-        .getElementsByTag("li").get(2).text() mustBe "Hysbysiadau o gosb am gyflwyno’n hwyr"
+        .getElementsByTag("li").get(3).text() mustBe "Hysbysiadau o gosb am gyflwyno’n hwyr"
 
       document
-        .getElementsByTag("li").get(3).text() mustBe "Hysbysiadau o gosb am dalu’n hwyr"
+        .getElementsByTag("li").get(4).text() mustBe "Hysbysiadau o gosb am dalu’n hwyr"
 
       document
         .getElementsByTag("p")

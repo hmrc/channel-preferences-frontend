@@ -170,3 +170,6 @@ language-switcher.english=English
 language-switcher.english.hover=Use this account in English
 language-switcher.welsh=Cymraeg
 language-switcher.welsh.hover=Defnyddio''r cyfrif hwn yn Cymraeg
+
+language-switcher.english.hidden=Newid yr iaith i''r Saesneg
+language-switcher.welsh.hidden=Newid yr iaith i''r Gymraeg
