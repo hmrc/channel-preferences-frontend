@@ -17,15 +17,15 @@
 package connectors
 
 import config.ServicesCircuitBreaker
-import javax.inject.{Inject, Singleton}
-import model.{HostContext, Language, ReturnLink}
+import javax.inject.{ Inject, Singleton }
+import model.{ HostContext, Language, ReturnLink }
 import org.joda.time.DateTime
 import play.api.Configuration
 import play.api.http.Status._
 import play.api.libs.json._
-import uk.gov.hmrc.domain.{Nino, SaUtr, TaxIdentifier}
+import uk.gov.hmrc.domain.{ Nino, SaUtr, TaxIdentifier }
 import uk.gov.hmrc.http._
-import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
+import uk.gov.hmrc.play.bootstrap.config.{ RunMode, ServicesConfig }
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
