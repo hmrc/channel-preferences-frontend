@@ -16,10 +16,10 @@
 
 package connectors
 
-import org.joda.time.{DateTime, LocalDate}
 import config.ServicesCircuitBreaker
 import javax.inject.{Inject, Singleton}
-import model.{HostContext, LanguagePreference, ReturnLink}
+import model.{HostContext, ReturnLink}
+import org.joda.time.DateTime
 import play.api.Configuration
 import play.api.http.Status._
 import play.api.libs.json._
@@ -52,8 +52,7 @@ case object PreferencesCreated extends PreferencesStatus
 case object PreferencesFailure extends PreferencesStatus
 
 
-import play.api.libs.json.JodaWrites.{JodaDateTimeWrites => _, _}
-import play.api.libs.json.JodaReads._
+import play.api.libs.json.JodaWrites.{JodaDateTimeWrites => _}
 
 case class TermsAccepted(accepted: Boolean)
 
