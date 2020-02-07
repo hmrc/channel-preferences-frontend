@@ -30,7 +30,7 @@ case class HostContext(
 
 object HostContext {
 
-  implicit def hostContextBinder(implicit stringBinder: QueryStringBindable[Encrypted[String]]) =
+  implicit def hostContextBinder(implicit stringBinder: QueryStringBindable[Encrypted[String]]): QueryStringBindable[HostContext] =
     new QueryStringBindable[HostContext] {
       override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, HostContext]] = {
         val returnUrlResult = stringBinder.bind("returnUrl", params)

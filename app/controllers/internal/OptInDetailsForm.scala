@@ -35,16 +35,16 @@ object OptInDetailsForm {
     "emailAlreadyStored" -> optional(boolean)
   )(Data.apply)(Data.unapply)
     .verifying("error.email.optIn", _ match {
-    case Data((None, _), _, Some(PaperlessChoice.OptedIn), _, _) => false
-    case _ => true
-  })
+      case Data((None, _), _, Some(PaperlessChoice.OptedIn), _, _) => false
+      case _ => true
+    })
   )
 
   case class Data(email: (Option[String], Option[String]), emailVerified: Option[String], choice: Option[PaperlessChoice], acceptedTCs: Option[Boolean], emailAlreadyStored: Option[Boolean]) {
     lazy val isEmailVerified = emailVerified.contains("true")
     lazy val isEmailAlreadyStored = emailAlreadyStored.contains(true)
 
-    def mainEmail = email._1
+    def mainEmail: Option[String] = email._1
   }
   object Data {
 

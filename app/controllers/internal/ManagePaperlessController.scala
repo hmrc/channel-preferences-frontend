@@ -18,12 +18,12 @@ package controllers.internal
 
 import connectors._
 import controllers.ExternalUrlPrefixes
-import controllers.auth.{WithAuthRetrievals, AuthenticatedRequest}
+import controllers.auth.{AuthenticatedRequest, WithAuthRetrievals}
 import javax.inject.Inject
 import model.{Encrypted, HostContext}
 import play.api.Configuration
 import play.api.i18n.I18nSupport
-import play.api.mvc.{MessagesControllerComponents, Result}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.http.HeaderCarrier
@@ -50,12 +50,12 @@ class ManagePaperlessController @Inject()(
 mcc: MessagesControllerComponents)(implicit ec: ExecutionContext)
     extends FrontendController(mcc) with OptInCohortCalculator with I18nSupport with WithAuthRetrievals {
 
-  private[controllers] def _displayStopPaperlessConfirmed(implicit request: AuthenticatedRequest[_], hostContext: HostContext, hc:HeaderCarrier): Result = {
+  private[controllers] def _displayStopPaperlessConfirmed(implicit request: AuthenticatedRequest[_], hostContext: HostContext,hc:HeaderCarrier): Result = {
     Ok(optedBackIntoPaperThankYou())
   }
 
-  private[controllers] def _submitStopPaperless(implicit request: AuthenticatedRequest[_], hostContext: HostContext, hc:HeaderCarrier): Future[Result] =
-    entityResolverConnector.updateTermsAndConditions((GenericTerms, TermsAccepted(false)), email = None).map(_ =>
+  private[controllers] def _submitStopPaperless(lang: String)(implicit request: AuthenticatedRequest[_], hostContext: HostContext, hc:HeaderCarrier): Future[Result] =
+    entityResolverConnector.updateTermsAndConditions((GenericTerms, TermsAccepted(false)), email = None, lang).map(_ =>
       Redirect(routes.ManagePaperlessController.displayStopPaperlessConfirmed(hostContext))
     )
 
@@ -67,7 +67,7 @@ mcc: MessagesControllerComponents)(implicit ec: ExecutionContext)
     }
   }
 
-  private[controllers] def _displayStopPaperless(implicit request: AuthenticatedRequest[_], hostContext: HostContext, hc:HeaderCarrier) =
+  private[controllers] def _displayStopPaperless(implicit request: AuthenticatedRequest[_], hostContext: HostContext, hc:HeaderCarrier): Future[Result] =
     lookupCurrentEmail(email => Future.successful(Ok(confirmOptBackIntoPaper(email.obfuscated))))
 
   private[controllers] def _displayChangeEmailAddress(emailAddress: Option[Encrypted[EmailAddress]])(implicit request: AuthenticatedRequest[_], hostContext: HostContext, hc:HeaderCarrier): Future[Result] =
@@ -108,7 +108,7 @@ mcc: MessagesControllerComponents)(implicit ec: ExecutionContext)
     lookupCurrentEmail(email => Future.successful(Ok(accountDetailsUpdateEmailAddressThankYou(email.obfuscated))))
   }
 
-    def displayChangeEmailAddress(implicit emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = Action.async {
+    def displayChangeEmailAddress(implicit emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext): Action[AnyContent] = Action.async {
       implicit request =>
          withAuthenticatedRequest {
              { implicit authenticatedRequest: AuthenticatedRequest[_] =>
@@ -119,7 +119,7 @@ mcc: MessagesControllerComponents)(implicit ec: ExecutionContext)
 
     }
 
-    def submitChangeEmailAddress(implicit hostContext: HostContext) =
+    def submitChangeEmailAddress(implicit hostContext: HostContext): Action[AnyContent] =
         Action.async { implicit request =>
     withAuthenticatedRequest {
       implicit withAuthenticatedRequest: AuthenticatedRequest[_] =>
@@ -129,7 +129,7 @@ mcc: MessagesControllerComponents)(implicit ec: ExecutionContext)
 
     }
 
-    def displayChangeEmailAddressConfirmed(implicit hostContext: HostContext) = Action.async { implicit request =>
+    def displayChangeEmailAddressConfirmed(implicit hostContext: HostContext): Action[AnyContent] = Action.async { implicit request =>
         withAuthenticatedRequest {
             implicit withAuthenticatedRequest: AuthenticatedRequest[_] =>
                 implicit hc =>
@@ -137,7 +137,7 @@ mcc: MessagesControllerComponents)(implicit ec: ExecutionContext)
         }
     }
 
-    def displayStopPaperless(implicit hostContext: HostContext) = Action.async { implicit request =>
+    def displayStopPaperless(implicit hostContext: HostContext): Action[AnyContent] = Action.async { implicit request =>
         withAuthenticatedRequest {
             implicit withAuthenticatedRequest: AuthenticatedRequest[_] =>
                 implicit hc =>
@@ -146,24 +146,24 @@ mcc: MessagesControllerComponents)(implicit ec: ExecutionContext)
         }
     }
 
-    def submitStopPaperless(implicit hostContext: HostContext) = Action.async { implicit request =>
+    def submitStopPaperless(implicit hostContext: HostContext): Action[AnyContent] = Action.async { implicit request =>
         withAuthenticatedRequest {
+          val lang = request.lang.code
             implicit withAuthenticatedRequest: AuthenticatedRequest[_] =>
                 implicit hc =>
 
-                    _submitStopPaperless
+                    _submitStopPaperless(lang: String)
         }
     }
 
-    def displayStopPaperlessConfirmed(implicit hostContext: HostContext) = Action.async { implicit request =>
-
+    def displayStopPaperlessConfirmed(implicit hostContext: HostContext): Action[AnyContent] = Action.async { implicit request =>
         withAuthenticatedRequest { implicit withAuthenticatedRequest: AuthenticatedRequest[_] =>
                 implicit hc =>
                         Future.successful(_displayStopPaperlessConfirmed)
         }
     }
 
-    def resendVerificationEmail(implicit hostContext: HostContext) = Action.async { implicit request =>
+    def resendVerificationEmail(implicit hostContext: HostContext): Action[AnyContent] = Action.async { implicit request =>
         withAuthenticatedRequest { implicit withAuthenticatedRequest: AuthenticatedRequest[_] =>
             implicit hc =>
                 _resendVerificationEmail

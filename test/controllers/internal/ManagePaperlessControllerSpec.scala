@@ -476,10 +476,10 @@ class ManagePaperlessControllerSpec
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
       when(
         mockEntityResolverConnector
-          .updateTermsAndConditions(is(GenericTerms -> TermsAccepted(false)), is(None))(any(), any()))
+          .updateTermsAndConditions(is(GenericTerms -> TermsAccepted(false)), is(None), any())(any(), any()))
         .thenReturn(Future.successful(PreferencesExists))
 
-      val result = controller._submitStopPaperless(request, TestFixtures.sampleHostContext, hc)
+      val result = controller._submitStopPaperless(lang = "cy")(request, TestFixtures.sampleHostContext, hc)
 
       status(result) mustBe 303
       header("Location", result).get must include(
@@ -487,8 +487,7 @@ class ManagePaperlessControllerSpec
       val page = Jsoup.parse(contentAsString(result))
 
       verify(mockEntityResolverConnector)
-        .updateTermsAndConditions(is(GenericTerms -> TermsAccepted(false)), is(None))(any(), any())
+        .updateTermsAndConditions(is(GenericTerms -> TermsAccepted(false)), is(None), any())(any(), any())
     }
   }
-
 }

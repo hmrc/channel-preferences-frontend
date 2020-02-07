@@ -20,8 +20,9 @@ import connectors.PreferenceResponse._
 import model.HostContext
 import org.mockito.Matchers
 import org.mockito.Mockito._
+import org.mockito.stubbing.OngoingStubbing
 import org.scalatest.BeforeAndAfterEach
-import org.scalatest.concurrent.{ Eventually, ScalaFutures }
+import org.scalatest.concurrent.{Eventually, ScalaFutures}
 import org.scalatest.time._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
@@ -31,7 +32,7 @@ import play.api.inject._
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import uk.gov.hmrc.circuitbreaker.UnhealthyServiceException
-import uk.gov.hmrc.domain.{ Nino, SaUtr }
+import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
@@ -45,7 +46,7 @@ class EntityResolverConnectorSpec
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder()
       .configure(
-        "govuk-tax.Test.services.contact-frontend.host"                                                -> "localhost",
+        "govuk-tax.Test.services.contact-frontend.host"                                          -> "localhost",
         "govuk-tax.Test.services.contact-frontend.port"                                                -> "9250",
         "govuk-tax.Test.assets.url"                                                                    -> "fake/url",
         "govuk-tax.Test.assets.version"                                                                -> "54321",
@@ -310,8 +311,8 @@ class EntityResolverConnectorSpec
     "send generic accepted true and return preferences created if terms and conditions are accepted and updated and preferences created" in new PayloadCheck {
       postReturns(OK)
       val payload =
-        TermsAndConditionsUpdate(generic = Some(TermsAccepted(true)), taxCredits = None, email = None)
-      connector.updateTermsAndConditions(GenericTerms -> TermsAccepted(true), email = None).futureValue must be(
+        TermsAndConditionsUpdate(generic = Some(TermsAccepted(true)), taxCredits = None, email = None, languagePreference = "cy")
+      connector.updateTermsAndConditions(GenericTerms -> TermsAccepted(true), email = None, languagePreference = "cy").futureValue must be(
         PreferencesExists)
       checkPayload("/preferences/terms-and-conditions", payload)
     }
@@ -319,8 +320,8 @@ class EntityResolverConnectorSpec
     "send generic accepted false and return preferences created if terms and conditions are not accepted and updated and preferences created" in new PayloadCheck {
       postReturns(OK)
       val payload =
-        TermsAndConditionsUpdate(generic = Some(TermsAccepted(false)), taxCredits = None, email = None)
-      connector.updateTermsAndConditions(GenericTerms -> TermsAccepted(false), email = None).futureValue must be(
+        TermsAndConditionsUpdate(generic = Some(TermsAccepted(false)), taxCredits = None, email = None, languagePreference = "cy")
+      connector.updateTermsAndConditions(GenericTerms -> TermsAccepted(false), email = None, languagePreference = "cy").futureValue must be(
         PreferencesExists)
       checkPayload("/preferences/terms-and-conditions", payload)
     }
@@ -328,8 +329,8 @@ class EntityResolverConnectorSpec
     "send taxCredits accepted true and return preferences created if terms and conditions are accepted and updated and preferences created" in new PayloadCheck {
       postReturns(OK)
       val payload =
-        TermsAndConditionsUpdate(generic = None, taxCredits = Some(TermsAccepted(true)), email = None)
-      connector.updateTermsAndConditions(TaxCreditsTerms -> TermsAccepted(true), email = None).futureValue must be(
+        TermsAndConditionsUpdate(generic = None, taxCredits = Some(TermsAccepted(true)), email = None, languagePreference = "cy")
+      connector.updateTermsAndConditions(TaxCreditsTerms -> TermsAccepted(true), email = None, languagePreference = "cy").futureValue must be(
         PreferencesExists)
       checkPayload("/preferences/terms-and-conditions", payload)
     }
@@ -337,9 +338,9 @@ class EntityResolverConnectorSpec
     "send taxCredits accepted false and return preferences created if terms and conditions are not accepted and updated and preferences created" in new PayloadCheck {
       postReturns(OK)
       val payload =
-        TermsAndConditionsUpdate(generic = None, taxCredits = Some(TermsAccepted(false)), email = None)
+        TermsAndConditionsUpdate(generic = None, taxCredits = Some(TermsAccepted(false)), email = None, languagePreference = "cy")
 
-      connector.updateTermsAndConditions(TaxCreditsTerms -> TermsAccepted(false), email = None).futureValue must be(
+      connector.updateTermsAndConditions(TaxCreditsTerms -> TermsAccepted(false), email = None, languagePreference = "cy").futureValue must be(
         PreferencesExists)
       checkPayload("/preferences/terms-and-conditions", payload)
     }
@@ -351,7 +352,8 @@ class EntityResolverConnectorSpec
         taxCredits = Some(TermsAccepted(true)),
         email = None,
         returnUrl = Some("return Url"),
-        returnText = Some("return link text"))
+        returnText = Some("return link text"),
+        languagePreference = "cy")
       implicit val hostContext: HostContext =
         new HostContext(returnUrl = "return Url", returnLinkText = "return link text")
 
@@ -361,7 +363,8 @@ class EntityResolverConnectorSpec
           email = None,
           svc = Some("MTDFBIT"),
           token = Some("A TOKEN"),
-          includeLinkDetails = true)
+          includeLinkDetails = true,
+          languagePreference = "cy")
         .futureValue must be(PreferencesExists)
       checkPayload("/preferences/terms-and-conditions/MTDFBIT/A TOKEN", payload)
     }
@@ -379,9 +382,10 @@ class EntityResolverConnectorSpec
         taxCredits = Some(TermsAccepted(true)),
         email = None,
         returnUrl = Some("return Url"),
-        returnText = Some("return link text"))
+        returnText = Some("return link text"),
+        languagePreference = "cy")
       connector
-        .updateTermsAndConditions(GenericTerms -> TermsAccepted(true), email = None)
+        .updateTermsAndConditions(GenericTerms -> TermsAccepted(true), email = None, languagePreference = "cy")
         .failed
         .futureValue mustBe an[Upstream4xxResponse]
     }
@@ -390,7 +394,7 @@ class EntityResolverConnectorSpec
   "New user" should {
     trait NewUserPayloadCheck {
 
-      def postReturns(status: Int) =
+      def postReturns(status: Int): OngoingStubbing[Future[HttpResponse]] =
         when(
           http.POST[TermsAndConditionsUpdate, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(
             Matchers.any(),
@@ -409,9 +413,9 @@ class EntityResolverConnectorSpec
     "send generic accepted true with email" in new NewUserPayloadCheck {
       postReturns(201)
       def expectedPayload =
-        TermsAndConditionsUpdate(generic = Some(TermsAccepted(true)), taxCredits = None, Some(email))
+        TermsAndConditionsUpdate(generic = Some(TermsAccepted(true)), taxCredits = None, Some(email), languagePreference = "cy")
 
-      connector.updateTermsAndConditions(GenericTerms -> TermsAccepted(true), Some(email)).futureValue must be(
+      connector.updateTermsAndConditions(GenericTerms -> TermsAccepted(true), Some(email), languagePreference = "cy").futureValue must be(
         PreferencesCreated)
 
       checkPayload("/preferences/terms-and-conditions", expectedPayload)
@@ -421,27 +425,27 @@ class EntityResolverConnectorSpec
 
       postReturns(201)
       def expectedPayload =
-        TermsAndConditionsUpdate(generic = Some(TermsAccepted(false)), taxCredits = None, None)
+        TermsAndConditionsUpdate(generic = Some(TermsAccepted(false)), taxCredits = None, None, languagePreference = "cy")
 
-      connector.updateTermsAndConditions(GenericTerms -> TermsAccepted(false), None).futureValue must be(
+      connector.updateTermsAndConditions(GenericTerms -> TermsAccepted(false), None, languagePreference = "cy").futureValue must be(
         PreferencesCreated)
     }
 
     "send taxCredits accepted true with email" in new NewUserPayloadCheck {
       postReturns(201)
       def expectedPayload =
-        TermsAndConditionsUpdate(generic = Some(TermsAccepted(true)), taxCredits = None, Some(email))
+        TermsAndConditionsUpdate(generic = Some(TermsAccepted(true)), taxCredits = None, Some(email), languagePreference = "cy")
 
-      connector.updateTermsAndConditions(GenericTerms -> TermsAccepted(true), Some(email)).futureValue must be(
+      connector.updateTermsAndConditions(GenericTerms -> TermsAccepted(true), Some(email), languagePreference = "cy").futureValue must be(
         PreferencesCreated)
     }
 
     "send taxCredits accepted false with no email" in new NewUserPayloadCheck {
       postReturns(201)
       def expectedPayload =
-        TermsAndConditionsUpdate(generic = Some(TermsAccepted(false)), taxCredits = None, None)
+        TermsAndConditionsUpdate(generic = Some(TermsAccepted(false)), taxCredits = None, None, languagePreference = "cy")
 
-      connector.updateTermsAndConditions(GenericTerms -> TermsAccepted(false), None).futureValue must be(
+      connector.updateTermsAndConditions(GenericTerms -> TermsAccepted(false), None, languagePreference = "cy").futureValue must be(
         PreferencesCreated)
     }
 
@@ -454,7 +458,7 @@ class EntityResolverConnectorSpec
           Matchers.any())).thenReturn(Future.failed(Upstream4xxResponse("", 401, 401)))
 
       connector
-        .updateTermsAndConditions(GenericTerms -> TermsAccepted(true), email = Some(email))
+        .updateTermsAndConditions(GenericTerms -> TermsAccepted(true), email = Some(email), languagePreference = "cy")
         .failed
         .futureValue mustBe an[Upstream4xxResponse]
 
