@@ -16,22 +16,22 @@
 
 package controllers.internal
 
-import connectors.{EntityResolverConnector, _}
+import connectors.{ EntityResolverConnector, _ }
 import controllers.ExternalUrlPrefixes
-import controllers.auth.{AuthenticatedRequest, WithAuthRetrievals}
+import controllers.auth.{ AuthenticatedRequest, WithAuthRetrievals }
 import javax.inject.Inject
-import model.{Encrypted, FormType, HostContext}
+import model.{ Encrypted, FormType, HostContext }
 import org.joda.time.DateTime
 import play.api.Configuration
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.mvc.{ Action, AnyContent, MessagesControllerComponents, Result }
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.config.RunMode
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 
 class ActivationController @Inject()(
   entityResolverConnector: EntityResolverConnector,
@@ -66,18 +66,19 @@ class ActivationController @Inject()(
     }
   }
 
-  def preferencesStatusBySvc(svc: String, token: String, hostContext: HostContext): Action[AnyContent] = Action.async { implicit request =>
-    withAuthenticatedRequest { implicit authenticatedRequest: AuthenticatedRequest[_] => implicit hc: HeaderCarrier =>
-      _preferencesStatusMtd(svc, token, hostContext)
-    }
+  def preferencesStatusBySvc(svc: String, token: String, hostContext: HostContext): Action[AnyContent] = Action.async {
+    implicit request =>
+      withAuthenticatedRequest { implicit authenticatedRequest: AuthenticatedRequest[_] => implicit hc: HeaderCarrier =>
+        _preferencesStatusMtd(svc, token, hostContext)
+      }
   }
 
-  def legacyPreferencesStatus(formType: FormType, taxIdentifier: String, hostContext: HostContext): Action[AnyContent] = Action.async {
-    implicit request =>
+  def legacyPreferencesStatus(formType: FormType, taxIdentifier: String, hostContext: HostContext): Action[AnyContent] =
+    Action.async { implicit request =>
       withAuthenticatedRequest { implicit authenticatedRequest: AuthenticatedRequest[_] => implicit hc: HeaderCarrier =>
         _preferencesStatus(hostContext)
       }
-  }
+    }
 
   private def _preferencesStatusMtd(svc: String, token: String, hostContext: HostContext)(
     implicit hc: HeaderCarrier): Future[Result] =
