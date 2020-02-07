@@ -146,7 +146,7 @@ class EntityResolverConnector @Inject()(config: Configuration, runMode: RunMode,
       case e: NotFoundException                                                   => None
     }
 
-  def getEmailAddress(taxId: TaxIdentifier)(implicit hc: HeaderCarrier) = {
+  def getEmailAddress(taxId: TaxIdentifier)(implicit hc: HeaderCarrier): Future[Option[String]] = {
     def basedOnTaxIdType = taxId match {
       case SaUtr(utr) => s"/portal/preferences/sa/$utr/verified-email-address"
       case Nino(nino) => s"/portal/preferences/paye/$nino/verified-email-address"

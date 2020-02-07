@@ -168,11 +168,6 @@ object ValidateEmail {
 
 case class ValidateEmail(token: String)
 
-sealed trait Language
-case class English(lang: String = "en") extends Language
-case class Welsh  (lang: String = "cy") extends Language
-
-
 
 
 

@@ -32,7 +32,7 @@ import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.AuditExtensions._
-import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.{DataCall, EventTypes, MergedDataEvent}
 import uk.gov.hmrc.play.bootstrap.config.AppName
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
@@ -321,7 +321,7 @@ class ChoosePaperlessController @Inject()(
 
   private def auditPageShown(journey: Journey, cohort: OptInCohort)(
     implicit request: AuthenticatedRequest[_],
-    hc: HeaderCarrier) =
+    hc: HeaderCarrier): Future[AuditResult] =
     auditConnector.sendMergedEvent(
       MergedDataEvent(
         auditSource = AppName.fromConfiguration(configuration),
@@ -355,7 +355,7 @@ class ChoosePaperlessController @Inject()(
                            preferencesStatus: PreferencesStatus)(
                            implicit request: AuthenticatedRequest[_],
                            message: play.api.i18n.Messages,
-                           hc: HeaderCarrier) =
+                           hc: HeaderCarrier): Future[AuditResult] =
     auditConnector.sendMergedEvent(
       MergedDataEvent(
         auditSource = AppName.fromConfiguration(configuration),
@@ -415,13 +415,5 @@ class ChoosePaperlessController @Inject()(
         Future.successful(
           Ok(accountDetailsPrintingPreferenceConfirm(calculateCohort(hostContext), emailAddress.map(_.decryptedValue))))
       }
-  }
-
-  private def languagePref(lang: String)= {
-    lang match {
-      case "en" => English
-      case "cy" => Welsh
-      case  _   => English
-    }
   }
 }
