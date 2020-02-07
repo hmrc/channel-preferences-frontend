@@ -17,15 +17,15 @@
 package connectors
 
 import config.ServicesCircuitBreaker
-import javax.inject.{ Inject, Singleton }
-import model.{ HostContext, ReturnLink }
+import javax.inject.{Inject, Singleton}
+import model.{HostContext, Language, ReturnLink}
 import org.joda.time.DateTime
 import play.api.Configuration
 import play.api.http.Status._
 import play.api.libs.json._
-import uk.gov.hmrc.domain.{ Nino, SaUtr, TaxIdentifier }
+import uk.gov.hmrc.domain.{Nino, SaUtr, TaxIdentifier}
 import uk.gov.hmrc.http._
-import uk.gov.hmrc.play.bootstrap.config.{ RunMode, ServicesConfig }
+import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
@@ -70,7 +70,7 @@ protected[connectors] case class TermsAndConditionsUpdate(
   email: Option[String],
   returnUrl: Option[String] = None,
   returnText: Option[String] = None,
-  languagePreference: String)
+  languagePreference: Language)
 
 protected[connectors] object TermsAndConditionsUpdate {
   implicit val format = Json.format[TermsAndConditionsUpdate]
@@ -79,7 +79,7 @@ protected[connectors] object TermsAndConditionsUpdate {
     terms: (TermsType, TermsAccepted),
     email: Option[String],
     includeLinkDetails: Boolean,
-    languagePreference: String)(implicit hostContext: HostContext): TermsAndConditionsUpdate = {
+    languagePreference: Language)(implicit hostContext: HostContext): TermsAndConditionsUpdate = {
     val standardConditions = terms match {
       case (GenericTerms, accepted: TermsAccepted) =>
         TermsAndConditionsUpdate(generic = Some(accepted), None, email = email, languagePreference = languagePreference)
@@ -169,8 +169,8 @@ class EntityResolverConnector @Inject()(config: Configuration, runMode: RunMode,
   def updateTermsAndConditions(
     termsAccepted: (TermsType, TermsAccepted),
     email: Option[String],
-    languagePreference: String)(implicit hc: HeaderCarrier, hostContext: HostContext): Future[PreferencesStatus] =
-    updateTermsAndConditionsForSvc(termsAccepted, email, None, None, false, languagePreference: String)
+    languagePreference: Language)(implicit hc: HeaderCarrier, hostContext: HostContext): Future[PreferencesStatus] =
+    updateTermsAndConditionsForSvc(termsAccepted, email, None, None, false, languagePreference)
 
   def updateTermsAndConditionsForSvc(
     termsAccepted: (TermsType, TermsAccepted),
@@ -178,7 +178,7 @@ class EntityResolverConnector @Inject()(config: Configuration, runMode: RunMode,
     svc: Option[String],
     token: Option[String],
     includeLinkDetails: Boolean = true,
-    languagePreference: String)(implicit hc: HeaderCarrier, hostContext: HostContext): Future[PreferencesStatus] = {
+    languagePreference: Language)(implicit hc: HeaderCarrier, hostContext: HostContext): Future[PreferencesStatus] = {
     val endPoint = "/preferences/terms-and-conditions" + (for {
       s <- svc
       t <- token

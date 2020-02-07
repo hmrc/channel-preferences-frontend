@@ -20,7 +20,7 @@ import connectors._
 import controllers.ExternalUrlPrefixes
 import controllers.auth.{AuthenticatedRequest, WithAuthRetrievals}
 import javax.inject.Inject
-import model.{Encrypted, HostContext}
+import model.{Encrypted, HostContext, Language}
 import play.api.Configuration
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -48,13 +48,13 @@ class ManagePaperlessController @Inject()(
   accountDetailsUpdateEmailAddressVerifyEmail: views.html.account_details_update_email_address_verify_email,
   accountDetailsUpdateEmailAddressThankYou: views.html.account_details_update_email_address_thank_you,
 mcc: MessagesControllerComponents)(implicit ec: ExecutionContext)
-    extends FrontendController(mcc) with OptInCohortCalculator with I18nSupport with WithAuthRetrievals {
+    extends FrontendController(mcc) with OptInCohortCalculator with I18nSupport with WithAuthRetrievals with LanguageHelper {
 
   private[controllers] def _displayStopPaperlessConfirmed(implicit request: AuthenticatedRequest[_], hostContext: HostContext,hc:HeaderCarrier): Result = {
     Ok(optedBackIntoPaperThankYou())
   }
 
-  private[controllers] def _submitStopPaperless(lang: String)(implicit request: AuthenticatedRequest[_], hostContext: HostContext, hc:HeaderCarrier): Future[Result] =
+  private[controllers] def _submitStopPaperless(lang: Language)(implicit request: AuthenticatedRequest[_], hostContext: HostContext, hc:HeaderCarrier): Future[Result] =
     entityResolverConnector.updateTermsAndConditions((GenericTerms, TermsAccepted(false)), email = None, lang).map(_ =>
       Redirect(routes.ManagePaperlessController.displayStopPaperlessConfirmed(hostContext))
     )
@@ -148,11 +148,11 @@ mcc: MessagesControllerComponents)(implicit ec: ExecutionContext)
 
     def submitStopPaperless(implicit hostContext: HostContext): Action[AnyContent] = Action.async { implicit request =>
         withAuthenticatedRequest {
-          val lang = request.lang.code
+          val lang = languageType(request.lang.code)
             implicit withAuthenticatedRequest: AuthenticatedRequest[_] =>
                 implicit hc =>
 
-                    _submitStopPaperless(lang: String)
+                    _submitStopPaperless(lang)
         }
     }
 

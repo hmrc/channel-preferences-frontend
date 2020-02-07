@@ -33,6 +33,7 @@ private object Dependencies {
     "uk.gov.hmrc"             %% "domain"                   % "5.6.0-play-26",
     "uk.gov.hmrc"             %% "url-builder"              % "3.3.0-play-26",
     "uk.gov.hmrc"             %% "reactive-circuit-breaker" % "3.3.0",
+    "com.beachape"            %% "enumeratum"               % "1.5.13",
     "org.mockito"             %  "mockito-all"              % "1.10.19"   % "test",
     "org.scalatestplus.play"  %% "scalatestplus-play"       % "3.1.0"     % "test, it",
     "org.jsoup"               %  "jsoup"                    % "1.12.1"     % "test, it",
