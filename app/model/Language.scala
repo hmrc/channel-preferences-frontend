@@ -15,7 +15,7 @@
  */
 
 package model
-import enumeratum.{Enum, EnumEntry}
+import enumeratum.{ Enum, EnumEntry }
 import play.api.libs.json._
 
 sealed abstract class Language(override val entryName: String) extends EnumEntry

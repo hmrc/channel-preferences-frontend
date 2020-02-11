@@ -17,29 +17,29 @@
 package controllers.internal
 
 import connectors._
-import controllers.auth.{AuthenticatedRequest, WithAuthRetrievals}
+import controllers.auth.{ AuthenticatedRequest, WithAuthRetrievals }
 import controllers.internal.EmailOptInJourney._
 import controllers.internal.PaperlessChoice.OptedIn
-import controllers.{ExternalUrlPrefixes, internal}
+import controllers.{ ExternalUrlPrefixes, internal }
 import javax.inject.Inject
 import model.Language.English
-import model.{Encrypted, HostContext, Language}
+import model.{ Encrypted, HostContext, Language }
 import org.joda.time.DateTime
 import play.api.Configuration
 import play.api.data.Form
 import play.api.i18n.I18nSupport
-import play.api.libs.json.{JsError, JsSuccess, Json}
+import play.api.libs.json.{ JsError, JsSuccess, Json }
 import play.api.mvc._
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.AuditExtensions._
-import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
-import uk.gov.hmrc.play.audit.model.{DataCall, EventTypes, MergedDataEvent}
+import uk.gov.hmrc.play.audit.http.connector.{ AuditConnector, AuditResult }
+import uk.gov.hmrc.play.audit.model.{ DataCall, EventTypes, MergedDataEvent }
 import uk.gov.hmrc.play.bootstrap.config.AppName
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 
 class ChoosePaperlessController @Inject()(
   entityResolverConnector: EntityResolverConnector,
@@ -52,7 +52,8 @@ class ChoosePaperlessController @Inject()(
   saPrintingPreferenceVerifyEmail: views.html.sa_printing_preference_verify_email,
   accountDetailsPrintingPreferenceConfirm: views.html.account_details_printing_preference_confirm,
   mcc: MessagesControllerComponents)(implicit ec: ExecutionContext)
-    extends FrontendController(mcc) with OptInCohortCalculator with I18nSupport with WithAuthRetrievals with LanguageHelper {
+    extends FrontendController(mcc) with OptInCohortCalculator with I18nSupport with WithAuthRetrievals
+    with LanguageHelper {
 
   def redirectToDisplayFormWithCohort(
     emailAddress: Option[Encrypted[EmailAddress]],
