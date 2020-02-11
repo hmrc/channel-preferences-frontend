@@ -17,20 +17,20 @@
 package connectors
 
 import config.ServicesCircuitBreaker
-import javax.inject.{ Inject, Singleton }
-import model.{ HostContext, Language, ReturnLink }
+import javax.inject.{Inject, Singleton}
+import model.{HostContext, Language, ReturnLink}
 import org.joda.time.DateTime
 import play.api.Configuration
 import play.api.http.Status._
+import play.api.libs.functional.syntax._
 import play.api.libs.json._
-import uk.gov.hmrc.domain.{ Nino, SaUtr, TaxIdentifier }
+import uk.gov.hmrc.domain.{Nino, SaUtr, TaxIdentifier}
 import uk.gov.hmrc.http._
-import uk.gov.hmrc.play.bootstrap.config.{ RunMode, ServicesConfig }
+import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
-import play.api.libs.functional.syntax._
+
 import scala.concurrent.Future
-import play.api.libs.json.Json._
 
 case class Email(email: String)
 
@@ -52,7 +52,7 @@ case object PreferencesCreated extends PreferencesStatus
 
 case object PreferencesFailure extends PreferencesStatus
 
-import play.api.libs.json.JodaWrites.{ JodaDateTimeWrites => _ }
+import play.api.libs.json.JodaWrites.{JodaDateTimeWrites => _}
 
 case class TermsAccepted(accepted: Boolean)
 
@@ -72,7 +72,7 @@ sealed abstract case class TermsAndConditionsUpdate(
                                                      returnUrl: Option[String] = None,
                                                      returnText: Option[String] = None,
                                                      language: Language)
-//implicit val writes = Json.writes[TermsAndConditionsUpdate]
+
 object TermsAndConditionsUpdate {
   def from(
             terms: (TermsType, TermsAccepted),
@@ -92,7 +92,7 @@ object TermsAndConditionsUpdate {
         throw new IllegalArgumentException(s"Could not work with termsType=$termsType")
     }
   }
-//  implicit val writesTygtgtg = Json.writes[TermsAndConditionsUpdate]
+
   implicit val writes: Writes[TermsAndConditionsUpdate] = (
     (JsPath \ "generic").write[Option[TermsAccepted]] and
       (JsPath \ "taxCredits").write [Option[TermsAccepted]] and
