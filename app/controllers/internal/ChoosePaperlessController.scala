@@ -185,7 +185,7 @@ class ChoosePaperlessController @Inject()(
       }
     }
 
-  def submitForm(implicit hostContext: HostContext) = Action.async { implicit request =>
+  def submitForm(implicit hostContext: HostContext): Action[AnyContent] = Action.async { implicit request =>
     withAuthenticatedRequest { implicit authRequest: AuthenticatedRequest[AnyContent] => implicit hc =>
       val cohort = calculateCohort(hostContext)
       val call = routes.ChoosePaperlessController.submitForm(hostContext)
@@ -268,21 +268,45 @@ class ChoosePaperlessController @Inject()(
     Future.successful(BadRequest(saPrintingPreference(form, submitPrefsFormAction, cohort)))
   }
 
-  def saveAndAuditPreferences(
-    digital: Boolean,
-    email: Option[String],
-    cohort: OptInCohort,
-    emailAlreadyStored: Boolean,
-    svc: Option[String],
-    token: Option[String],
-    languagePreference: Language)(
-    implicit request: AuthenticatedRequest[_],
-    hostContext: HostContext,
-    hc: HeaderCarrier): Future[Result] = {
+//  def saveAndAuditPreferences(
+//    digital: Boolean,
+//    email: Option[String],
+//    cohort: OptInCohort,
+//    emailAlreadyStored: Boolean,
+//    svc: Option[String],
+//    token: Option[String],
+//    languagePreference: Language)(
+//    implicit request: AuthenticatedRequest[_],
+//    hostContext: HostContext,
+//    hc: HeaderCarrier): Future[Result] = {
+//    val terms = cohort.terms -> TermsAccepted(digital)
+//
+//    entityResolverConnector
+//      .updateTermsAndConditionsForSvc(terms, email, svc, token, (svc.isDefined && token.isDefined), languagePreference)
+//      .map(preferencesStatus => {
+//        auditChoice(AccountDetails, cohort, terms, email, preferencesStatus)
+//        if (digital && !emailAlreadyStored) {
+//          val encryptedEmail = email map (emailAddress => Encrypted(EmailAddress(emailAddress)))
+//          Redirect(routes.ChoosePaperlessController.displayNearlyDone(encryptedEmail, hostContext))
+//        } else Redirect(hostContext.returnUrl)
+//      })
+//  }
+
+  def saveAndAuditPreferences(digital: Boolean,
+                               email: Option[String],
+                               cohort: OptInCohort,
+                               emailAlreadyStored: Boolean,
+                               svc: Option[String],
+                               token: Option[String],
+                               languagePreference: Language)(
+                               implicit request: AuthenticatedRequest[_],
+                               hostContext: HostContext,
+                               hc: HeaderCarrier): Future[Result] = {
     val terms = cohort.terms -> TermsAccepted(digital)
 
     entityResolverConnector
-      .updateTermsAndConditionsForSvc(terms, email, svc, token, (svc.isDefined && token.isDefined), languagePreference)
+      .updateTermsAndConditionsForSvc(
+        TermsAndConditionsUpdate.from(terms, email, (svc.isDefined && token.isDefined), languagePreference), svc, token)
       .map(preferencesStatus => {
         auditChoice(AccountDetails, cohort, terms, email, preferencesStatus)
         if (digital && !emailAlreadyStored) {
@@ -291,6 +315,7 @@ class ChoosePaperlessController @Inject()(
         } else Redirect(hostContext.returnUrl)
       })
   }
+
 
   def validateEmailAndSavePreference(
     emailAddress: String,

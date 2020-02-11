@@ -477,7 +477,7 @@ class ManagePaperlessControllerSpec
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
       when(
         mockEntityResolverConnector
-          .updateTermsAndConditions(is(GenericTerms -> TermsAccepted(false)), is(None), any())(any(), any()))
+          .updateTermsAndConditions(any[TermsAndConditionsUpdate])(any(), any()))
         .thenReturn(Future.successful(PreferencesExists))
 
       val result = controller._submitStopPaperless(lang = Welsh)(request, TestFixtures.sampleHostContext, hc)
@@ -488,7 +488,7 @@ class ManagePaperlessControllerSpec
       val page = Jsoup.parse(contentAsString(result))
 
       verify(mockEntityResolverConnector)
-        .updateTermsAndConditions(is(GenericTerms -> TermsAccepted(false)), is(None), any())(any(), any())
+        .updateTermsAndConditions(any[TermsAndConditionsUpdate])(any(), any())
     }
   }
 }
