@@ -17,16 +17,16 @@
 package connectors
 
 import config.ServicesCircuitBreaker
-import javax.inject.{Inject, Singleton}
-import model.{HostContext, Language, ReturnLink}
+import javax.inject.{ Inject, Singleton }
+import model.{ HostContext, Language, ReturnLink }
 import org.joda.time.DateTime
 import play.api.Configuration
 import play.api.http.Status._
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
-import uk.gov.hmrc.domain.{Nino, SaUtr, TaxIdentifier}
+import uk.gov.hmrc.domain.{ Nino, SaUtr, TaxIdentifier }
 import uk.gov.hmrc.http._
-import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
+import uk.gov.hmrc.play.bootstrap.config.{ RunMode, ServicesConfig }
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
@@ -52,7 +52,7 @@ case object PreferencesCreated extends PreferencesStatus
 
 case object PreferencesFailure extends PreferencesStatus
 
-import play.api.libs.json.JodaWrites.{JodaDateTimeWrites => _}
+import play.api.libs.json.JodaWrites.{ JodaDateTimeWrites => _ }
 
 case class TermsAccepted(accepted: Boolean)
 
@@ -62,28 +62,37 @@ object TermsAccepted {
 
 trait PreferenceStatus
 case class PreferenceFound(accepted: Boolean, email: Option[EmailPreference], updatedAt: Option[DateTime] = None)
-  extends PreferenceStatus
+    extends PreferenceStatus
 case class PreferenceNotFound(email: Option[EmailPreference]) extends PreferenceStatus
 
 sealed abstract case class TermsAndConditionsUpdate(
-                                                     generic: Option[TermsAccepted],
-                                                     taxCredits: Option[TermsAccepted],
-                                                     email: Option[String],
-                                                     returnUrl: Option[String] = None,
-                                                     returnText: Option[String] = None,
-                                                     language: Language)
+  generic: Option[TermsAccepted],
+  taxCredits: Option[TermsAccepted],
+  email: Option[String],
+  returnUrl: Option[String] = None,
+  returnText: Option[String] = None,
+  language: Language)
 
 object TermsAndConditionsUpdate {
-  def from(
-            terms: (TermsType, TermsAccepted),
-            email: Option[String],
-            includeLinkDetails: Boolean,
-            language: Language)(implicit hostContext: HostContext): TermsAndConditionsUpdate = {
+  def from(terms: (TermsType, TermsAccepted), email: Option[String], includeLinkDetails: Boolean, language: Language)(
+    implicit hostContext: HostContext): TermsAndConditionsUpdate =
     terms match {
       case (GenericTerms, accepted) if includeLinkDetails =>
-        new TermsAndConditionsUpdate(Some(accepted), None, email, Some(hostContext.returnLinkText), Some(hostContext.returnUrl), language) {}
-      case (TaxCreditsTerms, accepted) if includeLinkDetails=>
-        new TermsAndConditionsUpdate(None, Some(accepted), email, Some(hostContext.returnLinkText), Some(hostContext.returnUrl), language) {}
+        new TermsAndConditionsUpdate(
+          Some(accepted),
+          None,
+          email,
+          Some(hostContext.returnLinkText),
+          Some(hostContext.returnUrl),
+          language) {}
+      case (TaxCreditsTerms, accepted) if includeLinkDetails =>
+        new TermsAndConditionsUpdate(
+          None,
+          Some(accepted),
+          email,
+          Some(hostContext.returnLinkText),
+          Some(hostContext.returnUrl),
+          language) {}
       case (GenericTerms, accepted) =>
         new TermsAndConditionsUpdate(Some(accepted), None, email, None, None, language) {}
       case (TaxCreditsTerms, accepted) =>
@@ -91,20 +100,19 @@ object TermsAndConditionsUpdate {
       case (termsType, _) =>
         throw new IllegalArgumentException(s"Could not work with termsType=$termsType")
     }
-  }
 
   implicit val writes: Writes[TermsAndConditionsUpdate] = (
     (JsPath \ "generic").write[Option[TermsAccepted]] and
-      (JsPath \ "taxCredits").write [Option[TermsAccepted]] and
+      (JsPath \ "taxCredits").write[Option[TermsAccepted]] and
       (JsPath \ "email").write[Option[String]] and
-      (JsPath \ "returnUrl").write [Option[String]] and
-      (JsPath \ "returnText").write [Option[String]] and
-      (JsPath \ "language").write [Language]
-    )(unlift(TermsAndConditionsUpdate.unapply))
+      (JsPath \ "returnUrl").write[Option[String]] and
+      (JsPath \ "returnText").write[Option[String]] and
+      (JsPath \ "language").write[Language]
+  )(unlift(TermsAndConditionsUpdate.unapply))
 }
 @Singleton
 class EntityResolverConnector @Inject()(config: Configuration, runMode: RunMode, http: HttpClient)
-  extends ServicesConfig(config, runMode) with ServicesCircuitBreaker {
+    extends ServicesConfig(config, runMode) with ServicesCircuitBreaker {
 
   override val externalServiceName = "entity-resolver"
   val serviceUrl = baseUrl("entity-resolver")
@@ -133,8 +141,8 @@ class EntityResolverConnector @Inject()(config: Configuration, runMode: RunMode,
           preference.termsAndConditions
             .get(termsAndCond)
             .fold[Either[Int, PreferenceStatus]](Right(PreferenceNotFound(preference.email))) { acceptance =>
-            Right(PreferenceFound(acceptance.accepted, preference.email, acceptance.updatedAt))
-          }
+              Right(PreferenceFound(acceptance.accepted, preference.email, acceptance.updatedAt))
+            }
         case None => Right(PreferenceNotFound(None))
       }
     }).recover {
@@ -171,29 +179,26 @@ class EntityResolverConnector @Inject()(config: Configuration, runMode: RunMode,
     responseToEmailVerificationLinkStatus(
       withCircuitBreaker(http.PUT(url("/portal/preferences/email"), ValidateEmail(token))))
 
-  def updateTermsAndConditions(termsAndConditionsUpdate: TermsAndConditionsUpdate)(implicit hc: HeaderCarrier,
-                                                                                   hostContext: HostContext):Future[PreferencesStatus] =
+  def updateTermsAndConditions(termsAndConditionsUpdate: TermsAndConditionsUpdate)(
+    implicit hc: HeaderCarrier,
+    hostContext: HostContext): Future[PreferencesStatus] =
     updateTermsAndConditionsForSvc(termsAndConditionsUpdate, None, None)
 
-  def updateTermsAndConditionsForSvc(termsAndConditionsUpdate: TermsAndConditionsUpdate,
-                                     svc: Option[String],
-                                     token: Option[String])
-                                    (implicit hc: HeaderCarrier, hostContext: HostContext): Future[PreferencesStatus] = {
+  def updateTermsAndConditionsForSvc(
+    termsAndConditionsUpdate: TermsAndConditionsUpdate,
+    svc: Option[String],
+    token: Option[String])(implicit hc: HeaderCarrier, hostContext: HostContext): Future[PreferencesStatus] = {
     val endPoint = "/preferences/terms-and-conditions" + (for {
       s <- svc
       t <- token
     } yield "/" + s + "/" + t).getOrElse("")
-    withCircuitBreaker(
-      http.POST[TermsAndConditionsUpdate, HttpResponse](
-        url(endPoint),
-        termsAndConditionsUpdate))
+    withCircuitBreaker(http.POST[TermsAndConditionsUpdate, HttpResponse](url(endPoint), termsAndConditionsUpdate))
       .map(_.status)
       .map {
         case OK      => PreferencesExists
         case CREATED => PreferencesCreated
       }
   }
-
 
   private[connectors] def responseToEmailVerificationLinkStatus(response: Future[HttpResponse])(
     implicit hc: HeaderCarrier): Future[EmailVerificationLinkResponse] =

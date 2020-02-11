@@ -17,9 +17,9 @@
 package controllers.internal
 
 import _root_.connectors._
-import org.joda.time.{DateTime, DateTimeZone}
-import org.scalatest.{BeforeAndAfterEach, FeatureSpec, GivenWhenThen, MustMatchers}
-import uk.gov.hmrc.auth.core.retrieve.{LoginTimes, Name}
+import org.joda.time.{ DateTime, DateTimeZone }
+import org.scalatest.{ BeforeAndAfterEach, FeatureSpec, GivenWhenThen, MustMatchers }
+import uk.gov.hmrc.auth.core.retrieve.{ LoginTimes, Name }
 import helpers.TestFixtures
 import org.jsoup.Jsoup
 import org.mockito.Matchers.any
@@ -30,7 +30,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject._
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.mvc.Results.{NotFound, Ok, PreconditionFailed}
+import play.api.mvc.Results.{ NotFound, Ok, PreconditionFailed }
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -41,7 +41,8 @@ import org.scalatest.concurrent.ScalaFutures
 import scala.concurrent.Future
 import org.scalatest.concurrent.ScalaFutures
 
-class ActivationControllerSpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAndAfterEach with MockitoSugar with ScalaFutures {
+class ActivationControllerSpec
+    extends PlaySpec with GuiceOneAppPerSuite with BeforeAndAfterEach with MockitoSugar with ScalaFutures {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -53,7 +54,7 @@ class ActivationControllerSpec extends PlaySpec with GuiceOneAppPerSuite with Be
     new GuiceApplicationBuilder()
       .configure(
         "govuk-tax.Test.preferences-frontend.host" -> "",
-        "Test.activation.gracePeriodInMin" -> gracePeriod
+        "Test.activation.gracePeriodInMin"         -> gracePeriod
       )
       .overrides(
         bind[AuthConnector].toInstance(mockAuthConnector),
@@ -123,7 +124,7 @@ class ActivationControllerSpec extends PlaySpec with GuiceOneAppPerSuite with Be
 
     "return a json body with optedIn set to false if T&C accepted is false and updatedAt is within the grace period" in {
       val now = DateTime.now
-      val lastUpdated = now.minusMinutes(gracePeriod - gracePeriod/2)
+      val lastUpdated = now.minusMinutes(gracePeriod - gracePeriod / 2)
       val email = EmailPreference("test@test.com", false, false, false, None)
 
       when(mockEntityResolverConnector.getPreferencesStatus(any())(any()))
@@ -137,7 +138,7 @@ class ActivationControllerSpec extends PlaySpec with GuiceOneAppPerSuite with Be
 
     "return a json body with optedIn set to false if T&C accepted is false and updatedAt is outside of the grace period" in {
       val now = DateTime.now
-      val lastUpdated = now.minusMinutes(gracePeriod + gracePeriod/2)
+      val lastUpdated = now.minusMinutes(gracePeriod + gracePeriod / 2)
       val email = EmailPreference("test@test.com", false, false, false, None)
 
       when(mockEntityResolverConnector.getPreferencesStatus(any())(any()))
@@ -232,4 +233,3 @@ class ActivationControllerSpec extends PlaySpec with GuiceOneAppPerSuite with Be
     }
   }
 }
-

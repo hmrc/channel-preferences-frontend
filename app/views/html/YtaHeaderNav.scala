@@ -16,4 +16,6 @@
 
 package views.html
 
-object YtaHeaderNav {}
+object YtaHeaderNav {
+
+}

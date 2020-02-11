@@ -269,21 +269,24 @@ class ChoosePaperlessController @Inject()(
     Future.successful(BadRequest(saPrintingPreference(form, submitPrefsFormAction, cohort)))
   }
 
-  def saveAndAuditPreferences(digital: Boolean,
-                               email: Option[String],
-                               cohort: OptInCohort,
-                               emailAlreadyStored: Boolean,
-                               svc: Option[String],
-                               token: Option[String],
-                               languagePreference: Language)(
-                               implicit request: AuthenticatedRequest[_],
-                               hostContext: HostContext,
-                               hc: HeaderCarrier): Future[Result] = {
+  def saveAndAuditPreferences(
+    digital: Boolean,
+    email: Option[String],
+    cohort: OptInCohort,
+    emailAlreadyStored: Boolean,
+    svc: Option[String],
+    token: Option[String],
+    languagePreference: Language)(
+    implicit request: AuthenticatedRequest[_],
+    hostContext: HostContext,
+    hc: HeaderCarrier): Future[Result] = {
     val terms = cohort.terms -> TermsAccepted(digital)
 
     entityResolverConnector
       .updateTermsAndConditionsForSvc(
-        TermsAndConditionsUpdate.from(terms, email, (svc.isDefined && token.isDefined), languagePreference), svc, token)
+        TermsAndConditionsUpdate.from(terms, email, (svc.isDefined && token.isDefined), languagePreference),
+        svc,
+        token)
       .map(preferencesStatus => {
         auditChoice(AccountDetails, cohort, terms, email, preferencesStatus)
         if (digital && !emailAlreadyStored) {
@@ -292,7 +295,6 @@ class ChoosePaperlessController @Inject()(
         } else Redirect(hostContext.returnUrl)
       })
   }
-
 
   def validateEmailAndSavePreference(
     emailAddress: String,
