@@ -18,12 +18,12 @@ package controllers.internal
 
 import connectors._
 import controllers.ExternalUrlPrefixes
-import controllers.auth.{WithAuthRetrievals, AuthenticatedRequest}
+import controllers.auth.{AuthenticatedRequest, WithAuthRetrievals}
 import javax.inject.Inject
-import model.{Encrypted, HostContext}
+import model.{Encrypted, HostContext, Language}
 import play.api.Configuration
 import play.api.i18n.I18nSupport
-import play.api.mvc.{MessagesControllerComponents, Result}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.http.HeaderCarrier
@@ -35,27 +35,27 @@ import scala.concurrent.{ExecutionContext, Future}
 
 
 class ManagePaperlessController @Inject()(
-                                             entityResolverConnector: EntityResolverConnector,
-                                             emailConnector: EmailConnector,
-                                             auditConnector: AuditConnector,
-                                             val authConnector: AuthConnector,
-                                             externalUrlPrefixes: ExternalUrlPrefixes,
-                                             configuration: Configuration,
-                                          optedBackIntoPaperThankYou: views.html.opted_back_into_paper_thank_you,
-  accountDetailsVerificationEmailResentConfirmation: views.html.account_details_verification_email_resent_confirmation,
-                                             confirmOptBackIntoPaper : views.html.confirm_opt_back_into_paper,
-  accountDetailsUpdateEmailAddress: views.html.account_details_update_email_address,
-  accountDetailsUpdateEmailAddressVerifyEmail: views.html.account_details_update_email_address_verify_email,
-  accountDetailsUpdateEmailAddressThankYou: views.html.account_details_update_email_address_thank_you,
-mcc: MessagesControllerComponents)(implicit ec: ExecutionContext)
-    extends FrontendController(mcc) with OptInCohortCalculator with I18nSupport with WithAuthRetrievals {
+                                           entityResolverConnector: EntityResolverConnector,
+                                           emailConnector: EmailConnector,
+                                           auditConnector: AuditConnector,
+                                           val authConnector: AuthConnector,
+                                           externalUrlPrefixes: ExternalUrlPrefixes,
+                                           configuration: Configuration,
+                                           optedBackIntoPaperThankYou: views.html.opted_back_into_paper_thank_you,
+                                           accountDetailsVerificationEmailResentConfirmation: views.html.account_details_verification_email_resent_confirmation,
+                                           confirmOptBackIntoPaper : views.html.confirm_opt_back_into_paper,
+                                           accountDetailsUpdateEmailAddress: views.html.account_details_update_email_address,
+                                           accountDetailsUpdateEmailAddressVerifyEmail: views.html.account_details_update_email_address_verify_email,
+                                           accountDetailsUpdateEmailAddressThankYou: views.html.account_details_update_email_address_thank_you,
+                                           mcc: MessagesControllerComponents)(implicit ec: ExecutionContext)
+  extends FrontendController(mcc) with OptInCohortCalculator with I18nSupport with WithAuthRetrievals with LanguageHelper {
 
-  private[controllers] def _displayStopPaperlessConfirmed(implicit request: AuthenticatedRequest[_], hostContext: HostContext, hc:HeaderCarrier): Result = {
+  private[controllers] def _displayStopPaperlessConfirmed(implicit request: AuthenticatedRequest[_], hostContext: HostContext,hc:HeaderCarrier): Result = {
     Ok(optedBackIntoPaperThankYou())
   }
 
-  private[controllers] def _submitStopPaperless(implicit request: AuthenticatedRequest[_], hostContext: HostContext, hc:HeaderCarrier): Future[Result] =
-    entityResolverConnector.updateTermsAndConditions((GenericTerms, TermsAccepted(false)), email = None).map(_ =>
+  private[controllers] def _submitStopPaperless(lang: Language)(implicit request: AuthenticatedRequest[_], hostContext: HostContext, hc:HeaderCarrier): Future[Result] =
+    entityResolverConnector.updateTermsAndConditions(TermsAndConditionsUpdate.from((GenericTerms, TermsAccepted(false)), email = None, false, lang)).map(_ =>
       Redirect(routes.ManagePaperlessController.displayStopPaperlessConfirmed(hostContext))
     )
 
@@ -67,7 +67,7 @@ mcc: MessagesControllerComponents)(implicit ec: ExecutionContext)
     }
   }
 
-  private[controllers] def _displayStopPaperless(implicit request: AuthenticatedRequest[_], hostContext: HostContext, hc:HeaderCarrier) =
+  private[controllers] def _displayStopPaperless(implicit request: AuthenticatedRequest[_], hostContext: HostContext, hc:HeaderCarrier): Future[Result] =
     lookupCurrentEmail(email => Future.successful(Ok(confirmOptBackIntoPaper(email.obfuscated))))
 
   private[controllers] def _displayChangeEmailAddress(emailAddress: Option[Encrypted[EmailAddress]])(implicit request: AuthenticatedRequest[_], hostContext: HostContext, hc:HeaderCarrier): Future[Result] =
@@ -77,7 +77,7 @@ mcc: MessagesControllerComponents)(implicit ec: ExecutionContext)
     entityResolverConnector.getPreferences().flatMap {
       case p@Some(PreferenceResponse(_, Some(email))) if (p.exists(_.genericTermsAccepted)) => func(EmailAddress(email.email))
       case _ => {
-          Future.successful(BadRequest("Could not find existing preferences."))
+        Future.successful(BadRequest("Could not find existing preferences."))
       }
     }
   }
@@ -108,67 +108,67 @@ mcc: MessagesControllerComponents)(implicit ec: ExecutionContext)
     lookupCurrentEmail(email => Future.successful(Ok(accountDetailsUpdateEmailAddressThankYou(email.obfuscated))))
   }
 
-    def displayChangeEmailAddress(implicit emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = Action.async {
-      implicit request =>
-         withAuthenticatedRequest {
-             { implicit authenticatedRequest: AuthenticatedRequest[_] =>
-                 implicit hc =>
-                     _displayChangeEmailAddress(emailAddress)
-             }
-         }
+  def displayChangeEmailAddress(implicit emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext): Action[AnyContent] = Action.async {
+    implicit request =>
+      withAuthenticatedRequest {
+        { implicit authenticatedRequest: AuthenticatedRequest[_] =>
+          implicit hc =>
+            _displayChangeEmailAddress(emailAddress)
+        }
+      }
+
+  }
+
+  def submitChangeEmailAddress(implicit hostContext: HostContext): Action[AnyContent] =
+    Action.async { implicit request =>
+      withAuthenticatedRequest {
+        implicit withAuthenticatedRequest: AuthenticatedRequest[_] =>
+          implicit hc =>
+            _submitChangeEmailAddress
+      }
 
     }
 
-    def submitChangeEmailAddress(implicit hostContext: HostContext) =
-        Action.async { implicit request =>
+  def displayChangeEmailAddressConfirmed(implicit hostContext: HostContext): Action[AnyContent] = Action.async { implicit request =>
     withAuthenticatedRequest {
       implicit withAuthenticatedRequest: AuthenticatedRequest[_] =>
+        implicit hc =>
+          _displayChangeEmailAddressConfirmed
+    }
+  }
+
+  def displayStopPaperless(implicit hostContext: HostContext): Action[AnyContent] = Action.async { implicit request =>
+    withAuthenticatedRequest {
+      implicit withAuthenticatedRequest: AuthenticatedRequest[_] =>
+        implicit hc =>
+
+          _displayStopPaperless
+    }
+  }
+
+  def submitStopPaperless(implicit hostContext: HostContext): Action[AnyContent] = Action.async { implicit request =>
+    withAuthenticatedRequest {
+      val lang = languageType(request.lang.code)
+      implicit withAuthenticatedRequest: AuthenticatedRequest[_] =>
+        implicit hc =>
+
+          _submitStopPaperless(lang)
+    }
+  }
+
+  def displayStopPaperlessConfirmed(implicit hostContext: HostContext): Action[AnyContent] = Action.async { implicit request =>
+    withAuthenticatedRequest { implicit withAuthenticatedRequest: AuthenticatedRequest[_] =>
       implicit hc =>
-        _submitChangeEmailAddress
+        Future.successful(_displayStopPaperlessConfirmed)
     }
+  }
 
+  def resendVerificationEmail(implicit hostContext: HostContext): Action[AnyContent] = Action.async { implicit request =>
+    withAuthenticatedRequest { implicit withAuthenticatedRequest: AuthenticatedRequest[_] =>
+      implicit hc =>
+        _resendVerificationEmail
     }
-
-    def displayChangeEmailAddressConfirmed(implicit hostContext: HostContext) = Action.async { implicit request =>
-        withAuthenticatedRequest {
-            implicit withAuthenticatedRequest: AuthenticatedRequest[_] =>
-                implicit hc =>
-                    _displayChangeEmailAddressConfirmed
-        }
-    }
-
-    def displayStopPaperless(implicit hostContext: HostContext) = Action.async { implicit request =>
-        withAuthenticatedRequest {
-            implicit withAuthenticatedRequest: AuthenticatedRequest[_] =>
-                implicit hc =>
-
-                    _displayStopPaperless
-        }
-    }
-
-    def submitStopPaperless(implicit hostContext: HostContext) = Action.async { implicit request =>
-        withAuthenticatedRequest {
-            implicit withAuthenticatedRequest: AuthenticatedRequest[_] =>
-                implicit hc =>
-
-                    _submitStopPaperless
-        }
-    }
-
-    def displayStopPaperlessConfirmed(implicit hostContext: HostContext) = Action.async { implicit request =>
-
-        withAuthenticatedRequest { implicit withAuthenticatedRequest: AuthenticatedRequest[_] =>
-                implicit hc =>
-                        Future.successful(_displayStopPaperlessConfirmed)
-        }
-    }
-
-    def resendVerificationEmail(implicit hostContext: HostContext) = Action.async { implicit request =>
-        withAuthenticatedRequest { implicit withAuthenticatedRequest: AuthenticatedRequest[_] =>
-            implicit hc =>
-                _resendVerificationEmail
-        }
-    }
+  }
 
 }
 

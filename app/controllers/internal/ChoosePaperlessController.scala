@@ -22,20 +22,19 @@ import controllers.internal.EmailOptInJourney._
 import controllers.internal.PaperlessChoice.OptedIn
 import controllers.{ ExternalUrlPrefixes, internal }
 import javax.inject.Inject
-import model.{ Encrypted, HostContext }
+import model.Language.English
+import model.{ Encrypted, HostContext, Language }
 import org.joda.time.DateTime
 import play.api.Configuration
 import play.api.data.Form
 import play.api.i18n.I18nSupport
+import play.api.libs.json.{ JsError, JsSuccess, Json }
 import play.api.mvc._
 import uk.gov.hmrc.auth.core._
-import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
-import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.audit.AuditExtensions._
-import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.audit.http.connector.{ AuditConnector, AuditResult }
 import uk.gov.hmrc.play.audit.model.{ DataCall, EventTypes, MergedDataEvent }
 import uk.gov.hmrc.play.bootstrap.config.AppName
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
@@ -53,7 +52,8 @@ class ChoosePaperlessController @Inject()(
   saPrintingPreferenceVerifyEmail: views.html.sa_printing_preference_verify_email,
   accountDetailsPrintingPreferenceConfirm: views.html.account_details_printing_preference_confirm,
   mcc: MessagesControllerComponents)(implicit ec: ExecutionContext)
-    extends FrontendController(mcc) with OptInCohortCalculator with I18nSupport with WithAuthRetrievals {
+    extends FrontendController(mcc) with OptInCohortCalculator with I18nSupport with WithAuthRetrievals
+    with LanguageHelper {
 
   def redirectToDisplayFormWithCohort(
     emailAddress: Option[Encrypted[EmailAddress]],
@@ -153,13 +153,14 @@ class ChoosePaperlessController @Inject()(
     Action.async { implicit request =>
       withAuthenticatedRequest { authRequest: AuthenticatedRequest[_] => implicit hc =>
         val call = routes.ChoosePaperlessController.submitFormBySvc(svc, token, hostContext)
+        val lang = languageType(request.lang.code)
         val formwithErrors = returnToFormWithErrors(call, IPage, authRequest) _
 
         OptInOrOutForm().bindFromRequest.fold[Future[Result]](
           hasErrors = formwithErrors,
           happyForm =>
             if (happyForm.optedIn.contains(false))
-              saveAndAuditPreferences(digital = false, email = None, IPage, false, Some(svc), Some(token))(
+              saveAndAuditPreferences(digital = false, email = None, IPage, false, Some(svc), Some(token), lang)(
                 authRequest,
                 hostContext,
                 hc)
@@ -174,7 +175,9 @@ class ChoosePaperlessController @Inject()(
                       emailForm.isEmailAlreadyStored,
                       IPage,
                       Some(svc),
-                      Some(token))(authRequest, hostContext, hc)
+                      Some(token),
+                      lang
+                    )(authRequest, hostContext, hc)
                   case _ =>
                     formwithErrors(OptInDetailsForm().bindFromRequest)
                 }
@@ -183,10 +186,11 @@ class ChoosePaperlessController @Inject()(
       }
     }
 
-  def submitForm(implicit hostContext: HostContext) = Action.async { implicit request =>
+  def submitForm(implicit hostContext: HostContext): Action[AnyContent] = Action.async { implicit request =>
     withAuthenticatedRequest { implicit authRequest: AuthenticatedRequest[AnyContent] => implicit hc =>
       val cohort = calculateCohort(hostContext)
       val call = routes.ChoosePaperlessController.submitForm(hostContext)
+      val lang = languageType(request.lang.code)
       val formwithErrors = returnToFormWithErrors(call, cohort, authRequest) _
 
       def handleTc()(implicit request: AuthenticatedRequest[_]): Future[Result] =
@@ -194,7 +198,14 @@ class ChoosePaperlessController @Inject()(
           hasErrors = formwithErrors,
           happyForm =>
             if (happyForm.optedIn.contains(false))
-              saveAndAuditPreferences(digital = false, email = None, cohort, false, None, None)
+              saveAndAuditPreferences(
+                digital = false,
+                email = None,
+                cohort,
+                false,
+                None,
+                None,
+                languagePreference = lang)
             else
               OptInTaxCreditsDetailsForm().bindFromRequest.fold[Future[Result]](
                 hasErrors = formwithErrors,
@@ -207,7 +218,8 @@ class ChoosePaperlessController @Inject()(
                       emailForm.isEmailAlreadyStored,
                       cohort,
                       None,
-                      None)
+                      None,
+                      lang)
                   case _ =>
                     formwithErrors(OptInDetailsForm().bindFromRequest)
                 }
@@ -219,7 +231,14 @@ class ChoosePaperlessController @Inject()(
           hasErrors = formwithErrors,
           happyForm =>
             if (happyForm.optedIn.contains(false))
-              saveAndAuditPreferences(digital = false, email = None, cohort, false, None, None)
+              saveAndAuditPreferences(
+                digital = false,
+                email = None,
+                cohort,
+                false,
+                None,
+                None,
+                languagePreference = lang)
             else
               OptInDetailsForm().bindFromRequest.fold[Future[Result]](
                 hasErrors = formwithErrors,
@@ -231,7 +250,8 @@ class ChoosePaperlessController @Inject()(
                       emailForm.isEmailAlreadyStored,
                       cohort,
                       None,
-                      None)
+                      None,
+                      languagePreference = lang)
                   case _ =>
                     formwithErrors(OptInDetailsForm().bindFromRequest)
                 }
@@ -255,14 +275,18 @@ class ChoosePaperlessController @Inject()(
     cohort: OptInCohort,
     emailAlreadyStored: Boolean,
     svc: Option[String],
-    token: Option[String])(
+    token: Option[String],
+    languagePreference: Language)(
     implicit request: AuthenticatedRequest[_],
     hostContext: HostContext,
     hc: HeaderCarrier): Future[Result] = {
     val terms = cohort.terms -> TermsAccepted(digital)
 
     entityResolverConnector
-      .updateTermsAndConditionsForSvc(terms, email, svc, token, (svc.isDefined && token.isDefined))
+      .updateTermsAndConditionsForSvc(
+        TermsAndConditionsUpdate.from(terms, email, (svc.isDefined && token.isDefined), languagePreference),
+        svc,
+        token)
       .map(preferencesStatus => {
         auditChoice(AccountDetails, cohort, terms, email, preferencesStatus)
         if (digital && !emailAlreadyStored) {
@@ -278,14 +302,25 @@ class ChoosePaperlessController @Inject()(
     isEmailAlreadyStored: Boolean,
     cohort: OptInCohort,
     svc: Option[String],
-    token: Option[String])(implicit request: AuthenticatedRequest[_], hostContext: HostContext, hc: HeaderCarrier) = {
+    token: Option[String],
+    languagePreference: Language)(
+    implicit request: AuthenticatedRequest[_],
+    hostContext: HostContext,
+    hc: HeaderCarrier): Future[Result] = {
     val emailVerificationStatus =
       if (isEmailVerified) Future.successful(true)
       else emailConnector.isValid(emailAddress)
 
     emailVerificationStatus.flatMap {
       case true =>
-        saveAndAuditPreferences(digital = true, email = Some(emailAddress), cohort, isEmailAlreadyStored, svc, token)
+        saveAndAuditPreferences(
+          digital = true,
+          email = Some(emailAddress),
+          cohort,
+          isEmailAlreadyStored,
+          svc,
+          token,
+          languagePreference)
       case false =>
         if (svc.isDefined && token.isDefined)
           Future.successful(
@@ -316,7 +351,7 @@ class ChoosePaperlessController @Inject()(
 
   private def auditPageShown(journey: Journey, cohort: OptInCohort)(
     implicit request: AuthenticatedRequest[_],
-    hc: HeaderCarrier) =
+    hc: HeaderCarrier): Future[AuditResult] =
     auditConnector.sendMergedEvent(
       MergedDataEvent(
         auditSource = AppName.fromConfiguration(configuration),
@@ -350,7 +385,7 @@ class ChoosePaperlessController @Inject()(
     preferencesStatus: PreferencesStatus)(
     implicit request: AuthenticatedRequest[_],
     message: play.api.i18n.Messages,
-    hc: HeaderCarrier) =
+    hc: HeaderCarrier): Future[AuditResult] =
     auditConnector.sendMergedEvent(
       MergedDataEvent(
         auditSource = AppName.fromConfiguration(configuration),
@@ -395,7 +430,7 @@ class ChoosePaperlessController @Inject()(
     val f: Any => Boolean = (v: Any) =>
       v match {
         case Right(PreferenceNotFound(Some(_))) | Right(PreferenceFound(false, Some(_), _)) => true
-        case _                                                                           => false
+        case _                                                                              => false
     }
 
     if (svc.isDefined && token.isDefined)
@@ -403,12 +438,12 @@ class ChoosePaperlessController @Inject()(
     else entityResolverConnector.getPreferencesStatus(terms) map (f)
   }
 
-  def displayNearlyDone(emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext) = Action.async {
-    implicit request =>
+  def displayNearlyDone(emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext): Action[AnyContent] =
+    Action.async { implicit request =>
       withAuthenticatedRequest { implicit authRequest: AuthenticatedRequest[AnyContent] => implicit request =>
         implicit val hostContextImplicit = hostContext
         Future.successful(
           Ok(accountDetailsPrintingPreferenceConfirm(calculateCohort(hostContext), emailAddress.map(_.decryptedValue))))
       }
-  }
+    }
 }

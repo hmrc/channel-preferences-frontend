@@ -16,12 +16,13 @@
 
 package connectors
 
-import org.joda.time.{DateTime, LocalDate}
 import config.ServicesCircuitBreaker
 import javax.inject.{ Inject, Singleton }
-import model.{ HostContext, ReturnLink }
+import model.{ HostContext, Language, ReturnLink }
+import org.joda.time.DateTime
 import play.api.Configuration
 import play.api.http.Status._
+import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import uk.gov.hmrc.domain.{ Nino, SaUtr, TaxIdentifier }
 import uk.gov.hmrc.http._
@@ -51,9 +52,7 @@ case object PreferencesCreated extends PreferencesStatus
 
 case object PreferencesFailure extends PreferencesStatus
 
-
-import play.api.libs.json.JodaWrites.{JodaDateTimeWrites => _, _}
-import play.api.libs.json.JodaReads._
+import play.api.libs.json.JodaWrites.{ JodaDateTimeWrites => _ }
 
 case class TermsAccepted(accepted: Boolean)
 
@@ -62,33 +61,54 @@ object TermsAccepted {
 }
 
 trait PreferenceStatus
-case class PreferenceFound(accepted: Boolean, email: Option[EmailPreference], updatedAt: Option[DateTime] = None) extends PreferenceStatus
+case class PreferenceFound(accepted: Boolean, email: Option[EmailPreference], updatedAt: Option[DateTime] = None)
+    extends PreferenceStatus
 case class PreferenceNotFound(email: Option[EmailPreference]) extends PreferenceStatus
 
-protected[connectors] case class TermsAndConditionsUpdate(
+sealed abstract case class TermsAndConditionsUpdate(
   generic: Option[TermsAccepted],
   taxCredits: Option[TermsAccepted],
   email: Option[String],
   returnUrl: Option[String] = None,
-  returnText: Option[String] = None)
+  returnText: Option[String] = None,
+  language: Language)
 
-protected[connectors] object TermsAndConditionsUpdate {
-  implicit val format = Json.format[TermsAndConditionsUpdate]
-
-  def from(terms: (TermsType, TermsAccepted), email: Option[String], includeLinkDetails: Boolean)(
-    implicit hostContext: HostContext): TermsAndConditionsUpdate = {
-    val standardConditions = terms match {
-      case (GenericTerms, accepted: TermsAccepted) =>
-        TermsAndConditionsUpdate(generic = Some(accepted), None, email = email)
-      case (TaxCreditsTerms, accepted: TermsAccepted) =>
-        TermsAndConditionsUpdate(generic = None, taxCredits = Some(accepted), email = email)
-      case (termsType, _) => throw new IllegalArgumentException(s"Could not work with termsType=$termsType")
+object TermsAndConditionsUpdate {
+  def from(terms: (TermsType, TermsAccepted), email: Option[String], includeLinkDetails: Boolean, language: Language)(
+    implicit hostContext: HostContext): TermsAndConditionsUpdate =
+    terms match {
+      case (GenericTerms, accepted) if includeLinkDetails =>
+        new TermsAndConditionsUpdate(
+          Some(accepted),
+          None,
+          email,
+          Some(hostContext.returnLinkText),
+          Some(hostContext.returnUrl),
+          language) {}
+      case (TaxCreditsTerms, accepted) if includeLinkDetails =>
+        new TermsAndConditionsUpdate(
+          None,
+          Some(accepted),
+          email,
+          Some(hostContext.returnLinkText),
+          Some(hostContext.returnUrl),
+          language) {}
+      case (GenericTerms, accepted) =>
+        new TermsAndConditionsUpdate(Some(accepted), None, email, None, None, language) {}
+      case (TaxCreditsTerms, accepted) =>
+        new TermsAndConditionsUpdate(None, Some(accepted), email, None, None, language) {}
+      case (termsType, _) =>
+        throw new IllegalArgumentException(s"Could not work with termsType=$termsType")
     }
-    if (includeLinkDetails)
-      standardConditions.copy(returnText = Some(hostContext.returnLinkText), returnUrl = Some(hostContext.returnUrl))
-    else
-      standardConditions
-  }
+
+  implicit val writes: Writes[TermsAndConditionsUpdate] = (
+    (JsPath \ "generic").write[Option[TermsAccepted]] and
+      (JsPath \ "taxCredits").write[Option[TermsAccepted]] and
+      (JsPath \ "email").write[Option[String]] and
+      (JsPath \ "returnUrl").write[Option[String]] and
+      (JsPath \ "returnText").write[Option[String]] and
+      (JsPath \ "language").write[Language]
+  )(unlift(TermsAndConditionsUpdate.unapply))
 }
 @Singleton
 class EntityResolverConnector @Inject()(config: Configuration, runMode: RunMode, http: HttpClient)
@@ -145,7 +165,7 @@ class EntityResolverConnector @Inject()(config: Configuration, runMode: RunMode,
       case e: NotFoundException                                                   => None
     }
 
-  def getEmailAddress(taxId: TaxIdentifier)(implicit hc: HeaderCarrier) = {
+  def getEmailAddress(taxId: TaxIdentifier)(implicit hc: HeaderCarrier): Future[Option[String]] = {
     def basedOnTaxIdType = taxId match {
       case SaUtr(utr) => s"/portal/preferences/sa/$utr/verified-email-address"
       case Nino(nino) => s"/portal/preferences/paye/$nino/verified-email-address"
@@ -159,27 +179,20 @@ class EntityResolverConnector @Inject()(config: Configuration, runMode: RunMode,
     responseToEmailVerificationLinkStatus(
       withCircuitBreaker(http.PUT(url("/portal/preferences/email"), ValidateEmail(token))))
 
-  def updateTermsAndConditions(termsAccepted: (TermsType, TermsAccepted), email: Option[String])(
+  def updateTermsAndConditions(termsAndConditionsUpdate: TermsAndConditionsUpdate)(
     implicit hc: HeaderCarrier,
     hostContext: HostContext): Future[PreferencesStatus] =
-    updateTermsAndConditionsForSvc(termsAccepted, email, None, None, false)
+    updateTermsAndConditionsForSvc(termsAndConditionsUpdate, None, None)
 
   def updateTermsAndConditionsForSvc(
-    termsAccepted: (TermsType, TermsAccepted),
-    email: Option[String],
+    termsAndConditionsUpdate: TermsAndConditionsUpdate,
     svc: Option[String],
-    token: Option[String],
-    includeLinkDetails: Boolean = true)(
-    implicit hc: HeaderCarrier,
-    hostContext: HostContext): Future[PreferencesStatus] = {
+    token: Option[String])(implicit hc: HeaderCarrier, hostContext: HostContext): Future[PreferencesStatus] = {
     val endPoint = "/preferences/terms-and-conditions" + (for {
       s <- svc
       t <- token
     } yield "/" + s + "/" + t).getOrElse("")
-    withCircuitBreaker(
-      http.POST[TermsAndConditionsUpdate, HttpResponse](
-        url(endPoint),
-        TermsAndConditionsUpdate.from(termsAccepted, email, includeLinkDetails)))
+    withCircuitBreaker(http.POST[TermsAndConditionsUpdate, HttpResponse](url(endPoint), termsAndConditionsUpdate))
       .map(_.status)
       .map {
         case OK      => PreferencesExists
@@ -188,7 +201,7 @@ class EntityResolverConnector @Inject()(config: Configuration, runMode: RunMode,
   }
 
   private[connectors] def responseToEmailVerificationLinkStatus(response: Future[HttpResponse])(
-    implicit hc: HeaderCarrier) =
+    implicit hc: HeaderCarrier): Future[EmailVerificationLinkResponse] =
     response
       .map(response => {
         response.status match {

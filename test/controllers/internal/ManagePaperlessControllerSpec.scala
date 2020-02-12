@@ -21,6 +21,7 @@ import connectors._
 import controllers.auth.AuthenticatedRequest
 import helpers.TestFixtures
 import model.Encrypted
+import model.Language.Welsh
 import org.joda.time.{ DateTime, DateTimeZone }
 import org.jsoup.Jsoup
 import org.mockito.Mockito._
@@ -476,10 +477,10 @@ class ManagePaperlessControllerSpec
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
       when(
         mockEntityResolverConnector
-          .updateTermsAndConditions(is(GenericTerms -> TermsAccepted(false)), is(None))(any(), any()))
+          .updateTermsAndConditions(any[TermsAndConditionsUpdate])(any(), any()))
         .thenReturn(Future.successful(PreferencesExists))
 
-      val result = controller._submitStopPaperless(request, TestFixtures.sampleHostContext, hc)
+      val result = controller._submitStopPaperless(lang = Welsh)(request, TestFixtures.sampleHostContext, hc)
 
       status(result) mustBe 303
       header("Location", result).get must include(
@@ -487,8 +488,7 @@ class ManagePaperlessControllerSpec
       val page = Jsoup.parse(contentAsString(result))
 
       verify(mockEntityResolverConnector)
-        .updateTermsAndConditions(is(GenericTerms -> TermsAccepted(false)), is(None))(any(), any())
+        .updateTermsAndConditions(any[TermsAndConditionsUpdate])(any(), any())
     }
   }
-
 }

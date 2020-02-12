@@ -19,7 +19,7 @@ package views.sa.prefs.cohorts
 import controllers.auth.AuthenticatedRequest
 import controllers.internal
 import controllers.internal.EmailForm
-import helpers.{ConfigHelper, LanguageHelper, TestFixtures}
+import helpers.{ ConfigHelper, LanguageHelper, TestFixtures }
 import org.jsoup.Jsoup
 import org.junit.Ignore
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -42,8 +42,12 @@ class IPageSpec extends PlaySpec with GuiceOneAppPerSuite with LanguageHelper wi
           engRequest,
           messagesInEnglish()).toString())
 
-      document.getElementsByTag("title").text() mustBe "Choose how to get your legal notices, penalty notices and tax letters"
-      document.getElementsByTag("h1").text() mustBe "Choose how to get your legal notices, penalty notices and tax letters"
+      document
+        .getElementsByTag("title")
+        .text() mustBe "Choose how to get your legal notices, penalty notices and tax letters"
+      document
+        .getElementsByTag("h1")
+        .text() mustBe "Choose how to get your legal notices, penalty notices and tax letters"
       document
         .getElementsByClass("lede")
         .first()
@@ -54,20 +58,29 @@ class IPageSpec extends PlaySpec with GuiceOneAppPerSuite with LanguageHelper wi
         .text() mustBe "You will need to take action when you receive some of the documents. They include:"
 
       document
-          .getElementsByTag("li").get(2).text() mustBe "Legal notices to file tax return"
+        .getElementsByTag("li")
+        .get(2)
+        .text() mustBe "Legal notices to file tax return"
 
       document
-        .getElementsByTag("li").get(3).text() mustBe "Late filing penalty notices"
+        .getElementsByTag("li")
+        .get(3)
+        .text() mustBe "Late filing penalty notices"
 
       document
-        .getElementsByTag("li").get(4).text() mustBe "Late payment penalty notices"
+        .getElementsByTag("li")
+        .get(4)
+        .text() mustBe "Late payment penalty notices"
 
       document
         .getElementsByTag("p")
         .get(3)
         .text() mustBe "We may also send you other messages, including information about your personal tax code, if you have one."
 
-     document.getElementsByTag("h2").get(0).text() mustBe "How do you want to get your legal notices, penalty notices and tax letters?"
+      document
+        .getElementsByTag("h2")
+        .get(0)
+        .text() mustBe "How do you want to get your legal notices, penalty notices and tax letters?"
 
       document
         .getElementsByTag("p")
@@ -86,22 +99,28 @@ class IPageSpec extends PlaySpec with GuiceOneAppPerSuite with LanguageHelper wi
         .toString
         .trim mustBe "Because we cannot send all letters online yet, you will continue to get some by post."
 
-      document.getElementById("terms-and-conditions").attr("href") mustBe "https://www.tax.service.gov.uk/information/terms?lang=eng#secure"
+      document
+        .getElementById("terms-and-conditions")
+        .attr("href") mustBe "https://www.tax.service.gov.uk/information/terms?lang=eng#secure"
       document.getElementsByClass("selectable").get(1).text() mustBe "By post only"
       document.getElementById("privacy-policy").text() must include("read the privacy notice")
-      document.getElementsByAttributeValue("name", "submitButton").text()  mustBe "Continue"
+      document.getElementsByAttributeValue("name", "submitButton").text() mustBe "Continue"
 
     }
 
-    "render the correct content in welsh" in  {
+    "render the correct content in welsh" in {
       val form = EmailForm()
       val document = Jsoup.parse(
         template(form, internal.routes.ChoosePaperlessController.submitForm(TestFixtures.sampleHostContext))(
           welshRequest,
           messagesInWelsh()).toString())
 
-      document.getElementsByTag("title").text() mustBe "Dewis sut i gael eich hysbysiadau cyfreithiol, hysbysiadau o gosb a llythyrau treth"
-      document.getElementsByTag("h1").text() mustBe "Dewis sut i gael eich hysbysiadau cyfreithiol, hysbysiadau o gosb a llythyrau treth"
+      document
+        .getElementsByTag("title")
+        .text() mustBe "Dewis sut i gael eich hysbysiadau cyfreithiol, hysbysiadau o gosb a llythyrau treth"
+      document
+        .getElementsByTag("h1")
+        .text() mustBe "Dewis sut i gael eich hysbysiadau cyfreithiol, hysbysiadau o gosb a llythyrau treth"
       document
         .getElementsByClass("lede")
         .first()
@@ -112,20 +131,29 @@ class IPageSpec extends PlaySpec with GuiceOneAppPerSuite with LanguageHelper wi
         .text() mustBe "Bydd yn rhaid i chi gymryd camau pan fyddwch yn cael rhai o’r dogfennau. Maent yn cynnwys:"
 
       document
-        .getElementsByTag("li").get(2).text() mustBe "Hysbysiadau cyfreithiol i gyflwyno Ffurflen Dreth"
+        .getElementsByTag("li")
+        .get(2)
+        .text() mustBe "Hysbysiadau cyfreithiol i gyflwyno Ffurflen Dreth"
 
       document
-        .getElementsByTag("li").get(3).text() mustBe "Hysbysiadau o gosb am gyflwyno’n hwyr"
+        .getElementsByTag("li")
+        .get(3)
+        .text() mustBe "Hysbysiadau o gosb am gyflwyno’n hwyr"
 
       document
-        .getElementsByTag("li").get(4).text() mustBe "Hysbysiadau o gosb am dalu’n hwyr"
+        .getElementsByTag("li")
+        .get(4)
+        .text() mustBe "Hysbysiadau o gosb am dalu’n hwyr"
 
       document
         .getElementsByTag("p")
         .get(3)
         .text() mustBe "Mae’n bosibl y byddwn hefyd yn anfon negeseuon eraill atoch, gan gynnwys gwybodaeth am eich cod treth personol, os oes un gennych."
 
-      document.getElementsByTag("h2").get(0).text() mustBe "Sut yr hoffech gael eich hysbysiadau cyfreithiol, hysbysiadau o gosb a llythyrau treth?"
+      document
+        .getElementsByTag("h2")
+        .get(0)
+        .text() mustBe "Sut yr hoffech gael eich hysbysiadau cyfreithiol, hysbysiadau o gosb a llythyrau treth?"
 
       document
         .getElementsByTag("p")
@@ -144,10 +172,12 @@ class IPageSpec extends PlaySpec with GuiceOneAppPerSuite with LanguageHelper wi
         .toString
         .trim mustBe "Oherwydd na allwn anfon pob llythyr ar-lein eto, byddwch yn parhau i gael rhai llythyrau drwy’r post."
 
-      document.getElementById("terms-and-conditions").attr("href") mustBe "https://www.tax.service.gov.uk/information/terms?lang=cym"
+      document
+        .getElementById("terms-and-conditions")
+        .attr("href") mustBe "https://www.tax.service.gov.uk/information/terms?lang=cym"
       document.getElementsByClass("selectable").get(1).text() mustBe "Drwy’r post yn unig"
       document.getElementById("privacy-policy").text() must include("darllenwch yr hysbysiad preifatrwydd")
-      document.getElementsByAttributeValue("name", "submitButton").text()  mustBe "Yn eich blaen"
+      document.getElementsByAttributeValue("name", "submitButton").text() mustBe "Yn eich blaen"
     }
   }
 }

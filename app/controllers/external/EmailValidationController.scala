@@ -18,9 +18,9 @@ package controllers.external
 
 import connectors._
 import controllers.ExternalUrlPrefixes
-import controllers.auth.{ AuthenticatedRequest }
+import controllers.auth.AuthenticatedRequest
 import javax.inject.Inject
-import play.api.mvc.MessagesControllerComponents
+import play.api.mvc.{ Action, AnyContent, MessagesControllerComponents }
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
@@ -41,7 +41,7 @@ class EmailValidationController @Inject()(
 
   val regex = "([0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12})".r
 
-  def verify(token: String) = Action.async { implicit request =>
+  def verify(token: String): Action[AnyContent] = Action.async { implicit request =>
     {
       implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
       implicit val nonAuthenticatedRequest = AuthenticatedRequest(request, None, None, None, None)

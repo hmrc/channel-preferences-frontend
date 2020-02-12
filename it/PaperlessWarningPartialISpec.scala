@@ -48,8 +48,7 @@ class PaperlessWarningPartialISpec extends EmailSupport with SessionCookieEncryp
 
       val response = `/paperless/warnings`.withSession(
         (SessionKeys.authToken -> cookieWithUtr._2)
-      ).get()
-        .futureValue
+      ).get().futureValue
 
       response.status must be(200)
       response.body must include(s"Verify your email address for paperless notifications")
@@ -63,8 +62,7 @@ class PaperlessWarningPartialISpec extends EmailSupport with SessionCookieEncryp
 
       val response = `/paperless/warnings`.withSession(
         (SessionKeys.authToken -> cookieWithUtr._2)
-      ).get()
-        .futureValue
+      ).get().futureValue
 
       response.status must be(200)
       response.body must be("")
@@ -77,8 +75,7 @@ class PaperlessWarningPartialISpec extends EmailSupport with SessionCookieEncryp
 
       val response = `/paperless/warnings`.withSession(
         (SessionKeys.authToken -> cookieWithUtr._2)
-      ).get()
-        .futureValue
+      ).get().futureValue
 
       response.status must be(200)
       response.body must be("")
@@ -91,8 +88,7 @@ class PaperlessWarningPartialISpec extends EmailSupport with SessionCookieEncryp
 
       val response = `/paperless/warnings`.withSession(
         (SessionKeys.authToken -> cookieWithUtr._2)
-      ).get()
-        .futureValue
+      ).get().futureValue
 
       response.status must be(200)
       response.body must include("Verify your email address for paperless notifications")
@@ -108,8 +104,7 @@ class PaperlessWarningPartialISpec extends EmailSupport with SessionCookieEncryp
 
       val response = `/paperless/warnings`.withSession(
         (SessionKeys.authToken -> cookieWithUtr._2)
-      ).get()
-        .futureValue
+      ).get().futureValue
 
       response.status must be(200)
       response.body must include("There&#x27;s a problem with your paperless notification emails")
@@ -123,8 +118,7 @@ class PaperlessWarningPartialISpec extends EmailSupport with SessionCookieEncryp
 
       val response = `/paperless/warnings`.withSession(
         (SessionKeys.authToken -> cookieWithUtr._2)
-      ).get()
-        .futureValue
+      ).get().futureValue
 
       response.status must be(200)
       response.body must be("")
@@ -138,8 +132,7 @@ class PaperlessWarningPartialISpec extends EmailSupport with SessionCookieEncryp
 
       val response = `/paperless/warnings`.withSession(
         (SessionKeys.authToken -> cookieWithUtr._2)
-      ).get()
-        .futureValue
+      ).get().futureValue
 
       response.status must be(200)
       response.body must include("Verify your email address for paperless notifications")
@@ -153,8 +146,7 @@ class PaperlessWarningPartialISpec extends EmailSupport with SessionCookieEncryp
 
       val response = `/paperless/warnings`.withSession(
         (SessionKeys.authToken -> cookieWithUtr._2)
-      ).get()
-        .futureValue
+      ).get().futureValue
 
       response.status must be(200)
       response.body must include("Verify your email address for paperless notifications")
@@ -170,8 +162,7 @@ class PaperlessWarningPartialISpec extends EmailSupport with SessionCookieEncryp
 
       val response = `/paperless/warnings`.withSession(
         (SessionKeys.authToken -> cookieWithUtr._2)
-      ).get()
-        .futureValue
+      ).get().futureValue
 
       response.status must be(200)
       response.body must be("")
@@ -186,8 +177,7 @@ class PaperlessWarningPartialISpec extends EmailSupport with SessionCookieEncryp
 
       val response = `/paperless/warnings`.withSession(
         (SessionKeys.authToken -> cookieWithUtr._2)
-      ).get()
-        .futureValue
+      ).get().futureValue
 
       response.status must be(200)
       response.body must include("Your inbox is full")
@@ -202,8 +192,7 @@ class PaperlessWarningPartialISpec extends EmailSupport with SessionCookieEncryp
 
       val response = `/paperless/warnings`.withSession(
         (SessionKeys.authToken -> cookieWithUtr._2)
-      ).get()
-        .futureValue
+      ).get().futureValue
 
       response.status must be(200)
     }
@@ -220,8 +209,7 @@ class PaperlessWarningPartialISpec extends EmailSupport with SessionCookieEncryp
 
       val response = `/paperless/warnings`.withSession(
         (SessionKeys.authToken -> cookieWithUtr._2)
-      ).get()
-        .futureValue
+      ).get().futureValue
 
       response.status must be(200)
       response.body must include("There&#x27;s a problem with your paperless notification emails")

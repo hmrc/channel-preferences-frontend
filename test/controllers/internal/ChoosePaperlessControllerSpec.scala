@@ -271,10 +271,7 @@ class ChoosePaperlessControllerSpec
 
       val emailAddress = "someone@email.com"
       val page = controller.submitForm(TestFixtures.sampleHostContext)(
-        FakeRequest().withFormUrlEncodedBody(
-          "opt-in"        -> "true",
-          "email.main"    -> emailAddress,
-          "accept-tc"     -> "false"))
+        FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", "email.main" -> emailAddress, "accept-tc" -> "false"))
 
       status(page) mustBe 400
 
@@ -316,10 +313,7 @@ class ChoosePaperlessControllerSpec
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(Future.successful(false))
 
       val page = controller.submitForm(TestFixtures.sampleHostContext)(
-        FakeRequest().withFormUrlEncodedBody(
-          "opt-in" -> "true",
-          ("email.main", emailAddress),
-          "accept-tc" -> "true"))
+        FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), "accept-tc" -> "true"))
 
       status(page) mustBe 200
 
@@ -334,18 +328,12 @@ class ChoosePaperlessControllerSpec
       val emailAddress = "someone@email.com"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(Future.successful(true))
       when(
-        mockEntityResolverConnector.updateTermsAndConditionsForSvc(
-          is(GenericTerms -> TermsAccepted(true)),
-          is(Some(emailAddress)),
-          any(),
-          any(),
-          any())(any(), any())).thenReturn(Future.successful(PreferencesCreated))
+        mockEntityResolverConnector
+          .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any()))
+        .thenReturn(Future.successful(PreferencesCreated))
 
       val page = controller.submitForm(TestFixtures.sampleHostContext)(
-        FakeRequest().withFormUrlEncodedBody(
-          "opt-in" -> "true",
-          ("email.main", emailAddress),
-          "accept-tc" -> "true"))
+        FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), "accept-tc" -> "true"))
 
       status(page) mustBe 303
       header("Location", page).get must include(
@@ -354,12 +342,8 @@ class ChoosePaperlessControllerSpec
           .toString())
 
       verify(mockEmailConnector).isValid(is(emailAddress))(any())
-      verify(mockEntityResolverConnector).updateTermsAndConditionsForSvc(
-        is(GenericTerms -> TermsAccepted(true)),
-        is(Some(emailAddress)),
-        any(),
-        any(),
-        any())(any(), any())
+      verify(mockEntityResolverConnector)
+        .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any())
 
       verifyNoMoreInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
@@ -367,18 +351,12 @@ class ChoosePaperlessControllerSpec
       val emailAddress = "someone@email.com"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(Future.successful(true))
       when(
-        mockEntityResolverConnector.updateTermsAndConditionsForSvc(
-          is(GenericTerms -> TermsAccepted(true)),
-          is(Some(emailAddress)),
-          any(),
-          any(),
-          any())(any(), any())).thenReturn(Future.successful(PreferencesFailure))
+        mockEntityResolverConnector
+          .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any()))
+        .thenReturn(Future.successful(PreferencesCreated))
 
       val page = controller.submitForm(TestFixtures.sampleHostContext)(
-        FakeRequest().withFormUrlEncodedBody(
-          "opt-in" -> "true",
-          ("email.main", emailAddress),
-          "accept-tc" -> "true"))
+        FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), "accept-tc" -> "true"))
 
       status(page) mustBe 303
       header("Location", page).get must include(
@@ -386,12 +364,9 @@ class ChoosePaperlessControllerSpec
           .displayNearlyDone(Some(Encrypted(EmailAddress(emailAddress))), TestFixtures.sampleHostContext)
           .toString())
 
-      verify(mockEntityResolverConnector).updateTermsAndConditionsForSvc(
-        is(GenericTerms -> TermsAccepted(true)),
-        is(Some(emailAddress)),
-        any(),
-        any(),
-        any())(any(), any())
+      verify(mockEntityResolverConnector)
+        .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any())
+
       verify(mockEmailConnector).isValid(is(emailAddress))(any())
 
       verifyNoMoreInteractions(mockEntityResolverConnector, mockEmailConnector)
@@ -403,12 +378,9 @@ class ChoosePaperlessControllerSpec
       val emailAddress = "someone@email.com"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(Future.successful(true))
       when(
-        mockEntityResolverConnector.updateTermsAndConditionsForSvc(
-          is(GenericTerms -> TermsAccepted(true)),
-          is(Some(emailAddress)),
-          any(),
-          any(),
-          any())(any(), any())).thenReturn(Future.successful(PreferencesCreated))
+        mockEntityResolverConnector
+          .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any()))
+        .thenReturn(Future.successful(PreferencesCreated))
 
       val page = controller.submitForm(TestFixtures.sampleHostContext)(
         FakeRequest().withFormUrlEncodedBody(
@@ -424,12 +396,8 @@ class ChoosePaperlessControllerSpec
           .toString())
 
       verify(mockEmailConnector).isValid(is(emailAddress))(any())
-      verify(mockEntityResolverConnector).updateTermsAndConditionsForSvc(
-        is(GenericTerms -> TermsAccepted(true)),
-        is(Some(emailAddress)),
-        any(),
-        any(),
-        any())(any(), any())
+      verify(mockEntityResolverConnector)
+        .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any())
 
       verifyNoMoreInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
@@ -438,12 +406,9 @@ class ChoosePaperlessControllerSpec
       val emailAddress = "someone@email.com"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(Future.successful(true))
       when(
-        mockEntityResolverConnector.updateTermsAndConditionsForSvc(
-          is(GenericTerms -> TermsAccepted(true)),
-          is(Some(emailAddress)),
-          any(),
-          any(),
-          any())(any(), any())).thenReturn(Future.successful(PreferencesCreated))
+        mockEntityResolverConnector
+          .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any()))
+        .thenReturn(Future.successful(PreferencesCreated))
 
       val page = controller.submitForm(TestFixtures.sampleHostContext)(
         FakeRequest().withFormUrlEncodedBody(
@@ -457,12 +422,8 @@ class ChoosePaperlessControllerSpec
       header("Location", page).get must include(TestFixtures.sampleHostContext.returnUrl)
 
       verify(mockEmailConnector).isValid(is(emailAddress))(any())
-      verify(mockEntityResolverConnector).updateTermsAndConditionsForSvc(
-        is(GenericTerms -> TermsAccepted(true)),
-        is(Some(emailAddress)),
-        any(),
-        any(),
-        any())(any(), any())
+      verify(mockEntityResolverConnector)
+        .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any())
 
       verifyNoMoreInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
@@ -470,21 +431,17 @@ class ChoosePaperlessControllerSpec
     "when opting-out, save the preference and redirect to the thank you page" in new ChoosePaperlessControllerSetup {
       when(
         mockEntityResolverConnector
-          .updateTermsAndConditionsForSvc(is(GenericTerms -> TermsAccepted(false)), is(None), any(), any(), any())(
-            any(),
-            any())).thenReturn(Future.successful(PreferencesCreated))
+          .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any()))
+        .thenReturn(Future.successful(PreferencesCreated))
+
       val page =
         controller.submitForm(TestFixtures.sampleHostContext)(FakeRequest().withFormUrlEncodedBody("opt-in" -> "false"))
 
       status(page) mustBe 303
       header("Location", page).get must be(TestFixtures.sampleHostContext.returnUrl)
 
-      verify(mockEntityResolverConnector).updateTermsAndConditionsForSvc(
-        is(GenericTerms -> TermsAccepted(false)),
-        is(None),
-        any(),
-        any(),
-        any())(any(), any())
+      verify(mockEntityResolverConnector)
+        .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any())
 
       verifyNoMoreInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
@@ -495,12 +452,9 @@ class ChoosePaperlessControllerSpec
     "if the verified flag is true, save the preference and redirect to the thank you page without verifying the email address again" in new ChoosePaperlessControllerSetup {
       val emailAddress = "someone@email.com"
       when(
-        mockEntityResolverConnector.updateTermsAndConditionsForSvc(
-          is(GenericTerms -> TermsAccepted(true)),
-          is(Some(emailAddress)),
-          any(),
-          any(),
-          any())(any(), any())).thenReturn(Future.successful(PreferencesCreated))
+        mockEntityResolverConnector
+          .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any()))
+        .thenReturn(Future.successful(PreferencesCreated))
 
       val page = controller.submitForm(TestFixtures.sampleHostContext)(
         FakeRequest().withFormUrlEncodedBody(
@@ -516,12 +470,8 @@ class ChoosePaperlessControllerSpec
           .displayNearlyDone(Some(Encrypted(EmailAddress(emailAddress))), TestFixtures.sampleHostContext)
           .toString())
 
-      verify(mockEntityResolverConnector).updateTermsAndConditionsForSvc(
-        is(GenericTerms -> TermsAccepted(true)),
-        is(Some(emailAddress)),
-        any(),
-        any(),
-        any())(any(), any())
+      verify(mockEntityResolverConnector)
+        .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any())
 
       verifyNoMoreInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
@@ -529,12 +479,9 @@ class ChoosePaperlessControllerSpec
     "if the verified flag is true, save the preference and redirect to the thank you page without verifying the email address again by svc" in new ChoosePaperlessControllerSetup {
       val emailAddress = "someone@email.com"
       when(
-        mockEntityResolverConnector.updateTermsAndConditionsForSvc(
-          is(GenericTerms -> TermsAccepted(true)),
-          is(Some(emailAddress)),
-          any(),
-          any(),
-          any())(any(), any())).thenReturn(Future.successful(PreferencesCreated))
+        mockEntityResolverConnector
+          .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any()))
+        .thenReturn(Future.successful(PreferencesCreated))
 
       val page = controller.submitFormBySvc("mtdfbit", "token", TestFixtures.sampleHostContext)(
         FakeRequest().withFormUrlEncodedBody(
@@ -550,12 +497,8 @@ class ChoosePaperlessControllerSpec
           .displayNearlyDone(Some(Encrypted(EmailAddress(emailAddress))), TestFixtures.sampleHostContext)
           .toString())
 
-      verify(mockEntityResolverConnector).updateTermsAndConditionsForSvc(
-        is(GenericTerms -> TermsAccepted(true)),
-        is(Some(emailAddress)),
-        any(),
-        any(),
-        any())(any(), any())
+      verify(mockEntityResolverConnector)
+        .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any())
 
       verifyNoMoreInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
@@ -637,18 +580,12 @@ class ChoosePaperlessControllerSpec
       val emailAddress = "someone@email.com"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(Future.successful(true))
       when(
-        mockEntityResolverConnector.updateTermsAndConditionsForSvc(
-          is(GenericTerms -> TermsAccepted(true)),
-          is(Some(emailAddress)),
-          any(),
-          any(),
-          any())(any(), any())).thenReturn(Future.successful(PreferencesCreated))
+        mockEntityResolverConnector
+          .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any()))
+        .thenReturn(Future.successful(PreferencesCreated))
 
       val page = controller.submitForm(TestFixtures.sampleHostContext)(
-        FakeRequest().withFormUrlEncodedBody(
-          "opt-in" -> "true",
-          ("email.main", emailAddress),
-          "accept-tc" -> "true"))
+        FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), "accept-tc" -> "true"))
 
       status(page) mustBe 303
 
@@ -676,18 +613,12 @@ class ChoosePaperlessControllerSpec
       val emailAddress = "someone@email.com"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(Future.successful(true))
       when(
-        mockEntityResolverConnector.updateTermsAndConditionsForSvc(
-          is(GenericTerms -> TermsAccepted(true)),
-          is(Some(emailAddress)),
-          any(),
-          any(),
-          any())(any(), any())).thenReturn(Future.successful(PreferencesExists))
+        mockEntityResolverConnector
+          .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any()))
+        .thenReturn(Future.successful(PreferencesExists))
 
       val page = controller.submitForm(TestFixtures.sampleHostContext)(
-        FakeRequest().withFormUrlEncodedBody(
-          "opt-in" -> "true",
-          ("email.main", emailAddress),
-          "accept-tc" -> "true"))
+        FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), "accept-tc" -> "true"))
 
       status(page) mustBe 303
 
@@ -714,9 +645,8 @@ class ChoosePaperlessControllerSpec
 
       when(
         mockEntityResolverConnector
-          .updateTermsAndConditionsForSvc(is(GenericTerms -> TermsAccepted(false)), is(None), any(), any(), any())(
-            any(),
-            any())).thenReturn(Future.successful(PreferencesCreated))
+          .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any()))
+        .thenReturn(Future.successful(PreferencesCreated))
 
       val page =
         controller.submitForm(TestFixtures.sampleHostContext)(FakeRequest().withFormUrlEncodedBody("opt-in" -> "false"))
@@ -1014,9 +944,8 @@ class ChoosePaperlessControllerSpecTC
 
       when(
         mockEntityResolverConnector
-          .updateTermsAndConditionsForSvc(is(TaxCreditsTerms -> TermsAccepted(false)), is(None), any(), any(), any())(
-            any(),
-            any())).thenReturn(Future.successful(PreferencesCreated))
+          .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any()))
+        .thenReturn(Future.successful(PreferencesCreated))
 
       val emailAddress = "someone@email.com"
       val page = controller.submitForm(TestFixtures.taxCreditsHostContext(""))(
@@ -1093,12 +1022,9 @@ class ChoosePaperlessControllerSpecTC
       val emailAddress = "someone@email.com"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(Future.successful(true))
       when(
-        mockEntityResolverConnector.updateTermsAndConditionsForSvc(
-          is(TaxCreditsTerms -> TermsAccepted(true)),
-          is(Some(emailAddress)),
-          any(),
-          any(),
-          any())(any(), any())).thenReturn(Future.successful(PreferencesCreated))
+        mockEntityResolverConnector
+          .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any()))
+        .thenReturn(Future.successful(PreferencesCreated))
 
       val page = controller.submitForm(TestFixtures.taxCreditsHostContext(""))(
         FakeRequest().withFormUrlEncodedBody(
@@ -1114,12 +1040,8 @@ class ChoosePaperlessControllerSpecTC
           .toString())
 
       verify(mockEmailConnector).isValid(is(emailAddress))(any())
-      verify(mockEntityResolverConnector).updateTermsAndConditionsForSvc(
-        is(TaxCreditsTerms -> TermsAccepted(true)),
-        is(Some(emailAddress)),
-        any(),
-        any(),
-        any())(any(), any())
+      verify(mockEntityResolverConnector)
+        .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any())
 
       verifyNoMoreInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
@@ -1129,12 +1051,9 @@ class ChoosePaperlessControllerSpecTC
       val emailAddress = "someone@email.com"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(Future.successful(true))
       when(
-        mockEntityResolverConnector.updateTermsAndConditionsForSvc(
-          is(TaxCreditsTerms -> TermsAccepted(true)),
-          is(Some(emailAddress)),
-          any(),
-          any(),
-          any())(any(), any())).thenReturn(Future.successful(PreferencesFailure))
+        mockEntityResolverConnector
+          .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any()))
+        .thenReturn(Future.successful(PreferencesCreated))
 
       val page = controller.submitForm(TestFixtures.taxCreditsHostContext(""))(
         FakeRequest().withFormUrlEncodedBody(
@@ -1149,12 +1068,8 @@ class ChoosePaperlessControllerSpecTC
           .displayNearlyDone(Some(Encrypted(EmailAddress(emailAddress))), TestFixtures.taxCreditsHostContext(""))
           .toString())
 
-      verify(mockEntityResolverConnector).updateTermsAndConditionsForSvc(
-        is(TaxCreditsTerms -> TermsAccepted(true)),
-        is(Some(emailAddress)),
-        any(),
-        any(),
-        any())(any(), any())
+      verify(mockEntityResolverConnector)
+        .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any())
       verify(mockEmailConnector).isValid(is(emailAddress))(any())
 
       verifyNoMoreInteractions(mockEntityResolverConnector, mockEmailConnector)
@@ -1166,12 +1081,9 @@ class ChoosePaperlessControllerSpecTC
       val emailAddress = "someone@email.com"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(Future.successful(true))
       when(
-        mockEntityResolverConnector.updateTermsAndConditionsForSvc(
-          is(TaxCreditsTerms -> TermsAccepted(true)),
-          is(Some(emailAddress)),
-          any(),
-          any(),
-          any())(any(), any())).thenReturn(Future.successful(PreferencesCreated))
+        mockEntityResolverConnector
+          .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any()))
+        .thenReturn(Future.successful(PreferencesCreated))
 
       val page = controller.submitForm(TestFixtures.taxCreditsHostContext(""))(
         FakeRequest().withFormUrlEncodedBody(
@@ -1189,12 +1101,8 @@ class ChoosePaperlessControllerSpecTC
           .toString())
 
       verify(mockEmailConnector).isValid(is(emailAddress))(any())
-      verify(mockEntityResolverConnector).updateTermsAndConditionsForSvc(
-        is(TaxCreditsTerms -> TermsAccepted(true)),
-        is(Some(emailAddress)),
-        any(),
-        any(),
-        any())(any(), any())
+      verify(mockEntityResolverConnector)
+        .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any())
 
       verifyNoMoreInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
@@ -1205,12 +1113,9 @@ class ChoosePaperlessControllerSpecTC
       val emailAddress = "someone@email.com"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(Future.successful(true))
       when(
-        mockEntityResolverConnector.updateTermsAndConditionsForSvc(
-          is(TaxCreditsTerms -> TermsAccepted(true)),
-          is(Some(emailAddress)),
-          any(),
-          any(),
-          any())(any(), any())).thenReturn(Future.successful(PreferencesCreated))
+        mockEntityResolverConnector
+          .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any()))
+        .thenReturn(Future.successful(PreferencesCreated))
 
       val page = controller.submitForm(TestFixtures.taxCreditsHostContext(""))(
         FakeRequest().withFormUrlEncodedBody(
@@ -1225,12 +1130,8 @@ class ChoosePaperlessControllerSpecTC
       header("Location", page).get must include(TestFixtures.taxCreditsHostContext("").returnUrl)
 
       verify(mockEmailConnector).isValid(is(emailAddress))(any())
-      verify(mockEntityResolverConnector).updateTermsAndConditionsForSvc(
-        is(TaxCreditsTerms -> TermsAccepted(true)),
-        is(Some(emailAddress)),
-        any(),
-        any(),
-        any())(any(), any())
+      verify(mockEntityResolverConnector)
+        .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any())
 
       verifyNoMoreInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
@@ -1240,21 +1141,17 @@ class ChoosePaperlessControllerSpecTC
 
       when(
         mockEntityResolverConnector
-          .updateTermsAndConditionsForSvc(is(TaxCreditsTerms -> TermsAccepted(false)), is(None), any(), any(), any())(
-            any(),
-            any())).thenReturn(Future.successful(PreferencesCreated))
+          .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any()))
+        .thenReturn(Future.successful(PreferencesCreated))
+
       val page = controller.submitForm(TestFixtures.taxCreditsHostContext(""))(
         FakeRequest().withFormUrlEncodedBody("termsAndConditions.opt-in" -> "false"))
 
       status(page) mustBe 303
       header("Location", page).get must be(TestFixtures.taxCreditsHostContext("").returnUrl)
 
-      verify(mockEntityResolverConnector).updateTermsAndConditionsForSvc(
-        is(TaxCreditsTerms -> TermsAccepted(false)),
-        is(None),
-        any(),
-        any(),
-        any())(any(), any())
+      verify(mockEntityResolverConnector)
+        .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any())
 
       verifyNoMoreInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
@@ -1267,12 +1164,9 @@ class ChoosePaperlessControllerSpecTC
 
       val emailAddress = "someone@email.com"
       when(
-        mockEntityResolverConnector.updateTermsAndConditionsForSvc(
-          is(TaxCreditsTerms -> TermsAccepted(true)),
-          is(Some(emailAddress)),
-          any(),
-          any(),
-          any())(any(), any())).thenReturn(Future.successful(PreferencesCreated))
+        mockEntityResolverConnector
+          .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any()))
+        .thenReturn(Future.successful(PreferencesCreated))
 
       val page = controller.submitForm(TestFixtures.taxCreditsHostContext(""))(
         FakeRequest().withFormUrlEncodedBody(
@@ -1289,12 +1183,8 @@ class ChoosePaperlessControllerSpecTC
           .displayNearlyDone(Some(Encrypted(EmailAddress(emailAddress))), TestFixtures.taxCreditsHostContext(""))
           .toString())
 
-      verify(mockEntityResolverConnector).updateTermsAndConditionsForSvc(
-        is(TaxCreditsTerms -> TermsAccepted(true)),
-        is(Some(emailAddress)),
-        any(),
-        any(),
-        any())(any(), any())
+      verify(mockEntityResolverConnector)
+        .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any())
 
       verifyNoMoreInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
@@ -1359,12 +1249,9 @@ class ChoosePaperlessControllerSpecTC
       val emailAddress = "someone@email.com"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(Future.successful(true))
       when(
-        mockEntityResolverConnector.updateTermsAndConditionsForSvc(
-          is(TaxCreditsTerms -> TermsAccepted(true)),
-          is(Some(emailAddress)),
-          any(),
-          any(),
-          any())(any(), any())).thenReturn(Future.successful(PreferencesCreated))
+        mockEntityResolverConnector
+          .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any()))
+        .thenReturn(Future.successful(PreferencesCreated))
 
       val page = controller.submitForm(TestFixtures.taxCreditsHostContext(""))(
         FakeRequest().withFormUrlEncodedBody(
@@ -1399,12 +1286,9 @@ class ChoosePaperlessControllerSpecTC
       val emailAddress = "someone@email.com"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(Future.successful(true))
       when(
-        mockEntityResolverConnector.updateTermsAndConditionsForSvc(
-          is(TaxCreditsTerms -> TermsAccepted(true)),
-          is(Some(emailAddress)),
-          any(),
-          any(),
-          any())(any(), any())).thenReturn(Future.successful(PreferencesExists))
+        mockEntityResolverConnector
+          .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any()))
+        .thenReturn(Future.successful(PreferencesExists))
 
       val page = controller.submitForm(TestFixtures.taxCreditsHostContext(""))(
         FakeRequest().withFormUrlEncodedBody(
@@ -1438,9 +1322,8 @@ class ChoosePaperlessControllerSpecTC
 
       when(
         mockEntityResolverConnector
-          .updateTermsAndConditionsForSvc(is(TaxCreditsTerms -> TermsAccepted(false)), is(None), any(), any(), any())(
-            any(),
-            any())).thenReturn(Future.successful(PreferencesCreated))
+          .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any()))
+        .thenReturn(Future.successful(PreferencesCreated))
 
       val page = controller.submitForm(TestFixtures.taxCreditsHostContext(""))(
         FakeRequest().withFormUrlEncodedBody("termsAndConditions.opt-in" -> "false"))
