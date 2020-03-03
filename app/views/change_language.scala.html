@@ -1,0 +1,61 @@
+@*
+ * Copyright 2020 HM Revenue & Customs
+ *
+ *@
+
+@import org.joda.time.DateTime
+@import controllers.auth.AuthenticatedRequest
+@this(mainWithHeaders: views.html.main_with_headers)
+@(languageForm: Form[_], submitLanguageFormAction: Call)(implicit request: AuthenticatedRequest[_], messages: Messages)
+
+@import uk.gov.hmrc.urls.Link
+@import uk.gov.hmrc.play.views.html.helpers._
+
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+
+@mainWithHeaders(title = Messages("account.details.change.language.title")) {
+    <script>
+        function radioChanged() {$("#submitLanguageButton").removeAttr("disabled")};
+    </script>
+
+    @form(action = submitLanguageFormAction, 'id -> "form-submit-language") {
+
+    @GovukRadios(Radios(
+        fieldset = Some(Fieldset(
+          legend = Some(Legend(
+            content = Text(Messages("account.details.change.language.title")),
+            classes = "govuk-fieldset__legend--xl",
+            isPageHeading = true
+          ))
+        )),
+        hint = Some(Hint(
+    content = HtmlContent(
+
+       s"""<p>${Messages("account.details.change.language.info_1")}</p>
+       <p>${Messages("account.details.change.language.info_2")}</p>"""
+       )
+        )),
+        idPrefix = Some("lang"),
+        name = "language",
+        items = Seq(
+          RadioItem(
+       content = Text(Messages("account.details.change.language.english")),
+            value = Some("false"),
+            checked =  if((languageForm("language").value == Some("false")) || (languageForm("language").value == None))  true  else false
+          ),
+          RadioItem(
+       content = Text(Messages("account.details.change.language.welsh")),
+            value = Some("true"),
+            checked =  if((languageForm("language").value == Some("false")) || (languageForm("language").value == None))  false  else true
+          )
+        ),
+        classes = "govuk-radios--inline"
+      ))
+
+
+    @GovukButton(Button(
+        classes = "govuk-button",
+        content = Text(Messages("sa_printing_preference.submitButton"))
+      ))
+  }
+}

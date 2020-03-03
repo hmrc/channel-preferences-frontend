@@ -1,0 +1,81 @@
+@*
+ * Copyright 2020 HM Revenue & Customs
+ *
+ *@
+
+@import controllers.auth.AuthenticatedRequest
+
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+
+@import uk.gov.hmrc.play.views.html.helpers._
+
+@this(mainWithHeaders: views.html.main_with_headers, govukSummaryList : GovukSummaryList, externalUrlPrefixes: ExternalUrlPrefixes)
+
+@(email: connectors.EmailPreference)(implicit request : AuthenticatedRequest[_],messages: Messages, hostContext: model.HostContext)
+
+@import uk.gov.hmrc.urls.Link
+@import model.Encrypted
+@import uk.gov.hmrc.emailaddress.EmailAddress
+@import uk.gov.hmrc.play.views.html.helpers._
+
+@mainWithHeaders(title = Messages("sa_printing_preferences.confirm_correct_email.title")) {
+
+
+        <h1 id="saCheckSettings">@Messages("manage.paperless.header")</h1>
+
+
+    @GovukWarningText(WarningText(
+        iconFallbackText = "Warning",
+        content = HtmlContent(s"""${Messages("manage.paperless.bounce.warning.1")}<br/> <a class="govuk-link" href="/get-in-touch">${Messages("manage.paperless.bounce.warning.2")}</a> """)
+      ))
+
+        <h2>@Messages("manage.paperless.contact.header")</h2>
+
+    @govukSummaryList(SummaryList(
+        rows = Seq(
+            SummaryListRow(
+                key = Key(
+                    content = Text(Messages("manage.paperless.contact.taxdoc.1"))
+                ),
+                value = Value(
+                    content = Text(Messages("manage.paperless.contact.taxdoc.4"))
+                )
+            ),
+            SummaryListRow(
+                key = Key(
+                    content = Text(Messages("manage.paperless.contact.language.1"))
+                ),
+                value = Value(
+                    content = Text(Messages("manage.paperless.contact.language.bounce.2"))
+                )
+            )
+        )))
+
+
+        <h2>Contact details</h2>
+        @govukSummaryList(SummaryList(
+            rows = Seq(
+                SummaryListRow(
+                    key = Key(
+                        content = Text(Messages("manage.paperless.contact.details.email.1"))
+                    ),
+                    value = Value(
+                        content = Text(email.email)
+                    ),
+                    actions = Some(Actions(
+                        items = Seq(
+                            ActionItem(
+                                href = externalUrlPrefixes.pfUrlPrefix + controllers.internal.routes.ManagePaperlessController.displayChangeEmailAddress(None, hostContext),
+                                content = Text(Messages("manage.paperless.change"))
+                            )
+                        )
+                    ))
+                )
+            )))
+
+    @GovukButton(Button(
+        href = Some(hostContext.returnUrl),
+        classes = "govuk-button",
+        content = Text(hostContext.returnLinkText)
+    ))
+}

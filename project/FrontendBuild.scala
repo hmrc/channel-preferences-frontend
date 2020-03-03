@@ -27,6 +27,8 @@ private object Dependencies {
     "uk.gov.hmrc"             %% "metrix"                   % "3.11.0-play-26",
     "uk.gov.hmrc"             %% "play-ui"                  % "8.3.0-play-26",
     "uk.gov.hmrc"             %% "govuk-template"           % "5.42.0-play-26",
+    "uk.gov.hmrc"             %% "play-frontend-govuk"      % "0.35.0-play-26",
+    "org.webjars.npm"         %  "govuk-frontend"           % "3.1.0",
     "com.typesafe.play"       %% "play-json-joda"           % "2.6.13",
     "uk.gov.hmrc"             %% "auth-client"              % "2.31.0-play-26",
     "com.netaporter"          %% "scala-uri"                % "0.4.16",

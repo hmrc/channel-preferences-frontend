@@ -1,17 +1,6 @@
 /*
  * Copyright 2020 HM Revenue & Customs
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  */
 
 package controllers.internal
@@ -42,8 +31,11 @@ import uk.gov.hmrc.play.audit.model.{ EventTypes, MergedDataEvent }
 import org.mockito.Matchers.{ any, eq => is }
 import org.scalatestplus.play.PlaySpec
 import play.api.test.Helpers._
+import model.{ HostContext, Language }
 
 import scala.concurrent.Future
+
+import org.mockito.Matchers.{ eq => meq, _ }
 
 trait ChoosePaperlessControllerSetup {
   def assignedCohort: OptInCohort = IPage
@@ -1346,5 +1338,119 @@ class ChoosePaperlessControllerSpecTC
       value.request.detail("userConfirmedReadTandCs") mustBe "false"
       value.request.detail("newUserPreferencesCreated") mustBe "true"
     }
+  }
+
+  "The language form" should {
+
+    "render english radio button checked for undefiend langauge in the hostContext" in new ChoosePaperlessControllerSetup {
+      val page = controller.displayLanguageForm(
+        HostContext(
+          returnUrl = "someReturnUrl",
+          returnLinkText = "someReturnLinkText",
+          language = None
+        )
+      )(request)
+
+      status(page) mustBe 200
+
+      val document = Jsoup.parse(contentAsString(page))
+
+      document.getElementById("lang").attributes().hasKey("checked") must be(true)
+      document.getElementById("lang-2").attributes().hasKey("checked") must be(false)
+    }
+
+    "render english radio button checked for English in the hostContext" in new ChoosePaperlessControllerSetup {
+      val page = controller.displayLanguageForm(
+        HostContext(
+          returnUrl = "someReturnUrl",
+          returnLinkText = "someReturnLinkText",
+          language = Some(Language.English)
+        )
+      )(request)
+
+      status(page) mustBe 200
+
+      val document = Jsoup.parse(contentAsString(page))
+
+      document.getElementById("lang").attributes().hasKey("checked") must be(true)
+      document.getElementById("lang-2").attributes().hasKey("checked") must be(false)
+    }
+
+    "render welsh radio button checked for Welsh in the hostContext" in new ChoosePaperlessControllerSetup {
+      val page = controller.displayLanguageForm(
+        HostContext(
+          returnUrl = "someReturnUrl",
+          returnLinkText = "someReturnLinkText",
+          language = Some(Language.Welsh)
+        )
+      )(request)
+
+      status(page) mustBe 200
+
+      val document = Jsoup.parse(contentAsString(page))
+
+      document.getElementById("lang").attributes().hasKey("checked") must be(false)
+      document.getElementById("lang-2").attributes().hasKey("checked") must be(true)
+    }
+  }
+
+  "A post to submitLanguageForm" should {
+    "send a request to entityResolverConnector with Welsh" in new ChoosePaperlessControllerSetup {
+
+      val requestHostContext = HostContext(
+        returnUrl = "someReturnUrl",
+        returnLinkText = "someReturnLinkText",
+        language = Some(Language.English)
+      )
+
+      when(
+        mockEntityResolverConnector
+          .updateTermsAndConditions(meq(TermsAndConditionsUpdate.fromLanguage(Language.Welsh)))(
+            any(),
+            meq(requestHostContext.copy(language = Some(Language.Welsh))))
+      ).thenReturn(Future.successful(PreferencesCreated))
+
+      val page =
+        controller.submitLanguageForm(requestHostContext)(FakeRequest().withFormUrlEncodedBody("language" -> "true"))
+
+      status(page) mustBe 303
+
+    }
+
+    "send a request to entityResolverConnector with English" in new ChoosePaperlessControllerSetup {
+
+      val requestHostContext = HostContext(
+        returnUrl = "someReturnUrl",
+        returnLinkText = "someReturnLinkText",
+        language = Some(Language.Welsh)
+      )
+      when(
+        mockEntityResolverConnector
+          .updateTermsAndConditions(meq(TermsAndConditionsUpdate.fromLanguage(Language.English)))(
+            any(),
+            meq(requestHostContext.copy(language = Some(Language.English))))
+      ).thenReturn(Future.successful(PreferencesCreated))
+
+      val page =
+        controller.submitLanguageForm(requestHostContext)(FakeRequest().withFormUrlEncodedBody("language" -> "false"))
+
+      status(page) mustBe 303
+
+    }
+
+    "return 400 if form is invalid" in new ChoosePaperlessControllerSetup {
+
+      val requestHostContext = HostContext(
+        returnUrl = "someReturnUrl",
+        returnLinkText = "someReturnLinkText",
+        language = Some(Language.Welsh)
+      )
+      val page =
+        controller.submitLanguageForm(requestHostContext)(FakeRequest().withFormUrlEncodedBody("language" -> "foobar"))
+
+      status(page) mustBe 400
+
+    }
+
   }
 }

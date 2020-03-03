@@ -1,17 +1,6 @@
 /*
  * Copyright 2020 HM Revenue & Customs
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  */
 
 package model
@@ -32,6 +21,7 @@ class HostContextSpec extends WordSpec with Matchers with GuiceOneAppPerSuite wi
     val validGenericTermsAndConditions = "termsAndConditions"    -> Seq("HYymhRDn1B7qdcKcjIf/1A==")
     val validTaxCreditsTermsAndConditions = "termsAndConditions" -> Seq("J1Vy/h2rVt/JkA1b/lTfgg==") // taxCredits
     val validEmailAddress = "email"                              -> Seq("J5lnze8P0QQ8NwFTHVHhVw==") // test@test.com
+    val validWelshLanguage = "language"                          -> Seq("5W0FAIi6JRZBSf4/hwE00w==") // cy
 
     "read the returnURL and returnLinkText if both present" in {
       model.HostContext.hostContextBinder.bind("anyValName", Map(validReturnUrl, validReturnLinkText)) should contain(
@@ -82,6 +72,13 @@ class HostContextSpec extends WordSpec with Matchers with GuiceOneAppPerSuite wi
       model.HostContext.hostContextBinder.bind("anyValName", Map(validReturnUrl)) should be(
         Some(Left("No returnLinkText query parameter")))
     }
+
+    "read the language if present" in {
+      model.HostContext.hostContextBinder
+        .bind("anyValName", Map(validReturnUrl, validReturnLinkText, validWelshLanguage)) should contain(
+        Right(HostContext(returnUrl = "foo", returnLinkText = "bar", language = Some(Language.Welsh)))
+      )
+    }
   }
 
   "Unbinding a host context" should {
@@ -91,5 +88,17 @@ class HostContextSpec extends WordSpec with Matchers with GuiceOneAppPerSuite wi
         "returnUrl=Wa6yuBSzGvUaibkXblJ8aQ%3D%3D&returnLinkText=w%2FPwaxV%2BKgqutfsU0cyrJQ%3D%3D"
       )
     }
+
+    "write out all parameters with language" in {
+
+      model.HostContext.hostContextBinder
+        .unbind(
+          "anyValName",
+          HostContext(returnUrl = "foo&value", returnLinkText = "bar", language = Some(Language.Welsh))
+        ) should be(
+        "returnUrl=Wa6yuBSzGvUaibkXblJ8aQ%3D%3D&returnLinkText=w%2FPwaxV%2BKgqutfsU0cyrJQ%3D%3D&language=5W0FAIi6JRZBSf4%2FhwE00w%3D%3D"
+      )
+    }
+
   }
 }

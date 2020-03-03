@@ -1,17 +1,6 @@
 /*
  * Copyright 2020 HM Revenue & Customs
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  */
 
 package controllers.internal
@@ -51,6 +40,7 @@ class ChoosePaperlessController @Inject()(
   saPrintingPreference: views.html.sa.prefs.sa_printing_preference,
   saPrintingPreferenceVerifyEmail: views.html.sa_printing_preference_verify_email,
   accountDetailsPrintingPreferenceConfirm: views.html.account_details_printing_preference_confirm,
+  changeLanguage: views.html.change_language,
   mcc: MessagesControllerComponents)(implicit ec: ExecutionContext)
     extends FrontendController(mcc) with OptInCohortCalculator with I18nSupport with WithAuthRetrievals
     with LanguageHelper {
@@ -444,6 +434,47 @@ class ChoosePaperlessController @Inject()(
         implicit val hostContextImplicit = hostContext
         Future.successful(
           Ok(accountDetailsPrintingPreferenceConfirm(calculateCohort(hostContext), emailAddress.map(_.decryptedValue))))
+      }
+    }
+
+  def displayLanguageForm(
+    hostContext: HostContext
+  ): Action[AnyContent] = Action.async { implicit request =>
+    withAuthenticatedRequest { implicit authRequest: AuthenticatedRequest[AnyContent] => implicit hc =>
+      Future.successful(
+        Ok(
+          changeLanguage(
+            languageForm =
+              LanguageForm().fill(LanguageForm.Data(language = hostContext.language.map(_ == Language.Welsh))),
+            submitLanguageFormAction = internal.routes.ChoosePaperlessController.submitLanguageForm(hostContext)
+          )
+        )
+      )
+
+    }
+  }
+
+  def submitLanguageForm(implicit hostContext: HostContext) =
+    Action.async { implicit request =>
+      withAuthenticatedRequest { authRequest: AuthenticatedRequest[_] => implicit hc =>
+        LanguageForm().bindFromRequest.fold[Future[Result]](
+          formWithErrors => Future.successful(BadRequest("Unable to submit the form.")),
+          happyForm => {
+            val lang = happyForm.language.fold[Language](Language.English)(isWelsh =>
+              if (isWelsh) Language.Welsh else Language.English)
+            entityResolverConnector
+              .updateTermsAndConditions(TermsAndConditionsUpdate.fromLanguage(lang))(
+                hc,
+                hostContext.copy(language = Some(lang))
+              )
+              .map { preferencesStatus =>
+                Redirect(
+                  partial.paperless.routes.PaperlessPartialController
+                    .displayManagePaperlessPartial(hostContext.copy(language = Some(lang)))
+                )
+              }
+          }
+        )
       }
     }
 }

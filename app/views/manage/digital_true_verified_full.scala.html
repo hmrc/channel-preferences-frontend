@@ -1,0 +1,102 @@
+@*
+ * Copyright 2020 HM Revenue & Customs
+ *
+ *@
+
+@import controllers.auth.AuthenticatedRequest
+
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+
+@import uk.gov.hmrc.play.views.html.helpers._
+
+@import model.Language
+
+@this(mainWithHeaders: views.html.main_with_headers, govukSummaryList : GovukSummaryList, externalUrlPrefixes: ExternalUrlPrefixes)
+
+@(email: connectors.EmailPreference)(implicit request : AuthenticatedRequest[_],messages: Messages, hostContext: model.HostContext)
+
+@import uk.gov.hmrc.urls.Link
+@import model.Encrypted
+@import uk.gov.hmrc.emailaddress.EmailAddress
+@import uk.gov.hmrc.play.views.html.helpers._
+
+@import controllers.ExternalUrlPrefixes
+
+@mainWithHeaders(title = Messages("sa_printing_preferences.confirm_correct_email.title")) {
+
+        <h1 id="saCheckSettings">@Messages("manage.paperless.header")</h1>
+
+        <h2>@Messages("manage.paperless.contact.header")</h2>
+
+    @govukSummaryList(SummaryList(
+        rows = Seq(
+            SummaryListRow(
+                key = Key(
+                    content = Text(Messages("manage.paperless.contact.taxdoc.1"))
+                ),
+                value = Value(
+                    content = Text(Messages("manage.paperless.contact.taxdoc.2"))
+                ),
+                actions = Some(Actions(
+                    items = Seq(
+                        ActionItem(
+                            href = externalUrlPrefixes.pfUrlPrefix + controllers.internal.routes.ChoosePaperlessController.redirectToDisplayFormWithCohort(None, hostContext),
+                            content = Text(Messages("manage.paperless.change"))
+                        )
+                    )
+                ))
+            ),
+            SummaryListRow(
+                key = Key(
+                    content = Text(Messages("manage.paperless.contact.language.1"))
+                ),
+                value = Value(
+                    content =
+                          hostContext.language.fold(Text(Messages("manage.paperless.contact.language.2_en")))
+                              (l => if (l == Language.English) {
+                                        Text(Messages("manage.paperless.contact.language.2_en"))
+                              } else {
+                                        Text(Messages("manage.paperless.contact.language.2_cy"))
+
+                              }
+                )
+                ),
+                actions = Some(Actions(
+                    items = Seq(
+                        ActionItem(
+                            href = externalUrlPrefixes.pfUrlPrefix + controllers.internal.routes.ChoosePaperlessController.displayLanguageForm(hostContext),
+                            content = Text(Messages("manage.paperless.change"))
+                        )
+                    )
+                ))
+            )
+        )))
+
+
+        <h2>@Messages("manage.paperless.contact.details.header")</h2>
+        @govukSummaryList(SummaryList(
+            rows = Seq(
+                SummaryListRow(
+                    key = Key(
+                        content = Text(Messages("manage.paperless.contact.details.email.1"))
+                    ),
+                    value = Value(
+                        content = Text(email.email)
+                    ),
+                    actions = Some(Actions(
+                        items = Seq(
+                            ActionItem(
+                                href = externalUrlPrefixes.pfUrlPrefix + controllers.internal.routes.ManagePaperlessController.displayChangeEmailAddress(None, hostContext),
+                                content = Text(Messages("manage.paperless.change"))
+                            )
+                        )
+                    ))
+                )
+            )))
+
+    @GovukButton(Button(
+        href = Some(hostContext.returnUrl),
+        classes = "govuk-button",
+        content = Text(hostContext.returnLinkText)
+    ))
+}

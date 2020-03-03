@@ -1,17 +1,6 @@
 /*
  * Copyright 2020 HM Revenue & Customs
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  */
 
 package model
@@ -24,7 +13,8 @@ case class HostContext(
   returnLinkText: String,
   termsAndConditions: Option[String] = None,
   email: Option[String] = None,
-  alreadyOptedInUrl: Option[String] = None) {
+  alreadyOptedInUrl: Option[String] = None,
+  language: Option[Language] = None) {
   val isTaxCredits = termsAndConditions.fold(false)(_ == "taxCredits")
 }
 
@@ -39,11 +29,12 @@ object HostContext {
         val termsAndConditionsOptionResult = stringBinder.bind("termsAndConditions", params).liftDecryptedOption
         val emailOptionResult = stringBinder.bind("email", params).liftDecryptedOption
         val alreadyOptedInUrl = stringBinder.bind("alreadyOptedInUrl", params).liftDecryptedOption
+        val languageResult = stringBinder.bind("language", params).liftDecryptedOption
 
-        (returnUrlResult, returnLinkTextResult, termsAndConditionsOptionResult, emailOptionResult) match {
-          case (Some(Right(returnUrl)), Some(Right(returnLinkText)), Some("taxCredits"), None) =>
+        (returnUrlResult, returnLinkTextResult, termsAndConditionsOptionResult, emailOptionResult, languageResult) match {
+          case (Some(Right(returnUrl)), Some(Right(returnLinkText)), Some("taxCredits"), None, _) =>
             Some(Left("TaxCredits must provide email"))
-          case (Some(Right(returnUrl)), Some(Right(returnLinkText)), terms, email) =>
+          case (Some(Right(returnUrl)), Some(Right(returnLinkText)), terms, email, lang) =>
             Some(
               Right(
                 HostContext(
@@ -51,9 +42,10 @@ object HostContext {
                   returnLinkText = returnLinkText.decryptedValue,
                   termsAndConditions = terms,
                   email = email,
-                  alreadyOptedInUrl = alreadyOptedInUrl
+                  alreadyOptedInUrl = alreadyOptedInUrl,
+                  language = lang.map(Language.withNameInsensitiveOption(_)).flatten
                 )))
-          case (maybeReturnUrlError, maybeReturnLinkTextError, _, _) =>
+          case (maybeReturnUrlError, maybeReturnLinkTextError, _, _, _) =>
             val errorMessage = Seq(
               extractError(maybeReturnUrlError, Some("No returnUrl query parameter")),
               extractError(maybeReturnLinkTextError, Some("No returnLinkText query parameter"))
@@ -80,9 +72,15 @@ object HostContext {
           }
         }
 
+        val languageString: String = {
+          value.language.fold("") { lang =>
+            "&" + stringBinder.unbind("language", Encrypted(lang.entryName))
+          }
+        }
+
         stringBinder.unbind("returnUrl", Encrypted(value.returnUrl)) + "&" +
           stringBinder.unbind("returnLinkText", Encrypted(value.returnLinkText)) +
-          termsAndEmailString
+          termsAndEmailString + languageString
       }
     }
 

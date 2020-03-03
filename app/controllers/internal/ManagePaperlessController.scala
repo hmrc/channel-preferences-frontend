@@ -1,17 +1,6 @@
 /*
  * Copyright 2020 HM Revenue & Customs
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  */
 
 package controllers.internal
@@ -33,6 +22,7 @@ import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
 import scala.concurrent.{ExecutionContext, Future}
 
+import views.html.manage._
 
 class ManagePaperlessController @Inject()(
                                            entityResolverConnector: EntityResolverConnector,
@@ -47,6 +37,10 @@ class ManagePaperlessController @Inject()(
                                            accountDetailsUpdateEmailAddress: views.html.account_details_update_email_address,
                                            accountDetailsUpdateEmailAddressVerifyEmail: views.html.account_details_update_email_address_verify_email,
                                            accountDetailsUpdateEmailAddressThankYou: views.html.account_details_update_email_address_thank_you,
+                                           digitalFalseFull: digital_false_full,
+                                           digitalTrueBouncedFull: digital_true_bounced_full,
+                                           digitalTrueVerifiedFull: digital_true_verified_full,
+                                           digitalTruePendingFull: digital_true_pending_full,
                                            mcc: MessagesControllerComponents)(implicit ec: ExecutionContext)
   extends FrontendController(mcc) with OptInCohortCalculator with I18nSupport with WithAuthRetrievals with LanguageHelper {
 
@@ -170,5 +164,23 @@ class ManagePaperlessController @Inject()(
     }
   }
 
+  def checkSettings(implicit hostContext: HostContext): Action[AnyContent] = Action.async { implicit request =>
+    withAuthenticatedRequest { implicit withAuthenticatedRequest: AuthenticatedRequest[_] => implicit hc =>
+      entityResolverConnector.getPreferences() map { pref =>
+        Ok(pref match {
+          case p @ Some(PreferenceResponse(map, Some(email))) if (p.exists(_.genericTermsAccepted)) =>
+            (email.hasBounces, email.isVerified) match {
+              case (true, _) => digitalTrueBouncedFull(email)
+              case (_, true) => digitalTrueVerifiedFull(email)
+              case _         => digitalTruePendingFull(email)
+            }
+          case p @ Some(PreferenceResponse(_, email)) =>
+            val encryptedEmail = email map (emailPreference => Encrypted(EmailAddress(emailPreference.email)))
+            digitalFalseFull()
+          case _ => digitalFalseFull()
+        })
+      }
+    }
+  }
 }
 
