@@ -1,0 +1,39 @@
+@*
+ * Copyright 2020 HM Revenue & Customs
+ *
+ *@
+
+@import controllers.auth.AuthenticatedRequest
+@import uk.gov.hmrc.play.views.html.helpers._
+@import views.sa.prefs.helpers.DateFormat.longDateFormat
+
+@this(externalUrlPrefixes: ExternalUrlPrefixes, digitalTrueLinks: digital_true_links, mainWithHeaders: views.html.main_with_headers)
+
+@(emailPref: connectors.EmailPreference)(implicit request: AuthenticatedRequest[_], messages: Messages, hostContext: model.HostContext)
+
+@resendVerificationEmailLink = @{externalUrlPrefixes.pfUrlPrefix + controllers.internal.routes.ManagePaperlessController.resendVerificationEmail(hostContext).url}
+@changeEmailAddressLink = @{externalUrlPrefixes.pfUrlPrefix + controllers.internal.routes.ManagePaperlessController.displayChangeEmailAddress(None, hostContext).url}
+
+@mainWithHeaders(title = Messages("manage.paperless.email.notification.header")) {
+
+ <h1>@Messages("manage.paperless.email.notification.verify.header")</h1>
+
+ <p>@Html(Messages("manage.paperless.email.find", emailPref.email, longDateFormat(emailPref.linkSent).getOrElse("")))</p>
+
+ <p>@Messages("manage.paperless.email.need.verify.hint")</p>
+
+ <p><strong>@Messages("manage.paperless.email.cannot.find.verification")</strong></p>
+
+ <p>@Messages("manage.paperless.email.you.can")</p>
+
+ @form(action = play.api.mvc.Call("POST", resendVerificationEmailLink)) {
+   <li><button id="resend-email-button" class="button--link-style" type="submit" data-journey-click="self-assessment-preferences-page:Click:Send a new verification email">@Messages("manage.paperless.email.send.new.verification")</button></li>
+ }
+ <li><a class="govuk-link" href=@changeEmailAddressLink>@Messages("manage.paperless.change.email")</a></li>
+
+ <p><strong>@Messages("manage.paperless.email.use.header")</strong></p>
+
+ <p>@Messages("manage.paperless.email.use.explanation")</p>
+
+}
+

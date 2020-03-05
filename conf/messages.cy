@@ -100,12 +100,22 @@ manage.paperless.email.need.verify=Mae angen i chi ddilysu'ch cyfeiriad e-bost.
 manage.paperless.email.sent_to=Anfonwyd e-bost at
 manage.paperless.email.click_on_link=ar {0}. Cliciwch ar y cysylltiad yn yr e-bost er mwyn dilysu''ch cyfeiriad e-bost.
 manage.paperless.email.cannot.find=Os na allwch ddod o hyd iddo,
-manage.paperless.email.send.new.verification=gallwch gael e-bost newydd wedi''i anfon atoch o
+manage.paperless.email.send.new.verification=Gallwch gael e-bost newydd wedi''i anfon atoch o
 
 manage.paperless.verified.header=Cyfeiriad e-bost ar gyfer cyfathrebu''n ddigidol â CThEM
 manage.paperless.verified.sent_to=Anfonir e-byst at:
 
 manage.paperless.problem.header=Mae yna broblem
+
+manage.paperless.email.notification.verify.header=Sut i ddilysu’ch cyfeiriad e-bost
+manage.paperless.email.find=Gwnaethom anfon e-bost dilysu i {0} ar {1}. I ddod o hyd iddo, chwiliwch drwy’ch ffolderi e-bost am: ''Dilyswch eich cyfeiriad e-bost''.
+manage.paperless.email.need.verify.hint=Mae’n rhaid i chi ddilyn y cysylltiad yn eich e-bost dilysu cyn i chi allu cael e-byst a chael eich llythyrau treth ar-lein.
+manage.paperless.email.cannot.find.verification=Os na allwch ddod o hyd i’ch e-bost dilysu
+manage.paperless.email.you.can=Gallwch wneud y canlynol:
+manage.paperless.email.send.new.verif=gofyn am e-bost dilysu newydd
+manage.paperless.email.change-email-address-link=newid eich cyfeiriad e-bost
+manage.paperless.email.use.header=Pam y mae angen i mi roi fy e-bost i CThEM?
+manage.paperless.email.use.explanation=Byddwn bob amser yn rhoi gwybod i chi drwy e-bost pan fydd gennych lythyr treth ar-lein yn aros amdanoch.
 
 paperless.warnings.bounced.header=Mae yna broblem gyda''ch e-byst hysbysu di-bapur
 paperless.warnings.bounced.urgent=Ar frys

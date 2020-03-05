@@ -53,7 +53,7 @@ class ManagePaperlessPartialSpec
       managePaperlessPartial(Some(saPreference)).body must (
         include("Email for paperless notifications") and
           include(emailPreferences.email) and
-          include("send a new verification email") and
+          include("Send a new verification email") and
           include(linkTo(routes.ManagePaperlessController.resendVerificationEmail(hostContext))) and
           include(linkTo(routes.ManagePaperlessController.displayStopPaperless(hostContext))) and
           include(linkTo(routes.ManagePaperlessController.displayChangeEmailAddress(None, hostContext))) and

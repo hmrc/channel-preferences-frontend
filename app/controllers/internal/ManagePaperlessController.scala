@@ -16,7 +16,6 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
@@ -41,6 +40,7 @@ class ManagePaperlessController @Inject()(
                                            digitalTrueBouncedFull: digital_true_bounced_full,
                                            digitalTrueVerifiedFull: digital_true_verified_full,
                                            digitalTruePendingFull: digital_true_pending_full,
+                                           howToVerifyEmail:      views.html.how_to_verify_email,
                                            mcc: MessagesControllerComponents)(implicit ec: ExecutionContext)
   extends FrontendController(mcc) with OptInCohortCalculator with I18nSupport with WithAuthRetrievals with LanguageHelper {
 
@@ -101,6 +101,12 @@ class ManagePaperlessController @Inject()(
   private[controllers] def _displayChangeEmailAddressConfirmed(implicit request: AuthenticatedRequest[_], hostContext: HostContext, hc: HeaderCarrier): Future[Result] = {
     lookupCurrentEmail(email => Future.successful(Ok(accountDetailsUpdateEmailAddressThankYou(email.obfuscated))))
   }
+
+  private[controllers] def _displayHowToVerifyEmail(emailPref: EmailPreference)
+                                                   (implicit request: AuthenticatedRequest[_], hostContext: HostContext): Result = {
+    Ok(howToVerifyEmail(emailPref))
+  }
+
 
   def displayChangeEmailAddress(implicit emailAddress: Option[Encrypted[EmailAddress]], hostContext: HostContext): Action[AnyContent] = Action.async {
     implicit request =>
@@ -182,5 +188,19 @@ class ManagePaperlessController @Inject()(
       }
     }
   }
+
+  def howToVerifyEmail(implicit hostContext: HostContext): Action[AnyContent] = Action.async { implicit request =>
+    withAuthenticatedRequest { implicit withAuthenticatedRequest: AuthenticatedRequest[_] =>
+      implicit hc =>
+        entityResolverConnector.getPreferences().map {
+          case None => NotFound
+          case Some(pref) => pref.email match {
+            case None => NotFound
+            case Some(emailPref) => _displayHowToVerifyEmail(emailPref)
+          }
+        }
+    }
+  }
+
 }
 

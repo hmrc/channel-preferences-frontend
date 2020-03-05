@@ -9,6 +9,7 @@ GET         /paperless/preferences                                              
 GET         /paperless/email-address/change                                         controllers.internal.ManagePaperlessController.displayChangeEmailAddress(email: Option[model.EncryptedEmail], hostContext: model.HostContext)
 POST        /paperless/email-address/change                                         controllers.internal.ManagePaperlessController.submitChangeEmailAddress(hostContext: model.HostContext)
 GET         /paperless/email-address/change/confirmed                               controllers.internal.ManagePaperlessController.displayChangeEmailAddressConfirmed(hostContext: model.HostContext)
+GET         /paperless/email-address/how-to-verify                                  controllers.internal.ManagePaperlessController.howToVerifyEmail(hostContext: model.HostContext)
 
 GET         /paperless/stop                                                         controllers.internal.ManagePaperlessController.displayStopPaperless(hostContext: model.HostContext)
 POST        /paperless/stop                                                         controllers.internal.ManagePaperlessController.submitStopPaperless(hostContext: model.HostContext)

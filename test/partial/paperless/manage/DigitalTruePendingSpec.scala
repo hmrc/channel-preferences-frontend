@@ -47,7 +47,7 @@ class DigitalTruePendingSpec extends PlaySpec with GuiceOneAppPerSuite with Lang
         .get(2)
         .toString() mustBe s" on ${formattedLocalDate.get}. Click on the link in the email to verify your email address."
       document.getElementsByTag("p").get(2).childNodes().get(0).toString() mustBe " If you can't find it, we can "
-      document.getElementById("resend-email-button").text() mustBe "send a new verification email"
+      document.getElementById("resend-email-button").text() mustBe "Send a new verification email"
     }
 
     "render the correct content in welsh" in {
@@ -74,7 +74,7 @@ class DigitalTruePendingSpec extends PlaySpec with GuiceOneAppPerSuite with Lang
         .get(2)
         .toString() mustBe s" ar ${formattedLocalDate.get}. Cliciwch ar y cysylltiad yn yr e-bost er mwyn dilysu'ch cyfeiriad e-bost."
       document.getElementsByTag("p").get(2).childNodes().get(0).toString() mustBe " Os na allwch ddod o hyd iddo, "
-      document.getElementById("resend-email-button").text() mustBe "gallwch gael e-bost newydd wedi'i anfon atoch o"
+      document.getElementById("resend-email-button").text() mustBe "Gallwch gael e-bost newydd wedi'i anfon atoch o"
     }
   }
 }
