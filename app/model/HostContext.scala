@@ -18,7 +18,7 @@ case class HostContext(
 }
 
 object HostContext {
-
+  
   implicit def hostContextBinder(
     implicit stringBinder: QueryStringBindable[Encrypted[String]]): QueryStringBindable[HostContext] =
     new QueryStringBindable[HostContext] {

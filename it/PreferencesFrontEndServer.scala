@@ -10,7 +10,7 @@ import org.scalatest.concurrent.{ IntegrationPatience, ScalaFutures }
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import org.scalatestplus.play.{ PlaySpec, WsScalaTestClient }
 import play.api.libs.json.Json
-import play.api.libs.ws.WSClient
+import play.api.libs.ws.{ WSClient, WSRequest }
 import uk.gov.hmrc.crypto.{ ApplicationCrypto, PlainText }
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.http.{ HeaderCarrier, SessionKeys }
@@ -129,7 +129,9 @@ class TestCase
                                                                                               |}""".stripMargin))
   }
 
-  def `/paperless/warnings` = urlWithHostContext("/paperless/warnings")()
+  def `/paperless/warnings`: WSRequest = urlWithHostContext("/paperless/warnings")()
+
+  def `/paperless/status`: WSRequest = urlWithHostContext("/paperless/status")()
 }
 
 trait TestCaseWithFrontEndAuthentication extends TestCase with SessionCookieEncryptionSupport {

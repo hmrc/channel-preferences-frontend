@@ -12,7 +12,7 @@ import model.HostContext
 import partial.paperless.manage.ManagePaperlessPartial
 import partial.paperless.warnings.PaperlessWarningPartial
 import play.api.i18n.I18nSupport
-import play.api.mvc.MessagesControllerComponents
+import play.api.mvc.{ Action, AnyContent, MessagesControllerComponents }
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
@@ -26,15 +26,15 @@ class PaperlessPartialController @Inject()(
   mcc: MessagesControllerComponents)(implicit ec: ExecutionContext)
     extends FrontendController(mcc) with I18nSupport with WithAuthRetrievals {
 
-  def displayManagePaperlessPartial(implicit returnUrl: HostContext) = Action.async { request =>
+  def displayManagePaperlessPartial(implicit returnUrl: HostContext): Action[AnyContent] = Action.async { request =>
     withAuthenticatedRequest { implicit authenticatedRequest: AuthenticatedRequest[_] => implicit hc: HeaderCarrier =>
-      entityResolverConnector.getPreferences() map { pref =>
-        Ok(managePaperlessPartial(prefs = pref))
+      entityResolverConnector.getPreferences().map { pref =>
+        Ok(managePaperlessPartial(pref))
       }
     }(request, ec)
   }
 
-  def displayPaperlessWarningsPartial(implicit hostContext: HostContext) = Action.async { request =>
+  def displayPaperlessWarningsPartial(implicit hostContext: HostContext): Action[AnyContent] = Action.async { request =>
     withAuthenticatedRequest { implicit authenticatedRequest: AuthenticatedRequest[_] => implicit hc: HeaderCarrier =>
       entityResolverConnector.getPreferences().map {
         case None => NotFound
