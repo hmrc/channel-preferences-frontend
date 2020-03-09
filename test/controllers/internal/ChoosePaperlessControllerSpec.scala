@@ -1342,12 +1342,16 @@ class ChoosePaperlessControllerSpecTC
 
   "The language form" should {
 
-    "render english radio button checked for undefiend langauge in the hostContext" in new ChoosePaperlessControllerSetup {
+    "render english radio button checked for undefiend preferences" in new ChoosePaperlessControllerSetup {
+
+      when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(
+        Future.successful(None)
+      )
+
       val page = controller.displayLanguageForm(
         HostContext(
           returnUrl = "someReturnUrl",
-          returnLinkText = "someReturnLinkText",
-          language = None
+          returnLinkText = "someReturnLinkText"
         )
       )(request)
 
@@ -1359,12 +1363,22 @@ class ChoosePaperlessControllerSpecTC
       document.getElementById("lang-2").attributes().hasKey("checked") must be(false)
     }
 
-    "render english radio button checked for English in the hostContext" in new ChoosePaperlessControllerSetup {
+    "render english radio button checked for English in preferences" in new ChoosePaperlessControllerSetup {
+      when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(
+        Future.successful(
+          Some(
+            PreferenceResponse(
+              termsAndConditions = Map(),
+              email = Some(EmailPreference("test@test.com", false, false, false, None, Language.English))
+            )
+          )
+        )
+      )
+
       val page = controller.displayLanguageForm(
         HostContext(
           returnUrl = "someReturnUrl",
-          returnLinkText = "someReturnLinkText",
-          language = Some(Language.English)
+          returnLinkText = "someReturnLinkText"
         )
       )(request)
 
@@ -1376,12 +1390,21 @@ class ChoosePaperlessControllerSpecTC
       document.getElementById("lang-2").attributes().hasKey("checked") must be(false)
     }
 
-    "render welsh radio button checked for Welsh in the hostContext" in new ChoosePaperlessControllerSetup {
+    "render welsh radio button checked for Welsh in preferences" in new ChoosePaperlessControllerSetup {
+      when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(
+        Future.successful(
+          Some(
+            PreferenceResponse(
+              termsAndConditions = Map(),
+              email = Some(EmailPreference("test@test.com", false, false, false, None, Language.Welsh))
+            )
+          )
+        )
+      )
       val page = controller.displayLanguageForm(
         HostContext(
           returnUrl = "someReturnUrl",
-          returnLinkText = "someReturnLinkText",
-          language = Some(Language.Welsh)
+          returnLinkText = "someReturnLinkText"
         )
       )(request)
 
@@ -1399,15 +1422,14 @@ class ChoosePaperlessControllerSpecTC
 
       val requestHostContext = HostContext(
         returnUrl = "someReturnUrl",
-        returnLinkText = "someReturnLinkText",
-        language = Some(Language.English)
+        returnLinkText = "someReturnLinkText"
       )
 
       when(
         mockEntityResolverConnector
           .updateTermsAndConditions(meq(TermsAndConditionsUpdate.fromLanguage(Language.Welsh)))(
             any(),
-            meq(requestHostContext.copy(language = Some(Language.Welsh))))
+            meq(requestHostContext))
       ).thenReturn(Future.successful(PreferencesCreated))
 
       val page =
@@ -1421,14 +1443,13 @@ class ChoosePaperlessControllerSpecTC
 
       val requestHostContext = HostContext(
         returnUrl = "someReturnUrl",
-        returnLinkText = "someReturnLinkText",
-        language = Some(Language.Welsh)
+        returnLinkText = "someReturnLinkText"
       )
       when(
         mockEntityResolverConnector
           .updateTermsAndConditions(meq(TermsAndConditionsUpdate.fromLanguage(Language.English)))(
             any(),
-            meq(requestHostContext.copy(language = Some(Language.English))))
+            meq(requestHostContext))
       ).thenReturn(Future.successful(PreferencesCreated))
 
       val page =
@@ -1442,8 +1463,7 @@ class ChoosePaperlessControllerSpecTC
 
       val requestHostContext = HostContext(
         returnUrl = "someReturnUrl",
-        returnLinkText = "someReturnLinkText",
-        language = Some(Language.Welsh)
+        returnLinkText = "someReturnLinkText"
       )
       val page =
         controller.submitLanguageForm(requestHostContext)(FakeRequest().withFormUrlEncodedBody("language" -> "foobar"))

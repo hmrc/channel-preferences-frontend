@@ -217,7 +217,8 @@ class PaperlessWarningPartialSpec
                |    "isVerified": $isVerified,
                |    "hasBounces": $hasBounces,
                |    "mailboxFull": false,
-               |    "status": "verified"
+               |    "status": "verified",
+               |    "language": "en"
                |  },
                |  "digital": true
                |}""".stripMargin
@@ -238,7 +239,8 @@ class PaperlessWarningPartialSpec
                |    "isVerified": $isVerified,
                |    "hasBounces": $hasBounces,
                |    "mailboxFull": false,
-               |    "status": "verified"
+               |    "status": "verified",
+               |    "language": "en"
                |  },
                |  "digital": true
                |}""".stripMargin

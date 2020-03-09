@@ -6,7 +6,7 @@
 @import org.joda.time.DateTime
 @import controllers.auth.AuthenticatedRequest
 @this(mainWithHeaders: views.html.main_with_headers)
-@(languageForm: Form[_], submitLanguageFormAction: Call)(implicit request: AuthenticatedRequest[_], messages: Messages)
+@(languageForm: Form[_], submitLanguageFormAction: Call)(implicit request: AuthenticatedRequest[_], messages: Messages, hostContext: model.HostContext)
 
 @import uk.gov.hmrc.urls.Link
 @import uk.gov.hmrc.play.views.html.helpers._
@@ -55,7 +55,7 @@
 
     @GovukButton(Button(
         classes = "govuk-button",
-        content = Text(Messages("sa_printing_preference.submitButton"))
+        content = Text(hostContext.returnLinkText)
       ))
   }
 }

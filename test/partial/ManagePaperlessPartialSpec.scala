@@ -150,7 +150,8 @@ class ManagePaperlessPartialSpec
              |    "isVerified": true,
              |    "hasBounces": false,
              |    "mailboxFull": false,
-             |    "status": "verified"
+             |    "status": "verified",
+             |    "language": "en"
              |  },
              |  "digital": true
              |}""".stripMargin

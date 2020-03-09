@@ -15,9 +15,9 @@ object PaperlessWarningPartial {
     implicit request: Request[_],
     messages: Messages) =
     prefs match {
-      case PreferenceResponse(_, Some(EmailPreference(_, false, true, mailBoxFull, _))) if prefs.genericTermsAccepted =>
+      case PreferenceResponse(_, Some(EmailPreference(_, false, true, mailBoxFull, _, _))) if prefs.genericTermsAccepted =>
         html.bounced_email(mailBoxFull, returnUrl, returnLinkText)
-      case PreferenceResponse(_, Some(email @ EmailPreference(_, false, _, _, _))) if prefs.genericTermsAccepted =>
+      case PreferenceResponse(_, Some(email @ EmailPreference(_, false, _, _, _, _))) if prefs.genericTermsAccepted =>
         html.pending_email_verification(email, returnUrl, returnLinkText)
       case _ => HtmlFormat.empty
     }

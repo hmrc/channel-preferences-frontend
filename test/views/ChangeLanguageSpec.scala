@@ -30,7 +30,7 @@ class ChangeLanguageSpec extends PlaySpec with GuiceOneAppPerSuite with Language
     val form = LanguageForm()
     "render the correct content in english" in {
       val document =
-        Jsoup.parse(template(form, Call("/myurl", "GET"))(authRequest, messagesInEnglish()).toString())
+        Jsoup.parse(template(form, Call("/myurl", "GET"))(authRequest, messagesInEnglish(), TestFixtures.sampleHostContext).toString())
       document
         .getElementsByClass("govuk-fieldset__heading")
         .first()
@@ -39,7 +39,7 @@ class ChangeLanguageSpec extends PlaySpec with GuiceOneAppPerSuite with Language
 
     "render the correct content in welsh" in {
       val document =
-        Jsoup.parse(template(form, Call("/myurl", "GET"))(authRequest, messagesInWelsh()).toString())
+        Jsoup.parse(template(form, Call("/myurl", "GET"))(authRequest, messagesInWelsh(),TestFixtures.sampleHostContext).toString())
 
       document
         .getElementsByClass("govuk-fieldset__heading")

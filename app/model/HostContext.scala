@@ -13,8 +13,7 @@ case class HostContext(
   returnLinkText: String,
   termsAndConditions: Option[String] = None,
   email: Option[String] = None,
-  alreadyOptedInUrl: Option[String] = None,
-  language: Option[Language] = None) {
+  alreadyOptedInUrl: Option[String] = None) {
   val isTaxCredits = termsAndConditions.fold(false)(_ == "taxCredits")
 }
 
@@ -42,8 +41,7 @@ object HostContext {
                   returnLinkText = returnLinkText.decryptedValue,
                   termsAndConditions = terms,
                   email = email,
-                  alreadyOptedInUrl = alreadyOptedInUrl,
-                  language = lang.map(Language.withNameInsensitiveOption(_)).flatten
+                  alreadyOptedInUrl = alreadyOptedInUrl
                 )))
           case (maybeReturnUrlError, maybeReturnLinkTextError, _, _, _) =>
             val errorMessage = Seq(
@@ -72,15 +70,10 @@ object HostContext {
           }
         }
 
-        val languageString: String = {
-          value.language.fold("") { lang =>
-            "&" + stringBinder.unbind("language", Encrypted(lang.entryName))
-          }
-        }
 
         stringBinder.unbind("returnUrl", Encrypted(value.returnUrl)) + "&" +
           stringBinder.unbind("returnLinkText", Encrypted(value.returnLinkText)) +
-          termsAndEmailString + languageString
+          termsAndEmailString
       }
     }
 

@@ -76,7 +76,7 @@ class HostContextSpec extends WordSpec with Matchers with GuiceOneAppPerSuite wi
     "read the language if present" in {
       model.HostContext.hostContextBinder
         .bind("anyValName", Map(validReturnUrl, validReturnLinkText, validWelshLanguage)) should contain(
-        Right(HostContext(returnUrl = "foo", returnLinkText = "bar", language = Some(Language.Welsh)))
+        Right(HostContext(returnUrl = "foo", returnLinkText = "bar"))
       )
     }
   }
@@ -88,17 +88,5 @@ class HostContextSpec extends WordSpec with Matchers with GuiceOneAppPerSuite wi
         "returnUrl=Wa6yuBSzGvUaibkXblJ8aQ%3D%3D&returnLinkText=w%2FPwaxV%2BKgqutfsU0cyrJQ%3D%3D"
       )
     }
-
-    "write out all parameters with language" in {
-
-      model.HostContext.hostContextBinder
-        .unbind(
-          "anyValName",
-          HostContext(returnUrl = "foo&value", returnLinkText = "bar", language = Some(Language.Welsh))
-        ) should be(
-        "returnUrl=Wa6yuBSzGvUaibkXblJ8aQ%3D%3D&returnLinkText=w%2FPwaxV%2BKgqutfsU0cyrJQ%3D%3D&language=5W0FAIi6JRZBSf4%2FhwE00w%3D%3D"
-      )
-    }
-
   }
 }

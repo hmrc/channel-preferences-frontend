@@ -28,7 +28,7 @@ GET         /paperless/choose/:cohort                                           
 POST        /paperless/choose                                                       controllers.internal.ChoosePaperlessController.submitForm(hostContext: model.HostContext)
 
 GET         /paperless/language-choose                                              controllers.internal.ChoosePaperlessController.displayLanguageForm(hostContext: model.HostContext)
-POST        /paperless/langauge-choose                                              controllers.internal.ChoosePaperlessController.submitLanguageForm(hostContext: model.HostContext)
+POST        /paperless/language-choose                                              controllers.internal.ChoosePaperlessController.submitLanguageForm(hostContext: model.HostContext)
 
 GET         /sa/print-preferences/:token                                            @controllers.filing.FilingInterceptController.redirectWithEmailAddress(token: String, return_url: String, emailAddress: Option[model.EncryptedEmail])
 GET         /sa/print-preferences/verification/:token                               @controllers.external.EmailValidationController.verify(token: String)

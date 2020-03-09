@@ -30,6 +30,7 @@ import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
 import scala.concurrent.{ ExecutionContext, Future }
 
+
 class ChoosePaperlessController @Inject()(
   entityResolverConnector: EntityResolverConnector,
   emailConnector: EmailConnector,
@@ -438,19 +439,18 @@ class ChoosePaperlessController @Inject()(
     }
 
   def displayLanguageForm(
-    hostContext: HostContext
+    implicit hostContext: HostContext
   ): Action[AnyContent] = Action.async { implicit request =>
     withAuthenticatedRequest { implicit authRequest: AuthenticatedRequest[AnyContent] => implicit hc =>
-      Future.successful(
+      entityResolverConnector.getPreferences() map { pref =>
         Ok(
           changeLanguage(
             languageForm =
-              LanguageForm().fill(LanguageForm.Data(language = hostContext.language.map(_ == Language.Welsh))),
+              LanguageForm().fill(LanguageForm.Data(language = pref.map(_.lang == Language.Welsh))),
             submitLanguageFormAction = internal.routes.ChoosePaperlessController.submitLanguageForm(hostContext)
           )
         )
-      )
-
+      }
     }
   }
 
@@ -463,15 +463,9 @@ class ChoosePaperlessController @Inject()(
             val lang = happyForm.language.fold[Language](Language.English)(isWelsh =>
               if (isWelsh) Language.Welsh else Language.English)
             entityResolverConnector
-              .updateTermsAndConditions(TermsAndConditionsUpdate.fromLanguage(lang))(
-                hc,
-                hostContext.copy(language = Some(lang))
-              )
+              .updateTermsAndConditions(TermsAndConditionsUpdate.fromLanguage(lang))
               .map { preferencesStatus =>
-                Redirect(
-                  partial.paperless.routes.PaperlessPartialController
-                    .displayManagePaperlessPartial(hostContext.copy(language = Some(lang)))
-                )
+                Redirect(hostContext.returnUrl)
               }
           }
         )

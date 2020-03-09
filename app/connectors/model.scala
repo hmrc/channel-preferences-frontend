@@ -22,6 +22,7 @@ case object ValidationError extends EmailVerificationLinkResponse
 case class ValidationErrorWithReturn(returnLinkText: String, returnUrl: String) extends EmailVerificationLinkResponse
 import play.api.libs.json.JodaReads._
 import play.api.libs.json.JodaWrites.{ JodaDateTimeWrites => _, _ }
+import model.Language
 
 object SaPreferenceSimplified {
   implicit val formats = Json.format[SaPreferenceSimplified]
@@ -90,7 +91,9 @@ case class EmailPreference(
   isVerified: Boolean,
   hasBounces: Boolean,
   mailboxFull: Boolean,
-  linkSent: Option[LocalDate])
+  linkSent: Option[LocalDate],
+  language: Language = Language.English
+)
 
 object EmailPreference {
   implicit val formats = Json.format[EmailPreference]
@@ -127,7 +130,7 @@ object PreferenceResponse {
 
   implicit val formats = OFormat(reads, Json.writes[PreferenceResponse])
 
-  implicit class preferenceOps(saPreference: SaPreference) {
+  implicit class saPreferenceOps(saPreference: SaPreference) {
     def toNewPreference(): PreferenceResponse = {
       def toNewEmail: (SaEmailPreference => EmailPreference) = { saEmail =>
         EmailPreference(
@@ -142,6 +145,10 @@ object PreferenceResponse {
         termsAndConditions = Map("generic" -> TermsAndConditonsAcceptance(saPreference.digital)),
         email = saPreference.email.map(toNewEmail))
     }
+  }
+
+  implicit class preferenceResponseOps(pref: PreferenceResponse) {
+   def lang(): Language = pref.email.map(_.language).getOrElse(Language.English)
   }
 }
 
