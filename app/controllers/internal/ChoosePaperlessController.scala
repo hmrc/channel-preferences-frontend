@@ -151,7 +151,7 @@ class ChoosePaperlessController @Inject()(
           hasErrors = formwithErrors,
           happyForm =>
             if (happyForm.optedIn.contains(false))
-              saveAndAuditPreferences(digital = false, email = None, IPage, false, Some(svc), Some(token), lang)(
+              saveAndAuditPreferences(digital = false, email = None, IPage, false, Some(svc), Some(token), Some(lang))(
                 authRequest,
                 hostContext,
                 hc)
@@ -167,7 +167,7 @@ class ChoosePaperlessController @Inject()(
                       IPage,
                       Some(svc),
                       Some(token),
-                      lang
+                      Some(lang)
                     )(authRequest, hostContext, hc)
                   case _ =>
                     formwithErrors(OptInDetailsForm().bindFromRequest)
@@ -196,7 +196,7 @@ class ChoosePaperlessController @Inject()(
                 false,
                 None,
                 None,
-                languagePreference = lang)
+                languagePreference = Some(lang))
             else
               OptInTaxCreditsDetailsForm().bindFromRequest.fold[Future[Result]](
                 hasErrors = formwithErrors,
@@ -210,7 +210,7 @@ class ChoosePaperlessController @Inject()(
                       cohort,
                       None,
                       None,
-                      lang)
+                      Some(lang))
                   case _ =>
                     formwithErrors(OptInDetailsForm().bindFromRequest)
                 }
@@ -229,7 +229,7 @@ class ChoosePaperlessController @Inject()(
                 false,
                 None,
                 None,
-                languagePreference = lang)
+                languagePreference = Some(lang))
             else
               OptInDetailsForm().bindFromRequest.fold[Future[Result]](
                 hasErrors = formwithErrors,
@@ -242,7 +242,7 @@ class ChoosePaperlessController @Inject()(
                       cohort,
                       None,
                       None,
-                      languagePreference = lang)
+                      languagePreference = Some(lang))
                   case _ =>
                     formwithErrors(OptInDetailsForm().bindFromRequest)
                 }
@@ -267,7 +267,7 @@ class ChoosePaperlessController @Inject()(
     emailAlreadyStored: Boolean,
     svc: Option[String],
     token: Option[String],
-    languagePreference: Language)(
+    languagePreference: Some[Language])(
     implicit request: AuthenticatedRequest[_],
     hostContext: HostContext,
     hc: HeaderCarrier): Future[Result] = {
@@ -294,7 +294,7 @@ class ChoosePaperlessController @Inject()(
     cohort: OptInCohort,
     svc: Option[String],
     token: Option[String],
-    languagePreference: Language)(
+    languagePreference: Some[Language])(
     implicit request: AuthenticatedRequest[_],
     hostContext: HostContext,
     hc: HeaderCarrier): Future[Result] = {
@@ -446,7 +446,7 @@ class ChoosePaperlessController @Inject()(
         Ok(
           changeLanguage(
             languageForm =
-              LanguageForm().fill(LanguageForm.Data(language = pref.map(_.lang == Language.Welsh))),
+              LanguageForm().fill(LanguageForm.Data(language = pref.map(_.lang.exists(_ == Language.Welsh)))),
             submitLanguageFormAction = internal.routes.ChoosePaperlessController.submitLanguageForm(hostContext)
           )
         )
@@ -463,7 +463,7 @@ class ChoosePaperlessController @Inject()(
             val lang = happyForm.language.fold[Language](Language.English)(isWelsh =>
               if (isWelsh) Language.Welsh else Language.English)
             entityResolverConnector
-              .updateTermsAndConditions(TermsAndConditionsUpdate.fromLanguage(lang))
+              .updateTermsAndConditions(TermsAndConditionsUpdate.fromLanguage(Some(lang)))
               .map { preferencesStatus =>
                 Redirect(hostContext.returnUrl)
               }

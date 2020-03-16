@@ -92,7 +92,7 @@ case class EmailPreference(
   hasBounces: Boolean,
   mailboxFull: Boolean,
   linkSent: Option[LocalDate],
-  language: Language = Language.English
+  language: Option[Language] = None
 )
 
 object EmailPreference {
@@ -148,7 +148,7 @@ object PreferenceResponse {
   }
 
   implicit class preferenceResponseOps(pref: PreferenceResponse) {
-   def lang(): Language = pref.email.map(_.language).getOrElse(Language.English)
+   def lang(): Option[Language] = pref.email.flatMap(_.language)
   }
 }
 

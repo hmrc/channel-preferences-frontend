@@ -1369,7 +1369,7 @@ class ChoosePaperlessControllerSpecTC
           Some(
             PreferenceResponse(
               termsAndConditions = Map(),
-              email = Some(EmailPreference("test@test.com", false, false, false, None, Language.English))
+              email = Some(EmailPreference("test@test.com", false, false, false, None, Some(Language.English)))
             )
           )
         )
@@ -1396,7 +1396,7 @@ class ChoosePaperlessControllerSpecTC
           Some(
             PreferenceResponse(
               termsAndConditions = Map(),
-              email = Some(EmailPreference("test@test.com", false, false, false, None, Language.Welsh))
+              email = Some(EmailPreference("test@test.com", false, false, false, None, Some(Language.Welsh)))
             )
           )
         )
@@ -1427,7 +1427,7 @@ class ChoosePaperlessControllerSpecTC
 
       when(
         mockEntityResolverConnector
-          .updateTermsAndConditions(meq(TermsAndConditionsUpdate.fromLanguage(Language.Welsh)))(
+          .updateTermsAndConditions(meq(TermsAndConditionsUpdate.fromLanguage(Some(Language.Welsh))))(
             any(),
             meq(requestHostContext))
       ).thenReturn(Future.successful(PreferencesCreated))
@@ -1447,7 +1447,7 @@ class ChoosePaperlessControllerSpecTC
       )
       when(
         mockEntityResolverConnector
-          .updateTermsAndConditions(meq(TermsAndConditionsUpdate.fromLanguage(Language.English)))(
+          .updateTermsAndConditions(meq(TermsAndConditionsUpdate.fromLanguage(Some(Language.English))))(
             any(),
             meq(requestHostContext))
       ).thenReturn(Future.successful(PreferencesCreated))

@@ -48,7 +48,7 @@ class ManagePaperlessController @Inject()(
     Ok(optedBackIntoPaperThankYou())
   }
 
-  private[controllers] def _submitStopPaperless(lang: Language)(implicit request: AuthenticatedRequest[_], hostContext: HostContext, hc:HeaderCarrier): Future[Result] =
+  private[controllers] def _submitStopPaperless(lang: Some[Language])(implicit request: AuthenticatedRequest[_], hostContext: HostContext, hc:HeaderCarrier): Future[Result] =
     entityResolverConnector.updateTermsAndConditions(TermsAndConditionsUpdate.from((GenericTerms, TermsAccepted(false)), email = None, false, lang)).map(_ =>
       Redirect(routes.ManagePaperlessController.displayStopPaperlessConfirmed(hostContext))
     )
@@ -152,7 +152,7 @@ class ManagePaperlessController @Inject()(
       implicit withAuthenticatedRequest: AuthenticatedRequest[_] =>
         implicit hc =>
 
-          _submitStopPaperless(lang)
+          _submitStopPaperless(Some(lang))
     }
   }
 

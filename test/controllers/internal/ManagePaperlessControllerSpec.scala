@@ -471,7 +471,7 @@ class ManagePaperlessControllerSpec
           .updateTermsAndConditions(any[TermsAndConditionsUpdate])(any(), any()))
         .thenReturn(Future.successful(PreferencesExists))
 
-      val result = controller._submitStopPaperless(lang = Welsh)(request, TestFixtures.sampleHostContext, hc)
+      val result = controller._submitStopPaperless(lang = Some(Welsh))(request, TestFixtures.sampleHostContext, hc)
 
       status(result) mustBe 303
       header("Location", result).get must include(

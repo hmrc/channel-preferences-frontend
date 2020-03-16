@@ -60,10 +60,10 @@ sealed abstract case class TermsAndConditionsUpdate(
   email: Option[String],
   returnUrl: Option[String] = None,
   returnText: Option[String] = None,
-  language: Language)
+  language: Option[Language])
 
 object TermsAndConditionsUpdate {
-  def from(terms: (TermsType, TermsAccepted), email: Option[String], includeLinkDetails: Boolean, language: Language)(
+  def from(terms: (TermsType, TermsAccepted), email: Option[String], includeLinkDetails: Boolean, language: Some[Language])(
     implicit hostContext: HostContext): TermsAndConditionsUpdate =
     terms match {
       case (GenericTerms, accepted) if includeLinkDetails =>
@@ -89,7 +89,7 @@ object TermsAndConditionsUpdate {
       case (termsType, _) =>
         throw new IllegalArgumentException(s"Could not work with termsType=$termsType")
     }
-  def fromLanguage(language: Language): TermsAndConditionsUpdate =
+  def fromLanguage(language: Some[Language]): TermsAndConditionsUpdate =
     new TermsAndConditionsUpdate(None, None, None, None, None, language) {}
 
   implicit val writes: Writes[TermsAndConditionsUpdate] = (
@@ -98,7 +98,7 @@ object TermsAndConditionsUpdate {
       (JsPath \ "email").write[Option[String]] and
       (JsPath \ "returnUrl").write[Option[String]] and
       (JsPath \ "returnText").write[Option[String]] and
-      (JsPath \ "language").write[Language]
+      (JsPath \ "language").write[Option[Language]]
   )(unlift(TermsAndConditionsUpdate.unapply))
 }
 @Singleton
