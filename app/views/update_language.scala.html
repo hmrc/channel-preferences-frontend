@@ -39,7 +39,7 @@
 
         <div class="form-field">
             <button id="submit-email-button" class="button" type="submit">@Messages("account.details.update.email.submit.text")</button>
-            <p>@Link.toInternalPage(id = Some("cancel-link"), url = hostContext.returnUrl, value = Some(Messages("cancel.text"))).toHtml</p>
+            <p>@Link.toInternalPage(id = Some("cancel-link"), url = controllers.internal.routes.ManagePaperlessController.checkSettings(hostContext).url, value = Some(Messages("manage.paperless.check.settings.linkText"))).toHtml).toHtml</p>
         </div>
     }
 }

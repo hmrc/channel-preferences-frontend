@@ -5,7 +5,7 @@
 
 package partial.paperless.warnings
 
-import _root_.helpers.{ ConfigHelper, LanguageHelper }
+import _root_.helpers.{ ConfigHelper, LanguageHelper, TestFixtures }
 import connectors.EmailPreference
 import org.jsoup.Jsoup
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -30,7 +30,7 @@ class PendingEmailVerificationSpec extends PlaySpec with GuiceOneAppPerSuite wit
       val emailPreference = EmailPreference(emailAddress, true, true, false, Some(localDate))
       val errors = Seq((FormError("ErrorKey", Seq("Error Message"), Seq()), "Outer Error Message"))
       val document = Jsoup.parse(
-        pending_email_verification(emailPreference, "returnUrl", "returnLinkText")(FakeRequest(), messagesInEnglish())
+        pending_email_verification(emailPreference, TestFixtures.sampleHostContext)(FakeRequest(), messagesInEnglish())
           .toString())
 
       document
@@ -57,7 +57,7 @@ class PendingEmailVerificationSpec extends PlaySpec with GuiceOneAppPerSuite wit
       val emailPreference = EmailPreference(emailAddress, true, true, false, Some(localDate))
       val errors = Seq((FormError("ErrorKey", Seq("Error Message"), Seq()), "Outer Error Message"))
       val document = Jsoup.parse(
-        pending_email_verification(emailPreference, "returnUrl", "returnLinkText")(welshRequest, messagesInWelsh())
+        pending_email_verification(emailPreference, TestFixtures.sampleHostContext)(welshRequest, messagesInWelsh())
           .toString())
 
       document
