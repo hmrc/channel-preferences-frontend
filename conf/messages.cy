@@ -221,5 +221,3 @@ manage.paperless.bounce.warning.2=Gwiriwch a thrwsiwch eich cyfeiriad e-bost neu
 
 manage.paperless.verify.warning.1=Mae angen i chi ddilysu’ch cyfeiriad e-bost cyn i chi allu cael dogfennau treth ar-lein
 manage.paperless.verify.warning.2=Dilyswch eich cyfeiriad e-bost
-
-manage.paperless.check.settings.linkText=Yn eich blaen

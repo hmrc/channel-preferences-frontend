@@ -36,11 +36,6 @@ class AccountDetailsUpdateEmailAddressThankYouSpec
         .getElementsByTag("p")
         .get(3)
         .text() mustBe "Until you do this, emails will continue to go to your old address."
-      document
-        .getElementById("return-to-dashboard-button").attr("href") mustBe "/paperless/check-settings?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"
-      document
-        .getElementById("return-to-dashboard-button")
-        .text() mustBe "Continue"
     }
 
     "render the correct content in welsh" in {
@@ -58,11 +53,6 @@ class AccountDetailsUpdateEmailAddressThankYouSpec
         .getElementsByTag("p")
         .get(3)
         .text() mustBe "Hyd nes eich bod yn gwneud hyn, bydd e-byst yn dal i gael eu hanfon i'ch hen gyfeiriad"
-      document
-        .getElementById("return-to-dashboard-button").attr("href") mustBe "/paperless/check-settings?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"
-      document
-        .getElementById("return-to-dashboard-button")
-        .text() mustBe "Yn eich blaen"
     }
   }
 }

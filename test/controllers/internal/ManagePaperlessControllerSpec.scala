@@ -156,7 +156,7 @@ class ManagePaperlessControllerSpec
       val document = Jsoup.parse(contentAsString(page))
       document.getElementById("verification-mail-message") must not be null
       document.getElementById("return-to-dashboard-button").attr("href") must be(
-        "/paperless/check-settings?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D")
+        TestFixtures.sampleHostContext.returnUrl)
 
       verify(mockEntityResolverConnector).changeEmailAddress(is("test@test.com"))(any())
     }
@@ -444,7 +444,7 @@ class ManagePaperlessControllerSpec
       val page = Jsoup.parse(contentAsString(result))
 
       page.getElementById("confirm-opt-out").text mustBe "Stop emails from HMRC"
-      page.getElementById("cancel-link").text mustBe "Continue"
+      page.getElementById("cancel-link").text mustBe "Cancel"
       page.text() must not include "test@test.com"
     }
 
