@@ -5,7 +5,7 @@
 
 package partial
 
-import _root_.helpers.{ ConfigHelper, LanguageHelper, TestFixtures }
+import _root_.helpers.{ ConfigHelper, LanguageHelper }
 import connectors.PreferenceResponse._
 import connectors.{ PreferenceResponse, SaEmailPreference, SaPreference }
 import controllers.MetricOrchestratorStub
@@ -19,7 +19,6 @@ import play.api.libs.json.Json
 import play.api.mvc.Results
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
-import org.jsoup.Jsoup
 
 class PaperlessWarningPartialSpec
     extends PlaySpec with Results with GuiceOneAppPerSuite with LanguageHelper with MetricOrchestratorStub
@@ -31,7 +30,7 @@ class PaperlessWarningPartialSpec
   "rendering of preferences warnings" must {
     "have no content when opted out " in {
       PaperlessWarningPartial
-        .apply(SaPreference(digital = false).toNewPreference(), TestFixtures.sampleHostContext)(
+        .apply(SaPreference(digital = false).toNewPreference(), "unused.url.com", "Unused text")(
           FakeRequest(),
           appMessages)
         .body must be("")
@@ -43,7 +42,8 @@ class PaperlessWarningPartialSpec
           SaPreference(
             digital = true,
             email = Some(SaEmailPreference(email = "test@test.com", status = SaEmailPreference.Status.Verified))).toNewPreference,
-          TestFixtures.sampleHostContext
+          "unused.url.com",
+          "Unused Text"
         )(FakeRequest(), appMessages)
         .body must be("")
     }
@@ -59,16 +59,14 @@ class PaperlessWarningPartialSpec
                 status = SaEmailPreference.Status.Pending,
                 linkSent = Some(LocalDate.parse("2014-12-05"))))
           ).toNewPreference(),
-          TestFixtures.sampleHostContext
-
+          "manage.account.com",
+          "Manage account"
         )(FakeRequest(), appMessages)
         .body
-
-      val document = Jsoup.parse(result)
       result must include("test@test.com")
       result must include("5 December 2014")
-      document.getElementById("remindersProblem").text() mustBe "Continue"
-      document.getElementById("remindersProblem").attr("href") mustBe "/paperless/check-settings?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"
+      result must include("Manage account")
+      result must include("manage.account.com")
     }
 
     "have mail box full warning in english if email bounces due to mail box being full" in {
@@ -82,7 +80,7 @@ class PaperlessWarningPartialSpec
             mailboxFull = true))
       ).toNewPreference()
       val result =
-        PaperlessWarningPartial.apply(saPref, TestFixtures.sampleHostContext)(FakeRequest(), appMessages).body
+        PaperlessWarningPartial.apply(saPref, "unused.url.com", "Unused Text")(FakeRequest(), appMessages).body
       result must include("Your inbox is full")
     }
 
@@ -98,43 +96,51 @@ class PaperlessWarningPartialSpec
                 linkSent = Some(LocalDate.parse("2014-12-05")),
                 mailboxFull = false))
           ).toNewPreference(),
-          TestFixtures.sampleHostContext
+          "manage.account.com",
+          "Manage account"
         )(FakeRequest(), appMessages)
         .body
-      val document = Jsoup.parse(result)
       result must include("There&#x27;s a problem with your paperless notification emails")
-      document.getElementById("remindersProblem").text() mustBe "Continue"
-      document.getElementById("remindersProblem").attr("href") mustBe "/paperless/check-settings?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"
+      result must include("Manage account")
+      result must include("manage.account.com")
     }
 
     "be ignored if the preferences is not opted in for generic for not verified emails" in new TestCase {
       PaperlessWarningPartial.apply(
         genericOnlyPreferenceResponse(accepted = true, isVerified = false, hasBounces = false),
-        TestFixtures.sampleHostContext)(FakeRequest(), appMessages) must not be HtmlFormat.empty
+        "",
+        "")(FakeRequest(), appMessages) must not be HtmlFormat.empty
       PaperlessWarningPartial.apply(
         genericOnlyPreferenceResponse(accepted = false, isVerified = false, hasBounces = false),
-        TestFixtures.sampleHostContext)(FakeRequest(), appMessages) mustBe HtmlFormat.empty
+        "",
+        "")(FakeRequest(), appMessages) mustBe HtmlFormat.empty
       PaperlessWarningPartial.apply(
         taxCreditOnlyPreferenceResponse(accepted = true, isVerified = false, hasBounces = false),
-        TestFixtures.sampleHostContext)(FakeRequest(), appMessages) mustBe HtmlFormat.empty
+        "",
+        "")(FakeRequest(), appMessages) mustBe HtmlFormat.empty
       PaperlessWarningPartial.apply(
         taxCreditOnlyPreferenceResponse(accepted = true, isVerified = false, hasBounces = false),
-        TestFixtures.sampleHostContext)(FakeRequest(), appMessages) mustBe HtmlFormat.empty
+        "",
+        "")(FakeRequest(), appMessages) mustBe HtmlFormat.empty
     }
 
     "be ignored if the preferences is not opted in for generic for bounced emails" in new TestCase {
       PaperlessWarningPartial.apply(
         genericOnlyPreferenceResponse(accepted = true, isVerified = false, hasBounces = true),
-        TestFixtures.sampleHostContext)(FakeRequest(), appMessages) must not be HtmlFormat.empty
+        "",
+        "")(FakeRequest(), appMessages) must not be HtmlFormat.empty
       PaperlessWarningPartial.apply(
         genericOnlyPreferenceResponse(accepted = false, isVerified = false, hasBounces = true),
-        TestFixtures.sampleHostContext)(FakeRequest(), appMessages) mustBe HtmlFormat.empty
+        "",
+        "")(FakeRequest(), appMessages) mustBe HtmlFormat.empty
       PaperlessWarningPartial.apply(
         taxCreditOnlyPreferenceResponse(accepted = true, isVerified = false, hasBounces = true),
-        TestFixtures.sampleHostContext)(FakeRequest(), appMessages) mustBe HtmlFormat.empty
+        "",
+        "")(FakeRequest(), appMessages) mustBe HtmlFormat.empty
       PaperlessWarningPartial.apply(
         taxCreditOnlyPreferenceResponse(accepted = true, isVerified = false, hasBounces = true),
-        TestFixtures.sampleHostContext)(FakeRequest(), appMessages) mustBe HtmlFormat.empty
+        "",
+        "")(FakeRequest(), appMessages) mustBe HtmlFormat.empty
     }
 
     "have pending verification warning in welsh if email not verified" in {
@@ -149,17 +155,14 @@ class PaperlessWarningPartialSpec
                 status = SaEmailPreference.Status.Pending,
                 linkSent = Some(LocalDate.parse("2014-12-05"))))
           ).toNewPreference(),
-          TestFixtures.sampleHostContext
+          "manage.account.com",
+          "Manage account"
         )(welshRequest, messagesInWelsh())
         .body
-
-      val document = Jsoup.parse(result)
       result must include("test@test.com")
       result must include("5 December 2014")
-      document.getElementById("remindersProblem").text() mustBe "Yn eich blaen"
-      document.getElementById("remindersProblem").attr("href") mustBe "/paperless/check-settings?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"
-
-
+      result must include("Manage account")
+      result must include("manage.account.com")
     }
 
     "have mail box full warning in welsh if email bounces due to mail box being full" in {
@@ -173,7 +176,7 @@ class PaperlessWarningPartialSpec
             mailboxFull = true))
       ).toNewPreference()
       val result = PaperlessWarningPartial
-        .apply(saPref, TestFixtures.sampleHostContext)(welshRequest, messagesInWelsh())
+        .apply(saPref, "unused.url.com", "Unused Text")(welshRequest, messagesInWelsh())
         .body
       result must include("Mae&#x27;ch mewnflwch yn llawn.")
     }
@@ -190,14 +193,13 @@ class PaperlessWarningPartialSpec
                 linkSent = Some(LocalDate.parse("2014-12-05")),
                 mailboxFull = false))
           ).toNewPreference(),
-          TestFixtures.sampleHostContext
+          "manage.account.com",
+          "Manage account"
         )(welshRequest, messagesInWelsh())
         .body
-      val document = Jsoup.parse(result)
       result must include("Mae yna broblem gyda&#x27;ch e-byst hysbysu di-bapur")
-      document.getElementById("remindersProblem").text() mustBe "Yn eich blaen"
-      document.getElementById("remindersProblem").attr("href") mustBe "/paperless/check-settings?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"
-
+      result must include("Manage account")
+      result must include("manage.account.com")
     }
 
     trait TestCase {

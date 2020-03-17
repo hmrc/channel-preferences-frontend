@@ -24,6 +24,6 @@
     }
 
     <p class="form-field">
-        @Link.toInternalPage(id = Some("cancel-link"), url = controllers.internal.routes.ManagePaperlessController.checkSettings(hostContext).url, value = Some(Messages("manage.paperless.check.settings.linkText"))).toHtml))).toHtml
+        @Link.toInternalPage(id = Some("cancel-link"), url = hostContext.returnUrl, value = Some(Messages("cancel.text"))).toHtml
     </p>
 }
