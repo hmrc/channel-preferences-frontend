@@ -5,7 +5,8 @@
 
 package partial.paperless.warnings
 
-import _root_.helpers.{ ConfigHelper, LanguageHelper }
+import _root_.helpers.{ ConfigHelper, LanguageHelper, TestFixtures }
+
 import org.jsoup.Jsoup
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
@@ -21,7 +22,7 @@ class BouncedEmailSpec extends PlaySpec with GuiceOneAppPerSuite with LanguageHe
   "bounced email partial" should {
     "render the correct content in english if the mailbox is full" in {
       val document =
-        Jsoup.parse(bounced_email(true, "returnUrl", "returnLinkText")(FakeRequest(), messagesInEnglish()).toString())
+        Jsoup.parse(bounced_email(true, TestFixtures.sampleHostContext)(FakeRequest(), messagesInEnglish()).toString())
 
       document
         .getElementsByAttributeValue("role", "alert")
@@ -37,7 +38,7 @@ class BouncedEmailSpec extends PlaySpec with GuiceOneAppPerSuite with LanguageHe
 
     "render the correct content in welsh if the mailbox is full" in {
       val document =
-        Jsoup.parse(bounced_email(true, "returnUrl", "returnLinkText")(welshRequest, messagesInWelsh()).toString())
+        Jsoup.parse(bounced_email(true, TestFixtures.sampleHostContext)(welshRequest, messagesInWelsh()).toString())
 
       document
         .getElementsByAttributeValue("role", "alert")
