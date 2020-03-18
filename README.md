@@ -58,7 +58,7 @@ Takes the following parameters, which should all be encrypted and encoded using 
 
 | Name                 | Description |
 | -------------------- | ----------- |
-| `returnUrl`          | The URL that the user will be redirected to at the end of any journeys resulting from this call, the URL will be passed to the redirectUserTo response |
+| `returnUrl`          | The encrypted URL that the user will be redirected to at the end of any journeys resulting from this call, the URL will be passed to the redirectUserTo response |
 | `returnLinkText`     | The text that will be used to display the return URL, the parameter will be passed to the redirectUserTo response |
 | `termsAndConditions` | Optional terms and conditions - will default to "generic" is this is missing |
 | `alreadyOptedInUrl`  | Optional If the user has already specified a preference and they have opted in for paperless then automatically redirect them to this URL | 
@@ -104,7 +104,7 @@ Takes the following parameters:
 
 | Name                 | Description |
 | -------------------- | ----------- |
-| `returnUrl`          | The URL that the user will be redirected to at the end of any journeys starting from this partial |
+| `returnUrl`          | The encrypted URL that the user will be redirected to at the end of any journeys starting from this partial |
 | `returnLinkText`     | The text that will be used to display the return URL |
 | `termsAndConditions` | Optional terms and conditions - will default to "generic" is this is missing |
 
@@ -114,7 +114,7 @@ Takes the following parameters:
 
 | Name             | Description |
 | ---------------- | ----------- |
-| `returnUrl`      | The URL that the user will be redirected to at the end of any journeys starting from this partial |
+| `returnUrl`      | The encrypted URL that the user will be redirected to at the end of any journeys starting from this partial |
 | `returnLinkText` | The text that will be used to display the return URL |
 
 This does not need terms and conditions to be specified because these warnings relating to email (pending email verification and email bounces) and 
