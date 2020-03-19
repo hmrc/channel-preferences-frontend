@@ -26,7 +26,7 @@
 
     @GovukWarningText(WarningText(
         iconFallbackText = "Warning",
-        content = HtmlContent(s"""${Messages("manage.paperless.bounce.warning.1")}<br/> <a class="govuk-link" href="/get-in-touch">${Messages("manage.paperless.bounce.warning.2")}</a> """)
+        content = HtmlContent(s"""${Messages("manage.paperless.bounce.warning.1")}<br/> <a class="govuk-link" href=${controllers.internal.routes.ManagePaperlessController.deliveryFailed(hostContext).url}>${Messages("manage.paperless.bounce.warning.2")}</a> """)
       ))
 
         <h2>@Messages("manage.paperless.contact.header")</h2>
