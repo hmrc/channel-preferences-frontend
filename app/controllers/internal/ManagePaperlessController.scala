@@ -18,10 +18,9 @@ import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import views.html.manage._
 
 import scala.concurrent.{ExecutionContext, Future}
-
-import views.html.manage._
 
 class ManagePaperlessController @Inject()(
                                            entityResolverConnector: EntityResolverConnector,
@@ -41,6 +40,7 @@ class ManagePaperlessController @Inject()(
                                            digitalTrueVerifiedFull: digital_true_verified_full,
                                            digitalTruePendingFull: digital_true_pending_full,
                                            howToVerifyEmail:      views.html.how_to_verify_email,
+                                           emailDeliveryFailed: views.html.email_delivery_failed,
                                            mcc: MessagesControllerComponents)(implicit ec: ExecutionContext)
   extends FrontendController(mcc) with OptInCohortCalculator with I18nSupport with WithAuthRetrievals with LanguageHelper {
 
@@ -105,6 +105,10 @@ class ManagePaperlessController @Inject()(
   private[controllers] def _displayHowToVerifyEmail(emailPref: EmailPreference)
                                                    (implicit request: AuthenticatedRequest[_], hostContext: HostContext): Result = {
     Ok(howToVerifyEmail(emailPref))
+  }
+
+  private[controllers] def _displayDeliveryFailed(emailPref: EmailPreference)(implicit request: AuthenticatedRequest[_], hostContext: HostContext): Result = {
+    Ok(emailDeliveryFailed(emailPref))
   }
 
 
@@ -202,5 +206,17 @@ class ManagePaperlessController @Inject()(
     }
   }
 
+  def deliveryFailed(implicit hostContext: HostContext): Action[AnyContent] = Action.async { implicit request =>
+    withAuthenticatedRequest { implicit withAuthenticatedRequest: AuthenticatedRequest[_] =>
+      implicit hc =>
+        entityResolverConnector.getPreferences().map {
+          case None => NotFound
+          case Some(pref) => pref.email match {
+            case None => NotFound
+            case Some(emailPref) => _displayDeliveryFailed(emailPref)
+          }
+      }
+    }
+  }
 }
 

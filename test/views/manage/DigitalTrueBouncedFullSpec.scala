@@ -21,7 +21,7 @@ import controllers.auth.AuthenticatedRequest
 class DigitalTrueBouncedFullSpec extends PlaySpec with GuiceOneAppPerSuite with LanguageHelper with ConfigHelper {
 
   override implicit lazy val app: Application = fakeApp
-  val template = app.injector.instanceOf[digital_true_pending_full]
+  val template = app.injector.instanceOf[digital_true_bounced_full]
 
   "settings page for digital true bounced" should {
     "render the correct content in english" in {
@@ -29,9 +29,11 @@ class DigitalTrueBouncedFullSpec extends PlaySpec with GuiceOneAppPerSuite with 
       val email = EmailPreference(emailAddress, true, true, false, None)
 
       val authRequest = AuthenticatedRequest(FakeRequest(), None, None, None, None)
+
       val document =
         Jsoup.parse(template(email)(authRequest, messagesInEnglish(), TestFixtures.sampleHostContext).toString())
-
+      document.getElementsByClass("govuk-link").get(0).attr("href") must be(
+        "/paperless/email-address/delivery-failed?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D")
       document.getElementById("saCheckSettings").text() mustBe "Check your settings"
     }
 

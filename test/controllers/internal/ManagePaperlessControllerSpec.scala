@@ -181,7 +181,7 @@ class ManagePaperlessControllerSpec
     }
   }
 
-  "A post to update email address with no emailVerifiedFlag" should {
+  "A POST to update email address with no emailVerifiedFlag" should {
 
     "validate the email address, update the address for SA user and redirect to confirmation page" in {
       val emailAddress = "someone@email.com"
@@ -319,7 +319,7 @@ class ManagePaperlessControllerSpec
 
   }
 
-  "A post to set preferences with an emailVerifiedFlag" should {
+  "A POST to set preferences with an emailVerifiedFlag" should {
 
     "if the verified flag is true, save the preference and redirect to the thank you page without verifying the email address again" in {
       val emailAddress = "someone@email.com"
@@ -458,7 +458,7 @@ class ManagePaperlessControllerSpec
     }
   }
 
-  "A post to confirm opt out of email reminders" should {
+  "A POST to confirm opt out of email reminders" should {
 
     "return a redirect to thank you page" in {
       val saPreferences =
@@ -483,12 +483,12 @@ class ManagePaperlessControllerSpec
     }
   }
 
-  "A get to display the how to verify my email page" should {
+  "A GET to display the how to verify my email page" should {
 
     val saPreferences =
       SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Pending))).toNewPreference()
 
-    "return a 200 with the correct english content" in {
+    "return a 200 with the correct English content" in {
 
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
 
@@ -500,7 +500,7 @@ class ManagePaperlessControllerSpec
       outcome must include("How to verify your email address")
     }
 
-    "return a 200 with the correct welsh content" in {
+    "return a 200 with the correct Welsh content" in {
 
       val headers = request.headers.add((HeaderNames.ACCEPT_LANGUAGE, "cy"))
       val welshRequest = AuthenticatedRequest(request.withHeaders(headers), None, None, None, None)
@@ -513,6 +513,39 @@ class ManagePaperlessControllerSpec
       val outcome = contentAsString(Future(result))
       outcome must include("test@test.com")
       outcome must include("Sut i ddilysu’ch cyfeiriad e-bost")
+    }
+  }
+
+  "A GET to the delivery failed endpoint" should {
+
+    val saPreferences =
+      SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Pending))).toNewPreference()
+
+    "return a 200 with correct English content" in {
+
+      when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
+
+      val result = controller._displayDeliveryFailed(saPreferences.email.get)(request, TestFixtures.sampleHostContext)
+
+      result.header.status mustBe 200
+      val outcome = contentAsString(Future(result))
+      outcome must include("We cannot deliver emails to test@test.com")
+
+    }
+
+    "return a 200 with correct Welsh content" in {
+
+      val headers = request.headers.add((HeaderNames.ACCEPT_LANGUAGE, "cy"))
+      val welshRequest = AuthenticatedRequest(request.withHeaders(headers), None, None, None, None)
+
+      when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
+
+      val result = controller._displayDeliveryFailed(saPreferences.email.get)(welshRequest, TestFixtures.sampleHostContext)
+
+      result.header.status mustBe 200
+      val outcome = contentAsString(Future(result))
+      outcome must include("Ni allwn ddosbarthu e-byst i test@test.com")
+
     }
   }
 }

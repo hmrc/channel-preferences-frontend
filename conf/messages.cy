@@ -117,6 +117,13 @@ manage.paperless.email.change-email-address-link=newid eich cyfeiriad e-bost
 manage.paperless.email.use.header=Pam y mae angen i mi roi fy e-bost i CThEM?
 manage.paperless.email.use.explanation=Byddwn bob amser yn rhoi gwybod i chi drwy e-bost pan fydd gennych lythyr treth ar-lein yn aros amdanoch.
 
+manage.paperless.email.delivery.failed.header=Ni allwn ddosbarthu e-byst i {0}
+manage.paperless.email.delivery.failed.para1=Gallai hyn fod oherwydd nad yw’ch cyfeiriad e-bost yn gywir, neu oherwydd bod problem dechnegol.
+manage.paperless.email.delivery.failed.sub-header=Yr hyn y mae’n rhaid i chi ei wneud nawr
+manage.paperless.email.delivery.failed.para2=Oherwydd eich bod yn gorfod cael cyfeiriad e-bost gweithredol i dderbyn dogfennau treth ar-lein, mae’n rhaid i chi
+manage.paperless.email.delivery.failed.change.email.link.text=newid eich cyfeiriad e-bost
+manage.paperless.email.delivery.failed.button=Yn eich blaen
+
 paperless.warnings.bounced.header=Mae yna broblem gyda''ch e-byst hysbysu di-bapur
 paperless.warnings.bounced.urgent=Ar frys
 paperless.warnings.bounced.inbox.full=Mae''ch mewnflwch yn llawn.
