@@ -31,16 +31,18 @@ POST        /paperless/choose                                                   
 GET         /paperless/language-choose                                              controllers.internal.ChoosePaperlessController.displayLanguageForm(hostContext: model.HostContext)
 POST        /paperless/language-choose                                              controllers.internal.ChoosePaperlessController.submitLanguageForm(hostContext: model.HostContext)
 
-GET         /sa/print-preferences/:token                                            @controllers.filing.FilingInterceptController.redirectWithEmailAddress(token: String, return_url: String, emailAddress: Option[model.EncryptedEmail])
-GET         /sa/print-preferences/verification/:token                               @controllers.external.EmailValidationController.verify(token: String)
+GET         /sa/print-preferences/:token                                            controllers.filing.FilingInterceptController.redirectWithEmailAddress(token: String, return_url: String, emailAddress: Option[model.EncryptedEmail])
+GET         /sa/print-preferences/verification/:token                               controllers.external.EmailValidationController.verify(token: String)
+
+# Return json paperless status
+GET         /paperless/status                                                       controllers.PaperlessStatusController.getPaperlessStatus(hostContext: model.HostContext)
 
 # Serves up the test gif that is used to determine if the service is up
-GET         /sa/print-preferences/assets/*file                                      @controllers.internal.PlatformHealthCheckController.getAsset(file)
+GET         /sa/print-preferences/assets/*file                                      controllers.internal.PlatformHealthCheckController.getAsset(file)
 
 # Partials
 GET         /paperless/manage                                                       partial.paperless.PaperlessPartialController.displayManagePaperlessPartial(hostContext: model.HostContext)
 GET         /paperless/warnings                                                     partial.paperless.PaperlessPartialController.displayPaperlessWarningsPartial(hostContext: model.HostContext)
-
 
 # Check your settings
 GET         /paperless/check-settings                                               controllers.internal.ManagePaperlessController.checkSettings(hostContext: model.HostContext)

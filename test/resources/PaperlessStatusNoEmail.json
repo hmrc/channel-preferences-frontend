@@ -1,0 +1,11 @@
+{
+  "status": {
+    "name": "NO_EMAIL",
+    "category": "ACTION_REQUIRED",
+    "text": "We cannot deliver emails to you. You need to set up an email before you can get Self Assessment tax letters online"
+  },
+  "url": {
+    "link": "http://localhost:9024/paperless/check-settings?returnUrl=VYBxyuFWQBQZAGpe5tSgmw%3D%3D&returnLinkText=VYBxyuFWQBQZAGpe5tSgmw%3D%3D",
+    "text": "Set up your email address"
+  }
+}

@@ -228,3 +228,21 @@ manage.paperless.bounce.warning.2=Check and fix your email address or account
 
 manage.paperless.verify.warning.1=You need to verify your email address before you can receive tax documents online
 manage.paperless.verify.warning.2=Verify your email address
+
+paperless.status.text.paper=You have not yet chosen to get your Self Assessment tax letters online
+paperless.status.text.new_customer=Get your Self Assessment tax letters online
+paperless.status.text.email_not_verified=You need to verify your email address before you can get Self Assessment tax letters online
+paperless.status.text.bounced=We cannot deliver emails to you. You need to take action before you can get Self Assessment tax letters online
+paperless.status.text.alright=You chose to get your Self Assessment tax letters online
+paperless.status.text.welsh_available=You can chose to receive your online tax letters in welsh
+paperless.status.text.no_email= We cannot deliver emails to you. You need to set up an email before you can get Self Assessment tax letters online
+
+
+
+paperless.status.url.text.paper= Get tax letters online
+paperless.status.url.text.new_customer=Get tax letters online
+paperless.status.url.text.email_not_verified=Verify your email address
+paperless.status.url.text.bounced=Confirm or change your email address
+paperless.status.url.text.alright=Check your settings
+paperless.status.url.text.welsh_available=Change your language
+paperless.status.url.text.no_email=Set up your email address
