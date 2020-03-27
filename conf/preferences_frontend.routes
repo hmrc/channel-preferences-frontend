@@ -1,9 +1,9 @@
 #Deprecated - use /paperless/activate
 #Deprecated - use /paperless/activate
-PUT         /paperless/activate/:formType/:taxIdentifier                            controllers.internal.ActivationController.legacyPreferencesStatus(formType: model.FormType, taxIdentifier: String, hostContext: model.HostContext)
+PUT         /paperless/activate/:formType/:taxIdentifier                            controllers.internal.ActivationController.activateLegacyFromTaxIdentifier(formType: model.FormType, taxIdentifier: String, hostContext: model.HostContext)
 
-PUT         /paperless/activate                                                     controllers.internal.ActivationController.preferencesStatus(hostContext: model.HostContext)
-PUT         /paperless/activate-from-token/:svc/:token                              controllers.internal.ActivationController.preferencesStatusBySvc(svc: String, token: String, hostContext: model.HostContext)
+PUT         /paperless/activate                                                     controllers.internal.ActivationController.activate(hostContext: model.HostContext)
+PUT         /paperless/activate-from-token/:svc/:token                              controllers.internal.ActivationController.activateFromToken(svc: String, token: String, hostContext: model.HostContext)
 GET         /paperless/preferences                                                  controllers.internal.ActivationController.preferences()
 
 GET         /paperless/email-address/change                                         controllers.internal.ManagePaperlessController.displayChangeEmailAddress(email: Option[model.EncryptedEmail], hostContext: model.HostContext)

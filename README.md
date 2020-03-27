@@ -123,6 +123,4 @@ email addresses are global to all of customer's preferences rather than to speci
 Run functional test
 ===================
 
-`sm --start ASSETS_FRONTEND -f`
-
-`sbt functional:test`
+`sbt it:test`

@@ -5,22 +5,23 @@
 
 package controllers.internal
 
-import connectors.{ EntityResolverConnector, _ }
+import connectors.{EntityResolverConnector, _}
 import controllers.ExternalUrlPrefixes
-import controllers.auth.{ AuthenticatedRequest, WithAuthRetrievals }
+import controllers.auth.{AuthenticatedRequest, WithAuthRetrievals}
 import javax.inject.Inject
-import model.{ Encrypted, FormType, HostContext }
+import model.{Encrypted, FormType, HostContext, Language }
 import org.joda.time.DateTime
 import play.api.Configuration
+import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
-import play.api.mvc.{ Action, AnyContent, MessagesControllerComponents, Result }
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.config.RunMode
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
-import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent.{ExecutionContext, Future}
 
 class ActivationController @Inject()(
   entityResolverConnector: EntityResolverConnector,
@@ -30,7 +31,7 @@ class ActivationController @Inject()(
   runMode: RunMode,
   config: Configuration
 )(implicit ec: ExecutionContext)
-    extends FrontendController(mcc) with WithAuthRetrievals {
+    extends FrontendController(mcc) with WithAuthRetrievals with I18nSupport with LanguageHelper {
 
   val hostUrl = externalUrlPrefixes.pfUrlPrefix
 
@@ -48,30 +49,49 @@ class ActivationController @Inject()(
     }
   }
 
-  def preferencesStatus(hostContext: HostContext): Action[AnyContent] = Action.async { implicit request =>
-    withAuthenticatedRequest { implicit authenticatedRequest: AuthenticatedRequest[_] => implicit hc: HeaderCarrier =>
-      _preferencesStatus(hostContext)
-
+  def activate(hostContext: HostContext): Action[AnyContent] = Action.async { implicit request =>
+    withAuthenticatedRequest { implicit authenticatedRequest: AuthenticatedRequest[_] =>
+      implicit hc: HeaderCarrier => {
+        val terms = hostContext.termsAndConditions.getOrElse("generic")
+        for {
+          preferenceStatus <- entityResolverConnector.getPreferencesStatus(terms)
+          lang = languageType(request.lang.code)
+          _ <- _storeLanguagePreference(hostContext, lang, preferenceStatus)
+        } yield _preferencesStatusResult(hostContext, preferenceStatus)
+      }
     }
   }
 
-  def preferencesStatusBySvc(svc: String, token: String, hostContext: HostContext): Action[AnyContent] = Action.async {
+  def activateFromToken(svc: String, token: String, hostContext: HostContext): Action[AnyContent] = Action.async {
     implicit request =>
-      withAuthenticatedRequest { implicit authenticatedRequest: AuthenticatedRequest[_] => implicit hc: HeaderCarrier =>
-        _preferencesStatusMtd(svc, token, hostContext)
+      withAuthenticatedRequest { implicit authenticatedRequest: AuthenticatedRequest[_] =>
+        implicit hc: HeaderCarrier => {
+          for {
+            preferenceStatus <- entityResolverConnector.getPreferencesStatusByToken(svc, token)
+            lang = languageType(request.lang.code)
+            _ <- _storeLanguagePreference(hostContext, lang, preferenceStatus)
+          } yield _preferencesStatusResultMtd(svc, token, hostContext, preferenceStatus)
+        }
       }
   }
 
-  def legacyPreferencesStatus(formType: FormType, taxIdentifier: String, hostContext: HostContext): Action[AnyContent] =
-    Action.async { implicit request =>
-      withAuthenticatedRequest { implicit authenticatedRequest: AuthenticatedRequest[_] => implicit hc: HeaderCarrier =>
-        _preferencesStatus(hostContext)
-      }
-    }
+  def activateLegacyFromTaxIdentifier(formType: FormType, taxIdentifier: String, hostContext: HostContext):
+    Action[AnyContent] = activate(hostContext)
 
-  private def _preferencesStatusMtd(svc: String, token: String, hostContext: HostContext)(
-    implicit hc: HeaderCarrier): Future[Result] =
-    entityResolverConnector.getPreferencesStatusByToken(svc, token) map {
+  private def _storeLanguagePreference(hostContext: HostContext, lang: Language, preferenceStatus: Either[Int, PreferenceStatus])(implicit hc: HeaderCarrier): Future[Unit] = {
+    preferenceStatus match {
+      case Right(PreferenceFound(true, emailPreference, _)) if emailPreference.fold(false)(_.language.isEmpty) => {
+        entityResolverConnector
+          .updateTermsAndConditions(TermsAndConditionsUpdate.fromLanguage(Some(lang)))(hc, hostContext)
+          .map(_ => ())
+      }
+      case _ => Future.successful(())
+    }
+  }
+
+  private def _preferencesStatusResultMtd(svc: String, token: String, hostContext: HostContext, preferenceStatus: Either[Int, PreferenceStatus])(
+    implicit hc: HeaderCarrier): Result =
+    preferenceStatus match {
       case Right(PreferenceNotFound(email)) =>
         val encryptedEmail = email.map(e => Encrypted(EmailAddress(e.email)))
         val redirectUrl = hostUrl + routes.ChoosePaperlessController
@@ -79,9 +99,8 @@ class ActivationController @Inject()(
           .url
         PreconditionFailed(Json.obj("redirectUserTo" -> redirectUrl))
       case Right(PreferenceFound(true, emailPreference, _)) =>
-        Ok(
-          Json.obj(
-            "optedIn"       -> true,
+        Ok(Json.obj(
+            "optedIn" -> true,
             "verifiedEmail" -> emailPreference.fold(false)(_.isVerified)
           ))
       case Right(PreferenceFound(false, email, _)) =>
@@ -89,23 +108,21 @@ class ActivationController @Inject()(
         val redirectUrl = hostUrl + routes.ChoosePaperlessController
           .redirectToDisplayFormWithCohortBySvc(svc, token, encryptedEmail, hostContext)
           .url
-        Ok(
-          Json.obj(
-            "optedIn"        -> false,
+          Ok(Json.obj(
+            "optedIn"       -> false,
             "redirectUserTo" -> redirectUrl
           ))
       case _ => NotFound
     }
 
-  private def _preferencesStatus(hostContext: HostContext)(implicit hc: HeaderCarrier): Future[Result] = {
+  private def _preferencesStatusResult(hostContext: HostContext, preferenceStatus: Either[Int, PreferenceStatus])(implicit hc: HeaderCarrier): Result = {
 
-    val terms = hostContext.termsAndConditions.getOrElse("generic")
-    entityResolverConnector.getPreferencesStatus(terms) map {
-      case Right(PreferenceFound(true, emailPreference, updatedAt)) if hostContext.alreadyOptedInUrl.isDefined =>
+    preferenceStatus match {
+      case Right(PreferenceFound(true, emailPreference, updatedAt)) if hostContext.alreadyOptedInUrl.isDefined => {
         Redirect(hostContext.alreadyOptedInUrl.get)
+      }
       case Right(PreferenceFound(true, emailPreference, _)) =>
-        Ok(
-          Json.obj(
+        Ok(Json.obj(
             "optedIn"       -> true,
             "verifiedEmail" -> emailPreference.fold(false)(_.isVerified)
           ))
@@ -127,11 +144,8 @@ class ActivationController @Inject()(
               .url
             PreconditionFailed(Json.obj("redirectUserTo" -> redirectUrl))
           }
-
       case Right(PreferenceFound(false, email, updatedAt)) =>
-        Ok(
-          Json.obj( //
-            "optedIn" -> false))
+        Ok(Json.obj("optedIn" -> false))
       case Right(PreferenceNotFound(Some(email))) if (hostContext.email.exists(_ != email.email)) =>
         Conflict
       case Right(PreferenceNotFound(email)) =>

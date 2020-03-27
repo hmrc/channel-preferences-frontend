@@ -3,7 +3,7 @@
  *
  */
 
-package connectors
+package controllers.internal
 
 import controllers.LanguageController
 import org.scalatestplus.play._
@@ -16,7 +16,7 @@ import play.api.test._
 
 import scala.concurrent.Future
 
-class LanguageControllerSuite extends PlaySpec with GuiceOneAppPerSuite with Results {
+class LanguageControllerSpec extends PlaySpec with GuiceOneAppPerSuite with Results {
 
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder()

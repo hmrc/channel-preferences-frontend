@@ -115,7 +115,7 @@ class ActivateISpec extends EmailSupport with SessionCookieEncryptionSupport {
 
     }
 
-    "return CONFLICT if trying to activate providing an email diffrent than the stored one" in {
+    "return CONFLICT if trying to activate providing an email different than the stored one" in {
       val originalEmail = "generic@test.com"
 
       `/preferences/terms-and-conditions`(ggAuthHeaderWithNino)
