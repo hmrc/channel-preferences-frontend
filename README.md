@@ -120,6 +120,41 @@ Takes the following parameters:
 This does not need terms and conditions to be specified because these warnings relating to email (pending email verification and email bounces) and 
 email addresses are global to all of customer's preferences rather than to specific terms and conditions.
 
+### GET /paperless/status
+
+Takes the following parameters, which should all be encrypted and encoded using the query parameter encryption library (https://github.com/hmrc/crypto/blob/master/src/main/scala/uk/gov/hmrc/crypto/ApplicationCrypto.scala#L31)
+
+| Name             | Description |
+| ---------------- | ----------- |
+| `returnUrl`      | The encrypted URL that the user will be redirected to at the end of any journeys starting from this partial |
+| `returnLinkText` | The text that will be used to display the return URL |
+
+
+Responds with:
+
+| Status                        | Description |
+| ----------------------------- | ----------- |
+| 200 Ok                        | With a paperless preference status |
+
+When calling this endpoint with the correct parameters, you will always recieve a paperless status even if a customer has no preference status set.
+
+
+JSON for customer who is a paperless customers.
+```json
+{"status":{"name":"ALRIGHT","category":"INFO","text":"You chose to get your Self Assessment tax letters online"},"url":{"link":"/paperless/check-settings?returnUrl=estmi4JljKudAQ%2BTRvoPhRkCZT02m5YaCTH3xBjDQAg%3D&returnLinkText=7xlv71LPbfS4KiKJ12w2jA%3D%3D","text":"Check your settings"}}
+```
+JSON for customer who has no preference.
+```json
+{"status":{"name":"NEW_CUSTOMER","category":"ACTION_REQUIRED","text":"Get your Self Assessment tax letters online"},"url":{"link":"/paperless/check-settings?returnUrl=estmi4JljKudAQ%2BTRvoPhRkCZT02m5YaCTH3xBjDQAg%3D&returnLinkText=7xlv71LPbfS4KiKJ12w2jA%3D%3D","text":"Get tax letters online"}}
+```
+JSON for customer who needs to verify there email address.
+```json
+{"status":{"name":"EMAIL_NOT_VERIFIED","category":"ACTION_REQUIRED","text":"You need to verify your email address before you can get Self Assessment tax letters online"},"url":{"link":"/paperless/check-settings?returnUrl=estmi4JljKudAQ%2BTRvoPhRkCZT02m5YaCTH3xBjDQAg%3D&returnLinkText=7xlv71LPbfS4KiKJ12w2jA%3D%3D","text":"Verify your email address"}}
+```
+JSON for customer who has opted out of paperless.
+```json
+{"status":{"name":"PAPER","category":"ACTION_REQUIRED","text":"You have not yet chosen to get your Self Assessment tax letters online"},"url":{"link":"/paperless/check-settings?returnUrl=estmi4JljKudAQ%2BTRvoPhRkCZT02m5YaCTH3xBjDQAg%3D&returnLinkText=7xlv71LPbfS4KiKJ12w2jA%3D%3D","text":"Get tax letters online"}}
+```
 Run functional test
 ===================
 

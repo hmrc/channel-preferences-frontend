@@ -2,10 +2,10 @@
   "status": {
     "name": "PAPER",
     "category": "ACTION_REQUIRED",
-    "text": "Welsh: You have not yet chosen to get your Self Assessment tax letters online"
+    "text": "Hyd yma, nid ydych wedi dewis cael eich llythyrau treth Hunanasesiad ar-lein"
   },
   "url": {
     "link": "http://localhost:9024/paperless/check-settings?returnUrl=VYBxyuFWQBQZAGpe5tSgmw%3D%3D&returnLinkText=VYBxyuFWQBQZAGpe5tSgmw%3D%3D",
-    "text": "Welsh: Get tax letters online"
+    "text": "Cael eich llythyrau treth ar-lein"
   }
 }

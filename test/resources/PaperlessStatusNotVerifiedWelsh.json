@@ -2,10 +2,10 @@
   "status": {
     "name": "EMAIL_NOT_VERIFIED",
     "category": "ACTION_REQUIRED",
-    "text": "Welsh: You need to verify your email address before you can get Self Assessment tax letters online"
+    "text": "Cael eich llythyrau treth Hunanasesiad ar-lein"
   },
   "url": {
     "link": "http://localhost:9024/paperless/check-settings?returnUrl=VYBxyuFWQBQZAGpe5tSgmw%3D%3D&returnLinkText=VYBxyuFWQBQZAGpe5tSgmw%3D%3D",
-    "text": "Welsh: Verify your email address"
+    "text": "Cael llythyrau treth ar-lein"
   }
 }

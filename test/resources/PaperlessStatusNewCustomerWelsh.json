@@ -2,10 +2,10 @@
   "status": {
     "name": "NEW_CUSTOMER",
     "category": "ACTION_REQUIRED",
-    "text": "Welsh: Get your Self Assessment tax letters online"
+    "text": "Cael eich llythyrau treth Hunanasesiad ar-lein"
   },
   "url": {
     "link": "http://localhost:9024/paperless/check-settings?returnUrl=VYBxyuFWQBQZAGpe5tSgmw%3D%3D&returnLinkText=VYBxyuFWQBQZAGpe5tSgmw%3D%3D",
-    "text": "Welsh: Get tax letters online"
+    "text": "Cael llythyrau treth ar-lein"
   }
 }
