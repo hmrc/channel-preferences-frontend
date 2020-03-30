@@ -20,7 +20,12 @@ import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
 import scala.concurrent.ExecutionContext
 
-class PaperlessStatusController @Inject()(entityResolverConnector: EntityResolverConnector, val authConnector: AuthConnector, mcc: MessagesControllerComponents, statusService: PaperlessStatusService, externalUrlPrefixes: ExternalUrlPrefixes)(implicit ec: ExecutionContext)
+class PaperlessStatusController @Inject()(
+  entityResolverConnector: EntityResolverConnector,
+  val authConnector: AuthConnector,
+  mcc: MessagesControllerComponents,
+  statusService: PaperlessStatusService,
+  externalUrlPrefixes: ExternalUrlPrefixes)(implicit ec: ExecutionContext)
     extends FrontendController(mcc) with I18nSupport with WithAuthRetrievals {
 
   def getPaperlessStatus(implicit hostContext: HostContext): Action[AnyContent] = Action.async { implicit request =>

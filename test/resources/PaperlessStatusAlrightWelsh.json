@@ -2,10 +2,10 @@
   "status": {
     "name": "ALRIGHT",
     "category": "INFO",
-    "text": "Welsh: You chose to get your Self Assessment tax letters online"
+    "text": "Dewisoch gael eich llythyrau treth Hunanasesiad ar-lein"
   },
   "url": {
     "link": "http://localhost:9024/paperless/check-settings?returnUrl=VYBxyuFWQBQZAGpe5tSgmw%3D%3D&returnLinkText=VYBxyuFWQBQZAGpe5tSgmw%3D%3D",
-    "text": "Welsh: Check your settings"
+    "text": "Gwirio’ch gosodiadau"
   }
 }
