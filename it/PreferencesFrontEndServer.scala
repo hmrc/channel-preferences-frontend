@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  */
 
@@ -9,8 +9,10 @@ import java.util.UUID
 import org.scalatest.concurrent.{ IntegrationPatience, ScalaFutures }
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import org.scalatestplus.play.{ PlaySpec, WsScalaTestClient }
+import play.api.test.Helpers._
+import play.api.http.HeaderNames
 import play.api.libs.json.Json
-import play.api.libs.ws.{ WSClient, WSRequest }
+import play.api.libs.ws.{ DefaultWSCookie, WSClient, WSCookie, WSRequest }
 import uk.gov.hmrc.crypto.{ ApplicationCrypto, PlainText }
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.http.{ HeaderCarrier, SessionKeys }
@@ -28,9 +30,7 @@ trait TestUser {
 
 }
 
-class TestCase
-    extends PlaySpec with TestUser with GuiceOneServerPerSuite with WsScalaTestClient with ScalaFutures
-    with IntegrationPatience {
+class TestCase extends PlaySpec with TestUser with GuiceOneServerPerSuite with WsScalaTestClient with ScalaFutures with IntegrationPatience {
 
   val applicatinCrypto = app.injector.instanceOf[ApplicationCrypto]
 
@@ -64,7 +64,7 @@ class TestCase
 
   def `/preferences`(header: (String, String)) = new {
     def getPreference =
-      wsUrl("http://localhost:8015/preferences").withHttpHeaders(header).get
+      wsClient.url("http://localhost:8015/preferences").withHttpHeaders(header).get
 
     def putPendingEmail(email: String) =
       wsClient
@@ -96,13 +96,13 @@ class TestCase
 
   def `/entity-resolver/sa/:utr`(utr: String) = {
     val response = wsClient.url(s"http://localhost:8015/entity-resolver/sa/$utr").get().futureValue
-    response.status must be(200)
+    response.status must be(OK)
     (response.json \ "_id").as[String]
   }
 
   def `/entity-resolver/paye/:nino`(nino: String) = {
     val response = wsClient.url(s"http://localhost:8015/entity-resolver/paye/$nino").get().futureValue
-    response.status must be(200)
+    response.status must be(OK)
     (response.json \ "_id").as[String]
   }
 
@@ -157,7 +157,7 @@ trait TestCaseWithFrontEndAuthentication extends TestCase with SessionCookieEncr
     )
 
     val url = wsUrl(s"/paperless/activate-from-token/$svc/$token")
-      .withSession((SessionKeys.authToken -> authHelper.authorisedTokenFor().futureValue._1))
+      .withSession((SessionKeys.authToken -> authHelper.authorisedTokenFor().futureValue._1))()
       .withQueryString(
         queryParamsMap.collect {
           case (key, Some(value)) => (key -> applicatinCrypto.QueryParameterCrypto.encrypt(PlainText(value)).value)
@@ -171,7 +171,7 @@ trait TestCaseWithFrontEndAuthentication extends TestCase with SessionCookieEncr
   }
 
   def `/paperless/activate`(
-    taxIdentifiers: TaxIdentifier*)(termsAndConditions: Option[String] = None, emailAddress: Option[String] = None) =
+    taxIdentifiers: TaxIdentifier*)(termsAndConditions: Option[String] = None, emailAddress: Option[String] = None, language: Option[String] = None) =
     new {
 
       val queryParamsMap: Map[String, Option[String]] = Map(
@@ -186,7 +186,7 @@ trait TestCaseWithFrontEndAuthentication extends TestCase with SessionCookieEncr
       val url = wsUrl(s"/paperless/activate")
         .withSession(
           (SessionKeys.authToken -> header._1)
-        )
+        )(language)
         .withQueryString(
           queryParamsMap.collect {
             case (key, Some(value)) => (key -> applicatinCrypto.QueryParameterCrypto.encrypt(PlainText(value)).value)

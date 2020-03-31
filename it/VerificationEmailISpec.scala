@@ -1,10 +1,11 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  */
 
 import org.jsoup.Jsoup
 import uk.gov.hmrc.http.SessionKeys
+import play.api.test.Helpers._
 
 class VerificationEmailISpec extends EmailSupport with SessionCookieEncryptionSupport {
 
@@ -18,15 +19,15 @@ class VerificationEmailISpec extends EmailSupport with SessionCookieEncryptionSu
 
       val result =
         `/preferences/terms-and-conditions`(("Authorization", bearerToken)).postGenericOptIn(email).futureValue
-      result.status must be(201)
+      result.status must be(CREATED)
       val response =
         `/paperless/resend-verification-email`()
           .withSession(
             (SessionKeys.authToken -> bearerToken)
-          )
+          )()
           .post(emptyJsonValue)
           .futureValue
-      response.status must be(200)
+      response.status must be(OK)
 
       val page = Jsoup.parse(response.body)
       val emailConfirmation = response.body
@@ -45,13 +46,13 @@ class VerificationEmailISpec extends EmailSupport with SessionCookieEncryptionSu
       `/preferences/terms-and-conditions`(authHelper.authHeader(utr))
         .postGenericOptIn(email)
         .futureValue
-        .status must be(201)
+        .status must be(CREATED)
 
       aVerificationEmailIsReceivedFor(email)
 
       val response = `/sa/print-preferences/verification`.verify(verificationTokenFromEmail()) //.futureValue
 
-      response.futureValue.status must be(200) //and
+      response.futureValue.status must be(OK) //and
       response must (have(bodyWith("Email address verified")) and
         have(bodyWith("You&#x27;ve now signed up for paperless notifications.")) and
         have(bodyWith("Continue to your HMRC online account")))
@@ -66,16 +67,15 @@ class VerificationEmailISpec extends EmailSupport with SessionCookieEncryptionSu
       `/preferences/terms-and-conditions`(authHelper.authHeader(utr))
         .postGenericOptIn(email)
         .futureValue
-        .status must be(201)
+        .status must be(CREATED)
 
       aVerificationEmailIsReceivedFor(email)
 
-      `/preferences-admin/sa/individual`.postExpireVerificationLink(`/entity-resolver/sa/:utr`(utr.value)).futureValue.status must be(
-        200)
+      `/preferences-admin/sa/individual`.postExpireVerificationLink(`/entity-resolver/sa/:utr`(utr.value)).futureValue.status must be(OK)
 
       val response = `/sa/print-preferences/verification`.verify(verificationTokenFromEmail())
 
-      response.futureValue.status must be(200)
+      response.futureValue.status must be(OK)
       response must (have(bodyWith("This link has expired")) and
         have(bodyWith("Continue to your HMRC online account")) and
         have(bodyWith("request a new verification link")))
@@ -90,15 +90,15 @@ class VerificationEmailISpec extends EmailSupport with SessionCookieEncryptionSu
       `/preferences/terms-and-conditions`(authHelper.authHeader(utr))
         .postGenericOptIn(email)
         .futureValue
-        .status must be(201)
+        .status must be(CREATED)
 
       aVerificationEmailIsReceivedFor(email)
 
-      `/sa/print-preferences/verification`.verify(verificationTokenFromEmail()).futureValue.status must be(200)
+      `/sa/print-preferences/verification`.verify(verificationTokenFromEmail()).futureValue.status must be(OK)
 
       val response = `/sa/print-preferences/verification`.verify(verificationTokenFromEmail())
 
-      response.futureValue.status must be(400)
+      response.futureValue.status must be(BAD_REQUEST)
       response must (have(bodyWith("Email address already verified")) and
         have(bodyWith("Your email address has already been verified.")) and
         have(bodyWith("Continue to your HMRC online account")))
@@ -113,14 +113,14 @@ class VerificationEmailISpec extends EmailSupport with SessionCookieEncryptionSu
       `/preferences/terms-and-conditions`(authHelper.authHeader(utr))
         .postGenericOptIn(email)
         .futureValue
-        .status must be(201)
+        .status must be(CREATED)
 
       withReceivedEmails(1) {
         case List(mail) =>
           mail must have('to (Some(email)), 'subject ("HMRC electronic communications: verify your email address"))
       }
 
-      `/preferences/terms-and-conditions`(authHelper.authHeader(utr)).postGenericOptOut.futureValue.status must be(200)
+      `/preferences/terms-and-conditions`(authHelper.authHeader(utr)).postGenericOptOut.futureValue.status must be(OK)
 
       `/sa/print-preferences/verification`.verify(verificationTokenFromEmail()) must beForAnExpiredOldEmail
     }
@@ -138,23 +138,22 @@ class VerificationEmailISpec extends EmailSupport with SessionCookieEncryptionSu
       `/preferences/terms-and-conditions`(authHelper.authHeader(utr))
         .postGenericOptIn(email)
         .futureValue
-        .status must be(201)
+        .status must be(CREATED)
 
       aVerificationEmailIsReceivedFor(email)
 
       val verificationTokenFromFirstEmail = verificationTokenFromEmail()
-      `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail).futureValue.status must be(200)
+      `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail).futureValue.status must be(OK)
 
       clearEmails()
 
-      `/preferences`(authHelper.authHeader(utr)).putPendingEmail(newEmail).futureValue.status must be(200)
+      `/preferences`(authHelper.authHeader(utr)).putPendingEmail(newEmail).futureValue.status must be(OK)
 
       withReceivedEmails(2) { emails =>
         emails.flatMap(_.to) must contain(newEmail)
       }
 
-      `/sa/print-preferences/verification`.verify(verificationTokenFromMultipleEmailsFor(newEmail)).futureValue.status must be(
-        200)
+      `/sa/print-preferences/verification`.verify(verificationTokenFromMultipleEmailsFor(newEmail)).futureValue.status must be(OK)
 
       `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) must beForAnExpiredOldEmail
     }
@@ -167,14 +166,14 @@ class VerificationEmailISpec extends EmailSupport with SessionCookieEncryptionSu
       `/preferences/terms-and-conditions`(authHelper.authHeader(utr))
         .postGenericOptIn(email)
         .futureValue
-        .status must be(201)
+        .status must be(CREATED)
 
       aVerificationEmailIsReceivedFor(email)
 
       val verificationTokenFromFirstEmail = verificationTokenFromEmail()
-      `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail).futureValue.status must be(200)
+      `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail).futureValue.status must be(OK)
 
-      `/preferences`(authHelper.authHeader(utr)).putPendingEmail(newEmail).futureValue.status must be(200)
+      `/preferences`(authHelper.authHeader(utr)).putPendingEmail(newEmail).futureValue.status must be(OK)
 
       `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) must beForAnExpiredOldEmail
     }
@@ -188,13 +187,13 @@ class VerificationEmailISpec extends EmailSupport with SessionCookieEncryptionSu
       `/preferences/terms-and-conditions`(authHelper.authHeader(utr))
         .postGenericOptIn(email)
         .futureValue
-        .status must be(201)
+        .status must be(CREATED)
 
       aVerificationEmailIsReceivedFor(email)
 
       val verificationTokenFromFirstEmail = verificationTokenFromEmail()
 
-      `/preferences`(authHelper.authHeader(utr)).putPendingEmail(newEmail).futureValue.status must be(200)
+      `/preferences`(authHelper.authHeader(utr)).putPendingEmail(newEmail).futureValue.status must be(OK)
 
       `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) must beForAnExpiredOldEmail
     }
@@ -208,18 +207,18 @@ class VerificationEmailISpec extends EmailSupport with SessionCookieEncryptionSu
       `/preferences/terms-and-conditions`(authHelper.authHeader(utr))
         .postGenericOptIn(email)
         .futureValue
-        .status must be(201)
+        .status must be(CREATED)
 
       aVerificationEmailIsReceivedFor(email)
 
       val verificationTokenFromFirstEmail = verificationTokenFromEmail()
       clearEmails()
 
-      `/preferences`(authHelper.authHeader(utr)).putPendingEmail(newEmail).futureValue.status must be(200)
+      `/preferences`(authHelper.authHeader(utr)).putPendingEmail(newEmail).futureValue.status must be(OK)
 
       aVerificationEmailIsReceivedFor(newEmail)
 
-      `/sa/print-preferences/verification`.verify(verificationTokenFromEmail()).futureValue.status must be(200)
+      `/sa/print-preferences/verification`.verify(verificationTokenFromEmail()).futureValue.status must be(OK)
 
       `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) must beForAnExpiredOldEmail
 
@@ -236,24 +235,23 @@ class VerificationEmailISpec extends EmailSupport with SessionCookieEncryptionSu
       `/preferences/terms-and-conditions`(authHelper.authHeader(utr))
         .postGenericOptIn(firstEmail)
         .futureValue
-        .status must be(201)
+        .status must be(CREATED)
 
       aVerificationEmailIsReceivedFor(firstEmail)
       val verificationTokenFromFirstEmail = verificationTokenFromEmail()
       clearEmails()
 
-      `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail).futureValue.status must be(200)
+      `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail).futureValue.status must be(OK)
 
-      `/preferences`(authHelper.authHeader(utr)).putPendingEmail(secondEmail).futureValue.status must be(200)
+      `/preferences`(authHelper.authHeader(utr)).putPendingEmail(secondEmail).futureValue.status must be(OK)
       clearEmails()
-      `/preferences`(authHelper.authHeader(utr)).putPendingEmail(newEmail).futureValue.status must be(200)
+      `/preferences`(authHelper.authHeader(utr)).putPendingEmail(newEmail).futureValue.status must be(OK)
 
       withReceivedEmails(2) { emails =>
         emails.flatMap(_.to) must contain(newEmail)
       }
 
-      `/sa/print-preferences/verification`.verify(verificationTokenFromMultipleEmailsFor(newEmail)).futureValue.status must be(
-        200)
+      `/sa/print-preferences/verification`.verify(verificationTokenFromMultipleEmailsFor(newEmail)).futureValue.status must be(OK)
 
       `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) must beForAnExpiredOldEmail
 
@@ -270,16 +268,16 @@ class VerificationEmailISpec extends EmailSupport with SessionCookieEncryptionSu
       `/preferences/terms-and-conditions`(authHelper.authHeader(utr))
         .postGenericOptIn(firstEmail)
         .futureValue
-        .status must be(201)
+        .status must be(CREATED)
 
       aVerificationEmailIsReceivedFor(firstEmail)
       val verificationTokenFromFirstEmail = verificationTokenFromEmail()
 
-      `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail).futureValue.status must be(200)
+      `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail).futureValue.status must be(OK)
 
-      `/preferences`(authHelper.authHeader(utr)).putPendingEmail(secondEmail).futureValue.status must be(200)
+      `/preferences`(authHelper.authHeader(utr)).putPendingEmail(secondEmail).futureValue.status must be(OK)
 
-      `/preferences`(authHelper.authHeader(utr)).putPendingEmail(newEmail).futureValue.status must be(200)
+      `/preferences`(authHelper.authHeader(utr)).putPendingEmail(newEmail).futureValue.status must be(OK)
 
       `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) must beForAnExpiredOldEmail
     }

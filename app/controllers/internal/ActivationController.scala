@@ -5,23 +5,23 @@
 
 package controllers.internal
 
-import connectors.{EntityResolverConnector, _}
+import connectors.{ EntityResolverConnector, _ }
 import controllers.ExternalUrlPrefixes
-import controllers.auth.{AuthenticatedRequest, WithAuthRetrievals}
+import controllers.auth.{ AuthenticatedRequest, WithAuthRetrievals }
 import javax.inject.Inject
-import model.{Encrypted, FormType, HostContext, Language }
+import model.{ Encrypted, FormType, HostContext, Language }
 import org.joda.time.DateTime
 import play.api.Configuration
 import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.mvc.{ Action, AnyContent, MessagesControllerComponents, Result }
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.config.RunMode
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 
 class ActivationController @Inject()(
   entityResolverConnector: EntityResolverConnector,
@@ -50,8 +50,8 @@ class ActivationController @Inject()(
   }
 
   def activate(hostContext: HostContext): Action[AnyContent] = Action.async { implicit request =>
-    withAuthenticatedRequest { implicit authenticatedRequest: AuthenticatedRequest[_] =>
-      implicit hc: HeaderCarrier => {
+    withAuthenticatedRequest { implicit authenticatedRequest: AuthenticatedRequest[_] => implicit hc: HeaderCarrier =>
+      {
         val terms = hostContext.termsAndConditions.getOrElse("generic")
         for {
           preferenceStatus <- entityResolverConnector.getPreferencesStatus(terms)
@@ -62,23 +62,22 @@ class ActivationController @Inject()(
     }
   }
 
-  def activateFromToken(svc: String, token: String, hostContext: HostContext): Action[AnyContent] = Action.async {
-    implicit request =>
-      withAuthenticatedRequest { implicit authenticatedRequest: AuthenticatedRequest[_] =>
-        implicit hc: HeaderCarrier => {
-          for {
-            preferenceStatus <- entityResolverConnector.getPreferencesStatusByToken(svc, token)
-            lang = languageType(request.lang.code)
-            _ <- _storeLanguagePreference(hostContext, lang, preferenceStatus)
-          } yield _preferencesStatusResultMtd(svc, token, hostContext, preferenceStatus)
-        }
+  def activateFromToken(svc: String, token: String, hostContext: HostContext): Action[AnyContent] = Action.async { implicit request =>
+    withAuthenticatedRequest { implicit authenticatedRequest: AuthenticatedRequest[_] => implicit hc: HeaderCarrier =>
+      {
+        for {
+          preferenceStatus <- entityResolverConnector.getPreferencesStatusByToken(svc, token)
+          lang = languageType(request.lang.code)
+          _ <- _storeLanguagePreference(hostContext, lang, preferenceStatus)
+        } yield _preferencesStatusResultMtd(svc, token, hostContext, preferenceStatus)
       }
+    }
   }
 
-  def activateLegacyFromTaxIdentifier(formType: FormType, taxIdentifier: String, hostContext: HostContext):
-    Action[AnyContent] = activate(hostContext)
+  def activateLegacyFromTaxIdentifier(formType: FormType, taxIdentifier: String, hostContext: HostContext): Action[AnyContent] = activate(hostContext)
 
-  private def _storeLanguagePreference(hostContext: HostContext, lang: Language, preferenceStatus: Either[Int, PreferenceStatus])(implicit hc: HeaderCarrier): Future[Unit] = {
+  private def _storeLanguagePreference(hostContext: HostContext, lang: Language, preferenceStatus: Either[Int, PreferenceStatus])(
+    implicit hc: HeaderCarrier): Future[Unit] =
     preferenceStatus match {
       case Right(PreferenceFound(true, emailPreference, _)) if emailPreference.fold(false)(_.language.isEmpty) => {
         entityResolverConnector
@@ -87,7 +86,6 @@ class ActivationController @Inject()(
       }
       case _ => Future.successful(())
     }
-  }
 
   private def _preferencesStatusResultMtd(svc: String, token: String, hostContext: HostContext, preferenceStatus: Either[Int, PreferenceStatus])(
     implicit hc: HeaderCarrier): Result =
@@ -99,8 +97,9 @@ class ActivationController @Inject()(
           .url
         PreconditionFailed(Json.obj("redirectUserTo" -> redirectUrl))
       case Right(PreferenceFound(true, emailPreference, _)) =>
-        Ok(Json.obj(
-            "optedIn" -> true,
+        Ok(
+          Json.obj(
+            "optedIn"       -> true,
             "verifiedEmail" -> emailPreference.fold(false)(_.isVerified)
           ))
       case Right(PreferenceFound(false, email, _)) =>
@@ -108,21 +107,22 @@ class ActivationController @Inject()(
         val redirectUrl = hostUrl + routes.ChoosePaperlessController
           .redirectToDisplayFormWithCohortBySvc(svc, token, encryptedEmail, hostContext)
           .url
-          Ok(Json.obj(
-            "optedIn"       -> false,
+        Ok(
+          Json.obj(
+            "optedIn"        -> false,
             "redirectUserTo" -> redirectUrl
           ))
       case _ => NotFound
     }
 
-  private def _preferencesStatusResult(hostContext: HostContext, preferenceStatus: Either[Int, PreferenceStatus])(implicit hc: HeaderCarrier): Result = {
-
+  private def _preferencesStatusResult(hostContext: HostContext, preferenceStatus: Either[Int, PreferenceStatus])(implicit hc: HeaderCarrier): Result =
     preferenceStatus match {
       case Right(PreferenceFound(true, emailPreference, updatedAt)) if hostContext.alreadyOptedInUrl.isDefined => {
         Redirect(hostContext.alreadyOptedInUrl.get)
       }
       case Right(PreferenceFound(true, emailPreference, _)) =>
-        Ok(Json.obj(
+        Ok(
+          Json.obj(
             "optedIn"       -> true,
             "verifiedEmail" -> emailPreference.fold(false)(_.isVerified)
           ))
@@ -156,5 +156,4 @@ class ActivationController @Inject()(
         PreconditionFailed(Json.obj("redirectUserTo" -> redirectUrl))
       case Left(status) => Status(status)
     }
-  }
 }

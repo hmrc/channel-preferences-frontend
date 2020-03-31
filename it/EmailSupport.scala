@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  */
 
@@ -7,6 +7,7 @@ import org.scalatest.concurrent.{ Eventually, IntegrationPatience }
 import org.scalatest.matchers.{ HavePropertyMatchResult, HavePropertyMatcher, Matcher }
 import play.api.libs.json.Json
 import play.api.libs.ws.WSResponse
+import play.api.test.Helpers._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ Await, Future }
@@ -29,15 +30,13 @@ trait EmailSupport extends TestCaseWithFrontEndAuthentication with IntegrationPa
   val emptyJsonValue = Json.parse("{}")
 
   def clearEmails() = {
-    eventually(
-      wsClient.url(s"$emailBaseUrl/test-only/hmrc/email-admin/process-email-queue").post("").futureValue.status must be(
-        200))
+    eventually(wsClient.url(s"$emailBaseUrl/test-only/hmrc/email-admin/process-email-queue").post("").futureValue.status must be(OK))
     wsClient.url(s"$mailgunStubUrl/v2/reset").get().futureValue
   }
 
   def emails: Future[List[Email]] = {
     val resp = wsClient.url(s"$mailgunStubUrl/v2/email").get()
-    resp.futureValue.status must be(200)
+    resp.futureValue.status must be(OK)
     resp.map(r => r.json.as[List[Email]])
   }
 
@@ -109,13 +108,6 @@ trait EmailSupport extends TestCaseWithFrontEndAuthentication with IntegrationPa
 
 object EmailSupport {
   //TODO simplify this type
-  case class Email(
-    from: String,
-    to: Option[String],
-    subject: String,
-    text: Option[String],
-    html: Option[String],
-    cc: Option[String],
-    bcc: Option[String])
+  case class Email(from: String, to: Option[String], subject: String, text: Option[String], html: Option[String], cc: Option[String], bcc: Option[String])
   case class Token(token: String)
 }

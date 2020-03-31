@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  */
 
@@ -170,7 +170,7 @@ trait SessionCookieEncryptionSupport extends Injecting {
   lazy val cipher = new CryptoGCMWithKeysFromConfig("cookie.encryption", Play.current.configuration.underlying)
 
   implicit class WSRequestWithSession(request: WSRequest) {
-    def withSession(pair: (String, String)*): WSRequest = {
+    def withSession(pair: (String, String)*)(language: Option[String] = None): WSRequest = {
       val payload = pair.toSeq
         .map {
           case (k, v) => s"$k=${URLEncoder.encode(v, CharEncoding.UTF_8)}"
@@ -180,7 +180,8 @@ trait SessionCookieEncryptionSupport extends Injecting {
       // https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Http.scala#encode
       val signedPayload = signer.sign(payload) + SignSeparator + payload
       val encryptedSignedPayload: String = cipher.encrypt(PlainText(signedPayload)).value
-      val sessionCookie = s"""$mdtpSessionCookie=$encryptedSignedPayload"""
+      val languageSelection = language.fold("")(lang => s";PLAY_LANG=$lang;")
+      val sessionCookie = s"""$mdtpSessionCookie=$encryptedSignedPayload$languageSelection"""
       request.withHttpHeaders((HeaderNames.COOKIE, sessionCookie))
     }
   }

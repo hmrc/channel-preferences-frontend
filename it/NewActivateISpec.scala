@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  */
 
@@ -23,14 +23,14 @@ class NewActivateGraceOutISpec extends EmailSupport with SessionCookieEncryption
 
       val utr = Generate.utr
       clearEmails()
-      `/preferences/terms-and-conditions`(authHelper.authHeader(utr)).postGenericOptOut.futureValue.status must be(201)
+      `/preferences/terms-and-conditions`(authHelper.authHeader(utr)).postGenericOptOut.futureValue.status must be(CREATED)
 
       val response = `/paperless/activate`(utr)().put().futureValue
       response.status must be(PRECONDITION_FAILED)
 
     }
 
-    "return OK for  existing Opted-in customer with  unverified email" in {
+    "return OK for existing Opted-in customer with unverified email" in {
 
       val utr = Generate.utr
       clearEmails()
@@ -38,24 +38,24 @@ class NewActivateGraceOutISpec extends EmailSupport with SessionCookieEncryption
       `/preferences/terms-and-conditions`(authHelper.authHeader(utr))
         .postGenericOptIn(email)
         .futureValue
-        .status must be(201)
+        .status must be(CREATED)
 
       val response = `/paperless/activate`(utr)().put().futureValue
       response.status must be(OK)
     }
 
-    "return OK for Existing Opted-in customer with verified email)" in {
+    "return OK for Existing Opted-in customer with verified email" in {
       val utr = Generate.utr
       val email = uniqueEmail
       clearEmails()
       `/preferences/terms-and-conditions`(authHelper.authHeader(utr))
         .postGenericOptIn(email)
         .futureValue
-        .status must be(201)
+        .status must be(CREATED)
       aVerificationEmailIsReceivedFor(email)
 
       val verificationResponse = `/sa/print-preferences/verification`.verify(verificationTokenFromEmail())
-      verificationResponse.futureValue.status must be(200)
+      verificationResponse.futureValue.status must be(OK)
 
       verificationResponse must (have(bodyWith("Email address verified")) and
         have(bodyWith("You&#x27;ve now signed up for paperless notifications.")) and
@@ -65,7 +65,68 @@ class NewActivateGraceOutISpec extends EmailSupport with SessionCookieEncryption
       response.status must be(OK)
     }
 
-    "return PRECONDITION_FAILED for Existing  Opted-out customer who was previously Opted-in with verified email)" in {
+    "set language preference based on cookie language value for Existing Opted-in customer which has no existing language preference" in {
+      val utr = Generate.utr
+      val email = uniqueEmail
+      clearEmails()
+      `/preferences/terms-and-conditions`(authHelper.authHeader(utr))
+        .postGenericOptIn(email)
+        .futureValue
+        .status must be(CREATED)
+      aVerificationEmailIsReceivedFor(email)
+
+      val prefStatusResponse = `/preferences`(authHelper.authHeader(utr)).getPreference.futureValue
+      prefStatusResponse.status must be(OK)
+      (prefStatusResponse.json \ "email" \ "language").isEmpty must be(true)
+
+      val verificationResponse = `/sa/print-preferences/verification`.verify(verificationTokenFromEmail())
+      verificationResponse.futureValue.status must be(OK)
+
+      verificationResponse must (have(bodyWith("Email address verified")) and
+        have(bodyWith("You&#x27;ve now signed up for paperless notifications.")) and
+        have(bodyWith("Continue to your HMRC online account")))
+
+      val response = `/paperless/activate`(utr)(None, None, Some("cy")).put().futureValue
+      response.status must be(OK)
+
+      val prefStatusActivatedResponse = `/preferences`(authHelper.authHeader(utr)).getPreference.futureValue
+      prefStatusActivatedResponse.status must be(OK)
+      (prefStatusActivatedResponse.json \ "email" \ "language").as[String] must be("cy")
+    }
+
+    "not silently overwrite a language preference based on cookie value for Existing Opted-in customer which has an existing language preference" in {
+      val utr = Generate.utr
+      val email = uniqueEmail
+      clearEmails()
+      `/preferences/terms-and-conditions`(authHelper.authHeader(utr))
+        .postGenericOptIn(email)
+        .futureValue
+        .status must be(CREATED)
+      aVerificationEmailIsReceivedFor(email)
+
+      val prefStatusResponse = `/preferences`(authHelper.authHeader(utr)).getPreference.futureValue
+      prefStatusResponse.status must be(OK)
+      (prefStatusResponse.json \ "email" \ "language").isEmpty must be(true)
+
+      val verificationResponse = `/sa/print-preferences/verification`.verify(verificationTokenFromEmail())
+      verificationResponse.futureValue.status must be(OK)
+
+      verificationResponse must (have(bodyWith("Email address verified")) and
+        have(bodyWith("You&#x27;ve now signed up for paperless notifications.")) and
+        have(bodyWith("Continue to your HMRC online account")))
+
+      val responseEnglish = `/paperless/activate`(utr)(None, None, Some("en")).put().futureValue
+      responseEnglish.status must be(OK)
+
+      val responseWelsh = `/paperless/activate`(utr)(None, None, Some("cy")).put().futureValue
+      responseWelsh.status must be(OK)
+
+      val prefStatusActivatedResponse = `/preferences`(authHelper.authHeader(utr)).getPreference.futureValue
+      prefStatusActivatedResponse.status must be(OK)
+      (prefStatusActivatedResponse.json \ "email" \ "language").as[String] must be("en")
+    }
+
+    "return PRECONDITION_FAILED for Existing Opted-out customer who was previously Opted-in with verified email" in {
       val utr = Generate.utr
       val email = uniqueEmail
       clearEmails()
@@ -73,29 +134,29 @@ class NewActivateGraceOutISpec extends EmailSupport with SessionCookieEncryption
       `/preferences/terms-and-conditions`(authHelper.authHeader(utr))
         .postGenericOptIn(email)
         .futureValue
-        .status must be(201)
+        .status must be(CREATED)
       aVerificationEmailIsReceivedFor(email)
 
       val verificationResponse = `/sa/print-preferences/verification`.verify(verificationTokenFromEmail())
-      verificationResponse.futureValue.status must be(200)
+      verificationResponse.futureValue.status must be(OK)
       verificationResponse must (have(bodyWith("Email address verified")) and
         have(bodyWith("You&#x27;ve now signed up for paperless notifications.")) and
         have(bodyWith("Continue to your HMRC online account")))
 
-      `/preferences/terms-and-conditions`(authHelper.authHeader(utr)).postGenericOptOut.futureValue.status must be(200)
+      `/preferences/terms-and-conditions`(authHelper.authHeader(utr)).postGenericOptOut.futureValue.status must be(OK)
 
       val response = `/paperless/activate`(utr)().put().futureValue
       response.status must be(PRECONDITION_FAILED)
     }
-    "return PRECONDITION_FAILED for Existing  Opted-out customer who was previously Opted-in with unverified email)" in {
+    "return PRECONDITION_FAILED for Existing Opted-out customer who was previously Opted-in with unverified email" in {
       val utr = Generate.utr
       val email = uniqueEmail
       clearEmails()
       `/preferences/terms-and-conditions`(authHelper.authHeader(utr))
         .postGenericOptIn(email)
         .futureValue
-        .status must be(201)
-      `/preferences/terms-and-conditions`(authHelper.authHeader(utr)).postGenericOptOut.futureValue.status must be(200)
+        .status must be(CREATED)
+      `/preferences/terms-and-conditions`(authHelper.authHeader(utr)).postGenericOptOut.futureValue.status must be(OK)
 
       val response = `/paperless/activate`(utr)().put().futureValue
       response.status must be(PRECONDITION_FAILED)
@@ -117,36 +178,36 @@ class NewActivateGraceInISpec extends EmailSupport with SessionCookieEncryptionS
 
   "activate within grace period" should {
 
-    "return OK for Existing  Opted-out customer who was previously Opted-in with verified email)" in {
+    "return OK for Existing Opted-out customer who was previously Opted-in with verified email" in {
       val utr = Generate.utr
       val email = uniqueEmail
       clearEmails()
       `/preferences/terms-and-conditions`(authHelper.authHeader(utr))
         .postGenericOptIn(email)
         .futureValue
-        .status must be(201)
+        .status must be(CREATED)
       aVerificationEmailIsReceivedFor(email)
       val verificationResponse = `/sa/print-preferences/verification`.verify(verificationTokenFromEmail())
-      verificationResponse.futureValue.status must be(200)
+      verificationResponse.futureValue.status must be(OK)
       verificationResponse must (have(bodyWith("Email address verified")) and
         have(bodyWith("You&#x27;ve now signed up for paperless notifications.")) and
         have(bodyWith("Continue to your HMRC online account")))
 
-      `/preferences/terms-and-conditions`(authHelper.authHeader(utr)).postGenericOptOut.futureValue.status must be(200)
+      `/preferences/terms-and-conditions`(authHelper.authHeader(utr)).postGenericOptOut.futureValue.status must be(OK)
 
       val response = `/paperless/activate`(utr)().put().futureValue
       response.status must be(OK)
 
     }
-    "return OK for Existing  Opted-out customer who was previously Opted-in with unverified email)" in {
+    "return OK for Existing Opted-out customer who was previously Opted-in with unverified email" in {
       val utr = Generate.utr
       val email = uniqueEmail
       clearEmails()
       `/preferences/terms-and-conditions`(authHelper.authHeader(utr))
         .postGenericOptIn(email)
         .futureValue
-        .status must be(201)
-      `/preferences/terms-and-conditions`(authHelper.authHeader(utr)).postGenericOptOut.futureValue.status must be(200)
+        .status must be(CREATED)
+      `/preferences/terms-and-conditions`(authHelper.authHeader(utr)).postGenericOptOut.futureValue.status must be(OK)
 
       val response = `/paperless/activate`(utr)().put().futureValue
       response.status must be(OK)

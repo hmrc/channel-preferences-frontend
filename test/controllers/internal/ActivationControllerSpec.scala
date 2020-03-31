@@ -6,11 +6,11 @@
 package controllers.internal
 
 import _root_.connectors._
-import org.joda.time.{DateTime, DateTimeZone}
-import org.scalatest.{BeforeAndAfterEach, FeatureSpec, GivenWhenThen, MustMatchers}
-import uk.gov.hmrc.auth.core.retrieve.{LoginTimes, Name}
+import org.joda.time.{ DateTime, DateTimeZone }
+import org.scalatest.{ BeforeAndAfterEach, FeatureSpec, GivenWhenThen, MustMatchers }
+import uk.gov.hmrc.auth.core.retrieve.{ LoginTimes, Name }
 import helpers.TestFixtures
-import model.{HostContext, Language}
+import model.{ HostContext, Language }
 import org.jsoup.Jsoup
 import org.mockito.Matchers.any
 import org.mockito.Mockito.when
@@ -20,21 +20,20 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject._
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.mvc.Results.{NotFound, Ok, PreconditionFailed}
+import play.api.mvc.Results.{ NotFound, Ok, PreconditionFailed }
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.~
 import org.scalatest.concurrent.ScalaFutures
-import org.mockito.Matchers.{any, eq => is}
+import org.mockito.Matchers.{ any, eq => is }
 import org.mockito.Mockito._
 
 import scala.concurrent.Future
 import org.scalatest.concurrent.ScalaFutures
 
-class ActivationControllerSpec
-    extends PlaySpec with GuiceOneAppPerSuite with BeforeAndAfterEach with MockitoSugar with ScalaFutures {
+class ActivationControllerSpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAndAfterEach with MockitoSugar with ScalaFutures {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -63,9 +62,7 @@ class ActivationControllerSpec
   val retrievalResult: Future[Option[Name] ~ LoginTimes ~ Option[String] ~ Option[String]] =
     Future.successful(
       new ~(
-        new ~(
-          new ~(Some(Name(Some("Alex"), Some("Brown"))), LoginTimes(currentLogin, Some(previousLogin))),
-          Option.empty[String]),
+        new ~(new ~(Some(Name(Some("Alex"), Some("Brown"))), LoginTimes(currentLogin, Some(previousLogin))), Option.empty[String]),
         Some("1234567890")
       ))
 
@@ -78,20 +75,17 @@ class ActivationControllerSpec
         reset(mockEntityResolverConnector)
         when(mockEntityResolverConnector.getPreferencesStatus(any())(any()))
           .thenReturn(Future.successful(Right(PreferenceFound(true, Some(email)))))
-        when(mockEntityResolverConnector
-          .updateTermsAndConditions(is(TermsAndConditionsUpdate.fromLanguage(Some(Language.English))))(
-            any(),
-            is(TestFixtures.sampleHostContext))
-        ).thenReturn(Future.successful(PreferencesCreated))
+        when(
+          mockEntityResolverConnector
+            .updateTermsAndConditions(is(TermsAndConditionsUpdate.fromLanguage(Some(Language.English))))(any(), is(TestFixtures.sampleHostContext)))
+          .thenReturn(Future.successful(PreferencesCreated))
         val cookies = Cookie("PLAY_LANG", "en")
         val res: Future[Result] = controller.activate(TestFixtures.sampleHostContext)(request.withCookies(cookies))
         status(res) mustBe Ok.header.status
         val document = Jsoup.parse(contentAsString(res))
         document.getElementsByTag("body").first().html() must include("""{"optedIn":true,"verifiedEmail":false}""")
         verify(mockEntityResolverConnector, times(1))
-          .updateTermsAndConditions(is(TermsAndConditionsUpdate.fromLanguage(Some(Language.English))))(
-            any(),
-            is(TestFixtures.sampleHostContext))
+          .updateTermsAndConditions(is(TermsAndConditionsUpdate.fromLanguage(Some(Language.English))))(any(), is(TestFixtures.sampleHostContext))
       }
 
       "redirect to the alreadyOptedInUrl if preference is found and opted-in and an alreadyOptedInUrl is present" in {
@@ -99,11 +93,10 @@ class ActivationControllerSpec
         reset(mockEntityResolverConnector)
         when(mockEntityResolverConnector.getPreferencesStatus(any())(any()))
           .thenReturn(Future.successful(Right(PreferenceFound(true, Some(email)))))
-        when(mockEntityResolverConnector
-          .updateTermsAndConditions(is(TermsAndConditionsUpdate.fromLanguage(Some(Language.Welsh))))(
-            any(),
-            is(TestFixtures.alreadyOptedInUrlHostContext))
-        ).thenReturn(Future.successful(PreferencesCreated))
+        when(
+          mockEntityResolverConnector
+            .updateTermsAndConditions(is(TermsAndConditionsUpdate.fromLanguage(Some(Language.Welsh))))(any(), is(TestFixtures.alreadyOptedInUrlHostContext)))
+          .thenReturn(Future.successful(PreferencesCreated))
         val cookies = Cookie("PLAY_LANG", "cy")
         val res: Future[Result] = controller.activate(TestFixtures.alreadyOptedInUrlHostContext)(request.withCookies(cookies))
 
@@ -113,9 +106,7 @@ class ActivationControllerSpec
           result.header.headers.get("Location") mustBe TestFixtures.alreadyOptedInUrlHostContext.alreadyOptedInUrl.get
         }
         verify(mockEntityResolverConnector, times(1))
-          .updateTermsAndConditions(is(TermsAndConditionsUpdate.fromLanguage(Some(Language.Welsh))))(
-            any(),
-            is(TestFixtures.alreadyOptedInUrlHostContext))
+          .updateTermsAndConditions(is(TermsAndConditionsUpdate.fromLanguage(Some(Language.Welsh))))(any(), is(TestFixtures.alreadyOptedInUrlHostContext))
       }
     }
 
@@ -255,8 +246,7 @@ class ActivationControllerSpec
         controller.activateFromToken("mtdfbit", "token", TestFixtures.sampleHostContext)(request)
       status(res) mustBe PreconditionFailed.header.status
       val document = Jsoup.parse(contentAsString(res))
-      document.getElementsByTag("body").first().html() must startWith(
-        """{"redirectUserTo":"/paperless/choose/cohort/mtdfbit/token?email=""")
+      document.getElementsByTag("body").first().html() must startWith("""{"redirectUserTo":"/paperless/choose/cohort/mtdfbit/token?email=""")
     }
 
     "store the current user's language stored in the journey cookie when there is no language setting in preferences and" should {
@@ -265,11 +255,10 @@ class ActivationControllerSpec
         reset(mockEntityResolverConnector)
         when(mockEntityResolverConnector.getPreferencesStatusByToken(any(), any(), any())(any()))
           .thenReturn(Future.successful(Right(PreferenceFound(true, Some(email)))))
-        when(mockEntityResolverConnector
-          .updateTermsAndConditions(is(TermsAndConditionsUpdate.fromLanguage(Some(Language.English))))(
-            any(),
-            is(TestFixtures.sampleHostContext))
-        ).thenReturn(Future.successful(PreferencesCreated))
+        when(
+          mockEntityResolverConnector
+            .updateTermsAndConditions(is(TermsAndConditionsUpdate.fromLanguage(Some(Language.English))))(any(), is(TestFixtures.sampleHostContext)))
+          .thenReturn(Future.successful(PreferencesCreated))
         val cookies = Cookie("PLAY_LANG", "en")
         val res: Future[Result] =
           controller.activateFromToken("mtdfbit", "token", TestFixtures.sampleHostContext)(request.withCookies(cookies))
@@ -278,9 +267,7 @@ class ActivationControllerSpec
         val document = Jsoup.parse(contentAsString(res))
         document.getElementsByTag("body").first().html() must include("""{"optedIn":true,"verifiedEmail":false}""")
         verify(mockEntityResolverConnector, times(1))
-          .updateTermsAndConditions(is(TermsAndConditionsUpdate.fromLanguage(Some(Language.English))))(
-            any(),
-            is(TestFixtures.sampleHostContext))
+          .updateTermsAndConditions(is(TermsAndConditionsUpdate.fromLanguage(Some(Language.English))))(any(), is(TestFixtures.sampleHostContext))
       }
 
       "return a json body with optedIn set to true if preference is found and opted-in and an alreadyOptedInUrl is present but without a language setting" in {
@@ -288,11 +275,10 @@ class ActivationControllerSpec
         reset(mockEntityResolverConnector)
         when(mockEntityResolverConnector.getPreferencesStatusByToken(any(), any(), any())(any()))
           .thenReturn(Future.successful(Right(PreferenceFound(true, Some(email)))))
-        when(mockEntityResolverConnector
-          .updateTermsAndConditions(is(TermsAndConditionsUpdate.fromLanguage(Some(Language.Welsh))))(
-            any(),
-            is(TestFixtures.alreadyOptedInUrlHostContext))
-        ).thenReturn(Future.successful(PreferencesCreated))
+        when(
+          mockEntityResolverConnector
+            .updateTermsAndConditions(is(TermsAndConditionsUpdate.fromLanguage(Some(Language.Welsh))))(any(), is(TestFixtures.alreadyOptedInUrlHostContext)))
+          .thenReturn(Future.successful(PreferencesCreated))
         val cookies = Cookie("PLAY_LANG", "cy")
         val res: Future[Result] =
           controller.activateFromToken("mtdfbit", "token", TestFixtures.alreadyOptedInUrlHostContext)(request.withCookies(cookies))
@@ -301,9 +287,7 @@ class ActivationControllerSpec
         val document = Jsoup.parse(contentAsString(res))
         document.getElementsByTag("body").first().html() must include("""{"optedIn":true,"verifiedEmail":false}""")
         verify(mockEntityResolverConnector, times(1))
-          .updateTermsAndConditions(is(TermsAndConditionsUpdate.fromLanguage(Some(Language.Welsh))))(
-            any(),
-            is(TestFixtures.alreadyOptedInUrlHostContext))
+          .updateTermsAndConditions(is(TermsAndConditionsUpdate.fromLanguage(Some(Language.Welsh))))(any(), is(TestFixtures.alreadyOptedInUrlHostContext))
       }
     }
 
@@ -318,8 +302,7 @@ class ActivationControllerSpec
 
         status(res) mustBe Ok.header.status
         val document = Jsoup.parse(contentAsString(res))
-        document.getElementsByTag("body").first().html() must startWith(
-          """{"optedIn":false,"redirectUserTo":"/paperless/choose/cohort/mtdfbit/token?email=""")
+        document.getElementsByTag("body").first().html() must startWith("""{"optedIn":false,"redirectUserTo":"/paperless/choose/cohort/mtdfbit/token?email=""")
         verify(mockEntityResolverConnector, never()).updateTermsAndConditions(any())(any(), any())
       }
     }
@@ -334,8 +317,7 @@ class ActivationControllerSpec
 
       status(res) mustBe PreconditionFailed.header.status
       val document = Jsoup.parse(contentAsString(res))
-      document.getElementsByTag("body").first().html() must startWith(
-        """{"redirectUserTo":""")
+      document.getElementsByTag("body").first().html() must startWith("""{"redirectUserTo":""")
       verify(mockEntityResolverConnector, never()).updateTermsAndConditions(any())(any(), any())
     }
   }
