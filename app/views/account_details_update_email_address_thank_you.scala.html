@@ -18,6 +18,6 @@
     <p id="verification-mail-message">@Messages("account.details.update.email.thank_you.verify")</p>
     <p>@Messages("account.details.update.email.thank_you.old_address")</p>
     <ul class="action-list">
-        <li>@Link.toInternalPage(id = Some("return-to-dashboard-button"), url = hostContext.returnUrl, value = Some(hostContext.returnLinkText)).toHtml</li>
+        <li>@Link.toInternalPage(id = Some("return-to-dashboard-button"), url = controllers.internal.routes.ManagePaperlessController.checkSettings(hostContext).url, value = Some(Messages("manage.paperless.check.settings.linkText"))).toHtml</li>
     </ul>
 }

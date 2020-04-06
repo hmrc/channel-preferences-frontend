@@ -30,7 +30,7 @@ class ConfirmOptBackIntoPaperSpec extends PlaySpec with GuiceOneAppPerSuite with
       document.getElementsByTag("title").first().text() mustBe "Stop notifications"
       document.getElementsByTag("h1").get(0).text() mustBe "Stop notifications"
       document.getElementsByTag("p").get(1).text() mustBe "You'll get letters again, instead of emails."
-      document.getElementById("cancel-link").text() mustBe "Cancel"
+      document.getElementById("cancel-link").text() mustBe "Continue"
     }
 
     "render the correct content in welsh" in {
@@ -44,7 +44,7 @@ class ConfirmOptBackIntoPaperSpec extends PlaySpec with GuiceOneAppPerSuite with
         .getElementsByTag("p")
         .get(1)
         .text() mustBe "Byddwch yn cael llythyrau unwaith eto, yn hytrach nag e-byst."
-      document.getElementById("cancel-link").text() mustBe "Canslo"
+      document.getElementById("cancel-link").text() mustBe "Yn eich blaen"
     }
   }
 }

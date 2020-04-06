@@ -465,7 +465,7 @@ class ChoosePaperlessController @Inject()(
             entityResolverConnector
               .updateTermsAndConditions(TermsAndConditionsUpdate.fromLanguage(Some(lang)))
               .map { preferencesStatus =>
-                Redirect(hostContext.returnUrl)
+                Redirect(routes.ManagePaperlessController.checkSettings(hostContext))
               }
           }
         )

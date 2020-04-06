@@ -17,6 +17,6 @@
     <p>@Messages("opted.back.into.paperless.para_2")</p>
     <p>@Messages("opted.back.into.paperless.para_3")</p>
     <ul class="action-list">
-        <li>@Link.toInternalPage(id = Some("return-to-dashboard-button"), url = hostContext.returnUrl, value = Some(hostContext.returnLinkText)).toHtml</li>
+        <li>@Link.toInternalPage(id = Some("return-to-dashboard-button"), url = controllers.internal.routes.ManagePaperlessController.checkSettings(hostContext).url, value = Some(Messages("manage.paperless.check.settings.linkText"))).toHtml).toHtml</li>
     </ul>
 }

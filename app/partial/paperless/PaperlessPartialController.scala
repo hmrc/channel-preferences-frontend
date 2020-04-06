@@ -39,7 +39,7 @@ class PaperlessPartialController @Inject()(
       entityResolverConnector.getPreferences().map {
         case None => NotFound
         case Some(prefs) =>
-          Ok(PaperlessWarningPartial.apply(prefs, hostContext.returnUrl, hostContext.returnLinkText))
+          Ok(PaperlessWarningPartial.apply(prefs, hostContext))
             .withHeaders("X-Opted-In-Email" -> prefs.genericTermsAccepted.toString)
       }
     }(request, ec)

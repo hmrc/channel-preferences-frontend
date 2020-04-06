@@ -3,7 +3,8 @@
  *
  *@
 
-@(emailPreference: connectors.EmailPreference, returnUrl: String, returnLinkText: String)(implicit request: Request[_], messages: Messages)
+@import model.HostContext
+@(emailPreference: connectors.EmailPreference, hostContext: HostContext)(implicit request: Request[_], messages: Messages)
 @import uk.gov.hmrc.urls.Link
 @import views.sa.prefs.helpers.DateFormat.longDateFormat
 
@@ -14,8 +15,8 @@
         <p>@Messages("pending.email.verification.para_2")
             @Link.toInternalPage(
             id = Some("remindersProblem"),
-            url = returnUrl,
-            value = Some(returnLinkText)
+            url = controllers.internal.routes.ManagePaperlessController.checkSettings(hostContext).url,
+            value = Some(Messages("manage.paperless.check.settings.linkText"))
             ).toHtml </p>
     </div>
 </details>

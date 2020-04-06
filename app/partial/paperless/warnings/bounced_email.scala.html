@@ -3,7 +3,8 @@
  *
  *@
 
-@(mailBoxFull: Boolean, returnUrl: String, returnLinkText: String)(implicit request: Request[_], messages: Messages)
+@import model.HostContext
+@(mailBoxFull: Boolean, hostContext: HostContext)(implicit request: Request[_], messages: Messages)
 
 @import uk.gov.hmrc.urls.Link
 
@@ -16,8 +17,8 @@
         <p>@Messages("paperless.warnings.bounced.goto")
             @Link.toInternalPage(
             id = Some("remindersProblem"),
-            url = returnUrl,
-            value = Some(returnLinkText)
+            url = controllers.internal.routes.ManagePaperlessController.checkSettings(hostContext).url,
+            value = Some(Messages("manage.paperless.check.settings.linkText"))
             ).toHtml @Messages("paperless.warnings.bounced.more.info")</p>
     </div>
 </details>

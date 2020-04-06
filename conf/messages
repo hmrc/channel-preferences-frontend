@@ -246,3 +246,4 @@ paperless.status.url.text.bounced=Confirm or change your email address
 paperless.status.url.text.alright=Check your settings
 paperless.status.url.text.welsh_available=Change your language
 paperless.status.url.text.no_email=Set up your email address
+manage.paperless.check.settings.linkText=Continue

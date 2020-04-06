@@ -244,3 +244,4 @@ paperless.status.url.text.bounced=Cadarnhau neu newid eich cyfeiriad e-bost
 paperless.status.url.text.alright=Gwirio’ch gosodiadau
 paperless.status.url.text.welsh_available=Newid eich iaith
 paperless.status.url.text.no_email=Sefydlu’ch cyfeiriad e-bost
+manage.paperless.check.settings.linkText=Yn eich blaen
