@@ -30,7 +30,7 @@ class AccountDetailsUpdateEmailAddressSpec
       document.getElementsByTag("h1").get(0).text() mustBe "Change your email address"
       document.getElementsByTag("p").get(1).childNodes().get(0).toString mustBe "Emails are sent to "
       document.getElementById("submit-email-button").text() mustBe "Change email address"
-      document.getElementById("cancel-link").text() mustBe "Continue"
+      document.getElementById("cancel-link").text() mustBe "Cancel"
       document.getElementsByAttributeValue("for", "email.main").first().child(0).text() mustBe "New email address"
       document
         .getElementsByAttributeValue("for", "email.confirm")
@@ -41,7 +41,7 @@ class AccountDetailsUpdateEmailAddressSpec
         .getElementById("cancel-link").attr("href") mustBe "/paperless/check-settings?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"
       document
         .getElementById("cancel-link")
-        .text() mustBe "Continue"
+        .text() mustBe "Cancel"
 
     }
 
@@ -55,7 +55,7 @@ class AccountDetailsUpdateEmailAddressSpec
       document.getElementsByTag("h1").get(0).text() mustBe "Newid eich cyfeiriad e-bost"
       document.getElementsByTag("p").get(1).childNodes().get(0).toString mustBe "Anfonir e-byst at "
       document.getElementById("submit-email-button").text() mustBe "Newid y cyfeiriad e-bost"
-      document.getElementById("cancel-link").text() mustBe "Yn eich blaen"
+      document.getElementById("cancel-link").text() mustBe "Canslo"
       document.getElementsByAttributeValue("for", "email.main").first().child(0).text() mustBe "Cyfeiriad e-bost newydd"
       document
         .getElementsByAttributeValue("for", "email.confirm")
@@ -67,7 +67,7 @@ class AccountDetailsUpdateEmailAddressSpec
         .getElementById("cancel-link").attr("href") mustBe "/paperless/check-settings?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"
       document
         .getElementById("cancel-link")
-        .text() mustBe "Yn eich blaen"
+        .text() mustBe "Canslo"
     }
   }
 }
