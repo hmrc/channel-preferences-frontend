@@ -52,7 +52,7 @@
                 ),
                 value = Value(
                     content =
-                              if (email.language.exists(_ == Language.English)) {
+                              if (email.language.exists(_ == Language.English) || email.language.isEmpty) {
                                         Text(Messages("manage.paperless.contact.language.2_en"))
                               } else {
                                         Text(Messages("manage.paperless.contact.language.2_cy"))
