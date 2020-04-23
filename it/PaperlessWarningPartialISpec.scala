@@ -34,7 +34,8 @@ class PaperlessWarningPartialISpec extends EmailSupport with SessionCookieEncryp
 
     "have a verification warning for the unverified email" in new TestCase {
       val email = uniqueEmail
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email).futureValue.status must be(CREATED)
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email).futureValue.status must be(
+        CREATED)
 
       val response = `/paperless/warnings`.withSession(
         (SessionKeys.authToken -> cookieWithUtr._2)
@@ -46,8 +47,10 @@ class PaperlessWarningPartialISpec extends EmailSupport with SessionCookieEncryp
 
     "have no warning if user then verifies email" in new TestCase {
       val email = uniqueEmail
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email).futureValue.status must be(CREATED)
-      `/preferences-admin/sa/individual`.verifyEmailFor(`/entity-resolver/sa/:utr`(utr.value)).futureValue.status must be(NO_CONTENT)
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email).futureValue.status must be(
+        CREATED)
+      `/preferences-admin/sa/individual`.verifyEmailFor(`/entity-resolver/sa/:utr`(utr.value)).futureValue.status must be(
+        NO_CONTENT)
 
       val response = `/paperless/warnings`.withSession(
         (SessionKeys.authToken -> cookieWithUtr._2)
@@ -59,7 +62,8 @@ class PaperlessWarningPartialISpec extends EmailSupport with SessionCookieEncryp
 
     "have no warning if user then opts out" in new TestCase {
       val email = uniqueEmail
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email).futureValue.status must be(CREATED)
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email).futureValue.status must be(
+        CREATED)
       `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptOut.futureValue.status must be(OK)
 
       val response = `/paperless/warnings`.withSession(
@@ -72,7 +76,8 @@ class PaperlessWarningPartialISpec extends EmailSupport with SessionCookieEncryp
 
     "have verification warning if user then changes email" in new TestCase {
       val email = uniqueEmail
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email).futureValue.status must be(CREATED)
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email).futureValue.status must be(
+        CREATED)
       `/preferences`(ggAuthHeaderWithUtr).putPendingEmail(changedUniqueEmail).futureValue.status must be(OK)
 
       val response = `/paperless/warnings`.withSession(
@@ -88,7 +93,8 @@ class PaperlessWarningPartialISpec extends EmailSupport with SessionCookieEncryp
 
     "have a bounced warning" in new TestCase {
       val email = uniqueEmail
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email).futureValue.status must be(CREATED)
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email).futureValue.status must be(
+        CREATED)
       `/preferences-admin/bounce-email`.post(email).futureValue.status must be(NO_CONTENT)
 
       val response = `/paperless/warnings`.withSession(
@@ -101,7 +107,8 @@ class PaperlessWarningPartialISpec extends EmailSupport with SessionCookieEncryp
 
     "have no warning if user then opts out" in new TestCase {
       val email = uniqueEmail
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email).futureValue.status must be(CREATED)
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email).futureValue.status must be(
+        CREATED)
       `/preferences-admin/bounce-email`.post(email).futureValue.status must be(NO_CONTENT)
       `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptOut
 
@@ -115,7 +122,8 @@ class PaperlessWarningPartialISpec extends EmailSupport with SessionCookieEncryp
 
     "have a verification warning if user then successfully sends verification link to same address" in new TestCase {
       val email = uniqueEmail
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email).futureValue.status must be(CREATED)
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email).futureValue.status must be(
+        CREATED)
       `/preferences-admin/bounce-email`.post(email).futureValue.status must be(NO_CONTENT)
       `/preferences`(ggAuthHeaderWithUtr).putPendingEmail(email).futureValue.status must be(OK)
 
@@ -129,7 +137,8 @@ class PaperlessWarningPartialISpec extends EmailSupport with SessionCookieEncryp
 
     "have verification warning if user then changes email" in new TestCase {
       val email = uniqueEmail
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email).futureValue.status must be(CREATED)
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email).futureValue.status must be(
+        CREATED)
       `/preferences-admin/bounce-email`.post(email).futureValue.status must be(NO_CONTENT)
       `/preferences`(ggAuthHeaderWithUtr).putPendingEmail(changedUniqueEmail).futureValue.status must be(OK)
 
@@ -143,10 +152,12 @@ class PaperlessWarningPartialISpec extends EmailSupport with SessionCookieEncryp
 
     "have no warning if user successfully resends link and verifies" in new TestCase {
       val email = uniqueEmail
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email).futureValue.status must be(CREATED)
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email).futureValue.status must be(
+        CREATED)
       `/preferences-admin/bounce-email`.post(email).futureValue.status must be(NO_CONTENT)
       `/preferences`(ggAuthHeaderWithUtr).putPendingEmail(email).futureValue.status must be(OK)
-      `/preferences-admin/sa/individual`.verifyEmailFor(`/entity-resolver/sa/:utr`(utr.value)).futureValue.status must be(NO_CONTENT)
+      `/preferences-admin/sa/individual`.verifyEmailFor(`/entity-resolver/sa/:utr`(utr.value)).futureValue.status must be(
+        NO_CONTENT)
 
       val response = `/paperless/warnings`.withSession(
         (SessionKeys.authToken -> cookieWithUtr._2)
@@ -158,7 +169,8 @@ class PaperlessWarningPartialISpec extends EmailSupport with SessionCookieEncryp
 
     "have inbox full warning if user resends link and their inbox is full" in new TestCase {
       val email = uniqueEmail
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email).futureValue.status must be(CREATED)
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email).futureValue.status must be(
+        CREATED)
       `/preferences-admin/bounce-email`.post(email).futureValue.status must be(NO_CONTENT)
       `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email).futureValue.status must be(OK)
       `/preferences-admin/sa/bounce-email-inbox-full`.post(email).futureValue.status must be(NO_CONTENT)
@@ -190,8 +202,10 @@ class PaperlessWarningPartialISpec extends EmailSupport with SessionCookieEncryp
 
     "have a bounced warning" in new TestCase {
       val email = uniqueEmail
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email).futureValue.status must be(CREATED)
-      `/preferences-admin/sa/individual`.verifyEmailFor(`/entity-resolver/sa/:utr`(utr.value)).futureValue.status must be(NO_CONTENT)
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email).futureValue.status must be(
+        CREATED)
+      `/preferences-admin/sa/individual`.verifyEmailFor(`/entity-resolver/sa/:utr`(utr.value)).futureValue.status must be(
+        NO_CONTENT)
       `/preferences-admin/bounce-email`.post(email).futureValue.status must be(NO_CONTENT)
 
       val response = `/paperless/warnings`.withSession(

@@ -39,13 +39,23 @@ class PreferenceBasedStatusServiceSpec extends WordSpec with MustMatchers {
 
   }
 
-  private def preferences(isVerified: Boolean = true, hasBounces: Boolean = false, termsAccepted: Boolean = true, containsEmail: Boolean = true) =
+  private def preferences(
+    isVerified: Boolean = true,
+    hasBounces: Boolean = false,
+    termsAccepted: Boolean = true,
+    containsEmail: Boolean = true) =
     Some(
       PreferenceResponse(
         Map("generic" -> TermsAndConditonsAcceptance(termsAccepted)),
         if (!containsEmail)
           None
         else
-          Some(EmailPreference("pihklyljtgoxeoh@mail.com", isVerified = isVerified, hasBounces = hasBounces, mailboxFull = false, linkSent = None))
+          Some(
+            EmailPreference(
+              "pihklyljtgoxeoh@mail.com",
+              isVerified = isVerified,
+              hasBounces = hasBounces,
+              mailboxFull = false,
+              linkSent = None))
       ))
 }

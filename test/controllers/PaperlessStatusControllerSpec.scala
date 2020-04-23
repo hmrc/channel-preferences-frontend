@@ -41,7 +41,9 @@ class PaperlessStatusControllerSpec extends WordSpec with MockitoSugar with Guic
       verify(request = welshRequest, response = welshAlrightResponse)
     }
 
-    "return a 200 with a bounced email json" in new TestContext(statusName = BouncedEmail, preference = preferences(hasBounces = true)) {
+    "return a 200 with a bounced email json" in new TestContext(
+      statusName = BouncedEmail,
+      preference = preferences(hasBounces = true)) {
       val bouncedResponse: JsValue = Resources.readJson("PaperlessStatusBounced.json")
       val welshBouncedResponse: JsValue = Resources.readJson("PaperlessStatusBouncedWelsh.json")
       verify(request = request, response = bouncedResponse)
@@ -49,28 +51,36 @@ class PaperlessStatusControllerSpec extends WordSpec with MockitoSugar with Guic
 
     }
 
-    "return a 200 with a email not verified json" in new TestContext(statusName = EmailNotVerified, preference = preferences(isVerified = false)) {
+    "return a 200 with a email not verified json" in new TestContext(
+      statusName = EmailNotVerified,
+      preference = preferences(isVerified = false)) {
       val notYetVerified: JsValue = Resources.readJson("PaperlessStatusNotVerified.json")
       val welshNotYetVerified: JsValue = Resources.readJson("PaperlessStatusNotVerifiedWelsh.json")
       verify(request = request, response = notYetVerified)
       verify(request = welshRequest, response = welshNotYetVerified)
     }
 
-    "return a 200 with a paper json" in new TestContext(statusName = Paper, preference = preferences(termsAcceptance = false)) {
+    "return a 200 with a paper json" in new TestContext(
+      statusName = Paper,
+      preference = preferences(termsAcceptance = false)) {
       val paper: JsValue = Resources.readJson("PaperlessStatusPaper.json")
       val welshPaper: JsValue = Resources.readJson("PaperlessStatusPaperWelsh.json")
       verify(request = request, response = paper)
       verify(request = welshRequest, response = welshPaper)
     }
 
-    "return a 200 with a new customer json when no preferences are found" in new TestContext(statusName = NewCustomer, preference = None) {
+    "return a 200 with a new customer json when no preferences are found" in new TestContext(
+      statusName = NewCustomer,
+      preference = None) {
       val newCustomer: JsValue = Resources.readJson("PaperlessStatusNewCustomer.json")
       val welshNewCustomer: JsValue = Resources.readJson("PaperlessStatusNewCustomerWelsh.json")
       verify(request = request, response = newCustomer)
       verify(request = welshRequest, response = welshNewCustomer)
     }
 
-    "return a 200 with a no email json when a preference record is found but no has no email" in new TestContext(statusName = NoEmail, preference = preferences(containsEmail = false)) {
+    "return a 200 with a no email json when a preference record is found but no has no email" in new TestContext(
+      statusName = NoEmail,
+      preference = preferences(containsEmail = false)) {
       val noEmail: JsValue = Resources.readJson("PaperlessStatusNoEmail.json")
       val welshNoEmail: JsValue = Resources.readJson("PaperlessStatusNoEmailWelsh.json")
       verify(request = request, response = noEmail)
@@ -78,14 +88,24 @@ class PaperlessStatusControllerSpec extends WordSpec with MockitoSugar with Guic
     }
   }
 
-  private def preferences(isVerified: Boolean = true, hasBounces: Boolean = false, termsAcceptance: Boolean = true, containsEmail: Boolean = true): Option[PreferenceResponse] =
+  private def preferences(
+    isVerified: Boolean = true,
+    hasBounces: Boolean = false,
+    termsAcceptance: Boolean = true,
+    containsEmail: Boolean = true): Option[PreferenceResponse] =
     Some(
       PreferenceResponse(
         Map("generic" -> TermsAndConditonsAcceptance(termsAcceptance)),
         if (!containsEmail)
           None
         else
-          Some(EmailPreference("pihklyljtgoxeoh@mail.com", isVerified = isVerified, hasBounces = hasBounces, mailboxFull = false, linkSent = None))
+          Some(
+            EmailPreference(
+              "pihklyljtgoxeoh@mail.com",
+              isVerified = isVerified,
+              hasBounces = hasBounces,
+              mailboxFull = false,
+              linkSent = None))
       ))
 
   val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()

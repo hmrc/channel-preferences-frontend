@@ -11,7 +11,7 @@ import controllers.auth.AuthenticatedRequest
 import helpers.TestFixtures
 import model.Encrypted
 import model.Language.Welsh
-import org.joda.time.{DateTime, DateTimeZone}
+import org.joda.time.{ DateTime, DateTimeZone }
 import org.jsoup.Jsoup
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
@@ -25,10 +25,10 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.auth.core.retrieve.{LoginTimes, Name, ~}
+import uk.gov.hmrc.auth.core.retrieve.{ LoginTimes, Name, ~ }
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -37,7 +37,7 @@ import scala.concurrent.Future
 class ManagePaperlessControllerSpec
     extends PlaySpec with MockitoSugar with GuiceOneAppPerSuite with BeforeAndAfterEach {
 
-  import org.mockito.Matchers.{any, eq => is}
+  import org.mockito.Matchers.{ any, eq => is }
 
   val validUtr = SaUtr("1234567890")
 
@@ -507,7 +507,8 @@ class ManagePaperlessControllerSpec
 
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
 
-      val result = controller._displayHowToVerifyEmail(saPreferences.email.get)(welshRequest, TestFixtures.sampleHostContext)
+      val result =
+        controller._displayHowToVerifyEmail(saPreferences.email.get)(welshRequest, TestFixtures.sampleHostContext)
 
       result.header.status mustBe 200
       val outcome = contentAsString(Future(result))
@@ -540,7 +541,8 @@ class ManagePaperlessControllerSpec
 
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
 
-      val result = controller._displayDeliveryFailed(saPreferences.email.get)(welshRequest, TestFixtures.sampleHostContext)
+      val result =
+        controller._displayDeliveryFailed(saPreferences.email.get)(welshRequest, TestFixtures.sampleHostContext)
 
       result.header.status mustBe 200
       val outcome = contentAsString(Future(result))

@@ -36,7 +36,9 @@ class PaperlessStatusController @Inject()(
     }(request, ec)
   }
 
-  private def determinePaperlessStatus(preferenceResponse: Option[PreferenceResponse])(implicit language: Lang, hostContext: HostContext): StatusWithUrl = {
+  private def determinePaperlessStatus(preferenceResponse: Option[PreferenceResponse])(
+    implicit language: Lang,
+    hostContext: HostContext): StatusWithUrl = {
 
     val checkSettingsUrl = externalUrlPrefixes.pfUrlPrefix + controllers.internal.routes.ManagePaperlessController
       .checkSettings(hostContext)
@@ -49,7 +51,10 @@ class PaperlessStatusController @Inject()(
         )
       case EmailNotVerified =>
         StatusWithUrl(
-          PaperlessStatus(EmailNotVerified, Category(EmailNotVerified), messagesApi("paperless.status.text.email_not_verified")),
+          PaperlessStatus(
+            EmailNotVerified,
+            Category(EmailNotVerified),
+            messagesApi("paperless.status.text.email_not_verified")),
           Url(checkSettingsUrl, messagesApi("paperless.status.url.text.email_not_verified"))
         )
       case BouncedEmail =>

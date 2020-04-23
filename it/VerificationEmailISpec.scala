@@ -71,7 +71,8 @@ class VerificationEmailISpec extends EmailSupport with SessionCookieEncryptionSu
 
       aVerificationEmailIsReceivedFor(email)
 
-      `/preferences-admin/sa/individual`.postExpireVerificationLink(`/entity-resolver/sa/:utr`(utr.value)).futureValue.status must be(OK)
+      `/preferences-admin/sa/individual`.postExpireVerificationLink(`/entity-resolver/sa/:utr`(utr.value)).futureValue.status must be(
+        OK)
 
       val response = `/sa/print-preferences/verification`.verify(verificationTokenFromEmail())
 
@@ -153,7 +154,8 @@ class VerificationEmailISpec extends EmailSupport with SessionCookieEncryptionSu
         emails.flatMap(_.to) must contain(newEmail)
       }
 
-      `/sa/print-preferences/verification`.verify(verificationTokenFromMultipleEmailsFor(newEmail)).futureValue.status must be(OK)
+      `/sa/print-preferences/verification`.verify(verificationTokenFromMultipleEmailsFor(newEmail)).futureValue.status must be(
+        OK)
 
       `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) must beForAnExpiredOldEmail
     }
@@ -251,7 +253,8 @@ class VerificationEmailISpec extends EmailSupport with SessionCookieEncryptionSu
         emails.flatMap(_.to) must contain(newEmail)
       }
 
-      `/sa/print-preferences/verification`.verify(verificationTokenFromMultipleEmailsFor(newEmail)).futureValue.status must be(OK)
+      `/sa/print-preferences/verification`.verify(verificationTokenFromMultipleEmailsFor(newEmail)).futureValue.status must be(
+        OK)
 
       `/sa/print-preferences/verification`.verify(verificationTokenFromFirstEmail) must beForAnExpiredOldEmail
 

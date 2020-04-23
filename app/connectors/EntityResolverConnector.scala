@@ -63,8 +63,11 @@ sealed abstract case class TermsAndConditionsUpdate(
   language: Option[Language])
 
 object TermsAndConditionsUpdate {
-  def from(terms: (TermsType, TermsAccepted), email: Option[String], includeLinkDetails: Boolean, language: Some[Language])(
-    implicit hostContext: HostContext): TermsAndConditionsUpdate =
+  def from(
+    terms: (TermsType, TermsAccepted),
+    email: Option[String],
+    includeLinkDetails: Boolean,
+    language: Some[Language])(implicit hostContext: HostContext): TermsAndConditionsUpdate =
     terms match {
       case (GenericTerms, accepted) if includeLinkDetails =>
         new TermsAndConditionsUpdate(

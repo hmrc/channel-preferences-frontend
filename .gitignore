@@ -1,4 +1,8 @@
 *.class
+!.gitignore
+!.scalafmt.conf
+!.sbtrc
+
 target
 logs
 

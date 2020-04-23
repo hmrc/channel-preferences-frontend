@@ -148,7 +148,7 @@ object PreferenceResponse {
   }
 
   implicit class preferenceResponseOps(pref: PreferenceResponse) {
-   def lang(): Option[Language] = pref.email.flatMap(_.language)
+    def lang(): Option[Language] = pref.email.flatMap(_.language)
   }
 }
 

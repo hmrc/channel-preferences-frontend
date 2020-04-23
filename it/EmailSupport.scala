@@ -30,7 +30,9 @@ trait EmailSupport extends TestCaseWithFrontEndAuthentication with IntegrationPa
   val emptyJsonValue = Json.parse("{}")
 
   def clearEmails() = {
-    eventually(wsClient.url(s"$emailBaseUrl/test-only/hmrc/email-admin/process-email-queue").post("").futureValue.status must be(OK))
+    eventually(
+      wsClient.url(s"$emailBaseUrl/test-only/hmrc/email-admin/process-email-queue").post("").futureValue.status must be(
+        OK))
     wsClient.url(s"$mailgunStubUrl/v2/reset").get().futureValue
   }
 
@@ -108,6 +110,13 @@ trait EmailSupport extends TestCaseWithFrontEndAuthentication with IntegrationPa
 
 object EmailSupport {
   //TODO simplify this type
-  case class Email(from: String, to: Option[String], subject: String, text: Option[String], html: Option[String], cc: Option[String], bcc: Option[String])
+  case class Email(
+    from: String,
+    to: Option[String],
+    subject: String,
+    text: Option[String],
+    html: Option[String],
+    cc: Option[String],
+    bcc: Option[String])
   case class Token(token: String)
 }

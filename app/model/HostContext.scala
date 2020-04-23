@@ -18,7 +18,7 @@ case class HostContext(
 }
 
 object HostContext {
-  
+
   implicit def hostContextBinder(
     implicit stringBinder: QueryStringBindable[Encrypted[String]]): QueryStringBindable[HostContext] =
     new QueryStringBindable[HostContext] {
@@ -69,7 +69,6 @@ object HostContext {
               }
           }
         }
-
 
         stringBinder.unbind("returnUrl", Encrypted(value.returnUrl)) + "&" +
           stringBinder.unbind("returnLinkText", Encrypted(value.returnLinkText)) +

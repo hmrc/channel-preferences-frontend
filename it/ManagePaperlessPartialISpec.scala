@@ -13,7 +13,8 @@ class ManagePaperlessPartialISpec extends EmailSupport with SessionCookieEncrypt
   "Manage Paperless partial" should {
 
     "return not authorised when no credentials supplied" in {
-      `/paperless/manage`(returnUrl = "http://some/other/url", returnLinkText = "Continue").get.futureValue.status must be(UNAUTHORIZED)
+      `/paperless/manage`(returnUrl = "http://some/other/url", returnLinkText = "Continue").get.futureValue.status must be(
+        UNAUTHORIZED)
     }
 
     "return opted out details when no preference is set" in {
@@ -94,7 +95,8 @@ class ManagePaperlessPartialISpec extends EmailSupport with SessionCookieEncrypt
       val utr = Generate.utr
       val header = authHelper.authHeader(utr)
       `/preferences/terms-and-conditions`(header).postGenericOptIn(email).futureValue.status must be(CREATED)
-      `/preferences-admin/sa/individual`.verifyEmailFor(`/entity-resolver/sa/:utr`(utr.value)).futureValue.status must be(NO_CONTENT)
+      `/preferences-admin/sa/individual`.verifyEmailFor(`/entity-resolver/sa/:utr`(utr.value)).futureValue.status must be(
+        NO_CONTENT)
       `/preferences`(header).putPendingEmail(newEmail).futureValue.status must be(OK)
       val response = `/paperless/manage`(returnUrl = "http://some/other/url", returnLinkText = "Continue")
         .withSession(
@@ -111,7 +113,8 @@ class ManagePaperlessPartialISpec extends EmailSupport with SessionCookieEncrypt
       val nino = Generate.nino
       val header = authHelper.authHeader(nino)
       `/preferences/terms-and-conditions`(header).postGenericOptIn(email).futureValue.status must be(CREATED)
-      `/preferences-admin/sa/individual`.verifyEmailFor(`/entity-resolver/paye/:nino`(nino.value)).futureValue.status must be(NO_CONTENT)
+      `/preferences-admin/sa/individual`.verifyEmailFor(`/entity-resolver/paye/:nino`(nino.value)).futureValue.status must be(
+        NO_CONTENT)
       `/preferences/terms-and-conditions`(header).postGenericOptOut().futureValue.status must be(OK)
       val response = `/paperless/manage`(returnUrl = "http://some/other/url", returnLinkText = "Continue")
         .withSession(
@@ -165,7 +168,11 @@ class ManagePaperlessPartialISpec extends EmailSupport with SessionCookieEncrypt
 
   }
 
-  def checkForChangedEmailDetailsInResponse(response: String, oldEmail: String, newEmail: String, currentFormattedDate: String) =
+  def checkForChangedEmailDetailsInResponse(
+    response: String,
+    oldEmail: String,
+    newEmail: String,
+    currentFormattedDate: String) =
     response must (include(s"You need to verify your email address.") and
       include(newEmail) and
       not include oldEmail and

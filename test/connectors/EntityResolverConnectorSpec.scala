@@ -320,7 +320,11 @@ class EntityResolverConnectorSpec
       postReturns(OK)
       val payload =
         TermsAndConditionsUpdate
-          .from(TaxCreditsTerms -> TermsAccepted(true), email = None, includeLinkDetails = false, language = Some(Welsh))
+          .from(
+            TaxCreditsTerms -> TermsAccepted(true),
+            email = None,
+            includeLinkDetails = false,
+            language = Some(Welsh))
       connector.updateTermsAndConditions(payload).futureValue must be(PreferencesExists)
       checkPayload("/preferences/terms-and-conditions", payload)
     }
@@ -329,7 +333,11 @@ class EntityResolverConnectorSpec
       postReturns(OK)
       val payload =
         TermsAndConditionsUpdate
-          .from(TaxCreditsTerms -> TermsAccepted(false), email = None, includeLinkDetails = false, language = Some(Welsh))
+          .from(
+            TaxCreditsTerms -> TermsAccepted(false),
+            email = None,
+            includeLinkDetails = false,
+            language = Some(Welsh))
       connector.updateTermsAndConditions(payload).futureValue must be(PreferencesExists)
       checkPayload("/preferences/terms-and-conditions", payload)
     }
@@ -421,7 +429,11 @@ class EntityResolverConnectorSpec
       postReturns(201)
       val expectedPayload =
         TermsAndConditionsUpdate
-          .from(TaxCreditsTerms -> TermsAccepted(false), email = None, includeLinkDetails = true, language = Some(Welsh))
+          .from(
+            TaxCreditsTerms -> TermsAccepted(false),
+            email = None,
+            includeLinkDetails = true,
+            language = Some(Welsh))
 
       connector.updateTermsAndConditions(expectedPayload).futureValue must be(PreferencesCreated)
     }

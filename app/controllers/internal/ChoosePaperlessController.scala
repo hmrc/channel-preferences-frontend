@@ -30,7 +30,6 @@ import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
 import scala.concurrent.{ ExecutionContext, Future }
 
-
 class ChoosePaperlessController @Inject()(
   entityResolverConnector: EntityResolverConnector,
   emailConnector: EmailConnector,

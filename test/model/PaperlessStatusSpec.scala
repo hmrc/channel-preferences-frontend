@@ -15,7 +15,9 @@ class PaperlessStatusSpec extends PlaySpec {
   val paperlessStatusJson: JsValue = Resources.readJson("PaperlessStatusNotVerified.json")
 
   val paperlessStatusModel = StatusWithUrl(
-    PaperlessStatus(EmailNotVerified, ActionRequired,
+    PaperlessStatus(
+      EmailNotVerified,
+      ActionRequired,
       "You need to verify your email address before you can get Self Assessment tax letters online"),
     Url(
       "http://localhost:9024/paperless/check-settings?returnUrl=VYBxyuFWQBQZAGpe5tSgmw%3D%3D&returnLinkText=VYBxyuFWQBQZAGpe5tSgmw%3D%3D",

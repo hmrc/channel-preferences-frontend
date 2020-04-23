@@ -73,7 +73,8 @@ class ActivateISpec extends EmailSupport with SessionCookieEncryptionSupport {
 
       val email = s"${UUID.randomUUID().toString}@email.com"
 
-      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email).futureValue.status must be(CREATED)
+      `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email).futureValue.status must be(
+        CREATED)
 
       val response = `/paperless/activate`(utr)().put().futureValue
       response.status must be(OK)
@@ -91,7 +92,8 @@ class ActivateISpec extends EmailSupport with SessionCookieEncryptionSupport {
         .postGenericOptIn(email)
         .futureValue
         .status must be(CREATED)
-      `/preferences-admin/sa/individual`.verifyEmailFor(`/entity-resolver/sa/:utr`(utr.value)).futureValue.status must be(NO_CONTENT)
+      `/preferences-admin/sa/individual`.verifyEmailFor(`/entity-resolver/sa/:utr`(utr.value)).futureValue.status must be(
+        NO_CONTENT)
       val response = `/paperless/activate`(utr)().put().futureValue
       response.status must be(OK)
       (response.json \ "optedIn").as[Boolean] mustBe true
@@ -103,7 +105,8 @@ class ActivateISpec extends EmailSupport with SessionCookieEncryptionSupport {
 
       val utr = Generate.utr
       val email = s"${UUID.randomUUID().toString}@email.com"
-      `/preferences/terms-and-conditions`(authHelper.authHeader(utr)).postGenericOptOut.futureValue.status must be(CREATED)
+      `/preferences/terms-and-conditions`(authHelper.authHeader(utr)).postGenericOptOut.futureValue.status must be(
+        CREATED)
 
       val response = `/paperless/activate`(utr)().put().futureValue
       response.status must be(OK)
@@ -121,7 +124,8 @@ class ActivateISpec extends EmailSupport with SessionCookieEncryptionSupport {
         .futureValue
         .status must be(CREATED)
 
-      `/paperless/activate`(nino)(Some("taxCredits"), Some("taxCredits@test.com")).put().futureValue.status must be(CONFLICT)
+      `/paperless/activate`(nino)(Some("taxCredits"), Some("taxCredits@test.com")).put().futureValue.status must be(
+        CONFLICT)
     }
   }
 }

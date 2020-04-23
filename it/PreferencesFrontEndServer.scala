@@ -30,7 +30,9 @@ trait TestUser {
 
 }
 
-class TestCase extends PlaySpec with TestUser with GuiceOneServerPerSuite with WsScalaTestClient with ScalaFutures with IntegrationPatience {
+class TestCase
+    extends PlaySpec with TestUser with GuiceOneServerPerSuite with WsScalaTestClient with ScalaFutures
+    with IntegrationPatience {
 
   val applicatinCrypto = app.injector.instanceOf[ApplicationCrypto]
 
@@ -170,8 +172,10 @@ trait TestCaseWithFrontEndAuthentication extends TestCase with SessionCookieEncr
       url.put(formTypeBody)
   }
 
-  def `/paperless/activate`(
-    taxIdentifiers: TaxIdentifier*)(termsAndConditions: Option[String] = None, emailAddress: Option[String] = None, language: Option[String] = None) =
+  def `/paperless/activate`(taxIdentifiers: TaxIdentifier*)(
+    termsAndConditions: Option[String] = None,
+    emailAddress: Option[String] = None,
+    language: Option[String] = None) =
     new {
 
       val queryParamsMap: Map[String, Option[String]] = Map(

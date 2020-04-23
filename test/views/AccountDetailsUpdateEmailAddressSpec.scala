@@ -38,7 +38,8 @@ class AccountDetailsUpdateEmailAddressSpec
         .child(0)
         .text() mustBe "Confirm new email address"
       document
-        .getElementById("cancel-link").attr("href") mustBe "/paperless/check-settings?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"
+        .getElementById("cancel-link")
+        .attr("href") mustBe "/paperless/check-settings?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"
       document
         .getElementById("cancel-link")
         .text() mustBe "Cancel"
@@ -64,7 +65,8 @@ class AccountDetailsUpdateEmailAddressSpec
         .text() mustBe "Cadarnhau'r cyfeiriad e-bost newydd"
 
       document
-        .getElementById("cancel-link").attr("href") mustBe "/paperless/check-settings?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"
+        .getElementById("cancel-link")
+        .attr("href") mustBe "/paperless/check-settings?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"
       document
         .getElementById("cancel-link")
         .text() mustBe "Canslo"

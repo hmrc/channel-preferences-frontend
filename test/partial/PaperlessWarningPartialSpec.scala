@@ -60,7 +60,6 @@ class PaperlessWarningPartialSpec
                 linkSent = Some(LocalDate.parse("2014-12-05"))))
           ).toNewPreference(),
           TestFixtures.sampleHostContext
-
         )(FakeRequest(), appMessages)
         .body
 
@@ -68,7 +67,9 @@ class PaperlessWarningPartialSpec
       result must include("test@test.com")
       result must include("5 December 2014")
       document.getElementById("remindersProblem").text() mustBe "Continue"
-      document.getElementById("remindersProblem").attr("href") mustBe "/paperless/check-settings?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"
+      document
+        .getElementById("remindersProblem")
+        .attr("href") mustBe "/paperless/check-settings?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"
     }
 
     "have mail box full warning in english if email bounces due to mail box being full" in {
@@ -104,7 +105,9 @@ class PaperlessWarningPartialSpec
       val document = Jsoup.parse(result)
       result must include("There&#x27;s a problem with your paperless notification emails")
       document.getElementById("remindersProblem").text() mustBe "Continue"
-      document.getElementById("remindersProblem").attr("href") mustBe "/paperless/check-settings?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"
+      document
+        .getElementById("remindersProblem")
+        .attr("href") mustBe "/paperless/check-settings?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"
     }
 
     "be ignored if the preferences is not opted in for generic for not verified emails" in new TestCase {
@@ -157,8 +160,9 @@ class PaperlessWarningPartialSpec
       result must include("test@test.com")
       result must include("5 December 2014")
       document.getElementById("remindersProblem").text() mustBe "Yn eich blaen"
-      document.getElementById("remindersProblem").attr("href") mustBe "/paperless/check-settings?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"
-
+      document
+        .getElementById("remindersProblem")
+        .attr("href") mustBe "/paperless/check-settings?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"
 
     }
 
@@ -196,7 +200,9 @@ class PaperlessWarningPartialSpec
       val document = Jsoup.parse(result)
       result must include("Mae yna broblem gyda&#x27;ch e-byst hysbysu di-bapur")
       document.getElementById("remindersProblem").text() mustBe "Yn eich blaen"
-      document.getElementById("remindersProblem").attr("href") mustBe "/paperless/check-settings?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"
+      document
+        .getElementById("remindersProblem")
+        .attr("href") mustBe "/paperless/check-settings?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"
 
     }
 
