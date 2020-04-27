@@ -104,7 +104,6 @@ trait MicroService {
             }.value
           )
       ),
-      scalafmtTestOnCompile in ThisBuild := true,
       parallelExecution in IntegrationTest := false)
       .settings(
         resolvers +=  Resolver.jcenterRepo,
