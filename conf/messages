@@ -162,7 +162,9 @@ manage.paperless.email.find=We sent a verification email to {0} on {1}. To find 
 manage.paperless.email.delivery.failed.header=We cannot deliver emails to {0}
 manage.paperless.email.delivery.failed.para1=This could be because your email address is not correct, or there is a technical problem.
 manage.paperless.email.delivery.failed.sub-header=What you need to do now
-manage.paperless.email.delivery.failed.para2=Because you must have a working email address to receive online tax documents, you need to
+manage.paperless.email.delivery.failed.options=You can
+manage.paperless.email.delivery.failed.check.account.text=check your account is working and there is space in the inbox, then
+manage.paperless.email.delivery.failed.confirm.email.link.text=confirm your existing email address
 manage.paperless.email.delivery.failed.change.email.link.text=change your email address
 manage.paperless.email.delivery.failed.button=Continue
 
