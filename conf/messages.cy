@@ -107,15 +107,15 @@ manage.paperless.verified.sent_to=Anfonir e-byst at:
 
 manage.paperless.problem.header=Mae yna broblem
 
-manage.paperless.email.notification.verify.header=Sut i ddilysu’ch cyfeiriad e-bost
-manage.paperless.email.find=Gwnaethom anfon e-bost dilysu i {0} ar {1}. I ddod o hyd iddo, chwiliwch drwy’ch ffolderi e-bost am: ''Dilyswch eich cyfeiriad e-bost''.
-manage.paperless.email.need.verify.hint=Mae’n rhaid i chi ddilyn y cysylltiad yn eich e-bost dilysu cyn i chi allu cael e-byst a chael eich llythyrau treth ar-lein.
-manage.paperless.email.cannot.find.verification=Os na allwch ddod o hyd i’ch e-bost dilysu
-manage.paperless.email.you.can=Gallwch wneud y canlynol:
-manage.paperless.email.send.new.verif=gofyn am e-bost dilysu newydd
-manage.paperless.email.change-email-address-link=newid eich cyfeiriad e-bost
-manage.paperless.email.use.header=Pam y mae angen i mi roi fy e-bost i CThEM?
-manage.paperless.email.use.explanation=Byddwn bob amser yn rhoi gwybod i chi drwy e-bost pan fydd gennych lythyr treth ar-lein yn aros amdanoch.
+manage.paperless.email.notification.verify.header=Sut i gadarnhau’ch cyfeiriad e-bost
+manage.paperless.email.para.below.header=I gofrestru a chael eich llythyrau treth ar-lein, mae’n rhaid i chi ddilyn y cysylltiad yn yr e-bost a gawsoch oddi wrthym yn gyntaf.
+manage.paperless.email.search.email.for=Chwiliwch drwy’ch e-byst am: ‘Dilyswch eich cyfeiriad e-bost’ neu ‘Verify your email address’.
+message.paperless.email.request.new.email.text=Os na allwch ddod o hyd i hyn,
+message.paperless.email.request.new.email.link=gofynnwch am e-bost newydd.
+message.paperless.email.request.if.you.want.text=Os ydych yn dymuno,
+message.paperless.email.request.if.you.want.link=gallwch ddefnyddio cyfeiriad e-bost gwahanol.
+manage.paperless.email.use.header=Why do I need to give HMRC my email?
+manage.paperless.email.use.explanation=We always let you know by email when you have an online tax letter waiting.
 
 manage.paperless.email.delivery.failed.header=Ni allwn ddosbarthu e-byst i {0}
 manage.paperless.email.delivery.failed.para1=Gallai hyn fod oherwydd nad yw’ch cyfeiriad e-bost yn gywir, neu oherwydd bod problem dechnegol.

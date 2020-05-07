@@ -151,13 +151,15 @@ manage.paperless.email.click_on_link=on {0}. Click on the link in the email to v
 manage.paperless.email.cannot.find=If you can''t find it, we can
 manage.paperless.email.send.new.verification=Send a new verification email
 
-manage.paperless.email.notification.verify.header=How to verify your email address
-manage.paperless.email.need.verify.hint=You need to select the link in your verification email before you can receive emails and get you tax letters online.
-manage.paperless.email.cannot.find.verification=If you cannot find your verification email
-manage.paperless.email.you.can=You can:
+manage.paperless.email.notification.verify.header=How to confirm your email address
+manage.paperless.email.para.below.header=To sign up and get your tax letters online, you first need to select the link in the email we sent you.
+manage.paperless.email.search.email.for=Search your emails for: ''Verify your email address''
+message.paperless.email.request.new.email.text=If you can''t find this,
+message.paperless.email.request.new.email.link=request a new email.
+message.paperless.email.request.if.you.want.text=If you want to,
+message.paperless.email.request.if.you.want.link=you can use a different email address.
 manage.paperless.email.use.header=Why do I need to give HMRC my email?
 manage.paperless.email.use.explanation=We always let you know by email when you have an online tax letter waiting.
-manage.paperless.email.find=We sent a verification email to {0} on {1}. To find it, search your email folders for: ''Verify your email address''.
 
 manage.paperless.email.delivery.failed.header=We cannot deliver emails to {0}
 manage.paperless.email.delivery.failed.para1=This could be because your email address is not correct, or there is a technical problem.

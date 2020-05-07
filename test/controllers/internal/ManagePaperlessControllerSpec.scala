@@ -496,8 +496,15 @@ class ManagePaperlessControllerSpec
 
       result.header.status mustBe 200
       val outcome = contentAsString(Future(result))
-      outcome must include("test@test.com")
-      outcome must include("How to verify your email address")
+
+      outcome must include("How to confirm your email address")
+      outcome must include(
+        "To sign up and get your tax letters online, you first need to select the link in the email we sent you.")
+      outcome must include("Search your emails for:")
+      outcome must include("Verify your email address")
+      outcome must include("request a new email.")
+      outcome must include("If you want to,")
+      outcome must include("you can use a different email address.")
     }
 
     "return a 200 with the correct Welsh content" in {
@@ -512,8 +519,15 @@ class ManagePaperlessControllerSpec
 
       result.header.status mustBe 200
       val outcome = contentAsString(Future(result))
-      outcome must include("test@test.com")
-      outcome must include("Sut i ddilysu’ch cyfeiriad e-bost")
+      outcome must include("Sut i gadarnhau’ch cyfeiriad e-bost")
+      outcome must include(
+        "I gofrestru a chael eich llythyrau treth ar-lein, mae’n rhaid i chi ddilyn y cysylltiad yn yr e-bost a gawsoch oddi wrthym yn gyntaf")
+      outcome must include(
+        "Chwiliwch drwy’ch e-byst am: ‘Dilyswch eich cyfeiriad e-bost’ neu ‘Verify your email address’")
+      outcome must include("Os na allwch ddod o hyd i hyn,")
+      outcome must include("gofynnwch am e-bost newydd.")
+      outcome must include("Os ydych yn dymuno,")
+      outcome must include("gallwch ddefnyddio cyfeiriad e-bost gwahanol.")
     }
   }
 

@@ -18,18 +18,14 @@
 
  <h1>@Messages("manage.paperless.email.notification.verify.header")</h1>
 
- <p>@Html(Messages("manage.paperless.email.find", emailPref.email, longDateFormat(emailPref.linkSent).getOrElse("")))</p>
+ <p>@Html(Messages("manage.paperless.email.para.below.header"))</p>
 
- <p>@Messages("manage.paperless.email.need.verify.hint")</p>
-
- <p><strong>@Messages("manage.paperless.email.cannot.find.verification")</strong></p>
-
- <p>@Messages("manage.paperless.email.you.can")</p>
+ <p>@Messages("manage.paperless.email.search.email.for")</p>
 
  @form(action = play.api.mvc.Call("POST", resendVerificationEmailLink)) {
-   <li><button id="resend-email-button" class="button--link-style" type="submit" data-journey-click="self-assessment-preferences-page:Click:Send a new verification email">@Messages("manage.paperless.email.send.new.verification")</button></li>
+   <p>@Messages("message.paperless.email.request.new.email.text") <button id="resend-email-button" class="button--link-style" type="submit" data-journey-click="self-assessment-preferences-page:Click:Send a new verification email">@Messages("message.paperless.email.request.new.email.link")</button></p>
  }
- <li><a class="govuk-link" href=@changeEmailAddressLink>@Messages("manage.paperless.change.email")</a></li>
+<p>@Messages("message.paperless.email.request.if.you.want.text") <a class="govuk-link" href=@changeEmailAddressLink>@Messages("message.paperless.email.request.if.you.want.link")</a></p>
 
  <p><strong>@Messages("manage.paperless.email.use.header")</strong></p>
 
