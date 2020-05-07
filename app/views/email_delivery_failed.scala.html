@@ -24,7 +24,12 @@
 
  <p><strong>@Messages("manage.paperless.email.delivery.failed.sub-header")</strong></p>
 
- <p>@Messages("manage.paperless.email.delivery.failed.para2") <a href="@changeEmailAddressLink">@Messages("manage.paperless.email.delivery.failed.change.email.link.text")</a>.</p>
+ <p>@Messages("manage.paperless.email.delivery.failed.options"):</p>
+
+ <ul class="list list-bullet">
+     <li>@Messages("manage.paperless.email.delivery.failed.check.account.text")&nbsp;<a href="@changeEmailAddressLink">@Messages("manage.paperless.email.delivery.failed.confirm.email.link.text")</a></li>
+     <li><a href="@changeEmailAddressLink">@Messages("manage.paperless.email.delivery.failed.change.email.link.text")</a></li>
+ </ul>
 
  <br/>
 
