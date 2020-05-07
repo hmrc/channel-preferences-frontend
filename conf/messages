@@ -200,7 +200,7 @@ account.details.change.language.welsh=Send paperless email notification in Welsh
 account.details.change.language.info_1=You can now receive your paperless notification in Welsh
 account.details.change.language.info_2=Please note that all this time not all notifications are available in Welsh. In these cases you will continue to receive the notification in English
 
-app.common.back                                                        = Back
+app.common.back=Back
 
 manage.paperless.header=Check your settings
 manage.paperless.contact.header=How we will contact you

@@ -199,12 +199,12 @@ account.details.change.language.info_1=Gallwch nawr gael eich hysbysiadau di-bap
 account.details.change.language.info_2=Sylwer nad yw’r holl hysbysiadau ar gael yn Gymraeg ar hyn o bryd. Yn yr achosion hyn, byddwch yn parhau i gael yr hysbysiad yn Saesneg.
 
 
-app.common.back                                                        = Nôl
+app.common.back=Yn ôl
 
 manage.paperless.header=Gwirio’ch gosodiadau
 manage.paperless.contact.header=Sut y byddwn yn cysylltu â chi
 manage.paperless.contact.taxdoc.1=Dogfennau treth
-manage.paperless.contact.taxdoc.2=Negeseuon ar-lein, neu drwy’r post pan nad ydynt ar gael.
+manage.paperless.contact.taxdoc.2=Negeseuon ar-lein, neu drwy’r post pan nad ydynt ar gael
 manage.paperless.contact.taxdoc.3=Post
 manage.paperless.contact.taxdoc.4=Drwy’r post yn unig nes i chi wirio a thrwsio’ch cyfeiriad e-bost neu’ch cyfrif
 manage.paperless.contact.taxdoc.postonly.2=Drwy’r post yn unig nes i chi wirio a thrwsio’ch cyfeiriad e-bost neu’ch cyfrif
@@ -223,7 +223,7 @@ manage.paperless.change=Newid
 
 manage.paperless.continue=Yn eich blaen i’ch cyfrif
 
-manage.paperless.bounce.warning.1=Nid oeddem yn gallu anfon e-bost i’r cyfeiriad y gwnaethoch ei nodi.
+manage.paperless.bounce.warning.1=Nid oeddem yn gallu anfon e-bost i’r cyfeiriad y gwnaethoch ei nodi
 manage.paperless.bounce.warning.2=Gwiriwch a thrwsiwch eich cyfeiriad e-bost neu’ch cyfrif
 
 manage.paperless.verify.warning.1=Mae angen i chi ddilysu’ch cyfeiriad e-bost cyn i chi allu cael dogfennau treth ar-lein
