@@ -209,13 +209,13 @@ manage.paperless.contact.header=How we will contact you
 manage.paperless.contact.taxdoc.1=Tax documents
 manage.paperless.contact.taxdoc.2=Online messages, or post when not available
 manage.paperless.contact.taxdoc.3=Post
-manage.paperless.contact.taxdoc.4=Post only untill you check and fix your email address or account
-manage.paperless.contact.taxdoc.postonly.2=Post only until you check and fix your email address or account
+manage.paperless.contact.taxdoc.4=Post only until you check and fix your email address or account
+manage.paperless.contact.taxdoc.postonly.2=Post only until you verify your email address
 
 manage.paperless.contact.language.1=Emails sent in
 manage.paperless.contact.language.2_en=English
 manage.paperless.contact.language.2_cy=Welsh, if available
-manage.paperless.contact.language.postonly.2=Not available until you check and fix your email address or account
+manage.paperless.contact.language.postonly.2=Not available until you verify your email address
 manage.paperless.contact.language.bounce.2=Not available until you check and fix your email address or account
 
 manage.paperless.contact.details.header=Contact details

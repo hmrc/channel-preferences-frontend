@@ -5,7 +5,7 @@
 
 package controllers
 
-import connectors.{ EntityResolverConnector, PreferenceResponse }
+import connectors.{ Email, EntityResolverConnector, PreferenceResponse }
 import controllers.auth.{ AuthenticatedRequest, WithAuthRetrievals }
 import javax.inject.Inject
 import model.StatusName.{ Alright, BouncedEmail, EmailNotVerified, NewCustomer, NoEmail, Paper }
@@ -15,6 +15,7 @@ import play.api.libs.json.Json
 import play.api.mvc.{ Action, AnyContent, MessagesControllerComponents }
 import service.PaperlessStatusService
 import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
@@ -43,6 +44,14 @@ class PaperlessStatusController @Inject()(
     val checkSettingsUrl = externalUrlPrefixes.pfUrlPrefix + controllers.internal.routes.ManagePaperlessController
       .checkSettings(hostContext)
 
+    val getEmail = hostContext.email match {
+      case Some(email) => Some(Encrypted(EmailAddress(email)))
+      case None        => None
+    }
+
+    val optInRedirect = externalUrlPrefixes.pfUrlPrefix + controllers.internal.routes.ChoosePaperlessController
+      .redirectToDisplayFormWithCohort(getEmail, hostContext)
+
     statusService.determineStatus(preferenceResponse) match {
       case Paper =>
         StatusWithUrl(
@@ -65,7 +74,7 @@ class PaperlessStatusController @Inject()(
       case NewCustomer =>
         StatusWithUrl(
           PaperlessStatus(NewCustomer, Category(NewCustomer), messagesApi("paperless.status.text.new_customer")),
-          Url(checkSettingsUrl, messagesApi("paperless.status.url.text.new_customer"))
+          Url(optInRedirect, messagesApi("paperless.status.url.text.new_customer"))
         )
       case Alright =>
         StatusWithUrl(
