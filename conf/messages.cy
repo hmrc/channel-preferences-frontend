@@ -209,12 +209,12 @@ manage.paperless.contact.taxdoc.1=Dogfennau treth
 manage.paperless.contact.taxdoc.2=Negeseuon ar-lein, neu drwy’r post pan nad ydynt ar gael.
 manage.paperless.contact.taxdoc.3=Post
 manage.paperless.contact.taxdoc.4=Drwy’r post yn unig nes i chi wirio a thrwsio’ch cyfeiriad e-bost neu’ch cyfrif
-manage.paperless.contact.taxdoc.postonly.2=Drwy’r post yn unig nes i chi wirio a thrwsio’ch cyfeiriad e-bost neu’ch cyfrif
+manage.paperless.contact.taxdoc.postonly.2=Drwy’r post yn unig nes i chi ddilysu’ch cyfeiriad e-bost
 
 manage.paperless.contact.language.1=Anfon e-byst hysbysu
 manage.paperless.contact.language.2_en=Saesneg
 manage.paperless.contact.language.2_cy=Cymraeg, os ydynt ar gael
-manage.paperless.contact.language.postonly.2=Ddim ar gael nes i chi wirio a thrwsio’ch cyfeiriad e-bost neu’ch cyfrif
+manage.paperless.contact.language.postonly.2=Ddim ar gael nes i chi ddilysu’ch cyfeiriad e-bost
 manage.paperless.contact.language.bounce.2=Ddim ar gael nes i chi wirio a thrwsio’ch cyfeiriad e-bost neu’ch cyfrif
 
 
