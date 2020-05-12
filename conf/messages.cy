@@ -1,5 +1,5 @@
-account.opt.back.out.confirmation.title=Atal hysbysiadau
-account.opt.back.out.confirmation.letters=Byddwch yn cael llythyrau unwaith eto, yn hytrach nag e-byst.
+account.opt.back.out.confirmation.title=Cadarnhau sut hoffech gael eich llythyrau treth
+account.opt.back.out.confirmation.letters=Cadwch eich holl lythyrau treth ar-lein gyda’i gilydd mewn un lle. Byddwn bob tro yn anfon e-bost atoch i roi gwybod i chi pan fydd llythyr ar-lein newydd wedi’ch cyrraedd.
 cancel.text=Canslo
 header_nav_links.sign_out=Allgofnodi
 error.email=Nodwch gyfeiriad e-bost dilys.
@@ -74,8 +74,10 @@ sa_printing_preference.verification.action=Yn eich blaen i''ch cyfrif ar-lein gy
 sa_printing_preference.verification.action_text=a gwnewch gais am gysylltiad dilysu newydd
 sa_printing_preference.verification.heading.wrong_token=Rydych wedi defnyddio cysylltiad sydd bellach wedi dod i ben
 sa_printing_preference.verification.wrong_token.paragraph.1=Mae''n bosibl ei fod wedi cael ei anfon i hen gyfeiriad e-bost neu un gwahanol. Dylech ddefnyddio''r cysylltiad yn yr e-bost dilysu diwethaf a anfonwyd i''r cyfeiriad e-bost a nodwyd gennych.
+
 bt.account.yourdetails=Rheoli''r cyfrif
-bt.account.stopreminders=Atal e-byst gan CThEM
+bt.account.stop_email_reminders=Cael llythyrau treth drwy’r post
+bt.account.keep_email_reminders=Parhau i gael llythyrau treth ar-lein
 
 opted.back.into.paperless.title=Mae hysbysiadau di-bapur wedi dod i ben
 opted.back.into.paperless.para_1=Byddwch yn cael llythyrau unwaith eto, yn hytrach nag e-byst.
@@ -157,7 +159,6 @@ tc_printing_preference.fg_page.store_email=Iawn, storiwch fy nghyfeiriad e-bost
 tc_printing_preference.fg_page.do_not_store_email=Na, nid wyf am i''m cyfeiriad e-bost gael ei storio
 
 sa_printing_preference.token.expired.title=NID yw''ch cyfeiriad e-bost wedi''i ddilysu
-sa_printing_preference.verification.action_text=a gwnewch gais am gysylltiad dilysu newydd
 
 sa_printing_preference.email.failed.verified.title=Cyfeiriad e-bost wedi''i ddilysu eisoes
 

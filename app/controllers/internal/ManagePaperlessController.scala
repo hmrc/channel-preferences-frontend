@@ -120,7 +120,6 @@ class ManagePaperlessController @Inject()(
             _displayChangeEmailAddress(emailAddress)
         }
       }
-
   }
 
   def submitChangeEmailAddress(implicit hostContext: HostContext): Action[AnyContent] =
@@ -130,7 +129,6 @@ class ManagePaperlessController @Inject()(
           implicit hc =>
             _submitChangeEmailAddress
       }
-
     }
 
   def displayChangeEmailAddressConfirmed(implicit hostContext: HostContext): Action[AnyContent] = Action.async { implicit request =>
@@ -145,7 +143,6 @@ class ManagePaperlessController @Inject()(
     withAuthenticatedRequest {
       implicit withAuthenticatedRequest: AuthenticatedRequest[_] =>
         implicit hc =>
-
           _displayStopPaperless
     }
   }
@@ -155,7 +152,6 @@ class ManagePaperlessController @Inject()(
       val lang = languageType(request.lang.code)
       implicit withAuthenticatedRequest: AuthenticatedRequest[_] =>
         implicit hc =>
-
           _submitStopPaperless(Some(lang))
     }
   }

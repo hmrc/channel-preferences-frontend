@@ -27,10 +27,13 @@ class ConfirmOptBackIntoPaperSpec extends PlaySpec with GuiceOneAppPerSuite with
       val document =
         Jsoup.parse(template(email)(engRequest, messagesInEnglish(), TestFixtures.sampleHostContext).toString())
 
-      document.getElementsByTag("title").first().text() mustBe "Stop notifications"
-      document.getElementsByTag("h1").get(0).text() mustBe "Stop notifications"
-      document.getElementsByTag("p").get(1).text() mustBe "You'll get letters again, instead of emails."
-      document.getElementById("cancel-link").text() mustBe "Cancel"
+      document.getElementsByTag("title").first().text() mustBe "Confirm how you want to get your tax letters"
+      document.getElementsByTag("h1").get(0).text() mustBe "Confirm how you want to get your tax letters"
+      document
+        .getElementsByTag("p")
+        .get(1)
+        .text() mustBe "Save all your online tax letters together in one place. We always email to let you know when you have a new online letter."
+      document.getElementById("cancel-link").text() mustBe "Keep online tax letters"
     }
 
     "render the correct content in welsh" in {
@@ -38,13 +41,13 @@ class ConfirmOptBackIntoPaperSpec extends PlaySpec with GuiceOneAppPerSuite with
       val document =
         Jsoup.parse(template(email)(welshRequest, messagesInWelsh(), TestFixtures.sampleHostContext).toString())
 
-      document.getElementsByTag("title").first().text() mustBe "Atal hysbysiadau"
-      document.getElementsByTag("h1").get(0).text() mustBe "Atal hysbysiadau"
+      document.getElementsByTag("title").first().text() mustBe "Cadarnhau sut hoffech gael eich llythyrau treth"
+      document.getElementsByTag("h1").get(0).text() mustBe "Cadarnhau sut hoffech gael eich llythyrau treth"
       document
         .getElementsByTag("p")
         .get(1)
-        .text() mustBe "Byddwch yn cael llythyrau unwaith eto, yn hytrach nag e-byst."
-      document.getElementById("cancel-link").text() mustBe "Canslo"
+        .text() mustBe "Cadwch eich holl lythyrau treth ar-lein gyda’i gilydd mewn un lle. Byddwn bob tro yn anfon e-bost atoch i roi gwybod i chi pan fydd llythyr ar-lein newydd wedi’ch cyrraedd."
+      document.getElementById("cancel-link").text() mustBe "Parhau i gael llythyrau treth ar-lein"
     }
   }
 }

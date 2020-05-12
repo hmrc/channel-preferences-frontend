@@ -443,8 +443,8 @@ class ManagePaperlessControllerSpec
       status(result) mustBe 200
       val page = Jsoup.parse(contentAsString(result))
 
-      page.getElementById("confirm-opt-out").text mustBe "Stop emails from HMRC"
-      page.getElementById("cancel-link").text mustBe "Cancel"
+      page.getElementById("confirm-opt-out").text mustBe "Get tax letters by post"
+      page.getElementById("cancel-link").text mustBe "Keep online tax letters"
       page.text() must not include "test@test.com"
     }
 

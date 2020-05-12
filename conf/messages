@@ -58,7 +58,8 @@ sa_printing_preference.verification.heading.wrong_token=You''ve used a link that
 sa_printing_preference.verification.wrong_token.paragraph.1=It may have been sent to an old or alternative email address. Please use the link in the latest verification email sent to your specified email address.
 
 bt.account.yourdetails=Manage account
-bt.account.stopreminders=Stop emails from HMRC
+bt.account.stop_email_reminders=Get tax letters by post
+bt.account.keep_email_reminders=Keep online tax letters
 
 header_nav_links.sign_out=Sign out
 
@@ -121,8 +122,8 @@ account.details.update.email.verify.change=Change this email address
 account.details.verification.email.title=Verification email sent
 account.details.verification.email.new_email=A new email has been sent to {0}. Click on the link in the email to verify your email address with HMRC.
 
-account.opt.back.out.confirmation.title=Stop notifications
-account.opt.back.out.confirmation.letters=You''ll get letters again, instead of emails.
+account.opt.back.out.confirmation.title=Confirm how you want to get your tax letters
+account.opt.back.out.confirmation.letters=Save all your online tax letters together in one place. We always email to let you know when you have a new online letter.
 
 default.nav.links.text=Your tax account
 

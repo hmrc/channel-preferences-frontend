@@ -19,11 +19,8 @@
 
     @form(action = controllers.internal.routes.ManagePaperlessController.submitStopPaperless(hostContext)) {
         <div class="form-field">
-            <button id="confirm-opt-out" class="button" type="submit">@Messages("bt.account.stopreminders")</button>
+            @Link.toInternalPage(id = Some("cancel-link"), cssClasses = Some("govuk-button govuk-!-margin-right-1"), url = controllers.internal.routes.ManagePaperlessController.checkSettings(hostContext).url, value = Some(Messages("bt.account.keep_email_reminders"))).toHtml
+            <button id="confirm-opt-out" class="govuk-button govuk-button--secondary" type="submit">@Messages("bt.account.stop_email_reminders")</button>
         </div>
     }
-
-    <p class="form-field">
-        @Link.toInternalPage(id = Some("cancel-link"), url = controllers.internal.routes.ManagePaperlessController.checkSettings(hostContext).url, value = Some(Messages("cancel.text"))).toHtml
-    </p>
 }
