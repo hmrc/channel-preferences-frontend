@@ -116,8 +116,8 @@ message.paperless.email.request.new.email.text=Os na allwch ddod o hyd i hyn,
 message.paperless.email.request.new.email.link=gofynnwch am e-bost newydd.
 message.paperless.email.request.if.you.want.text=Os ydych yn dymuno,
 message.paperless.email.request.if.you.want.link=gallwch ddefnyddio cyfeiriad e-bost gwahanol.
-manage.paperless.email.use.header=Why do I need to give HMRC my email?
-manage.paperless.email.use.explanation=We always let you know by email when you have an online tax letter waiting.
+manage.paperless.email.use.header=Pam y mae angen i mi roi fy e-bost i CThEM?
+manage.paperless.email.use.explanation=Byddwn bob amser yn rhoi gwybod i chi drwy e-bost pan fydd gennych lythyr treth ar-lein yn aros amdanoch.
 
 manage.paperless.email.delivery.failed.header=Ni allwn ddosbarthu e-byst i {0}
 manage.paperless.email.delivery.failed.para1=Gallai hyn fod oherwydd nad yw’ch cyfeiriad e-bost yn gywir, neu oherwydd bod problem dechnegol.

@@ -528,6 +528,9 @@ class ManagePaperlessControllerSpec
       outcome must include("gofynnwch am e-bost newydd.")
       outcome must include("Os ydych yn dymuno,")
       outcome must include("gallwch ddefnyddio cyfeiriad e-bost gwahanol.")
+      outcome must include("Pam y mae angen i mi roi fy e-bost i CThEM?")
+      outcome must include(
+        "Byddwn bob amser yn rhoi gwybod i chi drwy e-bost pan fydd gennych lythyr treth ar-lein yn aros amdanoch.")
     }
   }
 
