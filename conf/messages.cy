@@ -120,7 +120,7 @@ manage.paperless.email.use.header=Pam y mae angen i mi roi fy e-bost i CThEM?
 manage.paperless.email.use.explanation=Byddwn bob amser yn rhoi gwybod i chi drwy e-bost pan fydd gennych lythyr treth ar-lein yn aros amdanoch.
 
 manage.paperless.email.delivery.failed.header=Ni allwn ddosbarthu e-byst i {0}
-manage.paperless.email.delivery.failed.para1=Gallai hyn fod oherwydd nad yw’ch cyfeiriad e-bost yn gywir, neu oherwydd bod problem dechnegol.
+manage.paperless.email.delivery.failed.para1=Gallai hyn fod oherwydd nad yw’ch cyfeiriad e-bost yn gywir, neu oherwydd bod problem dechnegol, megis mae’ch mewnflwch yn llawn.
 manage.paperless.email.delivery.failed.sub-header=Yr hyn y mae’n rhaid i chi ei wneud nawr
 manage.paperless.email.delivery.failed.options=Gallwch wneud y canlynol
 manage.paperless.email.delivery.failed.check.account.text=gwirio bod eich cyfrif yn gweithio a bod lle yn y mewnflwch, ac yna
