@@ -111,7 +111,7 @@ manage.paperless.problem.header=Mae yna broblem
 
 manage.paperless.email.notification.verify.header=Sut i gadarnhau’ch cyfeiriad e-bost
 manage.paperless.email.para.below.header=I gofrestru a chael eich llythyrau treth ar-lein, mae’n rhaid i chi ddilyn y cysylltiad yn yr e-bost a gawsoch oddi wrthym yn gyntaf.
-manage.paperless.email.search.email.for=Chwiliwch drwy’ch e-byst am: ‘Dilyswch eich cyfeiriad e-bost’ neu ‘Verify your email address’.
+manage.paperless.email.search.email.for=Chwiliwch drwy’ch e-byst am: ‘Dilyswch eich cyfeiriad e-bost’ neu ‘Verify your email address’
 message.paperless.email.request.new.email.text=Os na allwch ddod o hyd i hyn,
 message.paperless.email.request.new.email.link=gofynnwch am e-bost newydd.
 message.paperless.email.request.if.you.want.text=Os ydych yn dymuno,
