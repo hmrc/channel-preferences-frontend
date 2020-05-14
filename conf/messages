@@ -154,7 +154,7 @@ manage.paperless.email.send.new.verification=Send a new verification email
 
 manage.paperless.email.notification.verify.header=How to confirm your email address
 manage.paperless.email.para.below.header=To sign up and get your tax letters online, you first need to select the link in the email we sent you.
-manage.paperless.email.search.email.for=Search your emails for: ''Verify your email address''
+manage.paperless.email.search.email.for=Search your emails for: ''Verify your email address''.
 message.paperless.email.request.new.email.text=If you can''t find this,
 message.paperless.email.request.new.email.link=request a new email.
 message.paperless.email.request.if.you.want.text=If you want to,
