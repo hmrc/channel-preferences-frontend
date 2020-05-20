@@ -460,7 +460,7 @@ class ManagePaperlessControllerSpec
 
   "A POST to confirm opt out of email reminders" should {
 
-    "return a redirect to thank you page" in {
+    "return a redirect to check your settings page" in {
       val saPreferences =
         SaPreference(true, Some(SaEmailPreference("test@test.com", SaEmailPreference.Status.Verified)))
           .toNewPreference()
@@ -475,8 +475,7 @@ class ManagePaperlessControllerSpec
 
       status(result) mustBe 303
       header("Location", result).get must include(
-        routes.ManagePaperlessController.displayStopPaperlessConfirmed(TestFixtures.sampleHostContext).url)
-      val page = Jsoup.parse(contentAsString(result))
+        routes.ManagePaperlessController.checkSettings(TestFixtures.sampleHostContext).url)
 
       verify(mockEntityResolverConnector)
         .updateTermsAndConditions(any[TermsAndConditionsUpdate])(any(), any())

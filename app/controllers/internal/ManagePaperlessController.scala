@@ -50,7 +50,7 @@ class ManagePaperlessController @Inject()(
 
   private[controllers] def _submitStopPaperless(lang: Some[Language])(implicit request: AuthenticatedRequest[_], hostContext: HostContext, hc:HeaderCarrier): Future[Result] =
     entityResolverConnector.updateTermsAndConditions(TermsAndConditionsUpdate.from((GenericTerms, TermsAccepted(false)), email = None, false, lang)).map(_ =>
-      Redirect(routes.ManagePaperlessController.displayStopPaperlessConfirmed(hostContext))
+      Redirect(routes.ManagePaperlessController.checkSettings(hostContext))
     )
 
   private[controllers] def _resendVerificationEmail(implicit request: AuthenticatedRequest[_], hostContext: HostContext, hc:HeaderCarrier): Future[Result] = {
