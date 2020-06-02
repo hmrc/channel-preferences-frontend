@@ -103,6 +103,7 @@ manage.paperless.email.sent_to=Anfonwyd e-bost at
 manage.paperless.email.click_on_link=ar {0}. Cliciwch ar y cysylltiad yn yr e-bost er mwyn dilysu''ch cyfeiriad e-bost.
 manage.paperless.email.cannot.find=Os na allwch ddod o hyd iddo,
 manage.paperless.email.send.new.verification=Gallwch gael e-bost newydd wedi''i anfon atoch o
+manage.paperless.email.button=Yn eich blaen
 
 manage.paperless.verified.header=Cyfeiriad e-bost ar gyfer cyfathrebu''n ddigidol â CThEM
 manage.paperless.verified.sent_to=Anfonir e-byst at:

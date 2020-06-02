@@ -161,6 +161,7 @@ message.paperless.email.request.if.you.want.text=If you want to,
 message.paperless.email.request.if.you.want.link=you can use a different email address.
 manage.paperless.email.use.header=Why do I need to give HMRC my email?
 manage.paperless.email.use.explanation=We always let you know by email when you have an online tax letter waiting.
+manage.paperless.email.button=Continue
 
 manage.paperless.email.delivery.failed.header=We cannot deliver emails to {0}
 manage.paperless.email.delivery.failed.para1=This could be because your email address is not correct, or there is a technical problem, such as your inbox is full.
