@@ -12,10 +12,10 @@ class OptInCohortCalculatorSpec extends PlaySpec {
 
   "The calculator" should {
     "Return the paperless interrupt if t&c is generic" in {
-      new OptInCohortCalculator {}.calculateCohort(HostContext("", "", Some("generic"))) mustBe IPage
+      new OptInCohortCalculator {}.calculateCohort(HostContext("", "", Some("generic"))) mustBe CohortCurrent.ipage
     }
     "Return the taxCredits interrupt if t&c is taxCredits" in {
-      new OptInCohortCalculator {}.calculateCohort(HostContext("", "", Some("taxCredits"))) mustBe TCPage
+      new OptInCohortCalculator {}.calculateCohort(HostContext("", "", Some("taxCredits"))) mustBe CohortCurrent.tcpage
     }
   }
 

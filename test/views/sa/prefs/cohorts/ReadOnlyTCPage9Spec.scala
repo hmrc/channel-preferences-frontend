@@ -15,12 +15,12 @@ import play.api.Application
 import play.api.i18n.Messages.Implicits.applicationMessages
 import play.api.test.FakeRequest
 import org.scalatestplus.play.PlaySpec
-import views.html.sa.prefs.cohorts.tc_page
+import views.html.sa.prefs.cohorts.tc_page9
 
-class TcPageSpec extends PlaySpec with GuiceOneAppPerSuite with LanguageHelper with ConfigHelper {
+class ReadOnlyTcPage9Spec extends PlaySpec with GuiceOneAppPerSuite with LanguageHelper with ConfigHelper {
 
   override implicit lazy val app: Application = fakeApp
-  val template = app.injector.instanceOf[tc_page]
+  val template = app.injector.instanceOf[tc_page9]
 
   "Tax Credit Template" should {
     "render the correct content in english" in {

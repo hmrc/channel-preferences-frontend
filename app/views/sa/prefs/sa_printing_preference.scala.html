@@ -5,14 +5,17 @@
 
 @import controllers.auth.AuthenticatedRequest
 @import play.api.i18n.Messages.Implicits._
-@this(iPage: views.html.sa.prefs.cohorts.i_page, tcPage: views.html.sa.prefs.cohorts.tc_page)
+@this(
+  iPage8: views.html.sa.prefs.cohorts.i_page8,
+  tcPage9: views.html.sa.prefs.cohorts.tc_page9
+)
 @(emailForm: Form[_], submitPrefsFormAction: Call, cohort: controllers.internal.OptInCohort)(implicit request: AuthenticatedRequest[_], messages: Messages)
 
 @import views.html.sa.prefs.cohorts._
     @import controllers.internal._
 
 @{cohort match {
-        case IPage => iPage(emailForm, submitPrefsFormAction)
-        case TCPage => tcPage(emailForm, submitPrefsFormAction)
+        case IPage8 => iPage8(emailForm, submitPrefsFormAction)
+        case TCPage9 => tcPage9(emailForm, submitPrefsFormAction)
     }
 }

@@ -46,3 +46,7 @@ GET         /paperless/warnings                                                 
 
 # Check your settings
 GET         /paperless/check-settings                                               controllers.internal.ManagePaperlessController.checkSettings(hostContext: model.HostContext)
+
+# Render opt-in by cohort
+GET         /paperless-admin/displayForm/:cohort                                    controllers.internal.ChoosePaperlessController.adminDisplayCohortForm(cohort: Option[controllers.internal.OptInCohort])
+POST        /paperless-admin/nop                                                    controllers.internal.ChoosePaperlessController.adminNop()

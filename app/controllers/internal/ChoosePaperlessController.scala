@@ -11,13 +11,11 @@ import controllers.internal.EmailOptInJourney._
 import controllers.internal.PaperlessChoice.OptedIn
 import controllers.{ ExternalUrlPrefixes, internal }
 import javax.inject.Inject
-import model.Language.English
-import model.{ Encrypted, HostContext, Language }
+import model.{ Encrypted, HostContext, Language, PageType }
 import org.joda.time.DateTime
 import play.api.Configuration
 import play.api.data.Form
 import play.api.i18n.I18nSupport
-import play.api.libs.json.{ JsError, JsSuccess, Json }
 import play.api.mvc._
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.emailaddress.EmailAddress
@@ -71,7 +69,7 @@ class ChoosePaperlessController @Inject()(
     hostContext: HostContext) = Action.async { implicit request =>
     withAuthenticatedRequest { implicit authRequest: AuthenticatedRequest[AnyContent] => implicit hc =>
       {
-        auditPageShown(AccountDetails, IPage)
+        auditPageShown(AccountDetails, CohortCurrent.ipage)
         val email = emailAddress.map(_.decryptedValue)
         hasStoredEmail(hostContext, Some(svc), Some(token)).map { (emailAlreadyStored: Boolean) =>
           {
@@ -85,7 +83,7 @@ class ChoosePaperlessController @Inject()(
                     emailAlreadyStored = Some(emailAlreadyStored))),
                 submitPrefsFormAction =
                   internal.routes.ChoosePaperlessController.submitFormBySvc(svc, token, hostContext),
-                cohort = IPage
+                cohort = CohortCurrent.ipage
               ))
           }
         }
@@ -139,21 +137,49 @@ class ChoosePaperlessController @Inject()(
     }
   }
 
+  def adminDisplayCohortForm(cohort: Option[OptInCohort]): Action[AnyContent] = Action.async { implicit request =>
+    cohort.fold(Future.successful(BadRequest("Invalid cohort"))) { cohort =>
+      val form =
+        cohort.pageType match {
+          case PageType.IPage  => OptInDetailsForm()
+          case PageType.TCPage => OptInTaxCreditsDetailsForm()
+          case _               => throw (new Exception("Invalid cohort"))
+
+        }
+      implicit val authRequest = AuthenticatedRequest[AnyContent](request, None, None, None, None)
+      Future.successful(
+        Ok(
+          saPrintingPreference(
+            emailForm = form,
+            submitPrefsFormAction = internal.routes.ChoosePaperlessController.adminNop(),
+            cohort = cohort
+          )
+        ))
+    }
+  }
+  def adminNop() = Action.async {
+    Future.successful(Ok(""))
+  }
+
   def submitFormBySvc(implicit svc: String, token: String, hostContext: HostContext) =
     Action.async { implicit request =>
       withAuthenticatedRequest { authRequest: AuthenticatedRequest[_] => implicit hc =>
         val call = routes.ChoosePaperlessController.submitFormBySvc(svc, token, hostContext)
         val lang = languageType(request.lang.code)
-        val formwithErrors = returnToFormWithErrors(call, IPage, authRequest) _
+        val formwithErrors = returnToFormWithErrors(call, CohortCurrent.ipage, authRequest) _
 
         OptInOrOutForm().bindFromRequest.fold[Future[Result]](
           hasErrors = formwithErrors,
           happyForm =>
             if (happyForm.optedIn.contains(false))
-              saveAndAuditPreferences(digital = false, email = None, IPage, false, Some(svc), Some(token), Some(lang))(
-                authRequest,
-                hostContext,
-                hc)
+              saveAndAuditPreferences(
+                digital = false,
+                email = None,
+                CohortCurrent.ipage,
+                false,
+                Some(svc),
+                Some(token),
+                Some(lang))(authRequest, hostContext, hc)
             else
               OptInDetailsForm().bindFromRequest.fold[Future[Result]](
                 hasErrors = formwithErrors,
@@ -163,7 +189,7 @@ class ChoosePaperlessController @Inject()(
                       emailAddress,
                       emailForm.isEmailVerified,
                       emailForm.isEmailAlreadyStored,
-                      IPage,
+                      CohortCurrent.ipage,
                       Some(svc),
                       Some(token),
                       Some(lang)

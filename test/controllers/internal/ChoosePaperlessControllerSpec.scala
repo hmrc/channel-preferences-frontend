@@ -38,7 +38,7 @@ import scala.concurrent.Future
 import org.mockito.Matchers.{ eq => meq, _ }
 
 trait ChoosePaperlessControllerSetup {
-  def assignedCohort: OptInCohort = IPage
+  def assignedCohort: OptInCohort = CohortCurrent.ipage
   val validUtr = SaUtr("1234567890")
   val request = FakeRequest()
 
@@ -259,7 +259,7 @@ class ChoosePaperlessControllerSpec
     }
 
     "show an error when opting-in if the T&C's are not accepted" in new ChoosePaperlessControllerSetup {
-      override def assignedCohort = IPage
+      override def assignedCohort = CohortCurrent.ipage
 
       val emailAddress = "someone@email.com"
       val page = controller.submitForm(TestFixtures.sampleHostContext)(
@@ -273,7 +273,7 @@ class ChoosePaperlessControllerSpec
     }
 
     "show an error when opting-in if the T&C's accepted flag is not present" in new ChoosePaperlessControllerSetup {
-      override def assignedCohort = IPage
+      override def assignedCohort = CohortCurrent.ipage
 
       val emailAddress = "someone@email.com"
       val page = controller.submitForm(TestFixtures.sampleHostContext)(
@@ -565,9 +565,9 @@ class ChoosePaperlessControllerSpec
 
   "An audit event" should {
 
-    "be created as EventTypes.Succeeded when a new user is activated on submitting a print preference from IPage" in new ChoosePaperlessControllerSetup {
+    "be created as EventTypes.Succeeded when a new user is activated on submitting a print preference from CohortCurrent.ipage" in new ChoosePaperlessControllerSetup {
 
-      override def assignedCohort = IPage
+      override def assignedCohort = CohortCurrent.ipage
 
       val emailAddress = "someone@email.com"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(Future.successful(true))
@@ -588,7 +588,7 @@ class ChoosePaperlessControllerSpec
       value.auditSource mustBe "preferences-frontend"
       value.auditType mustBe EventTypes.Succeeded
       value.request.tags must contain("transactionName" -> "Set Print Preference")
-      value.request.detail("cohort") mustBe "IPage"
+      value.request.detail("cohort") mustBe "IPage8"
       value.request.detail("journey") mustBe "AccountDetails"
       value.request.detail("utr") mustBe validUtr.value
       value.request.detail("nino") mustBe "N/A"
@@ -598,9 +598,9 @@ class ChoosePaperlessControllerSpec
       value.request.detail("newUserPreferencesCreated") mustBe "true"
     }
 
-    "be created as EventTypes.Succeeded when an existing user is activated on submitting a print preference from IPage" in new ChoosePaperlessControllerSetup {
+    "be created as EventTypes.Succeeded when an existing user is activated on submitting a print preference from CohortCurrent.ipage" in new ChoosePaperlessControllerSetup {
 
-      override def assignedCohort = IPage
+      override def assignedCohort = CohortCurrent.ipage
 
       val emailAddress = "someone@email.com"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(Future.successful(true))
@@ -621,7 +621,7 @@ class ChoosePaperlessControllerSpec
       value.auditSource mustBe "preferences-frontend"
       value.auditType mustBe EventTypes.Succeeded
       value.request.tags must contain("transactionName" -> "Set Print Preference")
-      value.request.detail("cohort") mustBe "IPage"
+      value.request.detail("cohort") mustBe "IPage8"
       value.request.detail("journey") mustBe "AccountDetails"
       value.request.detail("utr") mustBe validUtr.value
       value.request.detail("nino") mustBe "N/A"
@@ -633,7 +633,7 @@ class ChoosePaperlessControllerSpec
 
     "be created as EventTypes.Succeeded when choosing to not opt in" in new ChoosePaperlessControllerSetup {
 
-      override def assignedCohort = IPage
+      override def assignedCohort = CohortCurrent.ipage
 
       when(
         mockEntityResolverConnector
@@ -652,7 +652,7 @@ class ChoosePaperlessControllerSpec
       value.auditSource mustBe "preferences-frontend"
       value.auditType mustBe EventTypes.Succeeded
       value.request.tags must contain("transactionName" -> "Set Print Preference")
-      value.request.detail("cohort") mustBe "IPage"
+      value.request.detail("cohort") mustBe "IPage8"
       value.request.detail("journey") mustBe "AccountDetails"
       value.request.detail("utr") mustBe validUtr.value
       value.request.detail("nino") mustBe "N/A"
@@ -668,7 +668,7 @@ class ChoosePaperlessControllerSpecTC
     extends PlaySpec with MockitoSugar with GuiceOneAppPerSuite with BeforeAndAfterEach
     with ChoosePaperlessControllerSetup {
 
-  override def assignedCohort: OptInCohort = IPage
+  override def assignedCohort: OptInCohort = CohortCurrent.ipage
 
   val mockAuditConnector = mock[AuditConnector]
   val mockEntityResolverConnector = mock[EntityResolverConnector]
@@ -721,7 +721,7 @@ class ChoosePaperlessControllerSpecTC
   "The preferences action on non login version page" should {
 
     "show main banner" in new ChoosePaperlessControllerSetup {
-      override def assignedCohort: OptInCohort = TCPage
+      override def assignedCohort: OptInCohort = CohortCurrent.tcpage
 
       val page = controller.displayForm(Some(assignedCohort), None, TestFixtures.taxCreditsHostContext(""))(request)
       status(page) mustBe 200
@@ -730,7 +730,7 @@ class ChoosePaperlessControllerSpecTC
     }
 
     "have correct form action to save preferences" in new ChoosePaperlessControllerSetup {
-      override def assignedCohort: OptInCohort = TCPage
+      override def assignedCohort: OptInCohort = CohortCurrent.tcpage
 
       val page = controller.displayForm(Some(assignedCohort), None, TestFixtures.taxCreditsHostContext(""))(request)
       status(page) mustBe 200
@@ -740,7 +740,7 @@ class ChoosePaperlessControllerSpecTC
     }
 
     "audit the cohort information for the account details page" in new ChoosePaperlessControllerSetup {
-      override def assignedCohort: OptInCohort = TCPage
+      override def assignedCohort: OptInCohort = CohortCurrent.tcpage
 
       val page = controller.displayForm(Some(assignedCohort), None, TestFixtures.taxCreditsHostContext(""))(request)
       status(page) mustBe 200
@@ -759,7 +759,7 @@ class ChoosePaperlessControllerSpecTC
     }
 
     "redirect to a re-calculated cohort when no cohort is supplied" in new ChoosePaperlessControllerSetup {
-      override def assignedCohort: OptInCohort = TCPage
+      override def assignedCohort: OptInCohort = CohortCurrent.tcpage
 
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(None))
 
@@ -777,7 +777,7 @@ class ChoosePaperlessControllerSpecTC
   "The preferences form" should {
 
     "render an email input field with no value if no email address is supplied, and no option selected" in new ChoosePaperlessControllerSetup {
-      override def assignedCohort: OptInCohort = TCPage
+      override def assignedCohort: OptInCohort = CohortCurrent.tcpage
 
       val page = controller.displayForm(Some(assignedCohort), None, TestFixtures.taxCreditsHostContext(""))(request)
 
@@ -792,7 +792,7 @@ class ChoosePaperlessControllerSpecTC
     }
 
     "render an email input field populated with the supplied email address, and the Opt-in option selected" in new ChoosePaperlessControllerSetup {
-      override def assignedCohort: OptInCohort = TCPage
+      override def assignedCohort: OptInCohort = CohortCurrent.tcpage
 
       val emailAddress = "bob@bob.com"
 
@@ -816,7 +816,7 @@ class ChoosePaperlessControllerSpecTC
     }
 
     "render an email input field populated with the supplied hidden email address, and no Opt-in option selected if a preferences is not found for terms but an email do exist" in new ChoosePaperlessControllerSetup {
-      override def assignedCohort: OptInCohort = TCPage
+      override def assignedCohort: OptInCohort = CohortCurrent.tcpage
 
       val emailAddress = "bob@bob.com"
 
@@ -845,7 +845,7 @@ class ChoosePaperlessControllerSpecTC
     }
 
     "render an email input field populated with the supplied hidden email address, and no Opt-in option selected if a opted out preferences with email is found" in new ChoosePaperlessControllerSetup {
-      override def assignedCohort: OptInCohort = TCPage
+      override def assignedCohort: OptInCohort = CohortCurrent.tcpage
 
       val emailAddress = "bob@bob.com"
 
@@ -877,7 +877,7 @@ class ChoosePaperlessControllerSpecTC
   "A post to set preferences with no emailVerifiedFlag" should {
 
     "show an error if no opt-in preference has been chosen" in new ChoosePaperlessControllerSetup {
-      override def assignedCohort: OptInCohort = TCPage
+      override def assignedCohort: OptInCohort = CohortCurrent.tcpage
 
       val page = controller.submitForm(TestFixtures.taxCreditsHostContext(""))(FakeRequest().withFormUrlEncodedBody())
 
@@ -891,7 +891,7 @@ class ChoosePaperlessControllerSpecTC
     }
 
     "show no error when opting-in if the email is incorrectly formatted (it has been prepopulated)" in new ChoosePaperlessControllerSetup {
-      override def assignedCohort: OptInCohort = TCPage
+      override def assignedCohort: OptInCohort = CohortCurrent.tcpage
 
       val emailAddress = "invalid-email"
 
@@ -912,7 +912,7 @@ class ChoosePaperlessControllerSpecTC
     }
 
     "show an error when opting-in if the T&C's are not accepted" in new ChoosePaperlessControllerSetup {
-      override def assignedCohort: OptInCohort = TCPage
+      override def assignedCohort: OptInCohort = CohortCurrent.tcpage
 
       val emailAddress = "someone@email.com"
       val page = controller.submitForm(TestFixtures.taxCreditsHostContext(""))(
@@ -932,7 +932,7 @@ class ChoosePaperlessControllerSpecTC
     }
 
     "not show an error when opting-out if the T&C's are not selected" in new ChoosePaperlessControllerSetup {
-      override def assignedCohort: OptInCohort = TCPage
+      override def assignedCohort: OptInCohort = CohortCurrent.tcpage
 
       when(
         mockEntityResolverConnector
@@ -950,7 +950,7 @@ class ChoosePaperlessControllerSpecTC
     }
 
     "not show an error when opting-in if the T&C's are not selected" in new ChoosePaperlessControllerSetup {
-      override def assignedCohort: OptInCohort = TCPage
+      override def assignedCohort: OptInCohort = CohortCurrent.tcpage
 
       val emailAddress = "someone@email.com"
       val page = controller.submitForm(TestFixtures.taxCreditsHostContext(""))(
@@ -969,7 +969,7 @@ class ChoosePaperlessControllerSpecTC
     }
 
     "show an error when opting-in if the T&C's accepted flag is not present" in new ChoosePaperlessControllerSetup {
-      override def assignedCohort: OptInCohort = TCPage
+      override def assignedCohort: OptInCohort = CohortCurrent.tcpage
 
       val emailAddress = "someone@email.com"
       val page = controller.submitForm(TestFixtures.taxCreditsHostContext(emailAddress))(
@@ -989,7 +989,7 @@ class ChoosePaperlessControllerSpecTC
 
     "show a warning page when opting-in if the email has a valid structure but does not pass validation by the email micro service" in new ChoosePaperlessControllerSetup {
 
-      override def assignedCohort: OptInCohort = TCPage
+      override def assignedCohort: OptInCohort = CohortCurrent.tcpage
 
       val emailAddress = "someone@dodgy.domain"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(Future.successful(false))
@@ -1009,7 +1009,7 @@ class ChoosePaperlessControllerSpecTC
     }
 
     "when opting-in, validate the email address, save the preference and redirect to the thank you page with the email address encrpyted" in new ChoosePaperlessControllerSetup {
-      override def assignedCohort: OptInCohort = TCPage
+      override def assignedCohort: OptInCohort = CohortCurrent.tcpage
 
       val emailAddress = "someone@email.com"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(Future.successful(true))
@@ -1038,7 +1038,7 @@ class ChoosePaperlessControllerSpecTC
       verifyNoMoreInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
     "when opting-in, validate the email address, failed to save the preference and so not activate user and redirect to the thank you page with the email address encrpyted" in new ChoosePaperlessControllerSetup {
-      override def assignedCohort: OptInCohort = TCPage
+      override def assignedCohort: OptInCohort = CohortCurrent.tcpage
 
       val emailAddress = "someone@email.com"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(Future.successful(true))
@@ -1068,7 +1068,7 @@ class ChoosePaperlessControllerSpecTC
     }
 
     "when opting-in, validate the email address, save the preference and redirect to the thank you page with the email address encrpyted when the user has no email address stored" in new ChoosePaperlessControllerSetup {
-      override def assignedCohort: OptInCohort = TCPage
+      override def assignedCohort: OptInCohort = CohortCurrent.tcpage
 
       val emailAddress = "someone@email.com"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(Future.successful(true))
@@ -1100,7 +1100,7 @@ class ChoosePaperlessControllerSpecTC
     }
 
     "when opting-in save the preference and redirect return url if the user has already an email (opting in for generic when the user has already opted in for TaxCredits)" in new ChoosePaperlessControllerSetup {
-      override def assignedCohort: OptInCohort = TCPage
+      override def assignedCohort: OptInCohort = CohortCurrent.tcpage
 
       val emailAddress = "someone@email.com"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(Future.successful(true))
@@ -1129,7 +1129,7 @@ class ChoosePaperlessControllerSpecTC
     }
 
     "when opting-out, save the preference and redirect to the thank you page" in new ChoosePaperlessControllerSetup {
-      override def assignedCohort: OptInCohort = TCPage
+      override def assignedCohort: OptInCohort = CohortCurrent.tcpage
 
       when(
         mockEntityResolverConnector
@@ -1152,7 +1152,7 @@ class ChoosePaperlessControllerSpecTC
   "A post to set preferences with an emailVerifiedFlag" should {
 
     "if the verified flag is true, save the preference and redirect to the thank you page without verifying the email address again" in new ChoosePaperlessControllerSetup {
-      override def assignedCohort: OptInCohort = TCPage
+      override def assignedCohort: OptInCohort = CohortCurrent.tcpage
 
       val emailAddress = "someone@email.com"
       when(
@@ -1183,7 +1183,7 @@ class ChoosePaperlessControllerSpecTC
 
     "if the verified flag is false and the email does not pass validation by the email micro service, display the verify page" in new ChoosePaperlessControllerSetup {
 
-      override def assignedCohort: OptInCohort = TCPage
+      override def assignedCohort: OptInCohort = CohortCurrent.tcpage
 
       val emailAddress = "someone@dodgy.domain"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(Future.successful(false))
@@ -1208,7 +1208,7 @@ class ChoosePaperlessControllerSpecTC
 
     "if the verified flag is any value other than true, treat it as false" in new ChoosePaperlessControllerSetup {
 
-      override def assignedCohort: OptInCohort = TCPage
+      override def assignedCohort: OptInCohort = CohortCurrent.tcpage
 
       val emailAddress = "someone@dodgy.domain"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(Future.successful(false))
@@ -1236,7 +1236,7 @@ class ChoosePaperlessControllerSpecTC
 
     "be created as EventTypes.Succeeded when a new user is activated on submitting a print preference from TCPage" in new ChoosePaperlessControllerSetup {
 
-      override def assignedCohort: OptInCohort = TCPage
+      override def assignedCohort: OptInCohort = CohortCurrent.tcpage
 
       val emailAddress = "someone@email.com"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(Future.successful(true))
@@ -1261,7 +1261,7 @@ class ChoosePaperlessControllerSpecTC
       value.auditSource mustBe "preferences-frontend"
       value.auditType mustBe EventTypes.Succeeded
       value.request.tags must contain("transactionName" -> "Set Print Preference")
-      value.request.detail("cohort") mustBe "TCPage"
+      value.request.detail("cohort") mustBe "TCPage9"
       value.request.detail("journey") mustBe "AccountDetails"
       value.request.detail("utr") mustBe validUtr.value
       value.request.detail("nino") mustBe "N/A"
@@ -1273,7 +1273,7 @@ class ChoosePaperlessControllerSpecTC
 
     "be created as EventTypes.Succeeded when an existing user is activated on submitting a print preference from TCPage" in new ChoosePaperlessControllerSetup {
 
-      override def assignedCohort: OptInCohort = TCPage
+      override def assignedCohort: OptInCohort = CohortCurrent.tcpage
 
       val emailAddress = "someone@email.com"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(Future.successful(true))
@@ -1298,7 +1298,7 @@ class ChoosePaperlessControllerSpecTC
       value.auditSource mustBe "preferences-frontend"
       value.auditType mustBe EventTypes.Succeeded
       value.request.tags must contain("transactionName" -> "Set Print Preference")
-      value.request.detail("cohort") mustBe "TCPage"
+      value.request.detail("cohort") mustBe "TCPage9"
       value.request.detail("journey") mustBe "AccountDetails"
       value.request.detail("utr") mustBe validUtr.value
       value.request.detail("nino") mustBe "N/A"
@@ -1310,7 +1310,7 @@ class ChoosePaperlessControllerSpecTC
 
     "be created as EventTypes.Succeeded when choosing to not opt in" in new ChoosePaperlessControllerSetup {
 
-      override def assignedCohort: OptInCohort = TCPage
+      override def assignedCohort: OptInCohort = CohortCurrent.tcpage
 
       when(
         mockEntityResolverConnector
@@ -1329,7 +1329,7 @@ class ChoosePaperlessControllerSpecTC
       value.auditSource mustBe "preferences-frontend"
       value.auditType mustBe EventTypes.Succeeded
       value.request.tags must contain("transactionName" -> "Set Print Preference")
-      value.request.detail("cohort") mustBe "TCPage"
+      value.request.detail("cohort") mustBe "TCPage9"
       value.request.detail("journey") mustBe "AccountDetails"
       value.request.detail("utr") mustBe validUtr.value
       value.request.detail("nino") mustBe "N/A"
@@ -1472,5 +1472,25 @@ class ChoosePaperlessControllerSpecTC
 
     }
 
+  }
+
+}
+
+class ChoosePaperlessControllerSpecAdmin extends PlaySpec with GuiceOneAppPerSuite with ChoosePaperlessControllerSetup {
+
+  val controller = app.injector.instanceOf[ChoosePaperlessController]
+
+  "/paperless-admin/displayForm/:cohort" should {
+
+    "display form of the current ipage cohort" in {
+      val request = FakeRequest()
+      val page = controller.adminDisplayCohortForm(Some(CohortCurrent.ipage))(request)
+      status(page) mustBe 200
+    }
+    "return BadRequest if cohort is missing" in {
+      val request = FakeRequest()
+      val page = controller.adminDisplayCohortForm(None)(request)
+      status(page) mustBe 400
+    }
   }
 }

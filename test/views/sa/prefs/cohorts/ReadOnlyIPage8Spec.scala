@@ -16,13 +16,13 @@ import play.api.Application
 import play.api.i18n.Messages.Implicits.applicationMessages
 import play.api.test.FakeRequest
 import org.scalatestplus.play.PlaySpec
-import views.html.sa.prefs.cohorts.i_page
+import views.html.sa.prefs.cohorts.i_page8
 
-class IPageSpec extends PlaySpec with GuiceOneAppPerSuite with LanguageHelper with ConfigHelper {
+class ReadOnlyIPage8Spec extends PlaySpec with GuiceOneAppPerSuite with LanguageHelper with ConfigHelper {
 
   override implicit lazy val app: Application = fakeApp
 
-  val template = app.injector.instanceOf[i_page]
+  val template = app.injector.instanceOf[i_page8]
   "I Page Template" should {
     "render the correct content in english" in {
       val form = EmailForm()
