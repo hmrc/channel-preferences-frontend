@@ -161,6 +161,10 @@ class ChoosePaperlessController @Inject()(
     Future.successful(Ok(""))
   }
 
+  def availableCohorts(): Action[AnyContent] = Action.async { implicit request =>
+    Future.successful(Ok(OptInCohort.listCohortWrites.writes((OptInCohortConfigurationValues.availableValues))))
+  }
+
   def submitFormBySvc(implicit svc: String, token: String, hostContext: HostContext) =
     Action.async { implicit request =>
       withAuthenticatedRequest { authRequest: AuthenticatedRequest[_] => implicit hc =>

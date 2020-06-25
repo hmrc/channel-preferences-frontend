@@ -7,6 +7,7 @@ package controllers.internal
 
 import connectors.GenericTerms
 import model.PageType
+import org.joda.time.LocalDate
 import org.scalatestplus.play.PlaySpec
 
 class ReadOnlyIPage8CohortSpec extends PlaySpec {
@@ -29,6 +30,12 @@ class ReadOnlyIPage8CohortSpec extends PlaySpec {
       }
       withClue("majorVersion") {
         cohortUnderTest.majorVersion mustBe (0)
+      }
+      withClue("description") {
+        cohortUnderTest.description mustBe ("SOL changes to wording to improve litigation cases")
+      }
+      withClue("date") {
+        cohortUnderTest.date mustBe new LocalDate("2020-05-12")
       }
     }
   }

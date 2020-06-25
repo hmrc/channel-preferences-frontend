@@ -34,6 +34,7 @@ import play.api.test.Helpers._
 import model.{ HostContext, Language }
 
 import scala.concurrent.Future
+import play.api.libs.json._
 
 import org.mockito.Matchers.{ eq => meq, _ }
 
@@ -1491,6 +1492,37 @@ class ChoosePaperlessControllerSpecAdmin extends PlaySpec with GuiceOneAppPerSui
       val request = FakeRequest()
       val page = controller.adminDisplayCohortForm(None)(request)
       status(page) mustBe 400
+    }
+  }
+
+  "/paperless-admin/availableCohorts" should {
+
+    "return list of available cohorts" in {
+      val request = FakeRequest()
+      val page = controller.availableCohorts()(request)
+      status(page) mustBe 200
+      contentAsJson(page) mustBe (Json.parse(
+        """
+          | [
+          |   {
+          |     "id":8,
+          |     "name":"IPage8",
+          |     "pageType":"IPage",
+          |     "majorVersion":0,
+          |     "description":"SOL changes to wording to improve litigation cases",
+          |     "date":"2020-05-12"
+          |   },
+          |   {
+          |     "id":9,
+          |     "name":"TCPage9",
+          |     "pageType":"TCPage",
+          |     "majorVersion":0,
+          |     "description":"",
+          |     "date":"2020-05-12"
+          |   }
+          | ]
+          | """.stripMargin
+      ))
     }
   }
 }

@@ -7,6 +7,7 @@ package controllers.internal
 
 import connectors.TaxCreditsTerms
 import model.PageType
+import org.joda.time.LocalDate
 import org.scalatestplus.play.PlaySpec
 
 class ReadOnlyTCPage9CohortSpec extends PlaySpec {
@@ -29,6 +30,13 @@ class ReadOnlyTCPage9CohortSpec extends PlaySpec {
       }
       withClue("majorVersion") {
         cohortUnderTest.majorVersion mustBe (0)
+      }
+
+      withClue("description") {
+        cohortUnderTest.description mustBe ("")
+      }
+      withClue("date") {
+        cohortUnderTest.date mustBe new LocalDate("2020-05-12")
       }
     }
   }
