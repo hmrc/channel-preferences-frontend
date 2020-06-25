@@ -251,8 +251,8 @@ object CohortCurrent {
 
 # How to get a rendered opt-in page by a cohort number
 
-GET /paperless-admin/displayForm/:cohort
+GET /paperless/opt-in-cohort/display/:cohort
 
 # How to get a list of all cohorts
 
-GET /paperless-admin/availableCohorts
+GET /paperless/opt-in-cohort/list

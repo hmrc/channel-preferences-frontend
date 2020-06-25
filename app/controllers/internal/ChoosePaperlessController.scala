@@ -137,7 +137,7 @@ class ChoosePaperlessController @Inject()(
     }
   }
 
-  def adminDisplayCohortForm(cohort: Option[OptInCohort]): Action[AnyContent] = Action.async { implicit request =>
+  def displayCohort(cohort: Option[OptInCohort]): Action[AnyContent] = Action.async { implicit request =>
     cohort.fold(Future.successful(BadRequest("Invalid cohort"))) { cohort =>
       val form =
         cohort.pageType match {
@@ -151,17 +151,17 @@ class ChoosePaperlessController @Inject()(
         Ok(
           saPrintingPreference(
             emailForm = form,
-            submitPrefsFormAction = internal.routes.ChoosePaperlessController.adminNop(),
+            submitPrefsFormAction = internal.routes.ChoosePaperlessController.cohortNop(),
             cohort = cohort
           )
         ))
     }
   }
-  def adminNop() = Action.async {
+  def cohortNop() = Action.async {
     Future.successful(Ok(""))
   }
 
-  def availableCohorts(): Action[AnyContent] = Action.async { implicit request =>
+  def cohortList(): Action[AnyContent] = Action.async { implicit request =>
     Future.successful(Ok(OptInCohort.listCohortWrites.writes((OptInCohortConfigurationValues.availableValues))))
   }
 
