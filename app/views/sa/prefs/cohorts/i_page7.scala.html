@@ -10,24 +10,25 @@
 @import uk.gov.hmrc.urls.Link
 @import uk.gov.hmrc.play.views.html.helpers._
 
-@mainWithHeaders(title = Messages("i_page8.fg_page.title")) {
+@mainWithHeaders(title = Messages("i_page7.fg_page.title")) {
 
 <header class="page-header">
-    <h1>@Messages("i_page8.fg_page.title")</h1>
+    <h1>@Messages("i_page7.fg_page.title")</h1>
+
 </header>
 
-<p class="lede">@Messages("i_page8.fg_page.choose_1")</p>
-<p>@Messages("i_page8.fg_page.choose_2")</p>
+<p class="lede">@Messages("i_page7.fg_page.choose_1")</p>
+<p>@Messages("i_page7.fg_page.choose_2")</p>
 
 <ul class="list list-bullet">
-    <li>@Messages("i_page8.fg_page.list_1")</li>
-    <li>@Messages("i_page8.fg_page.list_2")</li>
-    <li>@Messages("i_page8.fg_page.list_3")</li>
+    <li>@Messages("i_page7.fg_page.list_1")</li>
+    <li>@Messages("i_page7.fg_page.list_2")</li>
+    <li>@Messages("i_page7.fg_page.list_3")</li>
 </ul>
 
-<p>@Messages("i_page8.fg_page.choose_3")</p>
+<p>@Messages("i_page7.fg_page.choose_3")</p>
 
-<h2>@Messages("i_page8.fg_page.paperless")</h2>
+<h2>@Messages("i_page7.fg_page.paperless")</h2>
 
 <script>
       function radioChanged() {$("#submitEmailButton").removeAttr("disabled")};
@@ -46,7 +47,7 @@
             class="email-prefs__toggle"
             onchange="radioChanged()"
     />
-    @Messages("i_page8.fg_page.yes_send_email")
+    @Messages("i_page7.fg_page.yes_send_email")
 </label>
 
 @if(emailForm("opt-in").value.contains("false")) { checked="checked" }
@@ -54,7 +55,7 @@
 <fieldset class="connected js-hidden">
     @input(
     emailForm("email.main"),
-    '_label -> Messages("i_page8.tc.email.label"),
+    '_label -> Messages("i_page7.tc.email.label"),
     '_labelClass -> "bold",
     '_labelHighlight -> true,
     '_divClass -> "row",
@@ -63,14 +64,14 @@
     'parentField -> emailForm("email")
     )
 
-    <p id="message-after-email-input-para-1">@Messages("i_page8.fg_page.yes_send_email_info_1")</p>
-    <p id="message-after-email-input">@Messages("i_page8.fg_page.yes_send_email_info_2")</p>
+    <p id="message-after-email-input-para-1">@Messages("i_page7.fg_page.yes_send_email_info_1")</p>
+    <p id="message-after-email-input">@Messages("i_page7.fg_page.yes_send_email_info_2")</p>
 
     @singleCheckbox26(
     emailForm("accept-tc"),
-    Html(Messages("i_page8.tc.preLinkText", Link.toExternalPage(id = Some("terms-and-conditions"),
+    Html(Messages("i_page7.tc.preLinkText", Link.toExternalPage(id = Some("terms-and-conditions"),
     url = Messages("sa_pirnting_preference.tc.linkUrl"),
-    value = Some(Messages("i_page8.tc.linkText"))).toHtml)),
+    value = Some(Messages("i_page7.tc.linkText"))).toHtml)),
     '_labelClass -> "label--inline"
     )
 
@@ -86,21 +87,21 @@
             class="email-prefs__toggle"
             @if(emailForm("opt-in").value == Some("false")) { checked="checked" }
     />
-    @Messages("i_page8.fg_page.keep_receiving")
+    @Messages("i_page7.fg_page.keep_receiving")
 </label>
 <div class="email-form-errors">
     @emailForm("opt-in").errors.map { error => <label class="error-notification">@Messages(error.message)</label>}
     @emailForm.globalErrors.map { error => <label class="error-notification">@Messages(error.message)</label>}
 </div>
 <p>
-    @Html(Messages("i_page8.fg_page_privacy_notice", Link.toExternalPage(id = Some("privacy-policy"), url
+    @Html(Messages("i_page7.fg_page_privacy_notice", Link.toExternalPage(id = Some("privacy-policy"), url
     = "https://www.tax.service.gov.uk/help/privacy", value =
-    Some(Messages("i_page8.privacy_policy_linkText"))).toHtml))
+    Some(Messages("i_page7.privacy_policy_linkText"))).toHtml))
 </p>
 
 <div class="form-field">
     <button id="submitEmailButton" class="button" name="submitButton" type="submit" disabled="disabled">
-        @Messages("i_page8.submitButton")
+        @Messages("i_page7.submitButton")
     </button>
 </div>
 

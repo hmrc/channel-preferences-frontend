@@ -6,6 +6,7 @@
 @import controllers.auth.AuthenticatedRequest
 @import play.api.i18n.Messages.Implicits._
 @this(
+  iPage7: views.html.sa.prefs.cohorts.i_page7,
   iPage8: views.html.sa.prefs.cohorts.i_page8,
   tcPage9: views.html.sa.prefs.cohorts.tc_page9
 )
@@ -15,6 +16,7 @@
     @import controllers.internal._
 
 @{cohort match {
+        case IPage7 => iPage7(emailForm, submitPrefsFormAction)
         case IPage8 => iPage8(emailForm, submitPrefsFormAction)
         case TCPage9 => tcPage9(emailForm, submitPrefsFormAction)
     }

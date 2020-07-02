@@ -10,6 +10,7 @@ import helpers.TestFixtures
 import model.Encrypted
 import org.joda.time.{ DateTime, DateTimeZone }
 import org.jsoup.Jsoup
+import helpers.Resources
 import org.jsoup.nodes.Document
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito._
@@ -1501,28 +1502,9 @@ class ChoosePaperlessControllerSpecAdmin extends PlaySpec with GuiceOneAppPerSui
       val request = FakeRequest()
       val page = controller.cohortList()(request)
       status(page) mustBe 200
-      contentAsJson(page) mustBe (Json.parse(
-        """
-          | [
-          |   {
-          |     "id":8,
-          |     "name":"IPage8",
-          |     "pageType":"IPage",
-          |     "majorVersion":0,
-          |     "description":"SOL changes to wording to improve litigation cases",
-          |     "date":"2020-05-12"
-          |   },
-          |   {
-          |     "id":9,
-          |     "name":"TCPage9",
-          |     "pageType":"TCPage",
-          |     "majorVersion":0,
-          |     "description":"",
-          |     "date":"2020-05-12"
-          |   }
-          | ]
-          | """.stripMargin
-      ))
+      contentAsJson(page) mustBe (
+        Resources.readJson("CohortList.json")
+      )
     }
   }
 }

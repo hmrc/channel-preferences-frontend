@@ -20,6 +20,7 @@ sealed trait OptInCohort extends Cohort {
   val terms: TermsType
   val pageType: PageType
   val majorVersion: Int
+  val minorVersion: Int
   val description: String
   val date: LocalDate // new LocalDate("2019-02-27"),
 
@@ -40,6 +41,7 @@ object OptInCohort {
       "name"         -> optInCohort.name,
       "pageType"     -> optInCohort.pageType,
       "majorVersion" -> optInCohort.majorVersion,
+      "minorVersion" -> optInCohort.minorVersion,
       "description"  -> optInCohort.description,
       "date"         -> optInCohort.date.toString()
     )
@@ -50,12 +52,24 @@ object OptInCohort {
 
 }
 
+object IPage7 extends OptInCohort {
+  override val id: Int = 7
+  override val name: String = "IPage7"
+  override val terms: TermsType = GenericTerms
+  override val pageType: PageType = PageType.IPage
+  override val majorVersion: Int = 0
+  override val minorVersion: Int = 0
+  override val description: String = ""
+  override val date: LocalDate = new LocalDate("2020-05-12")
+}
+
 object IPage8 extends OptInCohort {
   override val id: Int = 8
   override val name: String = "IPage8"
   override val terms: TermsType = GenericTerms
   override val pageType: PageType = PageType.IPage
-  override val majorVersion: Int = 0
+  override val majorVersion: Int = 1
+  override val minorVersion: Int = 0
   override val description: String = "SOL changes to wording to improve litigation cases"
   override val date: LocalDate = new LocalDate("2020-05-12")
 }
@@ -66,6 +80,7 @@ object TCPage9 extends OptInCohort {
   override val terms: TermsType = TaxCreditsTerms
   override val pageType: PageType = PageType.TCPage
   override val majorVersion: Int = 0
+  override val minorVersion: Int = 0
   override val description: String = ""
   override val date: LocalDate = new LocalDate("2020-05-12")
 }

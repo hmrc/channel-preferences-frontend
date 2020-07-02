@@ -10,17 +10,17 @@ import model.PageType
 import org.joda.time.LocalDate
 import org.scalatestplus.play.PlaySpec
 
-class ReadOnlyIPage8CohortSpec extends PlaySpec {
+class ReadOnlyIPage7CohortSpec extends PlaySpec {
 
-  "IPage8 OptInCohort" should {
+  "IPage7 OptInCohort" should {
     "never change fields values " in {
-      val cohortUnderTest = IPage8
+      val cohortUnderTest = IPage7
 
       withClue("id") {
-        cohortUnderTest.id mustBe (8)
+        cohortUnderTest.id mustBe (7)
       }
       withClue("name") {
-        cohortUnderTest.name mustBe ("IPage8")
+        cohortUnderTest.name mustBe ("IPage7")
       }
       withClue("terms") {
         cohortUnderTest.terms mustBe (GenericTerms)
@@ -29,13 +29,13 @@ class ReadOnlyIPage8CohortSpec extends PlaySpec {
         cohortUnderTest.pageType mustBe (PageType.IPage)
       }
       withClue("majorVersion") {
-        cohortUnderTest.majorVersion mustBe (1)
+        cohortUnderTest.majorVersion mustBe (0)
       }
       withClue("minorVersion") {
         cohortUnderTest.minorVersion mustBe (0)
       }
       withClue("description") {
-        cohortUnderTest.description mustBe ("SOL changes to wording to improve litigation cases")
+        cohortUnderTest.description mustBe ("")
       }
       withClue("date") {
         cohortUnderTest.date mustBe new LocalDate("2020-05-12")

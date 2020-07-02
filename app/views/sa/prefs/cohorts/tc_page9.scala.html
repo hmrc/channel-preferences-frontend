@@ -12,20 +12,20 @@
 @import uk.gov.hmrc.play.views.html.helpers._
 @import partial.paperless.tc.html._
 
-@mainWithHeaders(title = Messages(s"tc_printing_preference.fg_page.title"), navTitle = Messages("tc_printing_preference.fg_page.nav_title")) {
+@mainWithHeaders(title = Messages(s"tc_page9.fg_page.title"), navTitle = Messages("tc_page9.fg_page.nav_title")) {
 
     @problem(Seq(emailForm("termsAndConditions.opt-in").error.map(f => f -> "opt-in-in"), emailForm("termsAndConditions").error.map(f => f -> "termsAndConditions_accept-tc")).flatten)
 
     <header class="page-header">
-        <h1 class="heading-large">@Messages(s"tc_printing_preference.fg_page.title")</h1>
+        <h1 class="heading-large">@Messages(s"tc_page9.fg_page.title")</h1>
     </header>
 
-    <h3 class="lede" id="email-display">@Messages("tc_printing_preference.fg_page.email_address") @emailForm("email.main").value</h3>
+    <h3 class="lede" id="email-display">@Messages("tc_page9.fg_page.email_address") @emailForm("email.main").value</h3>
 
-    <p>@Messages("tc_printing_preference.fg_page.confirm_message_1")</p>
+    <p>@Messages("tc_page9.fg_page.confirm_message_1")</p>
     <ul class="bullets">
-        <li>@Messages("tc_printing_preference.fg_page.confirm_message_2")</li>
-        <li>@Messages("tc_printing_preference.fg_page.confirm_message_3")</li>
+        <li>@Messages("tc_page9.fg_page.confirm_message_2")</li>
+        <li>@Messages("tc_page9.fg_page.confirm_message_3")</li>
     </ul>
 
     @form(action = submitPrefsFormAction, 'id -> "form-submit-email-address-tc") {
@@ -37,7 +37,7 @@
 
                 @singleCheckbox26(
                     emailForm("termsAndConditions.accept-tc"),
-                    Html(Messages("tc_printing_preference.tc.preLinkText", Link.toExternalPage(id = Some("terms-and-conditions"), url = "https://www.tax.service.gov.uk/information/terms#secure", value = Some(Messages("tc_printing_preference.tc.linkText"))).toHtml)),
+                    Html(Messages("tc_page9.tc.preLinkText", Link.toExternalPage(id = Some("terms-and-conditions"), url = "https://www.tax.service.gov.uk/information/terms#secure", value = Some(Messages("tc_page9.tc.linkText"))).toHtml)),
                     '_labelClass -> "label--inline"
                 )
             </div>
@@ -51,7 +51,7 @@
             class="email-prefs__toggle"
                 @if(emailForm("termsAndConditions.opt-in").value.contains("true")) { checked="checked" }
             />
-            @Messages("tc_printing_preference.fg_page.store_email")
+            @Messages("tc_page9.fg_page.store_email")
         </label>
 
             <input type="hidden" id="email.main" name="email.main" value="@emailForm("email.main").value">
@@ -68,12 +68,12 @@
             class="email-prefs__toggle lede"
                 @if(emailForm("termsAndConditions.opt-in").value.contains("false")) { checked="checked" }
             />
-            @Messages("tc_printing_preference.fg_page.do_not_store_email")
+            @Messages("tc_page9.fg_page.do_not_store_email")
         </label>
         </fieldset>
         <br>
         <div class="form-field">
-            <button id="submitEmailButton" class="button" name="submitButton" type="submit">@Messages("tc_printing_preference.submitButton")</button>
+            <button id="submitEmailButton" class="button" name="submitButton" type="submit">@Messages("tc_page9.submitButton")</button>
         </div>
 
     }

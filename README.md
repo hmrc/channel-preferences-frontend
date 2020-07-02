@@ -165,10 +165,11 @@ Opt-in out page versioning
 
 # Terms
 
-`OptInCohort` - an object that helps to associate a number to an opt in page. Currently there are 2 cohorts IPage8 and TCPage9
-`OptInPage`   - a twirl tempalate to generate an opt in form. (i_page8.scala.html, tc_page9.scala.html)
-`PageType` - a type of the opt in page. (PageType.IPage or PageType.TCPage)
-`majorVersion` - a version number that is used to trigger re-opt-in process.
+- `OptInCohort`  an object that helps to associate a number to an opt in page. Currently there are 2 cohorts IPage8 and TCPage9
+- `OptInPage`   a twirl tempalate to generate an opt in form. (i_page8.scala.html, tc_page9.scala.html)
+- `PageType` a type of the opt in page. (PageType.IPage or PageType.TCPage)
+- `majorVersion`  a version number that is used to trigger re-opt-in process.
+- `minorVersion`  a version number that doesn't trigger re-opt-in.
 
 
 # How to add a new vesion of opt in page
@@ -232,6 +233,15 @@ views.sa.prefs.sa_printing_preference.scala.hmtl
 }
 
 ```
+
+
+# How change the text of the opt-in page.
+
+   All messages for IPage type should be located in `ipage.messages` and `ipage.messages.cy`, not in `message` and `message.cy`
+
+   All messages for TCPage type should be located in `tcpage.messages` and `tcpage.messages.cy`, not in `message` and `message.cy`
+
+   These files should be append only. A new page should have a new set of page related messages appended to the end of the file.
 
 
 
