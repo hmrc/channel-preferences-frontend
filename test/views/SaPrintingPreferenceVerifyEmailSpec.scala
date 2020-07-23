@@ -33,6 +33,7 @@ class SaPrintingPreferenceVerifyEmailSpec
           messagesInEnglish(),
           TestFixtures.sampleHostContext).toString())
 
+      document.getElementsByClass("organisation-logo").first().text() mustBe "HM Revenue & Customs"
       document.getElementsByTag("title").get(0).text() mustBe "Check your email address"
       document.getElementById("email-is-not-correct-link").text() mustBe "Change this email address"
     }
@@ -46,6 +47,7 @@ class SaPrintingPreferenceVerifyEmailSpec
           messagesInWelsh(),
           TestFixtures.sampleHostContext).toString())
 
+      document.getElementsByClass("organisation-logo").first().text() mustBe "Cyllid a Thollau EM"
       document.getElementsByTag("title").get(0).text() mustBe "Gwirio'ch cyfeiriad e-bost"
       document.getElementsByTag("h1").get(0).text() mustBe "Cofrestrwch ar gyfer hysbysiadau di-bapur"
       document.getElementsByTag("h2").get(0).text() mustBe "Gwirio'ch cyfeiriad e-bost"

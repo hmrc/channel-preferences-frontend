@@ -27,6 +27,7 @@ class MainSpec extends PlaySpec with GuiceOneAppPerSuite with LanguageHelper wit
       val email = ObfuscatedEmailAddress("a@a.com")
       val document = Jsoup.parse(template("title")(Html("Some HTML"))(engRequest, messagesInEnglish()).toString())
 
+      document.getElementsByClass("organisation-logo").first().text() mustBe "HM Revenue & Customs"
       document.getElementsByClass("header__menu__proposition-name").get(0).text() mustBe "Your tax account"
     }
 
@@ -34,6 +35,7 @@ class MainSpec extends PlaySpec with GuiceOneAppPerSuite with LanguageHelper wit
       val email = ObfuscatedEmailAddress("a@a.com")
       val document = Jsoup.parse(template("title")(Html("Some HTML"))(welshRequest, messagesInWelsh()).toString())
 
+      document.getElementsByClass("organisation-logo").first().text() mustBe "Cyllid a Thollau EM"
       document.getElementsByClass("header__menu__proposition-name").get(0).text() mustBe "Eich cyfrif treth"
     }
   }

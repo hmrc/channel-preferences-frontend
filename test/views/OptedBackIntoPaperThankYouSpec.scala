@@ -26,6 +26,7 @@ class OptedBackIntoPaperThankYouSpec extends PlaySpec with GuiceOneAppPerSuite w
       val email = ObfuscatedEmailAddress("a@a.com")
       val document = Jsoup.parse(template()(engRequest, messagesInEnglish(), TestFixtures.sampleHostContext).toString())
 
+      document.getElementsByClass("organisation-logo").first().text() mustBe "HM Revenue & Customs"
       document.getElementsByTag("title").get(0).text() mustBe "Paperless notifications have stopped"
       document.getElementsByTag("h1").get(0).text() mustBe "Paperless notifications have stopped"
       document.getElementsByTag("p").get(1).text() mustBe "You'll get letters again, instead of emails."
@@ -37,6 +38,7 @@ class OptedBackIntoPaperThankYouSpec extends PlaySpec with GuiceOneAppPerSuite w
       val email = ObfuscatedEmailAddress("a@a.com")
       val document = Jsoup.parse(template()(welshRequest, messagesInWelsh(), TestFixtures.sampleHostContext).toString())
 
+      document.getElementsByClass("organisation-logo").first().text() mustBe "Cyllid a Thollau EM"
       document.getElementsByTag("title").get(0).text() mustBe "Mae hysbysiadau di-bapur wedi dod i ben"
       document.getElementsByTag("h1").get(0).text() mustBe "Mae hysbysiadau di-bapur wedi dod i ben"
       document

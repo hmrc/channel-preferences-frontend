@@ -41,6 +41,7 @@ class ConfirmOptBackIntoPaperSpec extends PlaySpec with GuiceOneAppPerSuite with
       val document =
         Jsoup.parse(template(email)(welshRequest, messagesInWelsh(), TestFixtures.sampleHostContext).toString())
 
+      document.getElementsByClass("organisation-logo").first().text() mustBe "Cyllid a Thollau EM"
       document.getElementsByTag("title").first().text() mustBe "Cadarnhau sut hoffech gael eich llythyrau treth"
       document.getElementsByTag("h1").get(0).text() mustBe "Cadarnhau sut hoffech gael eich llythyrau treth"
       document

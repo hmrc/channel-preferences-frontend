@@ -26,6 +26,7 @@ class AccountDetailsUpdateEmailAddressThankYouSpec
       val document =
         Jsoup.parse(template(currentEmail)(engRequest, messagesInEnglish(), TestFixtures.sampleHostContext).toString())
 
+      document.getElementsByClass("organisation-logo").first().text() mustBe "HM Revenue & Customs"
       document.getElementsByTag("title").first().text() mustBe "Verify your new email address"
       document.getElementsByTag("h1").get(0).text() mustBe "Verify your new email address"
       document.getElementsByTag("p").get(1).childNodes().get(0).toString mustBe "An email has been sent to "
@@ -49,6 +50,7 @@ class AccountDetailsUpdateEmailAddressThankYouSpec
       val document =
         Jsoup.parse(template(currentEmail)(welshRequest, messagesInWelsh(), TestFixtures.sampleHostContext).toString())
 
+      document.getElementsByClass("organisation-logo").first().text() mustBe "Cyllid a Thollau EM"
       document.getElementsByTag("title").first().text() mustBe "Dilysu'ch cyfeiriad e-bost newydd"
       document.getElementsByTag("h1").get(0).text() mustBe "Dilysu'ch cyfeiriad e-bost newydd"
       document.getElementsByTag("p").get(1).childNodes().get(0).toString mustBe "Anfonwyd e-bost at "
