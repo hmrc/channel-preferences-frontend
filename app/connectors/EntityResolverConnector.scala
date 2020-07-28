@@ -5,9 +5,10 @@
 
 package connectors
 
+import _root_.controllers.internal.OptInCohort
 import config.ServicesCircuitBreaker
 import javax.inject.{ Inject, Singleton }
-import model.{ HostContext, Language, ReturnLink }
+import model.{ HostContext, Language, PageType, ReturnLink }
 import org.joda.time.DateTime
 import play.api.Configuration
 import play.api.http.Status._
@@ -43,15 +44,57 @@ case object PreferencesFailure extends PreferencesStatus
 
 import play.api.libs.json.JodaWrites.{ JodaDateTimeWrites => _ }
 
-case class TermsAccepted(accepted: Boolean)
+case class Version(major: Int, minor: Int)
+
+object Version {
+  implicit val versionFormat: OFormat[Version] = Json.format[Version]
+}
+
+case class OptInPage private (version: Version, cohort: OptInCohort, pageType: PageType)
+
+object OptInPage {
+  implicit val optInPageWrites: Writes[OptInPage] = Json.writes[OptInPage]
+  def from(cohort: OptInCohort): OptInPage =
+    OptInPage(Version(cohort.majorVersion, cohort.minorVersion), cohort, cohort.pageType)
+
+  implicit val optInPageReads: Reads[OptInPage] = ((__ \ "version").read[Version] and
+    Reads[OptInCohort](j =>
+      (__ \ "cohort").asSingleJson(j) match {
+        case JsDefined(value) =>
+          value
+            .validate[Int]
+            .flatMap(
+              v =>
+                OptInCohort
+                  .fromId(v)
+                  .fold[JsResult[OptInCohort]](
+                    JsError(Seq(JsPath -> Seq(JsonValidationError(s"invalid cohort number $value"))))
+                  )(c => JsSuccess(c)))
+        case JsUndefined() => JsError(Seq(JsPath -> Seq(JsonValidationError("missing cohort"))))
+    })
+    and
+      (__ \ "pageType").read[PageType])((ver, cohort, pageType) =>
+    if (ver.major == cohort.majorVersion && ver.minor == cohort.minorVersion && cohort.pageType == pageType) {
+      OptInPage(ver, cohort, pageType)
+    } else {
+      throw new IllegalArgumentException("Invalid constructor arguments")
+  })
+  implicit val optInPageFormat: Format[OptInPage] = Format(optInPageReads, optInPageWrites)
+}
+
+case class TermsAccepted(accepted: Boolean, optInPage: Option[OptInPage] = None)
 
 object TermsAccepted {
   implicit val format = Json.format[TermsAccepted]
 }
 
 trait PreferenceStatus
-case class PreferenceFound(accepted: Boolean, email: Option[EmailPreference], updatedAt: Option[DateTime] = None)
-    extends PreferenceStatus
+case class PreferenceFound(
+  accepted: Boolean,
+  email: Option[EmailPreference],
+  updatedAt: Option[DateTime] = None,
+  majorVersion: Option[Int] = None
+) extends PreferenceStatus
 case class PreferenceNotFound(email: Option[EmailPreference]) extends PreferenceStatus
 
 sealed abstract case class TermsAndConditionsUpdate(
@@ -60,14 +103,16 @@ sealed abstract case class TermsAndConditionsUpdate(
   email: Option[String],
   returnUrl: Option[String] = None,
   returnText: Option[String] = None,
-  language: Option[Language])
+  language: Option[Language]
+)
 
 object TermsAndConditionsUpdate {
   def from(
     terms: (TermsType, TermsAccepted),
     email: Option[String],
     includeLinkDetails: Boolean,
-    language: Some[Language])(implicit hostContext: HostContext): TermsAndConditionsUpdate =
+    language: Some[Language]
+  )(implicit hostContext: HostContext): TermsAndConditionsUpdate =
     terms match {
       case (GenericTerms, accepted) if includeLinkDetails =>
         new TermsAndConditionsUpdate(
@@ -76,7 +121,8 @@ object TermsAndConditionsUpdate {
           email,
           Some(hostContext.returnLinkText),
           Some(hostContext.returnUrl),
-          language) {}
+          language
+        ) {}
       case (TaxCreditsTerms, accepted) if includeLinkDetails =>
         new TermsAndConditionsUpdate(
           None,
@@ -84,7 +130,8 @@ object TermsAndConditionsUpdate {
           email,
           Some(hostContext.returnLinkText),
           Some(hostContext.returnUrl),
-          language) {}
+          language
+        ) {}
       case (GenericTerms, accepted) =>
         new TermsAndConditionsUpdate(Some(accepted), None, email, None, None, language) {}
       case (TaxCreditsTerms, accepted) =>
@@ -119,23 +166,28 @@ class EntityResolverConnector @Inject()(config: Configuration, runMode: RunMode,
 
   def url(path: String) = s"$serviceUrl$path"
 
-  def getPreferencesStatus(termsAndCond: String = "generic")(
-    implicit headerCarrier: HeaderCarrier): Future[Either[Int, PreferenceStatus]] =
+  def getPreferencesStatus(
+    termsAndCond: String = "generic"
+  )(implicit headerCarrier: HeaderCarrier): Future[Either[Int, PreferenceStatus]] =
     getPreferencesStatus_Final(termsAndCond, url(s"/preferences"))
 
   def getPreferencesStatusByToken(svc: String, token: String, termsAndCond: String = "generic")(
-    implicit headerCarrier: HeaderCarrier): Future[Either[Int, PreferenceStatus]] =
+    implicit headerCarrier: HeaderCarrier
+  ): Future[Either[Int, PreferenceStatus]] =
     getPreferencesStatus_Final(termsAndCond, url(s"/preferences/$svc/$token"))
 
   def getPreferencesStatus_Final(termsAndCond: String, request_url: String)(
-    implicit headerCarrier: HeaderCarrier): Future[Either[Int, PreferenceStatus]] =
+    implicit headerCarrier: HeaderCarrier
+  ): Future[Either[Int, PreferenceStatus]] =
     withCircuitBreaker({
       http.GET[Option[PreferenceResponse]](request_url).map {
         case Some(preference) =>
           preference.termsAndConditions
             .get(termsAndCond)
             .fold[Either[Int, PreferenceStatus]](Right(PreferenceNotFound(preference.email))) { acceptance =>
-              Right(PreferenceFound(acceptance.accepted, preference.email, acceptance.updatedAt))
+              Right(
+                PreferenceFound(acceptance.accepted, preference.email, acceptance.updatedAt, acceptance.majorVersion)
+              )
             }
         case None => Right(PreferenceNotFound(None))
       }
@@ -168,20 +220,23 @@ class EntityResolverConnector @Inject()(config: Configuration, runMode: RunMode,
     withCircuitBreaker(http.GET[Option[Email]](url(basedOnTaxIdType))).map(_.map(_.email))
   }
 
-  def updateEmailValidationStatusUnsecured(token: String)(
-    implicit hc: HeaderCarrier): Future[EmailVerificationLinkResponse] =
+  def updateEmailValidationStatusUnsecured(
+    token: String
+  )(implicit hc: HeaderCarrier): Future[EmailVerificationLinkResponse] =
     responseToEmailVerificationLinkStatus(
-      withCircuitBreaker(http.PUT(url("/portal/preferences/email"), ValidateEmail(token))))
+      withCircuitBreaker(http.PUT(url("/portal/preferences/email"), ValidateEmail(token)))
+    )
 
-  def updateTermsAndConditions(termsAndConditionsUpdate: TermsAndConditionsUpdate)(
-    implicit hc: HeaderCarrier,
-    hostContext: HostContext): Future[PreferencesStatus] =
+  def updateTermsAndConditions(
+    termsAndConditionsUpdate: TermsAndConditionsUpdate
+  )(implicit hc: HeaderCarrier, hostContext: HostContext): Future[PreferencesStatus] =
     updateTermsAndConditionsForSvc(termsAndConditionsUpdate, None, None)
 
   def updateTermsAndConditionsForSvc(
     termsAndConditionsUpdate: TermsAndConditionsUpdate,
     svc: Option[String],
-    token: Option[String])(implicit hc: HeaderCarrier, hostContext: HostContext): Future[PreferencesStatus] = {
+    token: Option[String]
+  )(implicit hc: HeaderCarrier, hostContext: HostContext): Future[PreferencesStatus] = {
     val endPoint = "/preferences/terms-and-conditions" + (for {
       s <- svc
       t <- token
@@ -194,17 +249,18 @@ class EntityResolverConnector @Inject()(config: Configuration, runMode: RunMode,
       }
   }
 
-  private[connectors] def responseToEmailVerificationLinkStatus(response: Future[HttpResponse])(
-    implicit hc: HeaderCarrier): Future[EmailVerificationLinkResponse] =
+  private[connectors] def responseToEmailVerificationLinkStatus(
+    response: Future[HttpResponse]
+  )(implicit hc: HeaderCarrier): Future[EmailVerificationLinkResponse] =
     response
-      .map(response => {
+      .map { response =>
         response.status match {
           case CREATED =>
             val link = ReturnLink.fromString(response.body)
             ValidatedWithReturn(link.linkText, link.linkUrl)
           case _ => Validated
         }
-      })
+      }
       .recover {
         case Upstream4xxResponse(_, GONE, _, _)     => ValidationExpired
         case Upstream4xxResponse(_, CONFLICT, _, _) => WrongToken

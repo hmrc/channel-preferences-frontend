@@ -24,8 +24,8 @@ import play.api.mvc.{ AnyContentAsEmpty, Cookie, Result }
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{ status, _ }
 import service.PaperlessStatusService
-import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.auth.core.retrieve._
+import uk.gov.hmrc.auth.core.{ AffinityGroup, AuthConnector, ConfidenceLevel }
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
@@ -127,19 +127,27 @@ class PaperlessStatusControllerSpec extends WordSpec with MockitoSugar with Guic
 
   class TestContext(statusName: StatusName, preference: Option[PreferenceResponse]) extends PlaySpec {
 
-    type AuthRetrievals = Option[Name] ~ LoginTimes ~ Option[String] ~ Option[String]
+    type AuthRetrievals =
+      Option[Name] ~ LoginTimes ~ Option[String] ~ Option[String] ~ Option[AffinityGroup] ~ ConfidenceLevel
 
     private val currentLogin = new DateTime(2015, 1, 1, 12, 0).withZone(DateTimeZone.UTC)
     private val previousLogin = new DateTime(2012, 1, 1, 12, 0).withZone(DateTimeZone.UTC)
 
-    private val retrievalResult: Future[Option[Name] ~ LoginTimes ~ Option[String] ~ Option[String]] =
+    val retrievalResult
+      : Future[Option[Name] ~ LoginTimes ~ Option[String] ~ Option[String] ~ Option[AffinityGroup] ~ ConfidenceLevel] =
       Future.successful(
         new ~(
           new ~(
-            new ~(Some(Name(Some("Alex"), Some("Brown"))), LoginTimes(currentLogin, Some(previousLogin))),
-            //Some("AB123456D")),
-            Option.empty[String]),
-          Some("1234567890")
+            new ~(
+              new ~(
+                new ~(Some(Name(Some("Alex"), Some("Brown"))), LoginTimes(currentLogin, Some(previousLogin))),
+                Option.empty[String]
+              ),
+              Some("1234567890")
+            ),
+            Some(AffinityGroup.Individual)
+          ),
+          ConfidenceLevel.L200
         ))
 
     private val controller = app.injector.instanceOf[PaperlessStatusController]

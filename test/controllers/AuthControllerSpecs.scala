@@ -29,18 +29,27 @@ class AuthControllerSpecs extends PlaySpec with MockitoSugar with GuiceOneAppPer
 
   val fakeRequest = FakeRequest("GET", "/")
 
-  type AuthRetrievals = Option[Name] ~ LoginTimes ~ Option[String] ~ Option[String]
+  type AuthRetrievals =
+    Option[Name] ~ LoginTimes ~ Option[String] ~ Option[String] ~ Option[AffinityGroup] ~ ConfidenceLevel
 
   val currentLogin = new DateTime(2015, 1, 1, 12, 0).withZone(DateTimeZone.UTC)
   val previousLogin = new DateTime(2012, 1, 1, 12, 0).withZone(DateTimeZone.UTC)
 
-  val retrievalResult: Future[Option[Name] ~ LoginTimes ~ Option[String] ~ Option[String]] =
+  val retrievalResult
+    : Future[Option[Name] ~ LoginTimes ~ Option[String] ~ Option[String] ~ Option[AffinityGroup] ~ ConfidenceLevel] =
     Future.successful(
       new ~(
         new ~(
-          new ~(Some(Name(Some("Alex"), Some("Brown"))), LoginTimes(currentLogin, Some(previousLogin))),
-          Option.empty[String]),
-        Some("1234567890")
+          new ~(
+            new ~(
+              new ~(Some(Name(Some("Alex"), Some("Brown"))), LoginTimes(currentLogin, Some(previousLogin))),
+              Option.empty[String]
+            ),
+            Some("1234567890")
+          ),
+          Some(AffinityGroup.Individual)
+        ),
+        ConfidenceLevel.L200
       ))
 
   val mockAuthConnector: AuthConnector = mock[AuthConnector]

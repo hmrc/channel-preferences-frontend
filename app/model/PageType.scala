@@ -4,25 +4,19 @@
  */
 
 package model
-import enumeratum.{ Enum, EnumEntry }
+import enumeratum.{ Enum, EnumEntry, PlayJsonEnum }
 import play.api.libs.json._
 
-sealed abstract class PageType(override val entryName: String) extends EnumEntry
+sealed abstract class PageType() extends EnumEntry
 
-case object PageType extends Enum[PageType] {
+case object PageType extends Enum[PageType] with PlayJsonEnum[PageType] {
 
   val values = findValues
 
-  case object IPage extends PageType("IPage")
+  case object IPage extends PageType
 
-  case object TCPage extends PageType("TCPage")
+  case object TCPage extends PageType
 
-  implicit val languageReads = Reads[PageType] { js =>
-    js match {
-      case JsString(value) => JsSuccess(PageType.withNameInsensitiveOption(value).get)
-    }
-  }
-  implicit val languageWrites = new Writes[PageType] {
-    override def writes(e: PageType): JsValue = JsString(e.entryName)
-  }
+  case object ReOptInPage extends PageType
+
 }

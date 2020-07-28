@@ -43,10 +43,3 @@ i_page8.submitButton=Yn eich blaen
 i_page8.tc.email.label=Nodwch eich cyfeiriad e-bost
 i_page8.tc.linkText=telerau ac amodau
 i_page8.tc.preLinkText=Rwy’n cytuno â’r {0}
-
-
-
-
-
-
-

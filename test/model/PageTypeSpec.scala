@@ -4,9 +4,9 @@
  */
 
 package model
-import model.PageType.{ IPage, TCPage }
+import model.PageType.{ IPage, ReOptInPage, TCPage }
 import org.scalatestplus.play.PlaySpec
-import play.api.libs.json.{ JsString, Json }
+import play.api.libs.json.{ JsResultException, JsString, Json }
 
 class PageTypeSpec extends PlaySpec {
 
@@ -18,8 +18,12 @@ class PageTypeSpec extends PlaySpec {
       JsString("TCPage").as[PageType] must be(TCPage)
     }
 
+    """be successfully deserialized from string "ReOptInPage" """ in {
+      JsString("ReOptInPage").as[PageType] must be(ReOptInPage)
+    }
+
     """throw NoSuchElementException when deserialized from invalid string """.stripMargin in {
-      intercept[NoSuchElementException] {
+      intercept[JsResultException] {
         JsString("foobar").as[PageType]
       }
     }
@@ -28,8 +32,12 @@ class PageTypeSpec extends PlaySpec {
       Json.toJson(IPage) must be(JsString("IPage"))
     }
 
-    """be serialized to JsString("cy")""" in {
+    """be serialized to JsString("TCPage")""" in {
       Json.toJson(TCPage) must be(JsString("TCPage"))
+    }
+
+    """be serialized to JsString("ReOptInPage")""" in {
+      Json.toJson(ReOptInPage) must be(JsString("ReOptInPage"))
     }
 
   }

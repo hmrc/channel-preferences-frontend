@@ -21,14 +21,13 @@ import play.api.Application
 import play.api.inject._
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
-import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.auth.core.{ AffinityGroup, AuthConnector, ConfidenceLevel }
 import uk.gov.hmrc.auth.core.retrieve.{ LoginTimes, Name, ~ }
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.emailaddress.EmailAddress
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.{ EventTypes, MergedDataEvent }
-
 import org.mockito.Matchers.{ any, eq => is }
 import org.scalatestplus.play.PlaySpec
 import play.api.test.Helpers._
@@ -36,7 +35,6 @@ import model.{ HostContext, Language }
 
 import scala.concurrent.Future
 import play.api.libs.json._
-
 import org.mockito.Matchers.{ eq => meq, _ }
 
 trait ChoosePaperlessControllerSetup {
@@ -44,20 +42,28 @@ trait ChoosePaperlessControllerSetup {
   val validUtr = SaUtr("1234567890")
   val request = FakeRequest()
 
-  type AuthRetrievals = Option[Name] ~ LoginTimes ~ Option[String] ~ Option[String]
+  type AuthRetrievals =
+    Option[Name] ~ LoginTimes ~ Option[String] ~ Option[String] ~ Option[AffinityGroup] ~ ConfidenceLevel
 
   val currentLogin = new DateTime(2015, 1, 1, 12, 0).withZone(DateTimeZone.UTC)
   val previousLogin = new DateTime(2012, 1, 1, 12, 0).withZone(DateTimeZone.UTC)
 
-  val retrievalResult: Future[Option[Name] ~ LoginTimes ~ Option[String] ~ Option[String]] =
+  val retrievalResult
+    : Future[Option[Name] ~ LoginTimes ~ Option[String] ~ Option[String] ~ Option[AffinityGroup] ~ ConfidenceLevel] =
     Future.successful(
       new ~(
         new ~(
-          new ~(Some(Name(Some("Alex"), Some("Brown"))), LoginTimes(currentLogin, Some(previousLogin))),
-          Option.empty[String]),
-        Some("1234567890")
+          new ~(
+            new ~(
+              new ~(Some(Name(Some("Alex"), Some("Brown"))), LoginTimes(currentLogin, Some(previousLogin))),
+              Option.empty[String]
+            ),
+            Some("1234567890")
+          ),
+          Some(AffinityGroup.Individual)
+        ),
+        ConfidenceLevel.L200
       ))
-
 }
 
 class ChoosePaperlessControllerSpec

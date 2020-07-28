@@ -39,13 +39,15 @@ class ChoosePaperlessController @Inject()(
   saPrintingPreferenceVerifyEmail: views.html.sa_printing_preference_verify_email,
   accountDetailsPrintingPreferenceConfirm: views.html.account_details_printing_preference_confirm,
   changeLanguage: views.html.change_language,
-  mcc: MessagesControllerComponents)(implicit ec: ExecutionContext)
+  mcc: MessagesControllerComponents
+)(implicit ec: ExecutionContext)
     extends FrontendController(mcc) with OptInCohortCalculator with I18nSupport with WithAuthRetrievals
     with LanguageHelper {
 
   def redirectToDisplayFormWithCohort(
     emailAddress: Option[Encrypted[EmailAddress]],
-    hostContext: HostContext): Action[AnyContent] = Action.async { implicit request =>
+    hostContext: HostContext
+  ): Action[AnyContent] = Action.async { implicit request =>
     withAuthenticatedRequest { implicit authRequest: AuthenticatedRequest[AnyContent] => implicit hc =>
       Future.successful(createRedirectToDisplayFormWithCohort(emailAddress, hostContext))
     }
@@ -55,10 +57,12 @@ class ChoosePaperlessController @Inject()(
     svc: String,
     token: String,
     emailAddress: Option[Encrypted[EmailAddress]],
-    hostContext: HostContext): Action[AnyContent] = Action.async { implicit request =>
+    hostContext: HostContext
+  ): Action[AnyContent] = Action.async { implicit request =>
     withAuthenticatedRequest { implicit authRequest: AuthenticatedRequest[AnyContent] => implicit hc =>
       Future.successful(
-        Redirect(routes.ChoosePaperlessController.displayFormBySvc(svc, token, emailAddress, hostContext)))
+        Redirect(routes.ChoosePaperlessController.displayFormBySvc(svc, token, emailAddress, hostContext))
+      )
     }
   }
 
@@ -66,73 +70,88 @@ class ChoosePaperlessController @Inject()(
     svc: String,
     token: String,
     emailAddress: Option[Encrypted[EmailAddress]],
-    hostContext: HostContext) = Action.async { implicit request =>
+    hostContext: HostContext
+  ) = Action.async { implicit request =>
     withAuthenticatedRequest { implicit authRequest: AuthenticatedRequest[AnyContent] => implicit hc =>
-      {
-        auditPageShown(AccountDetails, CohortCurrent.ipage)
-        val email = emailAddress.map(_.decryptedValue)
-        hasStoredEmail(hostContext, Some(svc), Some(token)).map { (emailAlreadyStored: Boolean) =>
-          {
-            Ok(
-              saPrintingPreference(
-                emailForm = OptInDetailsForm().fill(
-                  OptInDetailsForm.Data(
-                    emailAddress = email,
-                    preference = None,
-                    acceptedTcs = None,
-                    emailAlreadyStored = Some(emailAlreadyStored))),
-                submitPrefsFormAction =
-                  internal.routes.ChoosePaperlessController.submitFormBySvc(svc, token, hostContext),
-                cohort = CohortCurrent.ipage
-              ))
-          }
-        }
+      auditPageShown(AccountDetails, CohortCurrent.ipage)
+      val email = emailAddress.map(_.decryptedValue)
+      hasStoredEmail(hostContext, Some(svc), Some(token)).map { (emailAlreadyStored: Boolean) =>
+        Ok(
+          saPrintingPreference(
+            emailForm = OptInDetailsForm().fill(
+              OptInDetailsForm.Data(
+                emailAddress = email,
+                preference = None,
+                acceptedTcs = None,
+                emailAlreadyStored = Some(emailAlreadyStored)
+              )
+            ),
+            submitPrefsFormAction = internal.routes.ChoosePaperlessController.submitFormBySvc(svc, token, hostContext),
+            cohort = CohortCurrent.ipage
+          )
+        )
       }
     }
   }
 
   private def createRedirectToDisplayFormWithCohort(
     emailAddress: Option[Encrypted[EmailAddress]],
-    hostContext: HostContext)(implicit request: AuthenticatedRequest[_], hc: HeaderCarrier) =
+    hostContext: HostContext
+  )(implicit request: AuthenticatedRequest[_], hc: HeaderCarrier) =
     Redirect(
-      routes.ChoosePaperlessController.displayForm(Some(calculateCohort(hostContext)), emailAddress, hostContext))
+      routes.ChoosePaperlessController.displayForm(Some(calculateCohort(hostContext)), emailAddress, hostContext)
+    )
 
   def displayForm(
     cohort: Option[OptInCohort],
     emailAddress: Option[Encrypted[EmailAddress]],
-    hostContext: HostContext): Action[AnyContent] = Action.async { implicit request =>
+    hostContext: HostContext
+  ): Action[AnyContent] = Action.async { implicit request =>
     withAuthenticatedRequest { implicit authRequest: AuthenticatedRequest[AnyContent] => implicit hc =>
       cohort.fold(ifEmpty = Future.successful(createRedirectToDisplayFormWithCohort(emailAddress, hostContext))) {
         cohort =>
-          {
-            auditPageShown(AccountDetails, cohort)
-            val email = emailAddress.map(_.decryptedValue)
+          auditPageShown(AccountDetails, cohort)
+          val email = emailAddress.map(_.decryptedValue)
 
-            def form(emailAlreadyStored: Boolean): Form[_] =
-              if (hostContext.termsAndConditions.contains("taxCredits")) {
-                OptInTaxCreditsDetailsForm().fill(
-                  OptInTaxCreditsDetailsForm.Data(
-                    emailAddress = email,
-                    termsAndConditions = (None, None),
-                    emailAlreadyStored = Some(emailAlreadyStored)))
-              } else {
-                OptInDetailsForm().fill(
-                  OptInDetailsForm.Data(
-                    emailAddress = email,
-                    preference = None,
-                    acceptedTcs = None,
-                    emailAlreadyStored = Some(emailAlreadyStored)))
-              }
+          def form(emailAlreadyStored: Boolean): Form[_] =
+            if (hostContext.termsAndConditions.contains("taxCredits")) {
+              OptInTaxCreditsDetailsForm().fill(
+                OptInTaxCreditsDetailsForm.Data(
+                  emailAddress = email,
+                  termsAndConditions = (None, None),
+                  emailAlreadyStored = Some(emailAlreadyStored)
+                )
+              )
+            } else if (cohort.pageType == PageType.ReOptInPage) {
+              ReOptInDetailsForm().fill(
+                ReOptInDetailsForm.Data(
+                  emailAddress = hostContext.email.map(EmailAddress(_)),
+                  preference = None,
+                  acceptedTcs = None,
+                  emailAlreadyStored = Some(emailAlreadyStored)
+                )
+              )
+            } else {
+              OptInDetailsForm().fill(
+                OptInDetailsForm.Data(
+                  emailAddress = email,
+                  preference = None,
+                  acceptedTcs = None,
+                  emailAlreadyStored = Some(emailAlreadyStored)
+                )
+              )
 
-            hasStoredEmail(hostContext, None, None).map(
-              emailAlreadyStored =>
-                Ok(
-                  saPrintingPreference(
-                    emailForm = form(emailAlreadyStored),
-                    submitPrefsFormAction = internal.routes.ChoosePaperlessController.submitForm(hostContext),
-                    cohort = cohort
-                  )))
-          }
+            }
+
+          hasStoredEmail(hostContext, None, None).map(
+            emailAlreadyStored =>
+              Ok(
+                saPrintingPreference(
+                  emailForm = form(emailAlreadyStored),
+                  submitPrefsFormAction = internal.routes.ChoosePaperlessController.submitForm(hostContext),
+                  cohort = cohort
+                )
+            ))
       }
     }
   }
@@ -143,7 +162,9 @@ class ChoosePaperlessController @Inject()(
         cohort.pageType match {
           case PageType.IPage  => OptInDetailsForm()
           case PageType.TCPage => OptInTaxCreditsDetailsForm()
-          case _               => throw (new Exception("Invalid cohort"))
+          case PageType.ReOptInPage =>
+            ReOptInDetailsForm()
+          case _ => throw (new Exception("Invalid cohort"))
 
         }
       implicit val authRequest = AuthenticatedRequest[AnyContent](request, None, None, None, None)
@@ -154,7 +175,8 @@ class ChoosePaperlessController @Inject()(
             submitPrefsFormAction = internal.routes.ChoosePaperlessController.cohortNop(),
             cohort = cohort
           )
-        ))
+        )
+      )
     }
   }
   def cohortNop() = Action.async {
@@ -183,7 +205,8 @@ class ChoosePaperlessController @Inject()(
                 false,
                 Some(svc),
                 Some(token),
-                Some(lang))(authRequest, hostContext, hc)
+                Some(lang)
+              )(authRequest, hostContext, hc)
             else
               OptInDetailsForm().bindFromRequest.fold[Future[Result]](
                 hasErrors = formwithErrors,
@@ -225,7 +248,8 @@ class ChoosePaperlessController @Inject()(
                 false,
                 None,
                 None,
-                languagePreference = Some(lang))
+                languagePreference = Some(lang)
+              )
             else
               OptInTaxCreditsDetailsForm().bindFromRequest.fold[Future[Result]](
                 hasErrors = formwithErrors,
@@ -239,7 +263,8 @@ class ChoosePaperlessController @Inject()(
                       cohort,
                       None,
                       None,
-                      Some(lang))
+                      Some(lang)
+                    )
                   case _ =>
                     formwithErrors(OptInDetailsForm().bindFromRequest)
                 }
@@ -258,7 +283,8 @@ class ChoosePaperlessController @Inject()(
                 false,
                 None,
                 None,
-                languagePreference = Some(lang))
+                languagePreference = Some(lang)
+              )
             else
               OptInDetailsForm().bindFromRequest.fold[Future[Result]](
                 hasErrors = formwithErrors,
@@ -271,20 +297,59 @@ class ChoosePaperlessController @Inject()(
                       cohort,
                       None,
                       None,
-                      languagePreference = Some(lang))
+                      languagePreference = Some(lang)
+                    )
                   case _ =>
                     formwithErrors(OptInDetailsForm().bindFromRequest)
                 }
             )
         )
 
-      if (hostContext.termsAndConditions.contains("taxCredits")) handleTc()
-      else handleGeneric()
+      def handleReOptInGeneric()(implicit request: AuthenticatedRequest[_]): Future[Result] =
+        ReOptInOrOutForm().bindFromRequest.fold[Future[Result]](
+          hasErrors = formwithErrors,
+          happyForm =>
+            if (happyForm.optedIn.contains(false))
+              saveAndAuditPreferences(
+                digital = false,
+                email = None,
+                cohort,
+                false,
+                None,
+                None,
+                languagePreference = Some(lang)
+              )
+            else
+              ReOptInDetailsForm().bindFromRequest.fold[Future[Result]](
+                hasErrors = formwithErrors,
+                success = {
+                  case emailForm @ ReOptInDetailsForm.Data((Some(emailAddress), _), _, Some(OptedIn), Some(true), _) =>
+                    validateEmailAndSavePreference(
+                      emailAddress,
+                      emailForm.isEmailVerified,
+                      emailForm.isEmailAlreadyStored,
+                      cohort,
+                      None,
+                      None,
+                      languagePreference = Some(lang)
+                    )
+                  case _ =>
+                    formwithErrors(ReOptInDetailsForm().bindFromRequest)
+                }
+            )
+        )
+      hostContext.cohort match {
+        case Some(c) if c.pageType == PageType.ReOptInPage                   => handleReOptInGeneric()
+        case Some(c) if c.pageType == PageType.IPage                         => handleGeneric()
+        case None if (hostContext.termsAndConditions.contains("taxCredits")) => handleTc()
+        case None                                                            => handleGeneric()
+      }
     }
   }
 
   def returnToFormWithErrors(submitPrefsFormAction: Call, cohort: OptInCohort, request: AuthenticatedRequest[_])(
-    form: Form[_])(implicit hc: HeaderCarrier): Future[Result] = {
+    form: Form[_]
+  )(implicit hc: HeaderCarrier): Future[Result] = {
     implicit val req = request
     Future.successful(BadRequest(saPrintingPreference(form, submitPrefsFormAction, cohort)))
   }
@@ -296,24 +361,23 @@ class ChoosePaperlessController @Inject()(
     emailAlreadyStored: Boolean,
     svc: Option[String],
     token: Option[String],
-    languagePreference: Some[Language])(
-    implicit request: AuthenticatedRequest[_],
-    hostContext: HostContext,
-    hc: HeaderCarrier): Future[Result] = {
-    val terms = cohort.terms -> TermsAccepted(digital)
+    languagePreference: Some[Language]
+  )(implicit request: AuthenticatedRequest[_], hostContext: HostContext, hc: HeaderCarrier): Future[Result] = {
+    val terms = cohort.terms -> TermsAccepted(digital, Some(OptInPage.from(cohort)))
 
     entityResolverConnector
       .updateTermsAndConditionsForSvc(
         TermsAndConditionsUpdate.from(terms, email, (svc.isDefined && token.isDefined), languagePreference),
         svc,
-        token)
-      .map(preferencesStatus => {
+        token
+      )
+      .map { preferencesStatus =>
         auditChoice(AccountDetails, cohort, terms, email, preferencesStatus)
         if (digital && !emailAlreadyStored) {
           val encryptedEmail = email map (emailAddress => Encrypted(EmailAddress(emailAddress)))
           Redirect(routes.ChoosePaperlessController.displayNearlyDone(encryptedEmail, hostContext))
         } else Redirect(hostContext.returnUrl)
-      })
+      }
   }
 
   def validateEmailAndSavePreference(
@@ -323,10 +387,8 @@ class ChoosePaperlessController @Inject()(
     cohort: OptInCohort,
     svc: Option[String],
     token: Option[String],
-    languagePreference: Some[Language])(
-    implicit request: AuthenticatedRequest[_],
-    hostContext: HostContext,
-    hc: HeaderCarrier): Future[Result] = {
+    languagePreference: Some[Language]
+  )(implicit request: AuthenticatedRequest[_], hostContext: HostContext, hc: HeaderCarrier): Future[Result] = {
     val emailVerificationStatus =
       if (isEmailVerified) Future.successful(true)
       else emailConnector.isValid(emailAddress)
@@ -340,38 +402,47 @@ class ChoosePaperlessController @Inject()(
           isEmailAlreadyStored,
           svc,
           token,
-          languagePreference)
+          languagePreference
+        )
       case false =>
         if (svc.isDefined && token.isDefined)
           Future.successful(
-            Ok(saPrintingPreferenceVerifyEmail(
-              emailAddress,
-              cohort,
-              controllers.internal.routes.ChoosePaperlessController.submitFormBySvc(svc.get, token.get, hostContext),
-              controllers.internal.routes.ChoosePaperlessController
-                .redirectToDisplayFormWithCohortBySvc(
-                  svc.get,
-                  token.get,
-                  Some(Encrypted(EmailAddress(emailAddress))),
-                  hostContext)
-                .url
-            )))
+            Ok(
+              saPrintingPreferenceVerifyEmail(
+                emailAddress,
+                cohort,
+                controllers.internal.routes.ChoosePaperlessController.submitFormBySvc(svc.get, token.get, hostContext),
+                controllers.internal.routes.ChoosePaperlessController
+                  .redirectToDisplayFormWithCohortBySvc(
+                    svc.get,
+                    token.get,
+                    Some(Encrypted(EmailAddress(emailAddress))),
+                    hostContext
+                  )
+                  .url
+              )
+            )
+          )
         else
           Future.successful(
-            Ok(saPrintingPreferenceVerifyEmail(
-              emailAddress,
-              cohort,
-              controllers.internal.routes.ChoosePaperlessController.submitForm(hostContext),
-              controllers.internal.routes.ChoosePaperlessController
-                .redirectToDisplayFormWithCohort(Some(Encrypted(EmailAddress(emailAddress))), hostContext)
-                .url
-            )))
+            Ok(
+              saPrintingPreferenceVerifyEmail(
+                emailAddress,
+                cohort,
+                controllers.internal.routes.ChoosePaperlessController.submitForm(hostContext),
+                controllers.internal.routes.ChoosePaperlessController
+                  .redirectToDisplayFormWithCohort(Some(Encrypted(EmailAddress(emailAddress))), hostContext)
+                  .url
+              )
+            )
+          )
     }
   }
 
-  private def auditPageShown(journey: Journey, cohort: OptInCohort)(
-    implicit request: AuthenticatedRequest[_],
-    hc: HeaderCarrier): Future[AuditResult] =
+  private def auditPageShown(
+    journey: Journey,
+    cohort: OptInCohort
+  )(implicit request: AuthenticatedRequest[_], hc: HeaderCarrier): Future[AuditResult] =
     auditConnector.sendMergedEvent(
       MergedDataEvent(
         auditSource = AppName.fromConfiguration(configuration),
@@ -382,7 +453,8 @@ class ChoosePaperlessController @Inject()(
             "utr"     -> request.saUtr.getOrElse("N/A"),
             "nino"    -> request.nino.getOrElse("N/A"),
             "journey" -> journey.toString,
-            "cohort"  -> cohort.toString),
+            "cohort"  -> cohort.toString
+          ),
           generatedAt = DateTime.now()
         ),
         response = DataCall(
@@ -391,7 +463,8 @@ class ChoosePaperlessController @Inject()(
             "utr"     -> request.saUtr.getOrElse("N/A"),
             "nino"    -> request.nino.getOrElse("N/A"),
             "journey" -> journey.toString,
-            "cohort"  -> cohort.toString),
+            "cohort"  -> cohort.toString
+          ),
           generatedAt = DateTime.now()
         )
       )
@@ -402,10 +475,12 @@ class ChoosePaperlessController @Inject()(
     cohort: OptInCohort,
     terms: (TermsType, TermsAccepted),
     emailOption: Option[String],
-    preferencesStatus: PreferencesStatus)(
+    preferencesStatus: PreferencesStatus
+  )(
     implicit request: AuthenticatedRequest[_],
     message: play.api.i18n.Messages,
-    hc: HeaderCarrier): Future[AuditResult] =
+    hc: HeaderCarrier
+  ): Future[AuditResult] =
     auditConnector.sendMergedEvent(
       MergedDataEvent(
         auditSource = AppName.fromConfiguration(configuration),
@@ -442,15 +517,17 @@ class ChoosePaperlessController @Inject()(
           ),
           generatedAt = DateTime.now()
         )
-      ))
+      )
+    )
 
   private def hasStoredEmail(hostContext: HostContext, svc: Option[String], token: Option[String])(
-    implicit hc: HeaderCarrier): Future[Boolean] = {
+    implicit hc: HeaderCarrier
+  ): Future[Boolean] = {
     val terms = hostContext.termsAndConditions.getOrElse("generic")
     val f: Any => Boolean = (v: Any) =>
       v match {
-        case Right(PreferenceNotFound(Some(_))) | Right(PreferenceFound(false, Some(_), _)) => true
-        case _                                                                              => false
+        case Right(PreferenceNotFound(Some(_))) | Right(PreferenceFound(false, Some(_), _, _)) => true
+        case _                                                                                 => false
     }
 
     if (svc.isDefined && token.isDefined)
@@ -463,7 +540,8 @@ class ChoosePaperlessController @Inject()(
       withAuthenticatedRequest { implicit authRequest: AuthenticatedRequest[AnyContent] => implicit request =>
         implicit val hostContextImplicit = hostContext
         Future.successful(
-          Ok(accountDetailsPrintingPreferenceConfirm(calculateCohort(hostContext), emailAddress.map(_.decryptedValue))))
+          Ok(accountDetailsPrintingPreferenceConfirm(calculateCohort(hostContext), emailAddress.map(_.decryptedValue)))
+        )
       }
     }
 

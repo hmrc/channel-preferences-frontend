@@ -11,8 +11,11 @@ import uk.gov.hmrc.domain.SaUtr
 
 trait OptInCohortCalculator extends CohortCalculator[SaUtr, OptInCohort] {
   def calculateCohort(hostContext: HostContext): OptInCohort =
-    if (hostContext.isTaxCredits) CohortCurrent.tcpage
-    else CohortCurrent.ipage
+    hostContext.cohort
+      .getOrElse(
+        if (hostContext.isTaxCredits) CohortCurrent.tcpage
+        else CohortCurrent.ipage
+      )
 
   def cohorts: Cohorts[OptInCohort] = OptInCohortConfigurationValues.cohorts
 }

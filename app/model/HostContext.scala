@@ -5,15 +5,19 @@
 
 package model
 
+import controllers.internal.OptInCohort
 import play.api.Logger
 import play.api.mvc.QueryStringBindable
+import uk.gov.hmrc.emailaddress.EmailAddress
 
 case class HostContext(
   returnUrl: String,
   returnLinkText: String,
   termsAndConditions: Option[String] = None,
   email: Option[String] = None,
-  alreadyOptedInUrl: Option[String] = None) {
+  alreadyOptedInUrl: Option[String] = None,
+  cohort: Option[OptInCohort] = None
+) {
   val isTaxCredits = termsAndConditions.fold(false)(_ == "taxCredits")
 }
 
@@ -29,11 +33,20 @@ object HostContext {
         val emailOptionResult = stringBinder.bind("email", params).liftDecryptedOption
         val alreadyOptedInUrl = stringBinder.bind("alreadyOptedInUrl", params).liftDecryptedOption
         val languageResult = stringBinder.bind("language", params).liftDecryptedOption
+        val cohortResult = stringBinder.bind("cohort", params).liftDecryptedOption.flatMap { x =>
+          OptInCohort.fromId(x.toInt)
+        }
 
-        (returnUrlResult, returnLinkTextResult, termsAndConditionsOptionResult, emailOptionResult, languageResult) match {
-          case (Some(Right(returnUrl)), Some(Right(returnLinkText)), Some("taxCredits"), None, _) =>
+        (
+          returnUrlResult,
+          returnLinkTextResult,
+          termsAndConditionsOptionResult,
+          emailOptionResult,
+          languageResult,
+          cohortResult) match {
+          case (Some(Right(returnUrl)), Some(Right(returnLinkText)), Some("taxCredits"), None, _, _) =>
             Some(Left("TaxCredits must provide email"))
-          case (Some(Right(returnUrl)), Some(Right(returnLinkText)), terms, email, lang) =>
+          case (Some(Right(returnUrl)), Some(Right(returnLinkText)), terms, email, lang, pageType) =>
             Some(
               Right(
                 HostContext(
@@ -41,9 +54,10 @@ object HostContext {
                   returnLinkText = returnLinkText.decryptedValue,
                   termsAndConditions = terms,
                   email = email,
-                  alreadyOptedInUrl = alreadyOptedInUrl
+                  alreadyOptedInUrl = alreadyOptedInUrl,
+                  pageType
                 )))
-          case (maybeReturnUrlError, maybeReturnLinkTextError, _, _, _) =>
+          case (maybeReturnUrlError, maybeReturnLinkTextError, _, _, _, _) =>
             val errorMessage = Seq(
               extractError(maybeReturnUrlError, Some("No returnUrl query parameter")),
               extractError(maybeReturnLinkTextError, Some("No returnLinkText query parameter"))
@@ -63,16 +77,19 @@ object HostContext {
       override def unbind(key: String, value: HostContext): String = {
         val termsAndEmailString: String = {
           value.termsAndConditions.fold("") { tc =>
-            "&" + stringBinder.unbind("termsAndConditions", Encrypted(tc)) +
-              value.email.fold("") { em =>
-                "&" + stringBinder.unbind("email", Encrypted(em))
-              }
-          }
+            "&" + stringBinder.unbind("termsAndConditions", Encrypted(tc))
+          } +
+            value.email.fold("") { em =>
+              "&" + stringBinder.unbind("email", Encrypted(em))
+            }
         }
 
         stringBinder.unbind("returnUrl", Encrypted(value.returnUrl)) + "&" +
           stringBinder.unbind("returnLinkText", Encrypted(value.returnLinkText)) +
-          termsAndEmailString
+          termsAndEmailString +
+          value.cohort.fold("") { c =>
+            "&" + stringBinder.unbind("cohort", Encrypted(s"${c.id}"))
+          }
       }
     }
 

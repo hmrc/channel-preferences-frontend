@@ -1,0 +1,108 @@
+@*
+ * Copyright 2020 HM Revenue & Customs
+ *
+ *@
+
+@import controllers.auth.AuthenticatedRequest
+@import play.api.i18n.Messages.Implicits._
+@this(mainWithHeaders: views.html.main_with_headers, singleCheckbox26: helpers.SingleCheckbox26  )
+@(emailForm: Form[_], submitPrefsFormAction: Call)(implicit request: AuthenticatedRequest[_], messages: Messages)
+@import uk.gov.hmrc.urls.Link
+@import uk.gov.hmrc.play.views.html.helpers._
+
+@mainWithHeaders(title = Messages("i_page10.fg_page.title")) {
+
+<header class="page-header">
+    <h1>@Messages("i_page10.fg_page.title")</h1>
+</header>
+
+<p class="lede">@Messages("i_page10.fg_page.choose_1")</p>
+<p>@Messages("i_page10.fg_page.choose_2")</p>
+
+<ul class="list list-bullet">
+    <li>@Messages("i_page10.fg_page.list_1")</li>
+    <li>@Messages("i_page10.fg_page.list_2")</li>
+    <li>@Messages("i_page10.fg_page.list_3")</li>
+</ul>
+
+<p>@Messages("i_page10.fg_page.choose_3")</p>
+
+<h2>@Messages("i_page10.fg_page.paperless")</h2>
+
+<script>
+      function radioChanged() {$("#submitEmailButton").removeAttr("disabled")};
+
+
+</script>
+
+@form(action = submitPrefsFormAction, 'id -> "form-submit-email-address") {
+
+<label class="selectable" style="display: block">
+    <input
+            id="opt-in-in"
+            type="radio"
+            name="opt-in"
+            value="true"
+            class="email-prefs__toggle"
+            onchange="radioChanged()"
+    />
+    @Messages("i_page10.fg_page.yes_send_email")
+</label>
+
+@if(emailForm("opt-in").value.contains("false")) { checked="checked" }
+
+<fieldset class="connected js-hidden">
+    @input(
+    emailForm("email.main"),
+    '_label -> Messages("i_page10.tc.email.label"),
+    '_labelClass -> "bold",
+    '_labelHighlight -> true,
+    '_divClass -> "row",
+    '_inputClass -> "input--medium input--cleared",
+    '_type -> "email",
+    'parentField -> emailForm("email")
+    )
+
+    <p id="message-after-email-input-para-1">@Messages("i_page10.fg_page.yes_send_email_info_1")</p>
+    <p id="message-after-email-input">@Messages("i_page10.fg_page.yes_send_email_info_2")</p>
+
+    @singleCheckbox26(
+    emailForm("accept-tc"),
+    Html(Messages("i_page10.tc.preLinkText", Link.toExternalPage(id = Some("terms-and-conditions"),
+    url = Messages("sa_pirnting_preference.tc.linkUrl"),
+    value = Some(Messages("i_page10.tc.linkText"))).toHtml)),
+    '_labelClass -> "label--inline"
+    )
+
+</fieldset>
+
+<label class="selectable" style="display: block">
+    <input
+            id="opt-in-out"
+            type="radio"
+            name="opt-in"
+            value="false"
+            onchange="radioChanged()"
+            class="email-prefs__toggle"
+            @if(emailForm("opt-in").value == Some("false")) { checked="checked" }
+    />
+    @Messages("i_page10.fg_page.keep_receiving")
+</label>
+<div class="email-form-errors">
+    @emailForm("opt-in").errors.map { error => <label class="error-notification">@Messages(error.message)</label>}
+    @emailForm.globalErrors.map { error => <label class="error-notification">@Messages(error.message)</label>}
+</div>
+<p>
+    @Html(Messages("i_page10.fg_page_privacy_notice", Link.toExternalPage(id = Some("privacy-policy"), url
+    = "https://www.tax.service.gov.uk/help/privacy", value =
+    Some(Messages("i_page10.privacy_policy_linkText"))).toHtml))
+</p>
+
+<div class="form-field">
+    <button id="submitEmailButton" class="button" name="submitButton" type="submit" disabled="disabled">
+        @Messages("i_page10.submitButton")
+    </button>
+</div>
+
+}
+}

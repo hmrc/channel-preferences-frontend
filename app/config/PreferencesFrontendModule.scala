@@ -31,6 +31,8 @@ class CohortMessagesApiProvider @Inject()(
       .map { case (k, v) => if (k == "cy") (k, merge(v, loadMessages("ipage.messages.cy"))) else (k, v) }
       .map { case (k, v) => if (k == "default") (k, merge(v, loadMessages("tcpage.messages"))) else (k, v) }
       .map { case (k, v) => if (k == "cy") (k, merge(v, loadMessages("tcpage.messages.cy"))) else (k, v) }
+      .map { case (k, v) => if (k == "default") (k, merge(v, loadMessages("reoptinpage.messages"))) else (k, v) }
+      .map { case (k, v) => if (k == "cy") (k, merge(v, loadMessages("reoptinpage.messages.cy"))) else (k, v) }
 
   private def merge(m1: Map[String, String], m2: Map[String, String]): Map[String, String] =
     (m1.toSeq ++ m2.toSeq).groupBy(_._1).mapValues(_(0)._2)

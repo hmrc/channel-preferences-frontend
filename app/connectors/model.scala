@@ -92,14 +92,18 @@ case class EmailPreference(
   hasBounces: Boolean,
   mailboxFull: Boolean,
   linkSent: Option[LocalDate],
-  language: Option[Language] = None
+  language: Option[Language] = None,
+  pendingEmail: Option[String] = None
 )
 
 object EmailPreference {
   implicit val formats = Json.format[EmailPreference]
 }
 
-case class TermsAndConditonsAcceptance(accepted: Boolean, updatedAt: Option[DateTime] = None)
+case class TermsAndConditonsAcceptance(
+  accepted: Boolean,
+  updatedAt: Option[DateTime] = None,
+  majorVersion: Option[Int] = None)
 object TermsAndConditonsAcceptance {
 
   implicit val dateFormatDefault = new Format[DateTime] {

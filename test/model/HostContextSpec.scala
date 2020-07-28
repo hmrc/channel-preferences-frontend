@@ -5,6 +5,7 @@
 
 package model
 
+import controllers.internal.ReOptInPage10
 import helpers.ConfigHelper
 import org.scalatest.{ Matchers, WordSpec }
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -22,6 +23,7 @@ class HostContextSpec extends WordSpec with Matchers with GuiceOneAppPerSuite wi
     val validTaxCreditsTermsAndConditions = "termsAndConditions" -> Seq("J1Vy/h2rVt/JkA1b/lTfgg==") // taxCredits
     val validEmailAddress = "email"                              -> Seq("J5lnze8P0QQ8NwFTHVHhVw==") // test@test.com
     val validWelshLanguage = "language"                          -> Seq("5W0FAIi6JRZBSf4/hwE00w==") // cy
+    val validCohortType = "cohort"                               -> Seq("u/n1h8qcsJrhpRofXkhmXg==") // ReOptInPage10
 
     "read the returnURL and returnLinkText if both present" in {
       model.HostContext.hostContextBinder.bind("anyValName", Map(validReturnUrl, validReturnLinkText)) should contain(
@@ -79,6 +81,12 @@ class HostContextSpec extends WordSpec with Matchers with GuiceOneAppPerSuite wi
         Right(HostContext(returnUrl = "foo", returnLinkText = "bar"))
       )
     }
+    "read the cohort if present" in {
+      model.HostContext.hostContextBinder
+        .bind("anyValName", Map(validReturnUrl, validReturnLinkText, validCohortType)) should contain(
+        Right(HostContext(returnUrl = "foo", returnLinkText = "bar", cohort = Some(ReOptInPage10)))
+      )
+    }
   }
 
   "Unbinding a host context" should {
@@ -88,5 +96,18 @@ class HostContextSpec extends WordSpec with Matchers with GuiceOneAppPerSuite wi
         "returnUrl=Wa6yuBSzGvUaibkXblJ8aQ%3D%3D&returnLinkText=w%2FPwaxV%2BKgqutfsU0cyrJQ%3D%3D"
       )
     }
+    "write out all parameters when pageType if ReOptInPage" in {
+      model.HostContext.hostContextBinder
+        .unbind(
+          "anyValName",
+          HostContext(
+            returnUrl = "foo&value",
+            returnLinkText = "bar",
+            cohort = Some(ReOptInPage10),
+            email = Some("foo@bar.com"))) should be(
+        "returnUrl=Wa6yuBSzGvUaibkXblJ8aQ%3D%3D&returnLinkText=w%2FPwaxV%2BKgqutfsU0cyrJQ%3D%3D&email=yCVwXTaKNqm1whFZ7gcFkQ%3D%3D&cohort=u%2Fn1h8qcsJrhpRofXkhmXg%3D%3D"
+      )
+    }
+
   }
 }

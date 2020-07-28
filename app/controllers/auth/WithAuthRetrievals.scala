@@ -6,11 +6,10 @@
 package controllers.auth
 
 import org.joda.time.DateTime
-import play.api.Logger
-import play.api.mvc.{ Cookies, Request, Result, Results }
+import play.api.mvc.{ Request, Result, Results }
+import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.~
-import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
 
@@ -21,8 +20,10 @@ trait WithAuthRetrievals extends AuthorisedFunctions {
     implicit request: Request[A],
     ec: ExecutionContext) = {
     implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
-    authorised().retrieve(Retrievals.name and Retrievals.loginTimes and Retrievals.nino and Retrievals.saUtr) {
-      case name ~ retLoginTimes ~ nino ~ utr => {
+    authorised().retrieve(
+      Retrievals.name and Retrievals.loginTimes and Retrievals.nino and Retrievals.saUtr and
+        Retrievals.affinityGroup and Retrievals.confidenceLevel) {
+      case name ~ retLoginTimes ~ nino ~ utr ~ affinityGroup ~ confidenceLevel => {
         val previousLoginTime: Option[DateTime] = retLoginTimes.previousLogin
         val fullName = name.map { n =>
           (n.name, n.lastName) match {
@@ -32,7 +33,15 @@ trait WithAuthRetrievals extends AuthorisedFunctions {
             case (Some(n), Some(l)) => Some(s"$n $l")
           }
         }.flatten
-        block(AuthenticatedRequest[A](request, fullName, previousLoginTime, nino, utr))(hc)
+        block(
+          AuthenticatedRequest[A](
+            request,
+            fullName,
+            previousLoginTime,
+            nino,
+            utr,
+            affinityGroup,
+            Some(confidenceLevel)))(hc)
       }
       case _ => Future.successful(Results.Unauthorized)
     }

@@ -35,5 +35,30 @@ class NewPreferenceReponseSpec extends PlaySpec {
         Map("generic" -> TermsAndConditonsAcceptance(true)),
         Some(EmailPreference("pihklyljtgoxeoh@mail.com", true, false, false, None)))
     }
+
+    "work with a major version" in {
+
+      val json = Json.parse(s"""{
+                               |  "termsAndConditions": {
+                               |    "generic": {
+                               |      "accepted": true,
+                               |      "majorVersion": 3
+                               |    }
+                               |  },
+                               |  "email": {
+                               |    "email": "pihklyljtgoxeoh@mail.com",
+                               |    "isVerified": true,
+                               |    "hasBounces": false,
+                               |    "mailboxFull": false,
+                               |    "status": "verified"
+                               |  },
+                               |  "digital": true
+                               |}""".stripMargin)
+
+      json.as[PreferenceResponse] mustBe PreferenceResponse(
+        Map("generic" -> TermsAndConditonsAcceptance(accepted = true, majorVersion = Option(3))),
+        Some(EmailPreference("pihklyljtgoxeoh@mail.com", true, false, false, None))
+      )
+    }
   }
 }

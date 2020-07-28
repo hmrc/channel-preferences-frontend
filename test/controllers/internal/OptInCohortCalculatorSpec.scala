@@ -6,6 +6,7 @@
 package controllers.internal
 
 import model.HostContext
+import model.PageType.{ IPage, ReOptInPage, TCPage }
 import org.scalatestplus.play.PlaySpec
 
 class OptInCohortCalculatorSpec extends PlaySpec {
@@ -18,5 +19,8 @@ class OptInCohortCalculatorSpec extends PlaySpec {
       new OptInCohortCalculator {}.calculateCohort(HostContext("", "", Some("taxCredits"))) mustBe CohortCurrent.tcpage
     }
   }
-
+  "Return the cohort if explicitly specified in the HostContext" in {
+    new OptInCohortCalculator {}
+      .calculateCohort(HostContext("", "", None, cohort = Some(ReOptInPage10))) mustBe ReOptInPage10
+  }
 }

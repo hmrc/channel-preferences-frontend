@@ -44,6 +44,40 @@ object OptInDetailsForm {
   }
 }
 
+object ReOptInDetailsForm {
+  def apply() = Form[Data](mapping(
+    "email" -> tuple(
+      "main" -> optional(EmailForm.emailWithLimitedLength),
+      "confirm" -> optional(text)
+    ),
+    "emailVerified" -> optional(text),
+    "opt-in" -> optional(boolean).verifying("sa_printing_preference.opt_in_choice_required", _.isDefined).transform(
+      _.map(PaperlessChoice.fromBoolean), (p: Option[PaperlessChoice]) => p.map(_.toBoolean)
+    ),
+    "accept-tc" -> optional(boolean).verifying("sa_printing_preference.accept_tc_required", _.contains(true)),
+    "emailAlreadyStored" -> optional(boolean)
+  )(Data.apply)(Data.unapply)
+    .verifying("error.email.optIn", _ match {
+      case Data((None, _), _, Some(PaperlessChoice.OptedIn), _, _) => false
+      case _ => true
+    })
+  )
+
+  case class Data(email: (Option[String], Option[String]), emailVerified: Option[String], choice: Option[PaperlessChoice], acceptedTCs: Option[Boolean], emailAlreadyStored: Option[Boolean]) {
+    lazy val isEmailVerified = emailVerified.contains("true")
+    lazy val isEmailAlreadyStored = emailAlreadyStored.contains(true)
+
+    def mainEmail: Option[String] = email._1
+  }
+  object Data {
+
+    def apply(emailAddress: Option[EmailAddress], preference: Option[PaperlessChoice], acceptedTcs: Option[Boolean], emailAlreadyStored: Option[Boolean]): Data = {
+      val emailAddressAsString = emailAddress.map(_.value)
+      Data((emailAddressAsString, emailAddressAsString), None, preference, acceptedTcs, emailAlreadyStored)
+    }
+  }
+}
+
 object OptInTaxCreditsDetailsForm {
 
   def apply() = Form[Data](mapping(
