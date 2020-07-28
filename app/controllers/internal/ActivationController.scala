@@ -142,7 +142,7 @@ class ActivationController @Inject()(
 
       case Right(PreferenceFound(true, emailPreference, _, Some(majorVersion))) =>
         if (majorVersion < CohortCurrent.ipage.majorVersion && authenticatedRequest.affinityGroup.fold(false)(
-              _ == AffinityGroup.Individual) && authenticatedRequest.confidenceLevel.fold(false)(_.level >= 200)) {
+              _ == AffinityGroup.Individual) && authenticatedRequest.confidenceLevel.fold(false)(_.level == 200)) {
           val encryptedEmail = None
           val redirectUrl = hostUrl + routes.ChoosePaperlessController
             .displayForm(

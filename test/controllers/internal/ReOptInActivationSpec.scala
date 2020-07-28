@@ -56,7 +56,7 @@ class ReOptInActivationSpec
   "ActivatioController.activate" when {
     "preference's majorVersion is lower than current majorVersion and " when {
       "Affinity group is Individual and " when {
-        "ConfidenceLeve is >= 200" should {
+        "ConfidenceLeve == 200" should {
           "return PRECONDITION_FAILED" in new TestCase {
             val prefMajor = CohortCurrent.ipage.majorVersion - 1
             val confidenceLevel = ConfidenceLevel.L200
@@ -73,7 +73,7 @@ class ReOptInActivationSpec
     }
     "preference's majorVersion is lower than the current majorVersion and " when {
       "Affinity group is Organization and " when {
-        "ConfidenceLeve is >= 200" should {
+        "ConfidenceLeve is == 200" should {
           "return OK" in new TestCase {
             val prefMajor = CohortCurrent.ipage.majorVersion - 1
             val confidenceLevel = ConfidenceLevel.L200
@@ -92,6 +92,21 @@ class ReOptInActivationSpec
           "return OK" in new TestCase {
             val prefMajor = CohortCurrent.ipage.majorVersion - 1
             val confidenceLevel = ConfidenceLevel.L100
+            val affinityGroup = AffinityGroup.Individual
+            initMocks()
+            val response: Future[Result] = controller.activate(TestFixtures.sampleHostContext)(request)
+            status(response) mustBe OK
+          }
+        }
+      }
+    }
+
+    "preference's majorVersion is lower than the current majorVersion and " when {
+      "Affinity group is Individual and " when {
+        "ConfidenceLeve is >  200" should {
+          "return OK" in new TestCase {
+            val prefMajor = CohortCurrent.ipage.majorVersion - 1
+            val confidenceLevel = ConfidenceLevel.L300
             val affinityGroup = AffinityGroup.Individual
             initMocks()
             val response: Future[Result] = controller.activate(TestFixtures.sampleHostContext)(request)
