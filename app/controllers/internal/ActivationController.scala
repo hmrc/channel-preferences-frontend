@@ -9,7 +9,6 @@ import connectors.{ EntityResolverConnector, _ }
 import controllers.ExternalUrlPrefixes
 import controllers.auth.{ AuthenticatedRequest, WithAuthRetrievals }
 import javax.inject.Inject
-import model.PageType.ReOptInPage
 import model.{ Encrypted, FormType, HostContext, Language }
 import org.joda.time.DateTime
 import play.api.Configuration
@@ -141,8 +140,7 @@ class ActivationController @Inject()(
           ))
 
       case Right(PreferenceFound(true, emailPreference, _, Some(majorVersion))) =>
-        if (majorVersion < CohortCurrent.ipage.majorVersion && authenticatedRequest.affinityGroup.fold(false)(
-              _ == AffinityGroup.Individual) && authenticatedRequest.confidenceLevel.fold(false)(_.level == 200)) {
+        if (triggerReOptIn(authenticatedRequest, emailPreference, majorVersion)) {
           val encryptedEmail = None
           val redirectUrl = hostUrl + routes.ChoosePaperlessController
             .displayForm(
@@ -189,4 +187,15 @@ class ActivationController @Inject()(
         PreconditionFailed(Json.obj("redirectUserTo" -> redirectUrl))
       case Left(status) => Status(status)
     }
+
+  private def triggerReOptIn(
+    authenticatedRequest: AuthenticatedRequest[_],
+    emailPreference: Option[EmailPreference],
+    majorVersion: Int) = {
+    val versionBehind = majorVersion < CohortCurrent.ipage.majorVersion
+    val isIndividual = authenticatedRequest.affinityGroup.exists(_ == AffinityGroup.Individual)
+    val individualConfidenceLevel = authenticatedRequest.confidenceLevel.exists(_.level == 200)
+    val noPendingEmail = emailPreference.exists(_.pendingEmail.isEmpty)
+    versionBehind && isIndividual && individualConfidenceLevel && noPendingEmail
+  }
 }

@@ -129,11 +129,30 @@ class ReOptInActivationSpec
         }
       }
     }
+
+    "preference's majorVersion is lower than the current majorVersion and " when {
+      "there is a pending email in preferneces" when {
+        "Affinity group is Individual and " when {
+          "ConfidenceLeve is ==  200" should {
+            "return OK" in new TestCase {
+              override def pendingEmail = Some("foo@bar.com")
+              val prefMajor = CohortCurrent.ipage.majorVersion - 1
+              val confidenceLevel = ConfidenceLevel.L200
+              val affinityGroup = AffinityGroup.Individual
+              initMocks()
+              val response: Future[Result] = controller.activate(TestFixtures.sampleHostContext)(request)
+              status(response) mustBe OK
+            }
+          }
+        }
+      }
+    }
   }
   trait TestCase {
     val prefMajor: Int
     val confidenceLevel: ConfidenceLevel
     val affinityGroup: AffinityGroup
+    def pendingEmail: Option[String] = None
 
     val currentLogin = new DateTime(2015, 1, 1, 12, 0).withZone(DateTimeZone.UTC)
     val previousLogin = new DateTime(2012, 1, 1, 12, 0).withZone(DateTimeZone.UTC)
@@ -153,7 +172,7 @@ class ReOptInActivationSpec
           ),
           confidenceLevel
         ))
-    val email = EmailPreference("test@test.com", false, false, false, None, Some(English))
+    val email = EmailPreference("test@test.com", false, false, false, None, Some(English), pendingEmail)
     def initMocks() = {
       reset(mockAuthConnector)
       reset(mockEntityResolverConnector)

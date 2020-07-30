@@ -325,12 +325,12 @@ class ChoosePaperlessController @Inject()(
                 success = {
                   case emailForm @ ReOptInDetailsForm.Data((Some(emailAddress), _), _, Some(OptedIn), Some(true), _) =>
                     validateEmailAndSavePreference(
-                      emailAddress,
-                      emailForm.isEmailVerified,
-                      emailForm.isEmailAlreadyStored,
-                      cohort,
-                      None,
-                      None,
+                      emailAddress = emailAddress,
+                      isEmailVerified = true,
+                      isEmailAlreadyStored = true,
+                      cohort = cohort,
+                      svc = None,
+                      token = None,
                       languagePreference = Some(lang)
                     )
                   case _ =>

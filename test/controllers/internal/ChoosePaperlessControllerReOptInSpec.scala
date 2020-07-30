@@ -155,8 +155,7 @@ class ChoosePaperlessControllerReOptInSpec
       val document = Jsoup.parse(contentAsString(page))
       document.getElementById("email.main") mustNot be(null)
       document.getElementById("email.main").attr("value") mustBe emailAddress
-      document.getElementById("email.main").hasAttr("readonly") mustBe false
-      document.getElementById("email.main").hasAttr("readonly") mustBe false
+      document.getElementById("email.main").hasAttr("readonly") mustBe true
       document.getElementById("opt-in-in").attr("checked") must be(empty)
       document.getElementById("opt-in-out").attr("checked") must be(empty)
     }
@@ -167,8 +166,7 @@ class ChoosePaperlessControllerReOptInSpec
       val document = Jsoup.parse(contentAsString(page))
       document.getElementById("email.main") mustNot be(null)
       document.getElementById("email.main").attr("value") mustBe ""
-      document.getElementById("email.main").hasAttr("readonly") mustBe false
-      document.getElementById("email.main").hasAttr("readonly") mustBe false
+      document.getElementById("email.main").hasAttr("readonly") mustBe true
       document.getElementById("opt-in-in").attr("checked") must be(empty)
       document.getElementById("opt-in-out").attr("checked") must be(empty)
     }
@@ -264,22 +262,7 @@ class ChoosePaperlessControllerReOptInSpec
       verifyZeroInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
 
-    "show a warning page when opting-in if the email has a valid structure but does not pass validation by the email micro service" in new ChoosePaperlessControllerReOptInSetup {
-
-      val emailAddress = "someone@dodgy.domain"
-      when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(Future.successful(false))
-
-      val page = controller.submitForm(TestFixtures.reOptInHostContext("foo@bar.com"))(
-        FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), "accept-tc" -> "true"))
-
-      status(page) mustBe 200
-
-      val document = Jsoup.parse(contentAsString(page))
-      document.select("#emailIsNotCorrectLink") mustNot be(null)
-      document.select("#emailIsCorrectLink") mustNot be(null)
-    }
-
-    "when opting-in, validate the email address, save the preference and redirect to the thank you page with the email address encrpyted" in new ChoosePaperlessControllerReOptInSetup {
+    "when re-opting-in, do not validate the email address, save the preference and redirect to returnUrl from the host context" in new ChoosePaperlessControllerReOptInSetup {
       reset(mockEntityResolverConnector)
       reset(mockEmailConnector)
       val emailAddress = "someone@email.com"
@@ -288,240 +271,15 @@ class ChoosePaperlessControllerReOptInSpec
         mockEntityResolverConnector
           .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any()))
         .thenReturn(Future.successful(PreferencesCreated))
-
-      val page = controller.submitForm(TestFixtures.reOptInHostContext("foo@bar.com"))(
+      val testHc = TestFixtures.reOptInHostContext("foo@bar.com")
+      val page = controller.submitForm(testHc)(
         FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), "accept-tc" -> "true"))
 
+      header("Location", page).get must be(testHc.returnUrl)
       status(page) mustBe 303
-      header("Location", page).get must include(routes.ChoosePaperlessController
-        .displayNearlyDone(Some(Encrypted(EmailAddress(emailAddress))), TestFixtures.reOptInHostContext("foo@bar.com"))
-        .toString())
-
-      verify(mockEmailConnector).isValid(is(emailAddress))(any())
       verify(mockEntityResolverConnector)
         .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any())
-
       verifyNoMoreInteractions(mockEntityResolverConnector, mockEmailConnector)
-    }
-    "when opting-in, validate the email address, failed to save the preference and so not activate user and redirect to the thank you page with the email address encrpyted" in new ChoosePaperlessControllerReOptInSetup {
-      val emailAddress = "someone@email.com"
-      when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(Future.successful(true))
-      when(
-        mockEntityResolverConnector
-          .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any()))
-        .thenReturn(Future.successful(PreferencesCreated))
-
-      val page = controller.submitForm(TestFixtures.reOptInHostContext())(
-        FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), "accept-tc" -> "true"))
-
-      status(page) mustBe 303
-      header("Location", page).get must include(
-        routes.ChoosePaperlessController
-          .displayNearlyDone(Some(Encrypted(EmailAddress(emailAddress))), TestFixtures.reOptInHostContext())
-          .toString())
-
-      verify(mockEntityResolverConnector)
-        .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any())
-
-      verify(mockEmailConnector).isValid(is(emailAddress))(any())
-
-      verifyNoMoreInteractions(mockEntityResolverConnector, mockEmailConnector)
-    }
-
-    "when opting-in, validate the email address, save the preference and redirect to the thank you page with the email address encrpyted when the user has no email address stored" in new ChoosePaperlessControllerReOptInSetup {
-      reset(mockEntityResolverConnector)
-      reset(mockEmailConnector)
-      val emailAddress = "someone@email.com"
-      when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(Future.successful(true))
-      when(
-        mockEntityResolverConnector
-          .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any()))
-        .thenReturn(Future.successful(PreferencesCreated))
-
-      val page = controller.submitForm(TestFixtures.reOptInHostContext("foo@bar.com"))(
-        FakeRequest().withFormUrlEncodedBody(
-          "opt-in" -> "true",
-          ("email.main", emailAddress),
-          "accept-tc"          -> "true",
-          "emailAlreadyStored" -> "false"))
-
-      status(page) mustBe 303
-      header("Location", page).get must include(routes.ChoosePaperlessController
-        .displayNearlyDone(Some(Encrypted(EmailAddress(emailAddress))), TestFixtures.reOptInHostContext("foo@bar.com"))
-        .toString())
-
-      verify(mockEmailConnector).isValid(is(emailAddress))(any())
-      verify(mockEntityResolverConnector)
-        .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any())
-
-      verifyNoMoreInteractions(mockEntityResolverConnector, mockEmailConnector)
-    }
-
-    "when opting-in save the preference and redirect return url if the user has already an email (opting in for generic when the user has already opted in for TaxCredits)" in new ChoosePaperlessControllerReOptInSetup {
-      val emailAddress = "someone@email.com"
-      when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(Future.successful(true))
-      when(
-        mockEntityResolverConnector
-          .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any()))
-        .thenReturn(Future.successful(PreferencesCreated))
-
-      val page = controller.submitForm(TestFixtures.reOptInHostContext("foo@bar.com"))(
-        FakeRequest().withFormUrlEncodedBody(
-          "opt-in" -> "true",
-          ("email.main", emailAddress),
-          ("email.confirm", emailAddress),
-          "accept-tc"          -> "true",
-          "emailAlreadyStored" -> "true"))
-
-      status(page) mustBe 303
-      header("Location", page).get must include(TestFixtures.reOptInHostContext("foo@bar.com").returnUrl)
-
-      verify(mockEmailConnector).isValid(is(emailAddress))(any())
-      verify(mockEntityResolverConnector)
-        .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any())
-
-      verifyNoMoreInteractions(mockEntityResolverConnector, mockEmailConnector)
-    }
-
-    "when opting-out, save the preference and redirect to the thank you page" in new ChoosePaperlessControllerReOptInSetup {
-      when(
-        mockEntityResolverConnector
-          .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any()))
-        .thenReturn(Future.successful(PreferencesCreated))
-
-      val page =
-        controller.submitForm(TestFixtures.reOptInHostContext("foo@bar.com"))(
-          FakeRequest().withFormUrlEncodedBody("opt-in" -> "false"))
-
-      status(page) mustBe 303
-      header("Location", page).get must be(TestFixtures.reOptInHostContext("foo@bar.com").returnUrl)
-
-      verify(mockEntityResolverConnector)
-        .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any())
-
-      verifyNoMoreInteractions(mockEntityResolverConnector, mockEmailConnector)
-    }
-  }
-
-  "A post to set preferences with an emailVerifiedFlag" should {
-
-    "if the verified flag is true, save the preference and redirect to the thank you page without verifying the email address again" in new ChoosePaperlessControllerReOptInSetup {
-      val emailAddress = "someone@email.com"
-      when(
-        mockEntityResolverConnector
-          .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any()))
-        .thenReturn(Future.successful(PreferencesCreated))
-
-      val page = controller.submitForm(TestFixtures.reOptInHostContext("foo@bar.com"))(
-        FakeRequest().withFormUrlEncodedBody(
-          "opt-in" -> "true",
-          ("email.main", emailAddress),
-          ("email.confirm", emailAddress),
-          ("emailVerified", "true"),
-          "accept-tc" -> "true"))
-
-      status(page) mustBe 303
-      header("Location", page).get must include(routes.ChoosePaperlessController
-        .displayNearlyDone(Some(Encrypted(EmailAddress(emailAddress))), TestFixtures.reOptInHostContext("foo@bar.com"))
-        .toString())
-
-      verify(mockEntityResolverConnector)
-        .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any())
-
-      verifyNoMoreInteractions(mockEntityResolverConnector, mockEmailConnector)
-    }
-
-    "if the verified flag is true, save the preference and redirect to the thank you page without verifying the email address again by svc" in new ChoosePaperlessControllerReOptInSetup {
-      val emailAddress = "someone@email.com"
-      when(
-        mockEntityResolverConnector
-          .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any()))
-        .thenReturn(Future.successful(PreferencesCreated))
-
-      val page = controller.submitFormBySvc("mtdfbit", "token", TestFixtures.reOptInHostContext("foo@bar.com"))(
-        FakeRequest().withFormUrlEncodedBody(
-          "opt-in" -> "true",
-          ("email.main", emailAddress),
-          ("email.confirm", emailAddress),
-          ("emailVerified", "true"),
-          "accept-tc" -> "true"))
-
-      status(page) mustBe 303
-      header("Location", page).get must include(routes.ChoosePaperlessController
-        .displayNearlyDone(Some(Encrypted(EmailAddress(emailAddress))), TestFixtures.reOptInHostContext("foo@bar.com"))
-        .toString())
-
-      verify(mockEntityResolverConnector)
-        .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any())
-
-      verifyNoMoreInteractions(mockEntityResolverConnector, mockEmailConnector)
-    }
-
-    "if the verified flag is false and the email does not pass validation by the email micro service, display the verify page" in new ChoosePaperlessControllerReOptInSetup {
-
-      val emailAddress = "someone@dodgy.domain"
-      when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(Future.successful(false))
-
-      val page = controller.submitForm(TestFixtures.reOptInHostContext("foo@bar.com"))(
-        FakeRequest().withFormUrlEncodedBody(
-          "opt-in" -> "true",
-          ("email.main", emailAddress),
-          ("email.confirm", emailAddress),
-          ("emailVerified", "false"),
-          "accept-tc" -> "true"))
-
-      status(page) mustBe 200
-
-      val document = Jsoup.parse(contentAsString(page))
-      document.select("#emailIsNotCorrectLink") mustNot be(null)
-      document.select("#emailIsCorrectLink") mustNot be(null)
-
-      verifyZeroInteractions(mockEntityResolverConnector)
-    }
-
-    "if the verified flag is any value other than true, treat it as false" in new ChoosePaperlessControllerReOptInSetup {
-
-      val emailAddress = "someone@dodgy.domain"
-      when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(Future.successful(false))
-
-      val page = controller.submitForm(TestFixtures.reOptInHostContext("foo@bar.com"))(
-        FakeRequest().withFormUrlEncodedBody(
-          "opt-in" -> "true",
-          ("email.main", emailAddress),
-          ("email.confirm", emailAddress),
-          ("emailVerified", "hjgjhghjghjgj"),
-          "accept-tc" -> "true"))
-
-      status(page) mustBe 200
-
-      val document = Jsoup.parse(contentAsString(page))
-      document.select("#emailIsNotCorrectLink") mustNot be(null)
-      document.select("#emailIsCorrectLink") mustNot be(null)
-
-      verifyZeroInteractions(mockEntityResolverConnector)
-
-    }
-
-    "if the verified flag is any value other than true, treat it as false for svc" in new ChoosePaperlessControllerReOptInSetup {
-
-      val emailAddress = "someone@dodgy.domain"
-      when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(Future.successful(false))
-
-      val page = controller.submitFormBySvc("mtdfbit", "token", TestFixtures.reOptInHostContext("foo@bar.com"))(
-        FakeRequest().withFormUrlEncodedBody(
-          "opt-in" -> "true",
-          ("email.main", emailAddress),
-          ("email.confirm", emailAddress),
-          ("emailVerified", "hjgjhghjghjgj"),
-          "accept-tc" -> "true"))
-
-      status(page) mustBe 200
-
-      val document = Jsoup.parse(contentAsString(page))
-      document.select("#emailIsNotCorrectLink") mustNot be(null)
-      document.select("#emailIsCorrectLink") mustNot be(null)
-
-      verifyZeroInteractions(mockEntityResolverConnector)
     }
   }
 

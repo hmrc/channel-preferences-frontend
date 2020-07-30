@@ -5,7 +5,8 @@
 
 @import controllers.auth.AuthenticatedRequest
 @import play.api.i18n.Messages.Implicits._
-@this(mainWithHeaders: views.html.main_with_headers, singleCheckbox26: helpers.SingleCheckbox26  )
+@import views.html.sa.prefs.helpers.ReadOnlyInput
+@this(mainWithHeaders: views.html.main_with_headers, singleCheckbox26: helpers.SingleCheckbox26, readOnlyInput: sa.prefs.helpers.ReadOnlyInput )
 @(emailForm: Form[_], submitPrefsFormAction: Call)(implicit request: AuthenticatedRequest[_], messages: Messages)
 @import uk.gov.hmrc.urls.Link
 @import uk.gov.hmrc.play.views.html.helpers._
@@ -52,7 +53,7 @@
 @if(emailForm("opt-in").value.contains("false")) { checked="checked" }
 
 <fieldset class="connected js-hidden">
-    @input(
+    @readOnlyInput(
     emailForm("email.main"),
     '_label -> Messages("reoptin_page10.tc.email.label"),
     '_labelClass -> "bold",
