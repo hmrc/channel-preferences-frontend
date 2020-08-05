@@ -103,7 +103,9 @@ object EmailPreference {
 case class TermsAndConditonsAcceptance(
   accepted: Boolean,
   updatedAt: Option[DateTime] = None,
-  majorVersion: Option[Int] = None)
+  majorVersion: Option[Int] = None,
+  paperless: Option[Boolean] = None
+)
 object TermsAndConditonsAcceptance {
 
   implicit val dateFormatDefault = new Format[DateTime] {

@@ -105,7 +105,7 @@ class EntityResolverConnectorSpec
         email = Some(new SaEmailPreference("test@mail.com", SaEmailPreference.Status.Verified)))
 
       val preferenceResponse = connector.getPreferencesStatus().futureValue
-      preferenceResponse mustBe Right(PreferenceFound(true, expectedResult.toNewPreference().email))
+      preferenceResponse mustBe Right(PreferenceFound(true, expectedResult.toNewPreference().email, paperless = None))
     }
 
     "map found non-paperless preference to false" in {
@@ -120,7 +120,10 @@ class EntityResolverConnectorSpec
       val expectedResult = new SaPreference(digital = false, email = None)
 
       connector.getPreferencesStatus().futureValue mustBe Right(
-        PreferenceFound(expectedResult.toNewPreference().termsAndConditions.get("generic").get.accepted, None))
+        PreferenceFound(
+          expectedResult.toNewPreference().termsAndConditions.get("generic").get.accepted,
+          None,
+          paperless = None))
     }
 
     "map an auth failure to UNAUTHORIZED" in {

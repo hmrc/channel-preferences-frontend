@@ -85,7 +85,7 @@ class ActivationController @Inject()(
     lang: Language,
     preferenceStatus: Either[Int, PreferenceStatus])(implicit hc: HeaderCarrier): Future[Unit] =
     preferenceStatus match {
-      case Right(PreferenceFound(true, emailPreference, _, _)) if emailPreference.fold(false)(_.language.isEmpty) => {
+      case Right(PreferenceFound(true, emailPreference, _, _, _)) if emailPreference.exists(_.language.isEmpty) => {
         entityResolverConnector
           .updateTermsAndConditions(TermsAndConditionsUpdate.fromLanguage(Some(lang)))(hc, hostContext)
           .map(_ => ())
@@ -105,14 +105,14 @@ class ActivationController @Inject()(
           .redirectToDisplayFormWithCohortBySvc(svc, token, encryptedEmail, hostContext)
           .url
         PreconditionFailed(Json.obj("redirectUserTo" -> redirectUrl))
-      case Right(PreferenceFound(true, emailPreference, _, None)) =>
+      case Right(PreferenceFound(true, emailPreference, _, None, _)) =>
         Ok(
           Json.obj(
             "optedIn"       -> true,
             "verifiedEmail" -> emailPreference.fold(false)(_.isVerified)
           ))
 
-      case Right(PreferenceFound(false, email, _, _)) =>
+      case Right(PreferenceFound(false, email, _, _, _)) =>
         val encryptedEmail = email.map(e => Encrypted(EmailAddress(e.email)))
         val redirectUrl = hostUrl + routes.ChoosePaperlessController
           .redirectToDisplayFormWithCohortBySvc(svc, token, encryptedEmail, hostContext)
@@ -129,18 +129,19 @@ class ActivationController @Inject()(
     implicit hc: HeaderCarrier,
     authenticatedRequest: AuthenticatedRequest[_]): Result =
     preferenceStatus match {
-      case Right(PreferenceFound(true, emailPreference, updatedAt, _)) if hostContext.alreadyOptedInUrl.isDefined => {
+      case Right(PreferenceFound(true, emailPreference, updatedAt, _, _))
+          if hostContext.alreadyOptedInUrl.isDefined => {
         Redirect(hostContext.alreadyOptedInUrl.get)
       }
-      case Right(PreferenceFound(true, emailPreference, _, None)) =>
+      case Right(PreferenceFound(true, emailPreference, _, None, _)) =>
         Ok(
           Json.obj(
             "optedIn"       -> true,
             "verifiedEmail" -> emailPreference.fold(false)(_.isVerified)
           ))
 
-      case Right(PreferenceFound(true, emailPreference, _, Some(majorVersion))) =>
-        if (triggerReOptIn(authenticatedRequest, emailPreference, majorVersion)) {
+      case Right(PreferenceFound(true, emailPreference, _, Some(majorVersion), paperless)) =>
+        if (triggerReOptIn(authenticatedRequest, emailPreference, majorVersion, paperless)) {
           val encryptedEmail = None
           val redirectUrl = hostUrl + routes.ChoosePaperlessController
             .displayForm(
@@ -157,7 +158,7 @@ class ActivationController @Inject()(
             ))
 
         }
-      case Right(PreferenceFound(false, None, updatedAt, _)) =>
+      case Right(PreferenceFound(false, None, updatedAt, _, _)) =>
         updatedAt
           .flatMap(u =>
             if (u.plusMinutes(gracePeriod).isAfter(DateTime.now)) {
@@ -175,7 +176,7 @@ class ActivationController @Inject()(
               .url
             PreconditionFailed(Json.obj("redirectUserTo" -> redirectUrl))
           }
-      case Right(PreferenceFound(false, email, updatedAt, _)) =>
+      case Right(PreferenceFound(false, email, updatedAt, _, _)) =>
         Ok(Json.obj("optedIn" -> false))
       case Right(PreferenceNotFound(Some(email))) if (hostContext.email.exists(_ != email.email)) =>
         Conflict
@@ -191,11 +192,13 @@ class ActivationController @Inject()(
   private def triggerReOptIn(
     authenticatedRequest: AuthenticatedRequest[_],
     emailPreference: Option[EmailPreference],
-    majorVersion: Int) = {
+    majorVersion: Int,
+    paperless: Option[Boolean]) = {
     val versionBehind = majorVersion < CohortCurrent.ipage.majorVersion
     val isIndividual = authenticatedRequest.affinityGroup.exists(_ == AffinityGroup.Individual)
     val individualConfidenceLevel = authenticatedRequest.confidenceLevel.exists(_.level == 200)
     val noPendingEmail = emailPreference.exists(_.pendingEmail.isEmpty)
-    versionBehind && isIndividual && individualConfidenceLevel && noPendingEmail
+    val isPaperless = paperless.exists(identity)
+    versionBehind && isIndividual && individualConfidenceLevel && noPendingEmail && isPaperless
   }
 }

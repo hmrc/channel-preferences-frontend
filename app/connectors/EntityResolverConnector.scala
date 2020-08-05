@@ -93,7 +93,8 @@ case class PreferenceFound(
   accepted: Boolean,
   email: Option[EmailPreference],
   updatedAt: Option[DateTime] = None,
-  majorVersion: Option[Int] = None
+  majorVersion: Option[Int] = None,
+  paperless: Option[Boolean]
 ) extends PreferenceStatus
 case class PreferenceNotFound(email: Option[EmailPreference]) extends PreferenceStatus
 
@@ -186,7 +187,12 @@ class EntityResolverConnector @Inject()(config: Configuration, runMode: RunMode,
             .get(termsAndCond)
             .fold[Either[Int, PreferenceStatus]](Right(PreferenceNotFound(preference.email))) { acceptance =>
               Right(
-                PreferenceFound(acceptance.accepted, preference.email, acceptance.updatedAt, acceptance.majorVersion)
+                PreferenceFound(
+                  acceptance.accepted,
+                  preference.email,
+                  acceptance.updatedAt,
+                  acceptance.majorVersion,
+                  paperless = acceptance.paperless)
               )
             }
         case None => Right(PreferenceNotFound(None))

@@ -860,7 +860,8 @@ class ChoosePaperlessControllerSpecTC
       val mockEntityResolverConnector = mock[EntityResolverConnector]
       val emailPreference = EmailPreference(emailAddress, true, false, false, None)
       when(mockEntityResolverConnector.getPreferencesStatus(any())(any()))
-        .thenReturn(Future.successful(Right[Int, PreferenceStatus](PreferenceFound(false, Some(emailPreference)))))
+        .thenReturn(Future.successful(
+          Right[Int, PreferenceStatus](PreferenceFound(false, Some(emailPreference), paperless = None))))
       val page = controller.displayForm(
         Some(assignedCohort),
         Some(Encrypted(EmailAddress(emailAddress))),

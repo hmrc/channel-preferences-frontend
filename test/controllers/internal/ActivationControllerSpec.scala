@@ -83,7 +83,7 @@ class ActivationControllerSpec
         val email = EmailPreference("test@test.com", false, false, false, None)
         reset(mockEntityResolverConnector)
         when(mockEntityResolverConnector.getPreferencesStatus(any())(any()))
-          .thenReturn(Future.successful(Right(PreferenceFound(true, Some(email)))))
+          .thenReturn(Future.successful(Right(PreferenceFound(true, Some(email), paperless = None))))
         when(
           mockEntityResolverConnector
             .updateTermsAndConditions(is(TermsAndConditionsUpdate.fromLanguage(Some(Language.English))))(
@@ -104,7 +104,7 @@ class ActivationControllerSpec
         val email = EmailPreference("test@test.com", false, false, false, None)
         reset(mockEntityResolverConnector)
         when(mockEntityResolverConnector.getPreferencesStatus(any())(any()))
-          .thenReturn(Future.successful(Right(PreferenceFound(true, Some(email)))))
+          .thenReturn(Future.successful(Right(PreferenceFound(true, Some(email), paperless = None))))
         when(
           mockEntityResolverConnector
             .updateTermsAndConditions(is(TermsAndConditionsUpdate.fromLanguage(Some(Language.Welsh))))(
@@ -131,7 +131,7 @@ class ActivationControllerSpec
           val email = EmailPreference("test@test.com", false, false, false, None, Some(Language.Welsh))
           reset(mockEntityResolverConnector)
           when(mockEntityResolverConnector.getPreferencesStatus(any())(any()))
-            .thenReturn(Future.successful(Right(PreferenceFound(true, Some(email)))))
+            .thenReturn(Future.successful(Right(PreferenceFound(true, Some(email), paperless = None))))
           val cookies = Cookie("PLAY_LANG", "cy")
           val res: Future[Result] = controller.activate(TestFixtures.sampleHostContext)(request.withCookies(cookies))
           status(res) mustBe Ok.header.status
@@ -144,7 +144,7 @@ class ActivationControllerSpec
           val email = EmailPreference("test@test.com", false, false, false, None, Some(Language.English))
           reset(mockEntityResolverConnector)
           when(mockEntityResolverConnector.getPreferencesStatus(any())(any()))
-            .thenReturn(Future.successful(Right(PreferenceFound(true, Some(email)))))
+            .thenReturn(Future.successful(Right(PreferenceFound(true, Some(email), paperless = None))))
           val cookies = Cookie("PLAY_LANG", "cy")
           val res: Future[Result] =
             controller.activate(TestFixtures.alreadyOptedInUrlHostContext)(request.withCookies(cookies))
@@ -163,7 +163,7 @@ class ActivationControllerSpec
           val email = EmailPreference("test@test.com", false, false, false, None)
           reset(mockEntityResolverConnector)
           when(mockEntityResolverConnector.getPreferencesStatus(any())(any()))
-            .thenReturn(Future.successful(Right(PreferenceFound(false, Some(email)))))
+            .thenReturn(Future.successful(Right(PreferenceFound(false, Some(email), paperless = None))))
           val res: Future[Result] = controller.activate(TestFixtures.sampleHostContext)(request)
 
           status(res) mustBe Ok.header.status
@@ -174,7 +174,7 @@ class ActivationControllerSpec
           val email = EmailPreference("test@test.com", false, false, false, None)
           reset(mockEntityResolverConnector)
           when(mockEntityResolverConnector.getPreferencesStatus(any())(any()))
-            .thenReturn(Future.successful(Right(PreferenceFound(false, Some(email)))))
+            .thenReturn(Future.successful(Right(PreferenceFound(false, Some(email), paperless = None))))
           val res: Future[Result] = controller.activate(TestFixtures.alreadyOptedInUrlHostContext)(request)
 
           status(res) mustBe OK
@@ -190,7 +190,8 @@ class ActivationControllerSpec
 
           reset(mockEntityResolverConnector)
           when(mockEntityResolverConnector.getPreferencesStatus(any())(any()))
-            .thenReturn(Future.successful(Right(PreferenceFound(false, Some(email), Some(lastUpdated)))))
+            .thenReturn(
+              Future.successful(Right(PreferenceFound(false, Some(email), Some(lastUpdated), paperless = None))))
           val res: Future[Result] = controller.activate(TestFixtures.sampleHostContext)(request)
 
           status(res) mustBe Ok.header.status
@@ -206,7 +207,8 @@ class ActivationControllerSpec
 
           reset(mockEntityResolverConnector)
           when(mockEntityResolverConnector.getPreferencesStatus(any())(any()))
-            .thenReturn(Future.successful(Right(PreferenceFound(false, Some(email), Some(lastUpdated)))))
+            .thenReturn(
+              Future.successful(Right(PreferenceFound(false, Some(email), Some(lastUpdated), paperless = None))))
           val res: Future[Result] = controller.activate(TestFixtures.sampleHostContext)(request)
 
           status(res) mustBe Ok.header.status
@@ -274,7 +276,7 @@ class ActivationControllerSpec
           val email = EmailPreference("test@test.com", false, false, false, None)
           reset(mockEntityResolverConnector)
           when(mockEntityResolverConnector.getPreferencesStatusByToken(any(), any(), any())(any()))
-            .thenReturn(Future.successful(Right(PreferenceFound(true, Some(email)))))
+            .thenReturn(Future.successful(Right(PreferenceFound(true, Some(email), paperless = None))))
           when(
             mockEntityResolverConnector
               .updateTermsAndConditions(is(TermsAndConditionsUpdate.fromLanguage(Some(Language.English))))(
@@ -299,7 +301,7 @@ class ActivationControllerSpec
           val email = EmailPreference("test@test.com", false, false, false, None)
           reset(mockEntityResolverConnector)
           when(mockEntityResolverConnector.getPreferencesStatusByToken(any(), any(), any())(any()))
-            .thenReturn(Future.successful(Right(PreferenceFound(true, Some(email)))))
+            .thenReturn(Future.successful(Right(PreferenceFound(true, Some(email), paperless = None))))
           when(
             mockEntityResolverConnector
               .updateTermsAndConditions(is(TermsAndConditionsUpdate.fromLanguage(Some(Language.Welsh))))(
@@ -326,7 +328,7 @@ class ActivationControllerSpec
           val email = EmailPreference("test@test.com", false, false, false, None)
           reset(mockEntityResolverConnector)
           when(mockEntityResolverConnector.getPreferencesStatusByToken(any(), any(), any())(any()))
-            .thenReturn(Future.successful(Right(PreferenceFound(false, Some(email)))))
+            .thenReturn(Future.successful(Right(PreferenceFound(false, Some(email), paperless = None))))
           val res: Future[Result] =
             controller.activateFromToken("mtdfbit", "token", TestFixtures.sampleHostContext)(request)
 
