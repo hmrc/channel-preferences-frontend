@@ -19,6 +19,8 @@ import uk.gov.hmrc.http.{ HeaderCarrier, SessionKeys }
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.time.DateTimeUtils
 import views.sa.prefs.helpers.DateFormat
+import org.scalatest.time.{ Millis, Seconds, Span }
+import org.scalatest.concurrent.{ AbstractPatienceConfiguration, PatienceConfiguration }
 
 trait TestUser {
   def userId = "SA0055"
@@ -33,6 +35,13 @@ trait TestUser {
 class TestCase
     extends PlaySpec with TestUser with GuiceOneServerPerSuite with WsScalaTestClient with ScalaFutures
     with IntegrationPatience {
+
+  private val itPatience: PatienceConfig = PatienceConfig(
+    timeout = scaled(Span(30, Seconds)),
+    interval = scaled(Span(200, Millis))
+  )
+
+  implicit override val patienceConfig: PatienceConfig = itPatience
 
   val applicatinCrypto = app.injector.instanceOf[ApplicationCrypto]
 

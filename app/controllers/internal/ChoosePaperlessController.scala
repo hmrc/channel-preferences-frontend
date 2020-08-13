@@ -373,7 +373,9 @@ class ChoosePaperlessController @Inject()(
       )
       .map { preferencesStatus =>
         auditChoice(AccountDetails, cohort, terms, email, preferencesStatus)
-        if (digital && !emailAlreadyStored) {
+        if (cohort.pageType == PageType.ReOptInPage) {
+          Redirect(routes.ManagePaperlessController.checkSettings(hostContext))
+        } else if (digital && !emailAlreadyStored) {
           val encryptedEmail = email map (emailAddress => Encrypted(EmailAddress(emailAddress)))
           Redirect(routes.ChoosePaperlessController.displayNearlyDone(encryptedEmail, hostContext))
         } else Redirect(hostContext.returnUrl)
