@@ -19,4 +19,19 @@ case object PageType extends Enum[PageType] with PlayJsonEnum[PageType] {
 
   case object ReOptInPage extends PageType
 
+  case object AndroidOptInPage extends PageType
+
+  case object AndroidReOptInPage extends PageType
+
+  case object AndroidOptOutPage extends PageType
+
+  case object AndroidReOptOutPage extends PageType
+
+  case object IosOptInPage extends PageType
+
+  case object IosReOptInPage extends PageType
+
+  case object IosOptOutPage extends PageType
+
+  case object IosReOptOutPage extends PageType
 }
