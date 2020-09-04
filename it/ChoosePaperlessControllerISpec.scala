@@ -6,7 +6,7 @@
 import connectors.PreferenceResponse
 import controllers.internal.IPage7
 import model.HostContext
-import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.concurrent.{ IntegrationPatience, ScalaFutures }
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -19,7 +19,8 @@ import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.ExecutionContext.Implicits._
 
-class ChoosePaperlessControllerISpec extends PlaySpec with GuiceOneAppPerSuite with ScalaFutures {
+class ChoosePaperlessControllerISpec
+    extends PlaySpec with GuiceOneAppPerSuite with ScalaFutures with IntegrationPatience {
 
   override lazy val app = new GuiceApplicationBuilder()
     .configure(

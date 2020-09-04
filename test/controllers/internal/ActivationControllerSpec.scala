@@ -8,14 +8,13 @@ package controllers.internal
 import _root_.connectors._
 import helpers.TestFixtures
 import model.Language
-import model.Language.English
 import org.joda.time.{ DateTime, DateTimeZone }
 import org.jsoup.Jsoup
 import org.mockito.Matchers.{ any, eq => is }
 import org.mockito.Mockito.{ when, _ }
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
@@ -35,10 +34,12 @@ class ActivationControllerSpec
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  val gracePeriod = 10
-  val request = FakeRequest()
-  val mockEntityResolverConnector = mock[EntityResolverConnector]
-  val mockAuthConnector = mock[AuthConnector]
+  private val gracePeriod = 10
+  private val request = FakeRequest()
+  private val mockEntityResolverConnector = mock[EntityResolverConnector]
+  private val mockAuthConnector = mock[AuthConnector]
+  private val updatedAtLong = 1599130916579L
+
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder()
       .configure(
@@ -50,13 +51,13 @@ class ActivationControllerSpec
         bind[EntityResolverConnector].toInstance(mockEntityResolverConnector)
       )
       .build()
-  val controller = app.injector.instanceOf[ActivationController]
+  private val controller = app.injector.instanceOf[ActivationController]
 
   type AuthRetrievals =
     Option[Name] ~ LoginTimes ~ Option[String] ~ Option[String] ~ Option[AffinityGroup] ~ ConfidenceLevel
 
-  val currentLogin = new DateTime(2015, 1, 1, 12, 0).withZone(DateTimeZone.UTC)
-  val previousLogin = new DateTime(2012, 1, 1, 12, 0).withZone(DateTimeZone.UTC)
+  private val currentLogin = new DateTime(2015, 1, 1, 12, 0).withZone(DateTimeZone.UTC)
+  private val previousLogin = new DateTime(2012, 1, 1, 12, 0).withZone(DateTimeZone.UTC)
 
   val retrievalResult
     : Future[Option[Name] ~ LoginTimes ~ Option[String] ~ Option[String] ~ Option[AffinityGroup] ~ ConfidenceLevel] =
@@ -80,10 +81,10 @@ class ActivationControllerSpec
   "The Activation with an AuthContext" should {
     "store the current user's language stored in the journey cookie when there is no language setting in preferences and" should {
       "return a json body with optedIn set to true if preference is found and opted-in and no alreadyOptedInUrl is present" in {
-        val email = EmailPreference("test@test.com", false, false, false, None)
+        val email = EmailPreference("test@test.com", isVerified = false, hasBounces = false, mailboxFull = false, None)
         reset(mockEntityResolverConnector)
         when(mockEntityResolverConnector.getPreferencesStatus(any())(any()))
-          .thenReturn(Future.successful(Right(PreferenceFound(true, Some(email), paperless = None))))
+          .thenReturn(Future.successful(Right(PreferenceFound(accepted = true, Some(email), paperless = None))))
         when(
           mockEntityResolverConnector
             .updateTermsAndConditions(is(TermsAndConditionsUpdate.fromLanguage(Some(Language.English))))(
@@ -101,10 +102,10 @@ class ActivationControllerSpec
             is(TestFixtures.sampleHostContext))
       }
       "redirect to the alreadyOptedInUrl if preference is found and opted-in and an alreadyOptedInUrl is present" in {
-        val email = EmailPreference("test@test.com", false, false, false, None)
+        val email = EmailPreference("test@test.com", isVerified = false, hasBounces = false, mailboxFull = false, None)
         reset(mockEntityResolverConnector)
         when(mockEntityResolverConnector.getPreferencesStatus(any())(any()))
-          .thenReturn(Future.successful(Right(PreferenceFound(true, Some(email), paperless = None))))
+          .thenReturn(Future.successful(Right(PreferenceFound(accepted = true, Some(email), paperless = None))))
         when(
           mockEntityResolverConnector
             .updateTermsAndConditions(is(TermsAndConditionsUpdate.fromLanguage(Some(Language.Welsh))))(
@@ -128,10 +129,16 @@ class ActivationControllerSpec
 
       "not attempt to store in preferences the user's language held in the user's cookie when there is an existing language setting in preferences and" should {
         "return a json body with optedIn set to true if preference is found, opted-in and no alreadyOptedInUrl is present" in {
-          val email = EmailPreference("test@test.com", false, false, false, None, Some(Language.Welsh))
+          val email = EmailPreference(
+            "test@test.com",
+            isVerified = false,
+            hasBounces = false,
+            mailboxFull = false,
+            None,
+            Some(Language.Welsh))
           reset(mockEntityResolverConnector)
           when(mockEntityResolverConnector.getPreferencesStatus(any())(any()))
-            .thenReturn(Future.successful(Right(PreferenceFound(true, Some(email), paperless = None))))
+            .thenReturn(Future.successful(Right(PreferenceFound(accepted = true, Some(email), paperless = None))))
           val cookies = Cookie("PLAY_LANG", "cy")
           val res: Future[Result] = controller.activate(TestFixtures.sampleHostContext)(request.withCookies(cookies))
           status(res) mustBe Ok.header.status
@@ -141,10 +148,16 @@ class ActivationControllerSpec
         }
 
         "redirect to the alreadyOptedInUrl if preference is found, opted-in and an alreadyOptedInUrl is present" in {
-          val email = EmailPreference("test@test.com", false, false, false, None, Some(Language.English))
+          val email = EmailPreference(
+            "test@test.com",
+            isVerified = false,
+            hasBounces = false,
+            mailboxFull = false,
+            None,
+            Some(Language.English))
           reset(mockEntityResolverConnector)
           when(mockEntityResolverConnector.getPreferencesStatus(any())(any()))
-            .thenReturn(Future.successful(Right(PreferenceFound(true, Some(email), paperless = None))))
+            .thenReturn(Future.successful(Right(PreferenceFound(accepted = true, Some(email), paperless = None))))
           val cookies = Cookie("PLAY_LANG", "cy")
           val res: Future[Result] =
             controller.activate(TestFixtures.alreadyOptedInUrlHostContext)(request.withCookies(cookies))
@@ -160,10 +173,11 @@ class ActivationControllerSpec
 
       "not attempt to store in preferences the user's language held in the user's cookie when user is not opted-in and" should {
         "return a json body with optedIn set to false if preference is found, opted-out and no alreadyOptedInUrl is present" in {
-          val email = EmailPreference("test@test.com", false, false, false, None)
+          val email =
+            EmailPreference("test@test.com", isVerified = false, hasBounces = false, mailboxFull = false, None)
           reset(mockEntityResolverConnector)
           when(mockEntityResolverConnector.getPreferencesStatus(any())(any()))
-            .thenReturn(Future.successful(Right(PreferenceFound(false, Some(email), paperless = None))))
+            .thenReturn(Future.successful(Right(PreferenceFound(accepted = false, Some(email), paperless = None))))
           val res: Future[Result] = controller.activate(TestFixtures.sampleHostContext)(request)
 
           status(res) mustBe Ok.header.status
@@ -171,10 +185,11 @@ class ActivationControllerSpec
         }
 
         "return OK if customer is opted-out but with existing email" in {
-          val email = EmailPreference("test@test.com", false, false, false, None)
+          val email =
+            EmailPreference("test@test.com", isVerified = false, hasBounces = false, mailboxFull = false, None)
           reset(mockEntityResolverConnector)
           when(mockEntityResolverConnector.getPreferencesStatus(any())(any()))
-            .thenReturn(Future.successful(Right(PreferenceFound(false, Some(email), paperless = None))))
+            .thenReturn(Future.successful(Right(PreferenceFound(accepted = false, Some(email), paperless = None))))
           val res: Future[Result] = controller.activate(TestFixtures.alreadyOptedInUrlHostContext)(request)
 
           status(res) mustBe OK
@@ -186,12 +201,13 @@ class ActivationControllerSpec
         "return a json body with optedIn set to false if T&C accepted is false and updatedAt is within the grace period" in {
           val now = DateTime.now
           val lastUpdated = now.minusMinutes(gracePeriod - gracePeriod / 2)
-          val email = EmailPreference("test@test.com", false, false, false, None)
+          val email =
+            EmailPreference("test@test.com", isVerified = false, hasBounces = false, mailboxFull = false, None)
 
           reset(mockEntityResolverConnector)
           when(mockEntityResolverConnector.getPreferencesStatus(any())(any()))
-            .thenReturn(
-              Future.successful(Right(PreferenceFound(false, Some(email), Some(lastUpdated), paperless = None))))
+            .thenReturn(Future.successful(
+              Right(PreferenceFound(accepted = false, Some(email), Some(lastUpdated), paperless = None))))
           val res: Future[Result] = controller.activate(TestFixtures.sampleHostContext)(request)
 
           status(res) mustBe Ok.header.status
@@ -203,12 +219,13 @@ class ActivationControllerSpec
         "return a json body with optedIn set to false if T&C accepted is false and updatedAt is outside of the grace period" in {
           val now = DateTime.now
           val lastUpdated = now.minusMinutes(gracePeriod + gracePeriod / 2)
-          val email = EmailPreference("test@test.com", false, false, false, None)
+          val email =
+            EmailPreference("test@test.com", isVerified = false, hasBounces = false, mailboxFull = false, None)
 
           reset(mockEntityResolverConnector)
           when(mockEntityResolverConnector.getPreferencesStatus(any())(any()))
-            .thenReturn(
-              Future.successful(Right(PreferenceFound(false, Some(email), Some(lastUpdated), paperless = None))))
+            .thenReturn(Future.successful(
+              Right(PreferenceFound(accepted = false, Some(email), Some(lastUpdated), paperless = None))))
           val res: Future[Result] = controller.activate(TestFixtures.sampleHostContext)(request)
 
           status(res) mustBe Ok.header.status
@@ -220,7 +237,8 @@ class ActivationControllerSpec
 
       "not attempt to store in preferences the user's language held in the user's cookie when no preferences found and" should {
         "return PRECONDITION failed if no preferences are found and no alreadyOptedInUrl is present" in {
-          val email = EmailPreference("test@test.com", false, false, false, None)
+          val email =
+            EmailPreference("test@test.com", isVerified = false, hasBounces = false, mailboxFull = false, None)
           reset(mockEntityResolverConnector)
           when(mockEntityResolverConnector.getPreferencesStatus(any())(any()))
             .thenReturn(Future.successful(Right(PreferenceNotFound(Some(email)))))
@@ -234,7 +252,8 @@ class ActivationControllerSpec
         }
 
         "return PRECONDITION failed if no preferences are found and an alreadyOptedInUrl is present" in {
-          val email = EmailPreference("test@test.com", false, false, false, None)
+          val email =
+            EmailPreference("test@test.com", isVerified = false, hasBounces = false, mailboxFull = false, None)
           reset(mockEntityResolverConnector)
           when(mockEntityResolverConnector.getPreferencesStatus(any())(any()))
             .thenReturn(Future.successful(Right(PreferenceNotFound(Some(email)))))
@@ -260,7 +279,7 @@ class ActivationControllerSpec
       }
 
       "succeed when the service is mtdfbit" in {
-        val email = EmailPreference("test@test.com", false, false, false, None)
+        val email = EmailPreference("test@test.com", isVerified = false, hasBounces = false, mailboxFull = false, None)
         when(mockEntityResolverConnector.getPreferencesStatusByToken(any(), any(), any())(any()))
           .thenReturn(Future.successful(Right(PreferenceNotFound(Some(email)))))
         val res: Future[Result] =
@@ -271,12 +290,53 @@ class ActivationControllerSpec
           """{"redirectUserTo":"/paperless/choose/cohort/mtdfbit/token?email=""")
       }
 
+      "succeed when the preferences retrieved contain a majorVersion (opt-in feature flag on)" in {
+        when(mockEntityResolverConnector.getPreferencesStatusByToken(any(), any(), any())(any()))
+          .thenReturn(Future.successful(Right(PreferenceFound(
+            accepted = true,
+            Some(EmailPreference(
+              "test@test.com",
+              isVerified = true,
+              hasBounces = false,
+              mailboxFull = false,
+              None,
+              Some(Language.English))),
+            Some(new DateTime(updatedAtLong)),
+            majorVersion = Some(1),
+            paperless = Some(true)
+          ))))
+        val res: Future[Result] =
+          controller.activateFromToken("mtdfbit", "token", TestFixtures.sampleHostContext)(request)
+        status(res) mustBe Ok.header.status
+      }
+
+      "succeed when the preferences retrieved do not contain a majorVersion (opt-in feature flag off)" in {
+        when(mockEntityResolverConnector.getPreferencesStatusByToken(any(), any(), any())(any()))
+          .thenReturn(Future.successful(Right(PreferenceFound(
+            accepted = true,
+            Some(EmailPreference(
+              "test@test.com",
+              isVerified = true,
+              hasBounces = false,
+              mailboxFull = false,
+              None,
+              Some(Language.English))),
+            Some(new DateTime(updatedAtLong)),
+            majorVersion = None,
+            paperless = Some(true)
+          ))))
+        val res: Future[Result] =
+          controller.activateFromToken("mtdfbit", "token", TestFixtures.sampleHostContext)(request)
+        status(res) mustBe Ok.header.status
+      }
+
       "store the current user's language stored in the journey cookie when there is no language setting in preferences and" should {
         "return a json body with optedIn set to true if preference is found and opted-in and no alreadyOptedInUrl is present but without a language setting" in {
-          val email = EmailPreference("test@test.com", false, false, false, None)
+          val email =
+            EmailPreference("test@test.com", isVerified = false, hasBounces = false, mailboxFull = false, None)
           reset(mockEntityResolverConnector)
           when(mockEntityResolverConnector.getPreferencesStatusByToken(any(), any(), any())(any()))
-            .thenReturn(Future.successful(Right(PreferenceFound(true, Some(email), paperless = None))))
+            .thenReturn(Future.successful(Right(PreferenceFound(accepted = true, Some(email), paperless = None))))
           when(
             mockEntityResolverConnector
               .updateTermsAndConditions(is(TermsAndConditionsUpdate.fromLanguage(Some(Language.English))))(
@@ -298,10 +358,11 @@ class ActivationControllerSpec
         }
 
         "return a json body with optedIn set to true if preference is found and opted-in and an alreadyOptedInUrl is present but without a language setting" in {
-          val email = EmailPreference("test@test.com", false, false, false, None)
+          val email =
+            EmailPreference("test@test.com", isVerified = false, hasBounces = false, mailboxFull = false, None)
           reset(mockEntityResolverConnector)
           when(mockEntityResolverConnector.getPreferencesStatusByToken(any(), any(), any())(any()))
-            .thenReturn(Future.successful(Right(PreferenceFound(true, Some(email), paperless = None))))
+            .thenReturn(Future.successful(Right(PreferenceFound(accepted = true, Some(email), paperless = None))))
           when(
             mockEntityResolverConnector
               .updateTermsAndConditions(is(TermsAndConditionsUpdate.fromLanguage(Some(Language.Welsh))))(
@@ -325,10 +386,11 @@ class ActivationControllerSpec
 
       "not attempt to store in preferences the user's language held in the user's cookie when user has not accepted T&C and" should {
         "return a json body with optedIn set to false and a return sign up URL if preference is found and opted-out" in {
-          val email = EmailPreference("test@test.com", false, false, false, None)
+          val email =
+            EmailPreference("test@test.com", isVerified = false, hasBounces = false, mailboxFull = false, None)
           reset(mockEntityResolverConnector)
           when(mockEntityResolverConnector.getPreferencesStatusByToken(any(), any(), any())(any()))
-            .thenReturn(Future.successful(Right(PreferenceFound(false, Some(email), paperless = None))))
+            .thenReturn(Future.successful(Right(PreferenceFound(accepted = false, Some(email), paperless = None))))
           val res: Future[Result] =
             controller.activateFromToken("mtdfbit", "token", TestFixtures.sampleHostContext)(request)
 
@@ -341,7 +403,7 @@ class ActivationControllerSpec
       }
 
       "not attempt to store in preferences the user's language held in the user's cookie when no preferences found" in {
-        val email = EmailPreference("test@test.com", false, false, false, None)
+        val email = EmailPreference("test@test.com", isVerified = false, hasBounces = false, mailboxFull = false, None)
         reset(mockEntityResolverConnector)
         when(mockEntityResolverConnector.getPreferencesStatusByToken(any(), any(), any())(any()))
           .thenReturn(Future.successful(Right(PreferenceNotFound(Some(email)))))

@@ -105,7 +105,7 @@ class ActivationController @Inject()(
           .redirectToDisplayFormWithCohortBySvc(svc, token, encryptedEmail, hostContext)
           .url
         PreconditionFailed(Json.obj("redirectUserTo" -> redirectUrl))
-      case Right(PreferenceFound(true, emailPreference, _, None, _)) =>
+      case Right(PreferenceFound(true, emailPreference, _, _, _)) =>
         Ok(
           Json.obj(
             "optedIn"       -> true,
