@@ -49,7 +49,7 @@ class ManagePaperlessController @Inject()(
   }
 
   private[controllers] def _submitStopPaperless(lang: Some[Language])(implicit request: AuthenticatedRequest[_], hostContext: HostContext, hc:HeaderCarrier): Future[Result] =
-    entityResolverConnector.updateTermsAndConditions(TermsAndConditionsUpdate.from((GenericTerms, TermsAccepted(false)), email = None, false, lang)).map(_ =>
+    entityResolverConnector.updateTermsAndConditions(TermsAndConditionsUpdate.from((GenericTerms, TermsAccepted(false, Some(OptInPage.from(CohortCurrent.cysConfirmPage)))), email = None, false, lang)).map(_ =>
       Redirect(routes.ManagePaperlessController.checkSettings(hostContext))
     )
 

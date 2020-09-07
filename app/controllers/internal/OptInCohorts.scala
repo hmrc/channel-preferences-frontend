@@ -13,8 +13,6 @@ import play.api.libs.json._
 import play.api.mvc.PathBindable
 import uk.gov.hmrc.abtest.Cohort
 
-import scala.util.Try
-
 sealed trait OptInCohort extends Cohort {
   val id: Int
   val name: String
@@ -36,11 +34,11 @@ object OptInCohort {
     fromId,
     _.map(_.id).getOrElse(throw new IllegalArgumentException("Cannot generate a URL for an unknown Cohort")))
 
-  implicit val cohortNumWrites = Writes[OptInCohort] { optInCohort =>
+  implicit val cohortNumWrites: Writes[OptInCohort] = Writes[OptInCohort] { optInCohort =>
     JsNumber(optInCohort.id)
   }
 
-  val cohortWrites = Writes[OptInCohort] { optInCohort =>
+  val cohortWrites: Writes[OptInCohort] = Writes[OptInCohort] { optInCohort =>
     Json.obj(
       "id"           -> optInCohort.id,
       "name"         -> optInCohort.name,
@@ -98,6 +96,17 @@ object ReOptInPage10 extends OptInCohort {
   override val minorVersion: Int = 0
   override val description: String = ""
   override val date: LocalDate = new LocalDate("2020-07-02")
+}
+
+object CYSConfirmPage47 extends OptInCohort {
+  override val id: Int = 47
+  override val name: String = "CYSConfirmPage47"
+  override val terms: TermsType = GenericTerms
+  override val pageType: PageType = PageType.CYSConfirmPage
+  override val majorVersion: Int = 1
+  override val minorVersion: Int = 0
+  override val description: String = ""
+  override val date: LocalDate = new LocalDate("2020-09-07")
 }
 
 // Android 0.0 ////////////////////////////////////////////////////////////////
@@ -443,7 +452,8 @@ object IosReOptOutPage42 extends OptInCohort {
 // end of Ios 1.2 ///////////////////////////////////////////////////////
 
 object CohortCurrent {
-  val ipage = IPage8
-  val tcpage = TCPage9
-  val reoptinpage = ReOptInPage10
+  val ipage: OptInCohort = IPage8
+  val tcpage: OptInCohort = TCPage9
+  val reoptinpage: OptInCohort = ReOptInPage10
+  val cysConfirmPage: OptInCohort = CYSConfirmPage47
 }

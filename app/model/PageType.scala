@@ -34,4 +34,6 @@ case object PageType extends Enum[PageType] with PlayJsonEnum[PageType] {
   case object IosOptOutPage extends PageType
 
   case object IosReOptOutPage extends PageType
+
+  case object CYSConfirmPage extends PageType
 }
