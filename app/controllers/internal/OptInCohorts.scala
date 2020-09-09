@@ -451,6 +451,52 @@ object IosReOptOutPage42 extends OptInCohort {
 }
 // end of Ios 1.2 ///////////////////////////////////////////////////////
 
+// Android 1.3 ////////////////////////////////////////////////////////////////
+object AndroidOptInPage43 extends OptInCohort {
+  override val id: Int = 43
+  override val name: String = "AndroidOptInPage43"
+  override val terms: TermsType = GenericTerms
+  override val pageType: PageType = PageType.AndroidOptInPage
+  override val majorVersion: Int = 1
+  override val minorVersion: Int = 3
+  override val description: String = ""
+  override val date: LocalDate = new LocalDate("2020-01-01")
+}
+object AndroidOptOutPage44 extends OptInCohort {
+  override val id: Int = 44
+  override val name: String = "AndroidOptOutPage44"
+  override val terms: TermsType = GenericTerms
+  override val pageType: PageType = PageType.AndroidOptOutPage
+  override val majorVersion: Int = 1
+  override val minorVersion: Int = 3
+  override val description: String = ""
+  override val date: LocalDate = new LocalDate("2020-01-01")
+}
+// end of Android 1.3 ///////////////////////////////////////////////////////
+
+// Ios 1.3 ////////////////////////////////////////////////////////////////
+object IosOptInPage45 extends OptInCohort {
+  override val id: Int = 45
+  override val name: String = "IosOptInPage45"
+  override val terms: TermsType = GenericTerms
+  override val pageType: PageType = PageType.IosOptInPage
+  override val majorVersion: Int = 1
+  override val minorVersion: Int = 3
+  override val description: String = ""
+  override val date: LocalDate = new LocalDate("2020-01-01")
+}
+object IosOptOutPage46 extends OptInCohort {
+  override val id: Int = 46
+  override val name: String = "IosOptOutPage46"
+  override val terms: TermsType = GenericTerms
+  override val pageType: PageType = PageType.IosOptOutPage
+  override val majorVersion: Int = 1
+  override val minorVersion: Int = 3
+  override val description: String = ""
+  override val date: LocalDate = new LocalDate("2020-01-01")
+}
+// end of Ios 1.3 ///////////////////////////////////////////////////////
+
 object CohortCurrent {
   val ipage: OptInCohort = IPage8
   val tcpage: OptInCohort = TCPage9
