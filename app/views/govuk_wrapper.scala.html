@@ -9,10 +9,11 @@
 @import uk.gov.hmrc.play.views.html.helpers._
 
 @import uk.gov.hmrc.govukfrontend.views.html.components._
+@import config.AccessibilityStatementConfig
 
 @import scala.collection.immutable
 
-@this(ytaConfig: config.YtaConfig)
+@this(ytaConfig: config.YtaConfig, accessibilityConfig: AccessibilityStatementConfig)
 @(appConfig: config.AppConfig = ytaConfig,
   title: String,
   navTitle: String,
@@ -103,4 +104,15 @@
       serviceInfo = serviceInfo,
       sidebar = sidebar)
 }
-@hmrcGovUkTemplate(Some(title), bodyClasses)(head, bodyEnd, insideHeader, afterHeader, footerTop, Some(uiLayouts.footer_links(None)), true)(content)
+
+
+@accessibilityLink =  {
+     <li>
+       <a href='@accessibilityConfig.url'
+       data-sso="false"
+       data-journey-click="footer:Click:Accessibility">
+           @Messages("footer.links.accessibility.text")
+       </a>
+     </li>
+}
+@hmrcGovUkTemplate(Some(title), bodyClasses)(head, bodyEnd, insideHeader, afterHeader, footerTop, Some(uiLayouts.footer_links(Some(accessibilityLink))), true)(content)
