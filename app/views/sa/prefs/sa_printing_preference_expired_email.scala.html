@@ -7,18 +7,20 @@
 @import play.twirl.api.HtmlFormat
 
 @import controllers.ExternalUrls
-@this(externalUrls: ExternalUrls, mainTemplate: main)
+@this(mainWithHeaders: views.html.main_with_headers, externalUrls: ExternalUrls)
 @()(implicit request: AuthenticatedRequest[_], messages: Messages)
 
 
 @import uk.gov.hmrc.urls.Link
 
-@mainTemplate(title = Messages("sa_printing_preference.token.expired.title"), navTitle = Some(""), navLinks = Some(HtmlFormat.empty) ) {
+@mainWithHeaders(title = Messages("sa_printing_preference.token.expired.title")) {
     <header class="page-header">
-        <h1 id="failure-heading">@Messages("sa_printing_preference.verification.heading.expired")</h1>
+        <h1 id="failure-heading" class="govuk-heading-xl">@Messages("sa_printing_preference.verification.heading.expired")</h1>
     </header>
-        <p id="link-to-home">@Link.toInternalPage(
+    <p id="link-to-home" class="govuk-body">
+        @Link.toInternalPage(
             url = externalUrls.businessTaxHome,
             value = Some(Messages("sa_printing_preference.verification.action"))).toHtml
-            @Messages("sa_printing_preference.verification.action_text")</p>
+            @Messages("sa_printing_preference.verification.action_text")
+    </p>
 }

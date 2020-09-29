@@ -26,17 +26,15 @@ class AccountDetailsUpdateEmailAddressSpec
       val document = Jsoup.parse(
         template(currentEmail, form)(engRequest, messagesInEnglish(), TestFixtures.sampleHostContext).toString())
 
-      document.getElementsByClass("organisation-logo").first().text() mustBe "HM Revenue & Customs"
       document.getElementsByTag("title").first().text() mustBe "Change your email address"
       document.getElementsByTag("h1").get(0).text() mustBe "Change your email address"
-      document.getElementsByTag("p").get(1).childNodes().get(0).toString mustBe "Emails are sent to "
+      document.getElementsByTag("p").get(0).childNodes().get(0).toString mustBe "Emails are sent to "
       document.getElementById("submit-email-button").text() mustBe "Change email address"
       document.getElementById("cancel-link").text() mustBe "Cancel"
-      document.getElementsByAttributeValue("for", "email.main").first().child(0).text() mustBe "New email address"
+      document.getElementsByAttributeValue("for", "email.main").first().text() mustBe "New email address"
       document
         .getElementsByAttributeValue("for", "email.confirm")
         .first()
-        .child(0)
         .text() mustBe "Confirm new email address"
       document
         .getElementById("cancel-link")
@@ -53,17 +51,15 @@ class AccountDetailsUpdateEmailAddressSpec
       val document = Jsoup.parse(
         template(currentEmail, form)(welshRequest, messagesInWelsh(), TestFixtures.sampleHostContext).toString())
 
-      document.getElementsByClass("organisation-logo").first().text() mustBe "Cyllid a Thollau EM"
       document.getElementsByTag("title").first().text() mustBe "Newid eich cyfeiriad e-bost"
       document.getElementsByTag("h1").get(0).text() mustBe "Newid eich cyfeiriad e-bost"
-      document.getElementsByTag("p").get(1).childNodes().get(0).toString mustBe "Anfonir e-byst at "
+      document.getElementsByTag("p").get(0).childNodes().get(0).toString mustBe "Anfonir e-byst at "
       document.getElementById("submit-email-button").text() mustBe "Newid y cyfeiriad e-bost"
       document.getElementById("cancel-link").text() mustBe "Canslo"
-      document.getElementsByAttributeValue("for", "email.main").first().child(0).text() mustBe "Cyfeiriad e-bost newydd"
+      document.getElementsByAttributeValue("for", "email.main").first().text() mustBe "Cyfeiriad e-bost newydd"
       document
         .getElementsByAttributeValue("for", "email.confirm")
         .first()
-        .child(0)
         .text() mustBe "Cadarnhau'r cyfeiriad e-bost newydd"
 
       document

@@ -18,27 +18,26 @@
 
 @mainWithHeaders(title = Messages("manage.paperless.email.notification.header")) {
 
- <h1>@Messages("manage.paperless.email.delivery.failed.header", emailPref.email)</h1>
+    <h1 class="govuk-heading-xl">@Messages("manage.paperless.email.delivery.failed.header", emailPref.email)</h1>
 
- <p>@Messages("manage.paperless.email.delivery.failed.para1")</p>
+    <p class="govuk-body">@Messages("manage.paperless.email.delivery.failed.para1")</p>
 
- <p><strong>@Messages("manage.paperless.email.delivery.failed.sub-header")</strong></p>
+    <p class="govuk-body"><strong>@Messages("manage.paperless.email.delivery.failed.sub-header")</strong></p>
 
- <p>@Messages("manage.paperless.email.delivery.failed.options"):</p>
+    <p class="govuk-body">@Messages("manage.paperless.email.delivery.failed.options"):</p>
 
- <ul class="list list-bullet">
-     <li>@Messages("manage.paperless.email.delivery.failed.check.account.text")&nbsp;<a href="@changeEmailAddressLink">@Messages("manage.paperless.email.delivery.failed.confirm.email.link.text")</a></li>
-     <li><a href="@changeEmailAddressLink">@Messages("manage.paperless.email.delivery.failed.change.email.link.text")</a></li>
- </ul>
+    <ul class="list list-bullet govuk-body">
+         <li>@Messages("manage.paperless.email.delivery.failed.check.account.text")&nbsp;<a href="@changeEmailAddressLink">@Messages("manage.paperless.email.delivery.failed.confirm.email.link.text")</a></li>
+         <li><a href="@changeEmailAddressLink">@Messages("manage.paperless.email.delivery.failed.change.email.link.text")</a></li>
+    </ul>
 
- <br/>
-
- @Link.toInternalPage(
-     cssClasses=Some("button"),
-     id = Some("sa-home-link"),
-     url = controllers.internal.routes.ManagePaperlessController.checkSettings(hostContext).url,
-     value = Some(Messages("manage.paperless.check.settings.linkText"))
- ).toHtml
-
+    <p class="govuk-body">
+         @Link.toInternalPage(
+             cssClasses=Some("button"),
+             id = Some("sa-home-link"),
+             url = controllers.internal.routes.ManagePaperlessController.checkSettings(hostContext).url,
+             value = Some(Messages("manage.paperless.check.settings.linkText"))
+         ).toHtml
+    </p>
 }
 

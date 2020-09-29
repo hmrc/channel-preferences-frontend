@@ -27,7 +27,7 @@ class SaPrintingPreferenceExpiredEmailSpec
       document
         .getElementById("link-to-home")
         .childNodes()
-        .get(1)
+        .get(2)
         .toString
         .trim() mustBe "and request a new verification link"
     }
@@ -39,13 +39,13 @@ class SaPrintingPreferenceExpiredEmailSpec
       document
         .getElementById("link-to-home")
         .childNodes()
-        .get(0)
+        .get(1)
         .childNode(0)
         .toString mustBe "Yn eich blaen i'ch cyfrif ar-lein gyda CThEM"
       document
         .getElementById("link-to-home")
         .childNodes()
-        .get(1)
+        .get(2)
         .toString
         .trim() mustBe "a gwnewch gais am gysylltiad dilysu newydd"
     }

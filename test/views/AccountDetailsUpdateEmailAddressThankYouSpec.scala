@@ -22,20 +22,18 @@ class AccountDetailsUpdateEmailAddressThankYouSpec
   "account details update emaill address thank you template" should {
     "render the correct content in english" in {
       val currentEmail = ObfuscatedEmailAddress("a@a.com")
-      val foo = template(currentEmail)(engRequest, messagesInEnglish(), TestFixtures.sampleHostContext).toString()
       val document =
         Jsoup.parse(template(currentEmail)(engRequest, messagesInEnglish(), TestFixtures.sampleHostContext).toString())
 
-      document.getElementsByClass("organisation-logo").first().text() mustBe "HM Revenue & Customs"
       document.getElementsByTag("title").first().text() mustBe "Verify your new email address"
       document.getElementsByTag("h1").get(0).text() mustBe "Verify your new email address"
-      document.getElementsByTag("p").get(1).childNodes().get(0).toString mustBe "An email has been sent to "
+      document.getElementsByTag("p").get(0).childNodes().get(0).toString mustBe "An email has been sent to "
       document
         .getElementById("verification-mail-message")
         .text() mustBe "Click on the link in the email to verify the address."
       document
         .getElementsByTag("p")
-        .get(3)
+        .get(2)
         .text() mustBe "Until you do this, emails will continue to go to your old address."
       document
         .getElementById("return-to-dashboard-button")
@@ -50,16 +48,15 @@ class AccountDetailsUpdateEmailAddressThankYouSpec
       val document =
         Jsoup.parse(template(currentEmail)(welshRequest, messagesInWelsh(), TestFixtures.sampleHostContext).toString())
 
-      document.getElementsByClass("organisation-logo").first().text() mustBe "Cyllid a Thollau EM"
       document.getElementsByTag("title").first().text() mustBe "Dilysu'ch cyfeiriad e-bost newydd"
       document.getElementsByTag("h1").get(0).text() mustBe "Dilysu'ch cyfeiriad e-bost newydd"
-      document.getElementsByTag("p").get(1).childNodes().get(0).toString mustBe "Anfonwyd e-bost at "
+      document.getElementsByTag("p").get(0).childNodes().get(0).toString mustBe "Anfonwyd e-bost at "
       document
         .getElementById("verification-mail-message")
         .text() mustBe "Cliciwch ar y cysylltiad yn yr e-bost er mwyn dilysu'r cyfeiriad."
       document
         .getElementsByTag("p")
-        .get(3)
+        .get(2)
         .text() mustBe "Hyd nes eich bod yn gwneud hyn, bydd e-byst yn dal i gael eu hanfon i'ch hen gyfeiriad"
       document
         .getElementById("return-to-dashboard-button")

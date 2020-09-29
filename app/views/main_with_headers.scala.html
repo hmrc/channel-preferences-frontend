@@ -3,25 +3,54 @@
  *
  *@
 
+@import config.AppConfig
+@import uk.gov.hmrc.govukfrontend.views.html.layouts.govukLayout
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+@import uk.gov.hmrc.hmrcfrontend.views.html.components.{Header, HmrcHeader}
 @import controllers.auth.AuthenticatedRequest
 @import play.twirl.api.HtmlFormat
 @import play.api.i18n.Messages.Implicits._
-@this(mainTemplate:main, headerNavLinks : views.html.includes.header_nav_links)
-@(title: String,
-        navTitle: String = "",
-        betaBanner: Html = HtmlFormat.empty,
-        sidebarLinks: Option[Html] = None,
-        contentHeader: Option[Html] = None,
-        bodyClasses: Option[String] = None,
-        mainClass: Option[String] = None)(mainContent: Html)(implicit  request: AuthenticatedRequest[_] , messages: Messages)
+@import controllers._
 
-@mainTemplate(
-        title = title,
-        navTitle = Some(navTitle),
-        navLinks = Some(headerNavLinks()),
-        betaBanner = betaBanner,
-        sidebarLinks = sidebarLinks,
-        contentHeader = contentHeader,
-        bodyClasses = bodyClasses,
-        mainClass = mainClass
-    )(mainContent = mainContent)
+@import uk.gov.hmrc.hmrcfrontend.views.html.components.implicits._
+@import uk.gov.hmrc.govukfrontend.views.html.components.implicits._
+
+@this(
+    govukLayout: govukLayout,
+    govukBackLink: GovukBackLink,
+    hmrcHeader: HmrcHeader,
+    hmrcFooter: HmrcFooter,
+    head: head,
+    scripts: scripts,
+    hmrcLanguageSelect: HmrcLanguageSelect,
+    externalUrls: controllers.ExternalUrls
+)
+
+@(title: String, serviceName: Option[String] = None)(mainContent: Html)(implicit request: AuthenticatedRequest[_], messages: Messages)
+
+@headerBlock = {
+    @hmrcHeader(Header(
+        serviceName = serviceName,
+        containerClasses = "govuk-width-container",
+        signOutHref = Some(externalUrls.survey)
+    ))
+}
+
+@beforeContentBlock = {
+    @hmrcLanguageSelect(LanguageSelect(
+        if (messages.lang.code == "cy") Cy else En,
+        (En, "/help/switch-to-english"),
+        (Cy, "/help/switch-to-welsh")
+    ))
+    <nav aria-label="back-link">
+        @govukBackLink(BackLink(href = "javascript:history.back()", content = Text(Messages("app.common.back"))))
+    </nav>
+}
+
+@govukLayout(
+    pageTitle = Some(title),
+    headBlock = Some(head()),
+    headerBlock = Some(headerBlock),
+    beforeContentBlock = Some(beforeContentBlock),
+    footerBlock = Some(hmrcFooter()),
+    bodyEndBlock = Some(scripts()))(mainContent)

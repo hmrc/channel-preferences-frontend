@@ -8,7 +8,7 @@
 @(changeEmailAddressLinkId: String)(implicit request: Request[_], messages: Messages, hostContext: model.HostContext)
 @import uk.gov.hmrc.urls.Link
 
-<p>
+<p class="govuk-body">
     @Link.toInternalPage(
         id = Some(changeEmailAddressLinkId),
         url = externalUrlPrefixes.pfUrlPrefix + controllers.internal.routes.ManagePaperlessController.displayChangeEmailAddress(None, hostContext),

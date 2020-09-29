@@ -14,9 +14,6 @@
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 
 @mainWithHeaders(title = Messages("account.details.change.language.title")) {
-    <script>
-        function radioChanged() {$("#submitLanguageButton").removeAttr("disabled")};
-    </script>
 
     @form(action = submitLanguageFormAction, 'id -> "form-submit-language") {
 

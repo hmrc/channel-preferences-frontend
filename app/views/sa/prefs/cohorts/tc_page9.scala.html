@@ -5,77 +5,135 @@
 
 @import controllers.auth.AuthenticatedRequest
 @import play.api.i18n.Messages.Implicits._
-@this(mainWithHeaders: views.html.main_with_headers, singleCheckbox26: helpers.SingleCheckbox26)
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+@this(mainWithHeaders: views.html.main_with_headers,
+    govukRadios: GovukRadios,
+    govukButton: GovukButton,
+    govukCheckboxes: GovukCheckboxes,
+    govukInput: GovukInput)
 @(emailForm: Form[_], submitPrefsFormAction: Call)(implicit request: AuthenticatedRequest[_], messages: Messages)
 
 @import uk.gov.hmrc.urls.Link
 @import uk.gov.hmrc.play.views.html.helpers._
 @import partial.paperless.tc.html._
 
-@mainWithHeaders(title = Messages(s"tc_page9.fg_page.title"), navTitle = Messages("tc_page9.fg_page.nav_title")) {
+@tcCheckboxHtml = {
+    @govukCheckboxes(Checkboxes(
+        fieldset = None,
+        idPrefix = Some("accept-tc"),
+        name = "termsAndConditions.accept-tc",
+        errorMessage = emailForm("termsAndConditions.accept-tc").error.map(err => ErrorMessage(content = Text(messages(err.message, err.args:_*)))),
+        items = Seq(
+            CheckboxItem(
+                content = HtmlContent(
+                    Messages("tc_page9.tc.preLinkText",
+                    Link.toExternalPage(
+                        id = Some("terms-and-conditions"),
+                        url = Messages("sa_printing_preference.tc.linkUrl"),
+                        value = Some(Messages("tc_page9.tc.linkText")),
+                        hiddenInfo = Some("")
+                        ).toHtml
+                    )
+                ),
+                value = "true",
+                checked = emailForm("accept-tc").value.contains("true")
+            )
+        ),
+        classes = "govuk-checkboxes--small"
+    ))
+}
 
-    @problem(Seq(emailForm("termsAndConditions.opt-in").error.map(f => f -> "opt-in-in"), emailForm("termsAndConditions").error.map(f => f -> "termsAndConditions_accept-tc")).flatten)
+@mainWithHeaders(title = Messages(s"tc_page9.fg_page.title"), serviceName = Some(Messages("tc_page9.fg_page.nav_title"))) {
 
     <header class="page-header">
-        <h1 class="heading-large">@Messages(s"tc_page9.fg_page.title")</h1>
+        <h1 class="govuk-heading-xl">@Messages(s"tc_page9.fg_page.title")</h1>
     </header>
 
-    <h3 class="lede" id="email-display">@Messages("tc_page9.fg_page.email_address") @emailForm("email.main").value</h3>
+    <h2 class="govuk-heading-m" id="email-display">@Messages("tc_page9.fg_page.email_address") @emailForm("email.main").value</h2>
 
-    <p>@Messages("tc_page9.fg_page.confirm_message_1")</p>
-    <ul class="bullets">
+    <p class="govuk-body">@Messages("tc_page9.fg_page.confirm_message_1")</p>
+    <ul class="list list-bullet govuk-body">
         <li>@Messages("tc_page9.fg_page.confirm_message_2")</li>
         <li>@Messages("tc_page9.fg_page.confirm_message_3")</li>
     </ul>
 
-    @form(action = submitPrefsFormAction, 'id -> "form-submit-email-address-tc") {
-        <fieldset @if(emailForm("termsAndConditions.opt-in").error.isDefined) { class="form-field-group form-field-group--error" }>
-            <div @if(emailForm("termsAndConditions").error.isDefined) { class="form-field--error" }>
-                @emailForm("termsAndConditions").error.map { error =>
-                    <label class="error-notification">@Messages(error.message)</label>
-                }
+    @form(action = submitPrefsFormAction, 'id -> "form-submit-email-address-tc", 'novalidate -> "novalidate") {
 
-                @singleCheckbox26(
-                    emailForm("termsAndConditions.accept-tc"),
-                    Html(Messages("tc_page9.tc.preLinkText", Link.toExternalPage(id = Some("terms-and-conditions"), url = "https://www.tax.service.gov.uk/information/terms#secure", value = Some(Messages("tc_page9.tc.linkText"))).toHtml)),
-                    '_labelClass -> "label--inline"
+        @govukRadios(Radios(
+            idPrefix = Some("opt-in"),
+            name = "termsAndConditions.opt-in",
+            items = Seq(
+                RadioItem(
+                    content = Text(Messages("tc_page9.fg_page.store_email")),
+                    value = Some("true"),
+                    checked = emailForm("termsAndConditions.opt-in").value.contains("true"),
+                    conditionalHtml = Some(tcCheckboxHtml)
+                ),
+                RadioItem(
+                    content = Text(Messages("tc_page9.fg_page.do_not_store_email")),
+                    value = Some("false"),
+                    checked = emailForm("termsAndConditions.opt-in").value.contains("false")
                 )
-            </div>
-        @emailForm("termsAndConditions.opt-in").errors.map { error => <label class="error-notification" style="display:inline-block">@Messages(error.message)</label>}
-        <label class="selectable">
-            <input
-            id="opt-in-in"
-            type="radio"
-            name="termsAndConditions.opt-in"
-            value="true"
-            class="email-prefs__toggle"
-                @if(emailForm("termsAndConditions.opt-in").value.contains("true")) { checked="checked" }
-            />
-            @Messages("tc_page9.fg_page.store_email")
-        </label>
+            )
+        ))
 
-            <input type="hidden" id="email.main" name="email.main" value="@emailForm("email.main").value">
-        <input type="hidden" id="email.confirm" name="email.confirm" value="@emailForm("email.main").value">
-        <input type="hidden" id="emailVerified" name="emailVerified" value="true">
-        <input type="hidden" id="emailAlreadyStored" name="emailAlreadyStored" value="@emailForm("emailAlreadyStored").value" >
-
-        <label class="selectable">
-            <input
-            id="opt-in-out"
-            type="radio"
-            name="termsAndConditions.opt-in"
-            value="false"
-            class="email-prefs__toggle lede"
-                @if(emailForm("termsAndConditions.opt-in").value.contains("false")) { checked="checked" }
-            />
-            @Messages("tc_page9.fg_page.do_not_store_email")
-        </label>
-        </fieldset>
-        <br>
-        <div class="form-field">
-            <button id="submitEmailButton" class="button" name="submitButton" type="submit">@Messages("tc_page9.submitButton")</button>
+        <div class="govuk-error-message">
+            @emailForm("termsAndConditions").error.map { error => <label class="error-notification">@Messages(error.message)</label>}
+            @emailForm("termsAndConditions.opt-in").errors.map { error => <label class="error-notification" style="display:inline-block">@Messages(error.message)</label>}
         </div>
 
+        <input type="hidden" id="email.main" name="email.main" value='@emailForm("email.main").value'>
+        <input type="hidden" id="email.confirm" name="email.confirm" value='@emailForm("email.main").value'>
+        <input type="hidden" id="emailVerified" name="emailVerified" value="true">
+        <input type="hidden" id="emailAlreadyStored" name="emailAlreadyStored" value='@emailForm("emailAlreadyStored").value' >
+
+        @govukButton(Button(
+            name = Some("submitButton"),
+            disabled = true,
+            inputType = Some("submit"),
+            content = Text(Messages("tc_page9.submitButton")),
+            attributes = Map(
+                "id" -> "submitEmailButton"
+            )
+        ))
     }
 
+    <script>
+        var submitButton = document.getElementById('submitEmailButton');
+        var radioStoreEmail = document.getElementById('opt-in');
+        var radioDontStoreEmail = document.getElementById('opt-in-2');
+        var checkBoxTandC = document.getElementById('accept-tc');
+
+        function enableTandCSubmitButton() {
+            submitButton.disabled = false;
+            submitButton.removeAttribute('aria-disabled');
+            submitButton.classList.remove('govuk-button--disabled');
+        }
+
+        function disableTandCSubmitButton() {
+            submitButton.disabled = true;
+            submitButton.setAttribute('aria-disabled', true);
+            submitButton.classList.add('govuk-button--disabled');
+        }
+
+        radioStoreEmail.addEventListener('change', (e) => {
+            if (e.target.checked && (checkBoxTandC.checked === true)) {
+                enableTandCSubmitButton();
+            } else if (radioDontStoreEmail.checked) {
+                enableTandCSubmitButton();
+            } else disableTandCSubmitButton();
+        });
+
+        radioDontStoreEmail.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                enableTandCSubmitButton();
+            }
+        });
+
+        checkBoxTandC.addEventListener('change', (e) => {
+            if (checkBoxTandC.checked === true) {
+                enableTandCSubmitButton();
+            } else disableTandCSubmitButton();
+        });
+    </script>
 }

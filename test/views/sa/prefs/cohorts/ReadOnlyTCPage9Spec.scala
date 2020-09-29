@@ -30,11 +30,11 @@ class ReadOnlyTcPage9Spec extends PlaySpec with GuiceOneAppPerSuite with Languag
         template(form, internal.routes.ChoosePaperlessController.submitForm(TestFixtures.sampleHostContext))(
           engRequest,
           messagesInEnglish()).toString())
-      document.getElementsByClass("header__menu__proposition-name").get(0).text() mustBe "Tax credits service"
-      document.getElementById("email-display").text() mustBe s"The email address we we will store securely is $email"
+      document.getElementsByClass("govuk-header__link--service-name").get(0).text() mustBe "Tax credits service"
+      document.getElementById("email-display").text() mustBe s"The email address we will store securely is $email"
       document
         .getElementsByTag("p")
-        .get(1)
+        .get(0)
         .text() mustBe "By letting us store your email address, you confirm that you:"
       document
         .getElementsByTag("li")
@@ -44,8 +44,11 @@ class ReadOnlyTcPage9Spec extends PlaySpec with GuiceOneAppPerSuite with Languag
         .getElementsByTag("li")
         .get(3)
         .text() mustBe "will keep your email address up to date using your HMRC online account to make sure you get your email notifications"
-      document.getElementsByClass("selectable").get(0).text() mustBe "Yes, store my email address"
-      document.getElementsByClass("selectable").get(1).text() mustBe "No, I do not want my email address stored"
+      document.getElementsByClass("govuk-radios__label").get(0).text() mustBe "Yes, store my email address"
+      document
+        .getElementsByClass("govuk-radios__label")
+        .get(1)
+        .text() mustBe "No, I do not want my email address stored"
     }
 
     "render the correct content in welsh" in {
@@ -58,7 +61,7 @@ class ReadOnlyTcPage9Spec extends PlaySpec with GuiceOneAppPerSuite with Languag
       document
         .getElementsByTag("title")
         .text() mustBe "A hoffech gael hysbysiadau e-bost eraill ynghylch eich credydau treth?"
-      document.getElementsByClass("header__menu__proposition-name").get(0).text() mustBe "Gwasanaeth Credydau Treth"
+      document.getElementsByClass("govuk-header__link--service-name").get(0).text() mustBe "Gwasanaeth Credydau Treth"
       document
         .getElementsByTag("h1")
         .get(0)
@@ -68,7 +71,7 @@ class ReadOnlyTcPage9Spec extends PlaySpec with GuiceOneAppPerSuite with Languag
         .text() mustBe s"Y cyfeiriad e-bost y byddwn yn ei storio'n ddiogel yw $email"
       document
         .getElementsByTag("p")
-        .get(1)
+        .get(0)
         .text() mustBe "Drwy ganiatáu i ni storio'ch cyfeiriad e-bost, rydych yn cadarnhau'r canlynol:"
       document
         .getElementsByTag("li")
@@ -79,16 +82,16 @@ class ReadOnlyTcPage9Spec extends PlaySpec with GuiceOneAppPerSuite with Languag
         .get(3)
         .text() mustBe "byddwch yn cadw'ch cyfeiriad e-bost wedi'i ddiweddaru drwy ddefnyddio'ch cyfrif ar-lein gyda CThEM i wneud yn siŵr eich bod yn cael eich hysbysiadau"
       document
-        .getElementById("termsAndConditions_accept-tc")
+        .getElementById("accept-tc")
         .parentNode
         .childNodes()
         .get(3)
         .toString
         .contains("Rwy'n cytuno â'r")
-      //document.getElementById("terms-and-conditions").childNodes().get(0).toString() mustBe "telerau ac amodau"
-      document.getElementsByClass("selectable").get(0).text() mustBe "Iawn, storiwch fy nghyfeiriad e-bost"
+      document.getElementById("terms-and-conditions").childNodes().get(0).toString() mustBe "telerau ac amodau"
+      document.getElementsByClass("govuk-radios__label").get(0).text() mustBe "Iawn, storiwch fy nghyfeiriad e-bost"
       document
-        .getElementsByClass("selectable")
+        .getElementsByClass("govuk-radios__label")
         .get(1)
         .text() mustBe "Na, nid wyf am i'm cyfeiriad e-bost gael ei storio"
       document.getElementById("submitEmailButton").text() mustBe "Yn eich blaen"

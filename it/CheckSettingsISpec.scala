@@ -20,7 +20,6 @@ class CheckSettingsISpec extends EmailSupport with SessionCookieEncryptionSuppor
     }
 
     "return rendered digital_false_full" in {
-
       val request = `/paperless/check-settings`(returnUrl = "http://some/other/url", returnLinkText = "Continue")
         .withSession(
           (SessionKeys.authToken -> ggAuthHeaderWithNino._2)
@@ -32,7 +31,12 @@ class CheckSettingsISpec extends EmailSupport with SessionCookieEncryptionSuppor
         Jsoup.parse(response.body)
 
       document.getElementById("saCheckSettings").text() mustBe "Check your settings"
-      document.getElementsByClass("govuk-link").first().attr("href") must include("/paperless/choose")
+      document
+        .getElementsByClass("govuk-summary-list__actions")
+        .first()
+        .getElementsByTag("a")
+        .first()
+        .attr("href") must include("/paperless/choose")
     }
   }
 

@@ -11,10 +11,10 @@
 
 @mainWithHeaders(title = Messages("account.details.verification.email.title")) {
     <header class="page-header">
-        <h1>@Messages("account.details.verification.email.title")</h1>
+        <h1 class="govuk-heading-xl">@Messages("account.details.verification.email.title")</h1>
     </header>
-    <p id="verification-mail-message">@Html(Messages("account.details.verification.email.new_email", email))</p>
-    <ul class="action-list">
-        <li>@Link.toInternalPage(id = Some("return-to-dashboard-button"), url = controllers.internal.routes.ManagePaperlessController.checkSettings(hostContext).url, value = Some(Messages("manage.paperless.check.settings.linkText"))).toHtml</li>
-    </ul>
+    <p id="verification-mail-message" class="govuk-body">@Html(Messages("account.details.verification.email.new_email", email))</p>
+    <p class="pgovuk-body">
+        @Link.toInternalPage(id = Some("return-to-dashboard-button"), url = controllers.internal.routes.ManagePaperlessController.checkSettings(hostContext).url, value = Some(Messages("manage.paperless.check.settings.linkText"))).toHtml
+    </p>
 }

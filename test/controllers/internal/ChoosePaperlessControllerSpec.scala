@@ -5,6 +5,8 @@
 
 package controllers.internal
 
+import java.net.{ URLDecoder, URLEncoder }
+
 import _root_.connectors._
 import helpers.TestFixtures
 import model.Encrypted
@@ -112,8 +114,8 @@ class ChoosePaperlessControllerSpec
     document.getElementById("email.confirm") mustNot be(null)
     document.getElementById("email.confirm").attr("value") mustBe ""
 
-    document.getElementById("opt-in-in") mustNot be(null)
-    document.getElementById("opt-in-in").attr("checked") mustBe "checked"
+    document.getElementById("opt-in") mustNot be(null)
+    document.getElementById("opt-in").attr("checked") mustBe "checked"
 
     document.getElementById("opt-in-out") mustNot be(null)
     document.getElementById("opt-in-out").attr("checked") mustBe ""
@@ -128,30 +130,36 @@ class ChoosePaperlessControllerSpec
       val page = controller.displayForm(Some(assignedCohort), None, TestFixtures.sampleHostContext)(request)
       status(page) mustBe 200
       val document = Jsoup.parse(contentAsString(page))
-      document.getElementsByTag("nav").attr("id") mustBe "proposition-menu"
+      document.getElementsByTag("nav").attr("class") mustBe "hmrc-sign-out-nav"
     }
 
     "show main banner for svc" in new ChoosePaperlessControllerSetup {
       val page = controller.displayFormBySvc("mtdfbit", "token", None, TestFixtures.sampleHostContext)(request)
       status(page) mustBe 200
       val document = Jsoup.parse(contentAsString(page))
-      document.getElementsByTag("nav").attr("id") mustBe "proposition-menu"
+      document.getElementsByTag("nav").attr("class") mustBe "hmrc-sign-out-nav"
     }
 
     "have correct form action to save preferences" in new ChoosePaperlessControllerSetup {
       val page = controller.displayForm(Some(assignedCohort), None, TestFixtures.sampleHostContext)(request)
       status(page) mustBe 200
       val document = Jsoup.parse(contentAsString(page))
-      document.select("#form-submit-email-address").attr("action") must endWith(
-        routes.ChoosePaperlessController.submitForm(TestFixtures.sampleHostContext).url)
+      val url =
+        routes.ChoosePaperlessController
+          .submitForm(TestFixtures.sampleHostContext)
+          .url
+      document.getElementById("form-submit-email-address").attr("action") must endWith(url)
     }
 
     "have correct form action to save preferences for svc" in new ChoosePaperlessControllerSetup {
       val page = controller.displayFormBySvc("mtdfbit", "token", None, TestFixtures.sampleHostContext)(request)
       status(page) mustBe 200
       val document = Jsoup.parse(contentAsString(page))
-      document.select("#form-submit-email-address").attr("action") must endWith(
-        routes.ChoosePaperlessController.submitFormBySvc("mtdfbit", "token", TestFixtures.sampleHostContext).url)
+      val url =
+        routes.ChoosePaperlessController
+          .submitFormBySvc("mtdfbit", "token", TestFixtures.sampleHostContext)
+          .url
+      document.getElementById("form-submit-email-address").attr("action") must endWith(url)
     }
 
     "audit the cohort information for the account details page" in new ChoosePaperlessControllerSetup {
@@ -212,8 +220,8 @@ class ChoosePaperlessControllerSpec
       val document = Jsoup.parse(contentAsString(page))
 
       document.getElementById("email.main").attr("value") mustBe ""
-      document.getElementById("opt-in-in").attr("checked") must be(empty)
-      document.getElementById("opt-in-out").attr("checked") must be(empty)
+      document.getElementById("opt-in").attr("checked") must be(empty)
+      document.getElementById("opt-in-2").attr("checked") must be(empty)
     }
 
     "render an email input field populated with the supplied email address, and the Opt-in option selected" in new ChoosePaperlessControllerSetup {
@@ -232,8 +240,8 @@ class ChoosePaperlessControllerSpec
       document.getElementById("email.main").attr("value") mustBe emailAddress
       document.getElementById("email.main").hasAttr("readonly") mustBe false
       document.getElementById("email.main").hasAttr("readonly") mustBe false
-      document.getElementById("opt-in-in").attr("checked") must be(empty)
-      document.getElementById("opt-in-out").attr("checked") must be(empty)
+      document.getElementById("opt-in").attr("checked") must be(empty)
+      document.getElementById("opt-in-2").attr("checked") must be(empty)
     }
   }
 
@@ -261,8 +269,11 @@ class ChoosePaperlessControllerSpec
 
       val document = Jsoup.parse(contentAsString(page))
       document
-        .select("#form-submit-email-address .error-notification")
-        .text mustBe "Enter a valid email address. You must accept the terms and conditions"
+        .getElementById("email.main-error")
+        .childNodes()
+        .get(2)
+        .toString
+        .trim mustBe "Enter an email address in the correct format, like name@example.com"
       verifyZeroInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
 
@@ -276,7 +287,12 @@ class ChoosePaperlessControllerSpec
       status(page) mustBe 400
 
       val document = Jsoup.parse(contentAsString(page))
-      document.select(".error-notification").text mustBe "You must accept the terms and conditions"
+      document
+        .getElementById("accept-tc-error")
+        .childNodes()
+        .get(2)
+        .toString
+        .trim mustBe "You must agree to the terms and conditions to use this service"
       verifyZeroInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
 
@@ -291,7 +307,12 @@ class ChoosePaperlessControllerSpec
       status(page) mustBe 400
 
       val document = Jsoup.parse(contentAsString(page))
-      document.select(".error-notification").text mustBe "You must accept the terms and conditions"
+      document
+        .getElementById("accept-tc-error")
+        .childNodes()
+        .get(2)
+        .toString
+        .trim mustBe "You must agree to the terms and conditions to use this service"
       verifyZeroInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
 
@@ -303,7 +324,12 @@ class ChoosePaperlessControllerSpec
       status(page) mustBe 400
 
       val document = Jsoup.parse(contentAsString(page))
-      document.select(".error-notification").text mustBe "As you would like to opt in, please enter an email address."
+      document
+        .getElementById("email.main-error")
+        .childNodes()
+        .get(2)
+        .toString
+        .trim mustBe "Enter an email address in the correct format, like name@example.com"
       verifyZeroInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
 
@@ -716,11 +742,11 @@ class ChoosePaperlessControllerSpecTC
     document.getElementById("email.confirm") mustNot be(null)
     document.getElementById("email.confirm").attr("value") mustBe ""
 
-    document.getElementById("opt-in-in") mustNot be(null)
-    document.getElementById("opt-in-in").attr("checked") mustBe "checked"
+    document.getElementById("opt-in") mustNot be(null)
+    document.getElementById("opt-in").attr("checked") mustBe "checked"
 
-    document.getElementById("opt-in-out") mustNot be(null)
-    document.getElementById("opt-in-out").attr("checked") mustBe ""
+    document.getElementById("opt-in-2") mustNot be(null)
+    document.getElementById("opt-in-2").attr("checked") mustBe ""
 
     document.getElementById("terms-and-conditions").attr("href") must endWith(
       "www.tax.service.gov.uk/information/terms#secure")
@@ -734,7 +760,7 @@ class ChoosePaperlessControllerSpecTC
       val page = controller.displayForm(Some(assignedCohort), None, TestFixtures.taxCreditsHostContext(""))(request)
       status(page) mustBe 200
       val document = Jsoup.parse(contentAsString(page))
-      document.getElementsByTag("nav").attr("id") mustBe "proposition-menu"
+      document.getElementsByTag("nav").attr("class") mustBe "hmrc-sign-out-nav"
     }
 
     "have correct form action to save preferences" in new ChoosePaperlessControllerSetup {
@@ -795,8 +821,8 @@ class ChoosePaperlessControllerSpecTC
 
       document.getElementById("email.main").attr("value") mustBe ""
       document.getElementById("email.confirm").attr("value") mustBe ""
-      document.getElementById("opt-in-in").attr("checked") must be(empty)
-      document.getElementById("opt-in-out").attr("checked") must be(empty)
+      document.getElementById("opt-in").attr("checked") must be(empty)
+      document.getElementById("opt-in-2").attr("checked") must be(empty)
     }
 
     "render an email input field populated with the supplied email address, and the Opt-in option selected" in new ChoosePaperlessControllerSetup {
@@ -819,8 +845,8 @@ class ChoosePaperlessControllerSpecTC
       document.getElementById("email.confirm") mustNot be(null)
       document.getElementById("email.confirm").attr("value") mustBe emailAddress
       document.getElementById("email.main").attr("type") mustBe "hidden"
-      document.getElementById("opt-in-in").attr("checked") must be(empty)
-      document.getElementById("opt-in-out").attr("checked") must be(empty)
+      document.getElementById("opt-in").attr("checked") must be(empty)
+      document.getElementById("opt-in-2").attr("checked") must be(empty)
     }
 
     "render an email input field populated with the supplied hidden email address, and no Opt-in option selected if a preferences is not found for terms but an email do exist" in new ChoosePaperlessControllerSetup {
@@ -848,8 +874,8 @@ class ChoosePaperlessControllerSpecTC
       document.getElementById("email.confirm") mustNot be(null)
       document.getElementById("email.confirm").attr("value") mustBe emailAddress
       document.getElementById("email.confirm").attr("type") mustBe "hidden"
-      document.getElementById("opt-in-in").attr("checked") must be(empty)
-      document.getElementById("opt-in-out").attr("checked") must be(empty)
+      document.getElementById("opt-in").attr("checked") must be(empty)
+      document.getElementById("opt-in-2").attr("checked") must be(empty)
     }
 
     "render an email input field populated with the supplied hidden email address, and no Opt-in option selected if a opted out preferences with email is found" in new ChoosePaperlessControllerSetup {
@@ -878,8 +904,8 @@ class ChoosePaperlessControllerSpecTC
       document.getElementById("email.confirm") mustNot be(null)
       document.getElementById("email.confirm").attr("value") mustBe emailAddress
       document.getElementById("email.confirm").attr("type") mustBe "hidden"
-      document.getElementById("opt-in-in").attr("checked") must be(empty)
-      document.getElementById("opt-in-out").attr("checked") must be(empty)
+      document.getElementById("opt-in").attr("checked") must be(empty)
+      document.getElementById("opt-in-2").attr("checked") must be(empty)
     }
   }
 
@@ -935,8 +961,10 @@ class ChoosePaperlessControllerSpecTC
 
       val document = Jsoup.parse(contentAsString(page))
       document
-        .select(".error-notification")
-        .text mustBe "You must agree to the terms and conditions if you are happy for us to store your email address"
+        .getElementById("accept-tc-error")
+        .childNode(2)
+        .toString
+        .trim mustBe "You must agree to the terms and conditions if you are happy for us to store your email address"
       verifyZeroInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
 
@@ -972,8 +1000,10 @@ class ChoosePaperlessControllerSpecTC
 
       val document = Jsoup.parse(contentAsString(page))
       document
-        .select(".error-notification")
-        .text mustBe "You must agree to the terms and conditions if you are happy for us to store your email address"
+        .getElementById("accept-tc-error")
+        .childNode(2)
+        .toString
+        .trim mustBe "You must agree to the terms and conditions if you are happy for us to store your email address"
       verifyZeroInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
 
@@ -991,8 +1021,10 @@ class ChoosePaperlessControllerSpecTC
 
       val document = Jsoup.parse(contentAsString(page))
       document
-        .select(".error-notification")
-        .text mustBe "You must agree to the terms and conditions if you are happy for us to store your email address"
+        .getElementById("accept-tc-error")
+        .childNode(2)
+        .toString
+        .trim mustBe "You must agree to the terms and conditions if you are happy for us to store your email address"
       verifyZeroInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
 

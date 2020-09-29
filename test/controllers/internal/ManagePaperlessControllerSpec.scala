@@ -239,8 +239,11 @@ class ManagePaperlessControllerSpec
 
       val document = Jsoup.parse(contentAsString(page))
       document
-        .select("#form-submit-email-address .error-notification")
-        .text mustBe "Check your email addresses - they don't match."
+        .getElementById("email.confirm-error")
+        .childNodes()
+        .get(2)
+        .toString
+        .trim mustBe "Check your email addresses - they don't match."
     }
 
     "show error if the email address is not syntactically valid" in {
@@ -264,7 +267,12 @@ class ManagePaperlessControllerSpec
       status(page) mustBe 400
 
       val document = Jsoup.parse(contentAsString(page))
-      document.select("#form-submit-email-address .error-notification").text mustBe "Enter a valid email address."
+      document
+        .getElementById("email.main-error")
+        .childNodes()
+        .get(2)
+        .toString
+        .trim mustBe "Enter an email address in the correct format, like name@example.com"
     }
 
     "show error if the email field is empty" in {
@@ -283,7 +291,12 @@ class ManagePaperlessControllerSpec
       status(page) mustBe 400
 
       val document = Jsoup.parse(contentAsString(page))
-      document.select("#form-submit-email-address .error-notification").text mustBe "Enter a valid email address."
+      document
+        .getElementById("email.main-error")
+        .childNodes()
+        .get(2)
+        .toString
+        .trim mustBe "Enter an email address in the correct format, like name@example.com"
     }
 
     "show a warning page if the email has a valid structure but does not pass validation by the email micro service" in {

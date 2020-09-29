@@ -8,3 +8,4 @@ tc_page9.fg_page.store_email=Iawn, storiwch fy nghyfeiriad e-bost
 tc_page9.fg_page.title=A hoffech gael hysbysiadau e-bost eraill ynghylch eich credydau treth?
 tc_page9.submitButton=Yn eich blaen
 tc_page9.tc.linkText=telerau ac amodau
+tc_page9.tc.preLinkText=Rwy’n cytuno â’r {0}

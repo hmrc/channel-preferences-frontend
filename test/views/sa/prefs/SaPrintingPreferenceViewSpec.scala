@@ -28,7 +28,7 @@ class SaPrintingPreferenceViewSpec extends PlaySpec with GuiceOneAppPerSuite wit
           cohort = CohortCurrent.ipage
         )(engRequest, messagesInEnglish()).toString())
 
-      document.getElementById("opt-in-in").hasAttr("checked") mustBe false
+      document.getElementById("opt-in").hasAttr("checked") mustBe false
     }
   }
 }

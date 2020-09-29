@@ -36,14 +36,15 @@ class ReadOnlyIPage7Spec extends PlaySpec with GuiceOneAppPerSuite with Language
         .text() mustBe "Choose how to get your legal notices, penalty notices and tax letters"
       document
         .getElementsByTag("h1")
+        .first()
         .text() mustBe "Choose how to get your legal notices, penalty notices and tax letters"
       document
-        .getElementsByClass("lede")
+        .getElementsByTag("p")
         .first()
         .text() mustBe "You can choose to get some of your tax documents and information sent through your HMRC online account instead of by post."
       document
         .getElementsByTag("p")
-        .get(2)
+        .get(1)
         .text() mustBe "You will need to take action when you receive some of the documents. They include:"
 
       document
@@ -63,26 +64,26 @@ class ReadOnlyIPage7Spec extends PlaySpec with GuiceOneAppPerSuite with Language
 
       document
         .getElementsByTag("p")
-        .get(3)
+        .get(2)
         .text() mustBe "We may also send you other information, including letting you know about a change to your personal tax code, if you have one."
 
       document
-        .getElementsByTag("h2")
-        .get(0)
+        .getElementsByTag("h1")
+        .get(1)
         .text() mustBe "How do you want to get your legal notices, penalty notices and tax letters?"
 
       document
         .getElementsByTag("p")
-        .get(4)
+        .get(3)
         .childNodes()
         .get(0)
         .toString
         .trim mustBe "We’ll email to tell you when you have a new item in your online account. This email cannot include personal information, so it is your responsibility to sign into your online account and read the full details."
-      document.getElementsByClass("selectable").get(0).text() mustBe "Through my HMRC online account"
+      document.getElementsByClass("govuk-radios__label").first().text() mustBe "Through my HMRC online account"
 
       document
         .getElementsByTag("p")
-        .get(5)
+        .get(4)
         .childNodes()
         .get(0)
         .toString
@@ -91,7 +92,7 @@ class ReadOnlyIPage7Spec extends PlaySpec with GuiceOneAppPerSuite with Language
       document
         .getElementById("terms-and-conditions")
         .attr("href") mustBe "https://www.tax.service.gov.uk/information/terms?lang=eng#secure"
-      document.getElementsByClass("selectable").get(1).text() mustBe "By post only"
+      document.getElementsByClass("govuk-radios__label").get(1).text() mustBe "By post only"
       document.getElementById("privacy-policy").text() must include("read the privacy notice")
       document.getElementsByAttributeValue("name", "submitButton").text() mustBe "Continue"
 
@@ -109,14 +110,15 @@ class ReadOnlyIPage7Spec extends PlaySpec with GuiceOneAppPerSuite with Language
         .text() mustBe "Dewis sut i gael eich hysbysiadau cyfreithiol, hysbysiadau o gosb a llythyrau treth"
       document
         .getElementsByTag("h1")
+        .first()
         .text() mustBe "Dewis sut i gael eich hysbysiadau cyfreithiol, hysbysiadau o gosb a llythyrau treth"
       document
-        .getElementsByClass("lede")
+        .getElementsByTag("p")
         .first()
         .text() mustBe "Gallwch ddewis cael rhai o’ch dogfennau treth a gwybodaeth drwy’ch cyfrif CThEM ar-lein, yn hytrach na thrwy’r post."
       document
         .getElementsByTag("p")
-        .get(2)
+        .get(1)
         .text() mustBe "Bydd yn rhaid i chi gymryd camau pan fyddwch yn cael rhai o’r dogfennau. Maent yn cynnwys:"
 
       document
@@ -136,26 +138,27 @@ class ReadOnlyIPage7Spec extends PlaySpec with GuiceOneAppPerSuite with Language
 
       document
         .getElementsByTag("p")
-        .get(3)
+        .get(2)
         .text() mustBe "Mae’n bosibl y byddwn hefyd yn anfon gwybodaeth arall atoch, gan gynnwys rhoi gwybod i chi am newid i’ch cod treth personol, os oes un gennych."
 
       document
-        .getElementsByTag("h2")
-        .get(0)
+        .getElementsByTag("h1")
+        .get(1)
         .text() mustBe "Sut yr hoffech gael eich hysbysiadau cyfreithiol, hysbysiadau o gosb a llythyrau treth?"
 
       document
         .getElementsByTag("p")
-        .get(4)
+        .get(3)
         .childNodes()
         .get(0)
         .toString
         .trim mustBe "Byddwn yn anfon e-bost atoch i roi gwybod i chi pan fydd eitem newydd yn eich cyfrif ar-lein. Ni all yr e-bost hwn gynnwys gwybodaeth bersonol, felly, eich cyfrifoldeb chi yw mewngofnodi i’ch cyfrif ar-lein a darllen y manylion llawn."
-      document.getElementsByClass("selectable").get(0).text() mustBe "Drwy fy nghyfrif CThEM ar-lein"
+
+      document.getElementsByClass("govuk-radios__label").first().text() mustBe "Drwy fy nghyfrif CThEM ar-lein"
 
       document
         .getElementsByTag("p")
-        .get(5)
+        .get(4)
         .childNodes()
         .get(0)
         .toString
@@ -164,7 +167,7 @@ class ReadOnlyIPage7Spec extends PlaySpec with GuiceOneAppPerSuite with Language
       document
         .getElementById("terms-and-conditions")
         .attr("href") mustBe "https://www.tax.service.gov.uk/information/terms?lang=cym"
-      document.getElementsByClass("selectable").get(1).text() mustBe "Drwy’r post yn unig"
+      document.getElementsByClass("govuk-radios__label").get(1).text() mustBe "Drwy’r post yn unig"
       document.getElementById("privacy-policy").text() must include("darllenwch yr hysbysiad preifatrwydd")
       document.getElementsByAttributeValue("name", "submitButton").text() mustBe "Yn eich blaen"
     }

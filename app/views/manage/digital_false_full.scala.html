@@ -4,12 +4,13 @@
  *@
 
 @import controllers.auth.AuthenticatedRequest
-
 @import uk.gov.hmrc.govukfrontend.views.html.components._
-
 @import uk.gov.hmrc.play.views.html.helpers._
 
-@this(mainWithHeaders: views.html.main_with_headers, govukSummaryList : GovukSummaryList, externalUrlPrefixes: ExternalUrlPrefixes)
+@this(mainWithHeaders: views.html.main_with_headers,
+    govukSummaryList : GovukSummaryList,
+    govukButton: GovukButton,
+    externalUrlPrefixes: ExternalUrlPrefixes)
 
 @()(implicit request : AuthenticatedRequest[_],messages: Messages, hostContext: model.HostContext)
 
@@ -20,9 +21,8 @@
 
 @mainWithHeaders(title = Messages("sa_printing_preferences.confirm_correct_email.title")) {
 
-        <h1 id="saCheckSettings">@Messages("manage.paperless.header")</h1>
-
-        <h2>@Messages("manage.paperless.contact.header")</h2>
+    <h1 id="saCheckSettings" class="govuk-heading-l">@Messages("manage.paperless.header")</h1>
+    <h2 class="govuk-heading-m">@Messages("manage.paperless.contact.header")</h2>
 
     @govukSummaryList(SummaryList(
         rows = Seq(
@@ -44,9 +44,7 @@
             )
         )))
 
-
-
-    @GovukButton(Button(
+    @govukButton(Button(
         href = Some(hostContext.returnUrl),
         classes = "govuk-button",
         content = Text(hostContext.returnLinkText)

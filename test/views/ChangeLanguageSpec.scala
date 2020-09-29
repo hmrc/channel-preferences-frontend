@@ -34,7 +34,6 @@ class ChangeLanguageSpec extends PlaySpec with GuiceOneAppPerSuite with Language
           template(form, Call("/myurl", "GET"))(authRequest, messagesInEnglish(), TestFixtures.sampleHostContext)
             .toString())
 
-      document.getElementsByClass("organisation-logo").first().text() mustBe "HM Revenue & Customs"
       document
         .getElementsByClass("govuk-fieldset__heading")
         .first()
@@ -47,7 +46,6 @@ class ChangeLanguageSpec extends PlaySpec with GuiceOneAppPerSuite with Language
           template(form, Call("/myurl", "GET"))(authRequest, messagesInWelsh(), TestFixtures.sampleHostContext)
             .toString())
 
-      document.getElementsByClass("organisation-logo").first().text() mustBe "Cyllid a Thollau EM"
       document
         .getElementsByClass("govuk-fieldset__heading")
         .first()

@@ -27,10 +27,9 @@ class AccountDetailsUpdateEmailAddressVerifyEmailSpec
       val document =
         Jsoup.parse(template(email)(engRequest, messagesInEnglish(), TestFixtures.sampleHostContext).toString())
 
-      document.getElementsByClass("organisation-logo").first().text() mustBe "HM Revenue & Customs"
       document.getElementsByTag("title").first().text() mustBe "Check your email address"
       document.getElementsByTag("h1").get(0).text() mustBe "Check your email address"
-      document.getElementsByTag("p").get(1).text() mustBe s"Are you sure $email is correct?"
+      document.getElementsByTag("p").get(0).text() mustBe s"Are you sure $email is correct?"
       document.getElementById("emailIsCorrectLink").text() mustBe "This email address is correct"
       document.getElementById("emailIsNotCorrectLink").text() mustBe "Change this email address"
     }
@@ -40,10 +39,9 @@ class AccountDetailsUpdateEmailAddressVerifyEmailSpec
       val document =
         Jsoup.parse(template(email)(welshRequest, messagesInWelsh(), TestFixtures.sampleHostContext).toString())
 
-      document.getElementsByClass("organisation-logo").first().text() mustBe "Cyllid a Thollau EM"
       document.getElementsByTag("title").first().text() mustBe "Gwirio'ch cyfeiriad e-bost"
       document.getElementsByTag("h1").get(0).text() mustBe "Gwirio'ch cyfeiriad e-bost"
-      document.getElementsByTag("p").get(1).text() mustBe s"A ydych yn siŵr bod $email yn gywir?"
+      document.getElementsByTag("p").get(0).text() mustBe s"A ydych yn siŵr bod $email yn gywir?"
       document.getElementById("emailIsCorrectLink").text() mustBe "Mae'r cyfeiriad e-bost hwn yn gywir"
       document.getElementById("emailIsNotCorrectLink").text() mustBe "Newid y cyfeiriad e-bost hwn"
     }

@@ -1,5 +1,5 @@
-error.email=Enter a valid email address.
-error.email.optIn=As you would like to opt in, please enter an email address.
+error.email=Enter an email address in the correct format, like name@example.com
+error.email.optIn=Enter an email address in the correct format, like name@example.com
 email.confirmation.emails.unequal=Check your email addresses - they don''t match.
 
 sa_printing_preference.tc.heading=Self Assessment terms and conditions
@@ -27,7 +27,7 @@ tc_printing_preference.tc.linkText = terms and conditions
 
 sa_printing_preference.tc.preLinkText=I agree to the {0}
 sa_printing_preference.tc.linkText=terms and conditions
-sa_pirnting_preference.tc.linkUrl=https://www.tax.service.gov.uk/information/terms?lang=eng#secure
+sa_printing_preference.tc.linkUrl=https://www.tax.service.gov.uk/information/terms?lang=eng#secure
 sa_printing_preference.tc.legal.1=Messages will be sent to a secure mailbox in your HMRC online account.
 sa_printing_preference.tc.legal.2=They have the same legal validity as an HMRC reminder sent in the post.
 sa_printing_preference.tc.legal.3=Keep your email address up to date - you can do this in your online account.
@@ -36,7 +36,7 @@ sa_printing_preference.submitButton=Continue
 sa_printing_preference.cancelButton=Continue to get letters
 sa_printing_preference.opt_in_choice_required=Confirm if you want paperless notifications
 tc_printing_preference.opt_in_choice_required=Select yes if you are happy for us to store your email address
-sa_printing_preference.accept_tc_required=You must accept the terms and conditions
+sa_printing_preference.accept_tc_required=You must agree to the terms and conditions to use this service
 tc_printing_preference.accept_tc_required=You must agree to the terms and conditions if you are happy for us to store your email address
 sa_printing_preferences.confirm_correct_email.title=Check your email address
 sa_printing_preferences.confirm_correct_email.paragraph.1=Are you sure {0} is correct?
@@ -92,7 +92,7 @@ sa_printing_preference.tc.email.label=Enter your email
 sa_printing_preference.tc.email.hint=We’ll use this to tell you when you have a new online tax letter. It is your responsibility to check for emails from HMRC.
 sa_printing_preference.tc.confirm.email.label=Confirm email address
 tc_printing_preference.fg_page.nav_title=Tax credits service
-tc_printing_preference.fg_page.email_address=The email address we we will store securely is
+tc_printing_preference.fg_page.email_address=The email address we will store securely is
 tc_printing_preference.fg_page.confirm_message_1=By letting us store your email address, you confirm that you:
 tc_printing_preference.fg_page.confirm_message_2=want to get notifications and prompts about your tax credits
 tc_printing_preference.fg_page.confirm_message_3=will keep your email address up to date using your HMRC online account to make sure you get your email notifications
@@ -226,6 +226,9 @@ manage.paperless.contact.details.header=Contact details
 manage.paperless.contact.details.email.1=Email address
 
 manage.paperless.change=Change
+manage.paperless.change.preference=Tax documents
+manage.paperless.change.language=Emails sent in
+manage.paperless.change.emailaddress=Email address
 
 manage.paperless.continue=Continue to your account
 
@@ -253,3 +256,15 @@ paperless.status.url.text.alright=Check your settings
 paperless.status.url.text.welsh_available=Change your language
 paperless.status.url.text.no_email=Set up your email address
 manage.paperless.check.settings.linkText=Continue
+
+paperless.survey.reoptin_decline.title=Why did you choose to go back to paper letters?
+paperless.survey.reoptin_decline.paragraph.1=We only use this information to improve the service. We will not reply to you.
+paperless.survey.reoptin_decline.hint=You can select more than one choice.
+paperless.survey.reoptin_decline.choice.1=I don't remember asking for online tax letters
+paperless.survey.reoptin_decline.choice.2=I didn't want to be interrupted by that today
+paperless.survey.reoptin_decline.choice.3=I worry people will not accept online tax letters as proof
+paperless.survey.reoptin_decline.choice.4=I did not receive the email notifications about a new online tax letter
+paperless.survey.reoptin_decline.choice.5=I do not want a mix of paper letters and online letters
+paperless.survey.reoptin_decline.freetext.label.1=Another reason
+paperless.survey.reoptin_decline.submitButton=Continue
+paperless.survey.reoptin_decline.skipLink=Skip

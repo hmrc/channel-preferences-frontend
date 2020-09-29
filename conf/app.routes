@@ -1,9 +1,11 @@
-->        /                                  preferences_frontend.Routes
-->        /                                  health.Routes
-->        /template                          template.Routes
+->          /                                   preferences_frontend.Routes
+->          /                                   health.Routes
+->          /template                           template.Routes
+
+GET         /assets/*file                       controllers.Assets.versioned(path="/public", file: Asset)
 
 #metrics
-GET         /admin/metrics    @com.kenshoo.play.metrics.MetricsController.metrics
+GET         /admin/metrics                      @com.kenshoo.play.metrics.MetricsController.metrics
 
-GET    /help/switch-to-welsh           controllers.LanguageController.switchToWelsh()
-GET    /help/switch-to-english         controllers.LanguageController.switchToEnglish()
+GET         /help/switch-to-welsh               controllers.LanguageController.switchToWelsh()
+GET         /help/switch-to-english             controllers.LanguageController.switchToEnglish()

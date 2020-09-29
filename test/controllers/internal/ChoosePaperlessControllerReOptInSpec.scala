@@ -125,7 +125,7 @@ class ChoosePaperlessControllerReOptInSpec
         controller.displayForm(Some(assignedCohort), None, TestFixtures.reOptInHostContext("foo@bar.com"))(request)
       status(page) mustBe 200
       val document = Jsoup.parse(contentAsString(page))
-      document.getElementsByTag("nav").attr("id") mustBe "proposition-menu"
+      document.getElementsByTag("nav").attr("class") mustBe "hmrc-sign-out-nav"
     }
 
     "show reoptin title" in new ChoosePaperlessControllerReOptInSetup {
@@ -147,7 +147,7 @@ class ChoosePaperlessControllerReOptInSpec
       )
     }
 
-    "render email address  if email is present in hostContext" in new ChoosePaperlessControllerReOptInSetup {
+    "render email address if email is present in hostContext" in new ChoosePaperlessControllerReOptInSetup {
       val emailAddress = "foo@bar.com"
       val page =
         controller.displayForm(Some(assignedCohort), None, TestFixtures.reOptInHostContext(emailAddress))(request)
@@ -156,8 +156,8 @@ class ChoosePaperlessControllerReOptInSpec
       document.getElementById("email.main") mustNot be(null)
       document.getElementById("email.main").attr("value") mustBe emailAddress
       document.getElementById("email.main").hasAttr("readonly") mustBe true
-      document.getElementById("opt-in-in").attr("checked") must be(empty)
-      document.getElementById("opt-in-out").attr("checked") must be(empty)
+      document.getElementById("opt-in").attr("checked") must be(empty)
+      document.getElementById("opt-in-2").attr("checked") must be(empty)
     }
 
     "render email address with no value if not present in hostContext" in new ChoosePaperlessControllerReOptInSetup {
@@ -167,8 +167,8 @@ class ChoosePaperlessControllerReOptInSpec
       document.getElementById("email.main") mustNot be(null)
       document.getElementById("email.main").attr("value") mustBe ""
       document.getElementById("email.main").hasAttr("readonly") mustBe true
-      document.getElementById("opt-in-in").attr("checked") must be(empty)
-      document.getElementById("opt-in-out").attr("checked") must be(empty)
+      document.getElementById("opt-in").attr("checked") must be(empty)
+      document.getElementById("opt-in-2").attr("checked") must be(empty)
     }
 
     "audit the cohort information for the account details page" in new ChoosePaperlessControllerReOptInSetup {
@@ -216,8 +216,11 @@ class ChoosePaperlessControllerReOptInSpec
 
       val document = Jsoup.parse(contentAsString(page))
       document
-        .select("#form-submit-email-address .error-notification")
-        .text mustBe "Enter a valid email address. You must accept the terms and conditions"
+        .getElementById("email.main-error")
+        .childNodes()
+        .get(2)
+        .toString
+        .trim mustBe "Enter an email address in the correct format, like name@example.com"
       verifyZeroInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
 
@@ -231,7 +234,12 @@ class ChoosePaperlessControllerReOptInSpec
       status(page) mustBe 400
 
       val document = Jsoup.parse(contentAsString(page))
-      document.select(".error-notification").text mustBe "You must accept the terms and conditions"
+      document
+        .getElementById("accept-tc-error")
+        .childNodes()
+        .get(2)
+        .toString
+        .trim mustBe "You must agree to the terms and conditions to use this service"
       verifyZeroInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
 
@@ -246,7 +254,12 @@ class ChoosePaperlessControllerReOptInSpec
       status(page) mustBe 400
 
       val document = Jsoup.parse(contentAsString(page))
-      document.select(".error-notification").text mustBe "You must accept the terms and conditions"
+      document
+        .getElementById("accept-tc-error")
+        .childNodes()
+        .get(2)
+        .toString
+        .trim mustBe "You must agree to the terms and conditions to use this service"
       verifyZeroInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
 
@@ -258,7 +271,12 @@ class ChoosePaperlessControllerReOptInSpec
       status(page) mustBe 400
 
       val document = Jsoup.parse(contentAsString(page))
-      document.select(".error-notification").text mustBe "As you would like to opt in, please enter an email address."
+      document
+        .getElementById("email.main-error")
+        .childNodes()
+        .get(2)
+        .toString
+        .trim mustBe "Enter an email address in the correct format, like name@example.com"
       verifyZeroInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
 

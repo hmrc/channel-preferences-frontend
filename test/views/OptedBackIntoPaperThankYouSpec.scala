@@ -26,27 +26,25 @@ class OptedBackIntoPaperThankYouSpec extends PlaySpec with GuiceOneAppPerSuite w
       val email = ObfuscatedEmailAddress("a@a.com")
       val document = Jsoup.parse(template()(engRequest, messagesInEnglish(), TestFixtures.sampleHostContext).toString())
 
-      document.getElementsByClass("organisation-logo").first().text() mustBe "HM Revenue & Customs"
       document.getElementsByTag("title").get(0).text() mustBe "Paperless notifications have stopped"
       document.getElementsByTag("h1").get(0).text() mustBe "Paperless notifications have stopped"
-      document.getElementsByTag("p").get(1).text() mustBe "You'll get letters again, instead of emails."
-      document.getElementsByTag("p").get(2).text() mustBe "You've been sent an email confirming this."
-      document.getElementsByTag("p").get(3).text() mustBe "You can go paperless again at any time."
+      document.getElementsByTag("p").get(0).text() mustBe "You'll get letters again, instead of emails."
+      document.getElementsByTag("p").get(1).text() mustBe "You've been sent an email confirming this."
+      document.getElementsByTag("p").get(2).text() mustBe "You can go paperless again at any time."
     }
 
     "render the correct content in welsh" in {
       val email = ObfuscatedEmailAddress("a@a.com")
       val document = Jsoup.parse(template()(welshRequest, messagesInWelsh(), TestFixtures.sampleHostContext).toString())
 
-      document.getElementsByClass("organisation-logo").first().text() mustBe "Cyllid a Thollau EM"
       document.getElementsByTag("title").get(0).text() mustBe "Mae hysbysiadau di-bapur wedi dod i ben"
       document.getElementsByTag("h1").get(0).text() mustBe "Mae hysbysiadau di-bapur wedi dod i ben"
       document
         .getElementsByTag("p")
-        .get(1)
+        .get(0)
         .text() mustBe "Byddwch yn cael llythyrau unwaith eto, yn hytrach nag e-byst."
-      document.getElementsByTag("p").get(2).text() mustBe "Anfonwyd e-bost atoch yn cadarnhau hyn."
-      document.getElementsByTag("p").get(3).text() mustBe "Gallwch fynd yn ddi-bapur unwaith eto ar unrhyw adeg."
+      document.getElementsByTag("p").get(1).text() mustBe "Anfonwyd e-bost atoch yn cadarnhau hyn."
+      document.getElementsByTag("p").get(2).text() mustBe "Gallwch fynd yn ddi-bapur unwaith eto ar unrhyw adeg."
     }
   }
 }

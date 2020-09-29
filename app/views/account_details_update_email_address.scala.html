@@ -5,7 +5,7 @@
 
 @import org.joda.time.DateTime
 @import controllers.auth.AuthenticatedRequest
-@this(mainWithHeaders: views.html.main_with_headers)
+@this(mainWithHeaders: views.html.main_with_headers, govukInput: GovukInput, govukButton: GovukButton)
 @(currentEmail : String, emailForm: Form[_])(implicit request: AuthenticatedRequest[_], messages: Messages, hostContext: model.HostContext)
 
 @import uk.gov.hmrc.urls.Link
@@ -14,32 +14,54 @@
 @mainWithHeaders(title = Messages("account.details.update.email.title")) {
 
     <header class="page-header">
-        <h1>@Messages("account.details.update.email.title")</h1>
+        <h1 class="govuk-heading-xl">@Messages("account.details.update.email.title")</h1>
     </header>
-   <p>@Messages("account.details.update.email.sent_to") <span id="current-email-address">@{currentEmail}.</span></p>
+   <p class="govuk-body">@Messages("account.details.update.email.sent_to") <span id="current-email-address">@{currentEmail}.</span></p>
 
-    @form(action = controllers.internal.routes.ManagePaperlessController.submitChangeEmailAddress(hostContext), 'id -> "form-submit-email-address") {
-        <fieldset>
-        @input(
-            emailForm("email.main"),
-            '_label -> Messages("account.details.update.email.new"),
-            '_divClass -> "form-field",
-            '_inputClass -> "input--medium input--cleared",
-            '_type -> "email",
-            'parentField -> emailForm("email")
-        )
-        @input(
-            emailForm("email.confirm"),
-            '_label -> Messages("account.details.update.email.confirm"),
-            '_divClass -> "form-field",
-            '_type -> "email",
-            '_inputClass -> "input--medium input--cleared"
-        )
-        </fieldset>
+    @form(action = controllers.internal.routes.ManagePaperlessController.submitChangeEmailAddress(hostContext),
+            'id -> "form-submit-email-address",
+            'novalidate -> "novalidate") {
 
-        <div class="form-field">
-            <button id="submit-email-button" class="button" type="submit">@Messages("account.details.update.email.submit.text")</button>
-            <p>@Link.toInternalPage(id = Some("cancel-link"), url = controllers.internal.routes.ManagePaperlessController.checkSettings(hostContext).url, value = Some(Messages("cancel.text"))).toHtml</p>
-        </div>
+        @govukInput(Input(
+            id = "email.main",
+            name = "email.main",
+            inputType = "email",
+            errorMessage = emailForm("email.main").error.map(err => ErrorMessage(content = Text(messages(err.message, err.args:_*)))),
+            label = Label(
+                content = Text(Messages("account.details.update.email.new"))
+            ),
+            classes = "govuk-!-width-three-quarters",
+            value = emailForm("email.main").value,
+            attributes = Map(
+                "spellcheck" -> "false",
+                "autocomplete" -> "off"
+            )
+        ))
+
+        @govukInput(Input(
+            id = "email.confirm",
+            name = "email.confirm",
+            inputType = "email",
+            errorMessage = emailForm("email").error.map(err => ErrorMessage(content = Text(messages(err.message, err.args:_*)))),
+            label = Label(
+                content = Text(Messages("account.details.update.email.confirm"))
+            ),
+            classes = "govuk-!-width-three-quarters",
+            value = emailForm("email.confirm").value,
+            attributes = Map(
+                "spellcheck" -> "false",
+                "autocomplete" -> "off"
+            )
+        ))
+
+        @govukButton(Button(
+            name = Some("submitButton"),
+            inputType = Some("submit"),
+            content = Text(Messages("account.details.update.email.submit.text")),
+            attributes = Map(
+                "id" -> "submit-email-button"
+            )
+        ))
+        <p class="govuk-body">@Link.toInternalPage(id = Some("cancel-link"), url = controllers.internal.routes.ManagePaperlessController.checkSettings(hostContext).url, value = Some(Messages("cancel.text"))).toHtml</p>
     }
 }

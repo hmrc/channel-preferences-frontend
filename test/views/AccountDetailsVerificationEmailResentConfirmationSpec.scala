@@ -27,7 +27,6 @@ class AccountDetailsVerificationEmailResentConfirmationSpec
       val document =
         Jsoup.parse(template(email)(engRequest, messagesInEnglish(), TestFixtures.sampleHostContext).toString())
 
-      document.getElementsByClass("organisation-logo").first().text() mustBe "HM Revenue & Customs"
       document.getElementsByTag("title").first().text() mustBe "Verification email sent"
       document.getElementsByTag("h1").get(0).text() mustBe "Verification email sent"
       document
@@ -46,7 +45,6 @@ class AccountDetailsVerificationEmailResentConfirmationSpec
       val document =
         Jsoup.parse(template(email)(welshRequest, messagesInWelsh(), TestFixtures.sampleHostContext).toString())
 
-      document.getElementsByClass("organisation-logo").first().text() mustBe "Cyllid a Thollau EM"
       document.getElementsByTag("title").first().text() mustBe "E-bost dilysu wedi'i anfon"
       document.getElementsByTag("h1").get(0).text() mustBe "E-bost dilysu wedi'i anfon"
       document

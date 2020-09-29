@@ -11,12 +11,12 @@
 
 @mainWithHeaders(title = Messages("opted.back.into.paperless.title")) {
     <header class="page-header">
-        <h1>@Messages("opted.back.into.paperless.title")</h1>
+        <h1 class="govuk-heading-xl">@Messages("opted.back.into.paperless.title")</h1>
     </header>
-    <p>@Messages("opted.back.into.paperless.para_1")</p>
-    <p>@Messages("opted.back.into.paperless.para_2")</p>
-    <p>@Messages("opted.back.into.paperless.para_3")</p>
-    <ul class="action-list">
-        <li>@Link.toInternalPage(id = Some("return-to-dashboard-button"), url = controllers.internal.routes.ManagePaperlessController.checkSettings(hostContext).url, value = Some(Messages("manage.paperless.check.settings.linkText"))).toHtml</li>
-    </ul>
+    <p class="govuk-body">@Messages("opted.back.into.paperless.para_1")</p>
+    <p class="govuk-body">@Messages("opted.back.into.paperless.para_2")</p>
+    <p class="govuk-body">@Messages("opted.back.into.paperless.para_3")</p>
+    <p class="govuk-body">
+        @Link.toInternalPage(id = Some("return-to-dashboard-button"), url = controllers.internal.routes.ManagePaperlessController.checkSettings(hostContext).url, value = Some(Messages("manage.paperless.check.settings.linkText"))).toHtml
+    </p>
 }

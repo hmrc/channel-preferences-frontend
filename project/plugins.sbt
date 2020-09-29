@@ -21,3 +21,5 @@ addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "1.0.0")
 addSbtPlugin("uk.gov.hmrc" % "sbt-service-manager" % "0.4.0")
 
 addSbtPlugin("com.lucidchart" % "sbt-scalafmt" % "1.16")
+
+addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "1.4.13")

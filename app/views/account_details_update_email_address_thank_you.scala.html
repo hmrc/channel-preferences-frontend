@@ -11,13 +11,13 @@
 
 @mainWithHeaders(title = Messages("account.details.update.email.thank_you.title")) {
     <header class="page-header">
-        <h1>@Messages("account.details.update.email.thank_you.title")</h1>
+        <h1 class="govuk-heading-xl">@Messages("account.details.update.email.thank_you.title")</h1>
     </header>
 
-    <p>@Messages("account.details.update.email.thank_you.sent_to") <span id="updated-email-address">@emailAddress</span></p>
-    <p id="verification-mail-message">@Messages("account.details.update.email.thank_you.verify")</p>
-    <p>@Messages("account.details.update.email.thank_you.old_address")</p>
-    <ul class="action-list">
-        <li>@Link.toInternalPage(id = Some("return-to-dashboard-button"), url = controllers.internal.routes.ManagePaperlessController.checkSettings(hostContext).url, value = Some(Messages("manage.paperless.check.settings.linkText"))).toHtml</li>
-    </ul>
+    <p class="govuk-body">@Messages("account.details.update.email.thank_you.sent_to") <span id="updated-email-address">@emailAddress</span></p>
+    <p class="govuk-body" id="verification-mail-message">@Messages("account.details.update.email.thank_you.verify")</p>
+    <p class="govuk-body">@Messages("account.details.update.email.thank_you.old_address")</p>
+    <p class="govuk-body">
+        @Link.toInternalPage(id = Some("return-to-dashboard-button"), url = controllers.internal.routes.ManagePaperlessController.checkSettings(hostContext).url, value = Some(Messages("manage.paperless.check.settings.linkText"))).toHtml
+    </p>
 }

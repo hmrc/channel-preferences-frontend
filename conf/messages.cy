@@ -2,8 +2,8 @@ account.opt.back.out.confirmation.title=Cadarnhau sut hoffech gael eich llythyra
 account.opt.back.out.confirmation.letters=Cadwch eich holl lythyrau treth ar-lein gyda’i gilydd mewn un lle. Byddwn bob tro yn anfon e-bost atoch i roi gwybod i chi pan fydd llythyr ar-lein newydd wedi’ch cyrraedd.
 cancel.text=Canslo
 header_nav_links.sign_out=Allgofnodi
-error.email=Nodwch gyfeiriad e-bost dilys.
-error.email.optIn=Gan eich bod am ymuno, nodwch gyfeiriad e-bost.
+error.email=Nodwch gyfeiriad e-bost yn y fformat cywir, megis enw@enghraifft.com
+error.email.optIn=Nodwch gyfeiriad e-bost yn y fformat cywir, megis enw@enghraifft.com
 email.confirmation.emails.unequal=Gwiriwch eich cyfeiriadau e-bost – nid ydynt yn cyd-fynd.
 sa_printing_preference.tc.heading=Telerau ac amodau Hunanasesiad
 sa_printing_preference.tc.secure_mailbox=Blwch post diogel
@@ -48,7 +48,7 @@ tc_printing_preference.tc.preLinkText=Rwy''n cytuno â''r {0}
 tc_printing_preference.tc.linkText=telerau ac amodau
 sa_printing_preference.tc.preLinkText=Rwy’n cytuno â’r {0}
 sa_printing_preference.tc.linkText=telerau ac amodau
-sa_pirnting_preference.tc.linkUrl=https://www.tax.service.gov.uk/information/terms?lang=cym
+sa_printing_preference.tc.linkUrl=https://www.tax.service.gov.uk/information/terms?lang=cym
 sa_printing_preference.tc.legal.1=Anfonir negeseuon i flwch post diogel yn eich cyfrif ar-lein gyda CThEM.
 sa_printing_preference.tc.legal.2=Mae ganddynt yr un dilysrwydd cyfreithiol â nodyn atgoffa gan CThEM a anfonir drwy''r post.
 sa_printing_preference.tc.legal.3=Cadwch eich cyfeiriad e-bost wedi''i ddiweddaru - gallwch wneud hyn yn eich cyfrif ar-lein.
@@ -56,7 +56,7 @@ sa_printing_preference.submitButton=Yn eich blaen
 sa_printing_preference.cancelButton=Yn eich blaen i gael llythyrau
 sa_printing_preference.opt_in_choice_required=Cadarnhau a ydych am gael hysbysiadau di-bapur
 tc_printing_preference.opt_in_choice_required=Dewiswch iawn os ydych yn fodlon i ni storio''ch cyfeiriad e-bost
-sa_printing_preference.accept_tc_required=Mae''n rhaid i chi dderbyn y telerau ac amodau
+sa_printing_preference.accept_tc_required=Mae’n rhaid i chi gytuno i’r telerau a’r amodau i ddefnyddio’r gwasanaeth hwn
 tc_printing_preference.accept_tc_required=Mae''n rhaid i chi gytuno â''r telerau ac amodau os ydych yn fodlon i ni storio''ch cyfeiriad e-bost
 sa_printing_preferences.confirm_correct_email.title=Gwirio''ch cyfeiriad e-bost
 sa_printing_preferences.confirm_correct_email.paragraph.1=A ydych yn siŵr bod {0} yn gywir?
@@ -224,6 +224,9 @@ manage.paperless.contact.details.header=Manylion cyswllt
 manage.paperless.contact.details.email.1=Cyfeiriad e-bost
 
 manage.paperless.change=Newid
+manage.paperless.change.preference=Dogfennau treth
+manage.paperless.change.language=Anfon e-byst hysbysu
+manage.paperless.change.emailaddress=Cyfeiriad e-bost
 
 manage.paperless.continue=Yn eich blaen i’ch cyfrif
 
@@ -249,3 +252,15 @@ paperless.status.url.text.alright=Gwirio’ch gosodiadau
 paperless.status.url.text.welsh_available=Newid eich iaith
 paperless.status.url.text.no_email=Sefydlu’ch cyfeiriad e-bost
 manage.paperless.check.settings.linkText=Yn eich blaen
+
+paperless.survey.reoptin_decline.title=Pam y gwnaethoch ddewis mynd yn ôl i lythyrau ar bapur?
+paperless.survey.reoptin_decline.paragraph.1=Rydym ond yn defnyddio’r wybodaeth hon i wella’r gwasanaeth. Ni fyddwn ymateb i chi.
+paperless.survey.reoptin_decline.hint=You can select more than one choice.
+paperless.survey.reoptin_decline.choice.1=Dwi ddim yn cofio gofyn am lythyrau treth ar-lein
+paperless.survey.reoptin_decline.choice.2=I didn't want to be interrupted by that today
+paperless.survey.reoptin_decline.choice.3=Pryderaf na fydd pobl yn derbyn llythyrau treth ar-lein fel tystiolaeth
+paperless.survey.reoptin_decline.choice.4=Ches i ddim hysbysiadau e-bost am lythyr treth ar-lein newydd
+paperless.survey.reoptin_decline.choice.5=Dwi ddim am gael cymysgedd o lythyrau ar bapur a llythyrau ar-lein
+paperless.survey.reoptin_decline.freetext.label.1=Rheswm arall
+paperless.survey.reoptin_decline.submitButton=Yn eich blaen
+paperless.survey.reoptin_decline.skipLink=Ewch yn syth ymlaen

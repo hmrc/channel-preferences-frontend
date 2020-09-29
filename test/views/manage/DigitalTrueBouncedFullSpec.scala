@@ -32,7 +32,7 @@ class DigitalTrueBouncedFullSpec extends PlaySpec with GuiceOneAppPerSuite with 
 
       val document =
         Jsoup.parse(template(email)(authRequest, messagesInEnglish(), TestFixtures.sampleHostContext).toString())
-      document.getElementsByClass("govuk-link").get(0).attr("href") must be(
+      document.getElementsByClass("govuk-link").get(2).attr("href") must be(
         "/paperless/email-address/delivery-failed?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D")
       document.getElementById("saCheckSettings").text() mustBe "Check your settings"
     }
