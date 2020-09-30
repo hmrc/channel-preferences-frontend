@@ -73,7 +73,8 @@ trait MicroService {
       libraryDependencies ++= appDependencies,
       parallelExecution in Test := false,
       fork in Test := false,
-      retrieveManaged := true
+      retrieveManaged := true,
+      routesGenerator := InjectedRoutesGenerator
     )
     .settings(inConfig(FunctionalTest)(Defaults.testSettings): _*)
     .configs(FunctionalTest)
