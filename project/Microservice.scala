@@ -3,10 +3,7 @@ import sbt.Keys._
 import sbt.Tests.{ Group, SubProcess }
 import sbt._
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
-import play.sbt.routes.RoutesKeys.routesGenerator
-import play.routes.compiler.InjectedRoutesGenerator
 import play.twirl.sbt.Import.TwirlKeys
-import uk.gov.hmrc.{ SbtArtifactory, SbtAutoBuildPlugin }
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
 import uk.gov.hmrc.versioning.SbtGitVersioning
 import uk.gov.hmrc.ServiceManagerPlugin.Keys.itDependenciesList
@@ -73,8 +70,7 @@ trait MicroService {
       libraryDependencies ++= appDependencies,
       parallelExecution in Test := false,
       fork in Test := false,
-      retrieveManaged := true,
-      routesGenerator := InjectedRoutesGenerator
+      retrieveManaged := true
     )
     .settings(inConfig(FunctionalTest)(Defaults.testSettings): _*)
     .configs(FunctionalTest)
