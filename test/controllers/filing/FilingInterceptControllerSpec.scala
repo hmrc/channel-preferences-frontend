@@ -103,9 +103,9 @@ class FilingInterceptControllerSpec
       header("Location", page).get should equal(decodedReturnUrl)
     }
 
-    "return bad request if redirect_url is not in the whitelist" in new TestCase {
+    "return bad request if redirect_url is not in the allowlist" in new TestCase {
 
-      val page = controller.redirectWithEmailAddress(validToken, encodedUrlNotOnWhitelist, None)(FakeRequest())
+      val page = controller.redirectWithEmailAddress(validToken, encodedUrlNotOnAllowlist, None)(FakeRequest())
       status(page) shouldBe 400
     }
   }
@@ -124,7 +124,7 @@ class FilingInterceptControllerSpec
     val encodedReturnUrl = urlEncode(decodedReturnUrl, "UTF-8")
     lazy val decodedReturnUrlWithEmailAddress =
       s"$decodedReturnUrl&email=${urlEncode(crypto.encrypt(PlainText(emailAddress)).value, "UTF-8")}"
-    val encodedUrlNotOnWhitelist = urlEncode("http://notOnWhiteList/something", "UTF-8")
+    val encodedUrlNotOnAllowlist = urlEncode("http://notOnAllowlist/something", "UTF-8")
 
     val request = FakeRequest()
 

@@ -31,18 +31,18 @@ class FilingInterceptController @Inject()(
   mcc: MessagesControllerComponents)(implicit ec: ExecutionContext)
     extends FrontendController(mcc) {
 
-  lazy val redirectDomainWhiteList = configuration
-    .getOptional[Seq[String]](s"govuk-tax.${runMode.env}.portal.redirectDomainWhiteList")
+  lazy val redirectDomainAllowlist = configuration
+    .getOptional[Seq[String]](s"govuk-tax.${runMode.env}.portal.redirectDomainAllowlist")
     .getOrElse(List())
     .toSet
-  implicit val wl: Set[String] = redirectDomainWhiteList
+  implicit val wl: Set[String] = redirectDomainAllowlist
   implicit val config = UriConfig(encoder = percentEncode)
 
   def redirectWithEmailAddress(
     encryptedToken: String,
     encodedReturnUrl: String,
     emailAddressToPrefill: Option[Encrypted[EmailAddress]]) =
-    DecodeAndWhitelist(encodedReturnUrl) { returnUrl =>
+    DecodeAndAllowlist(encodedReturnUrl) { returnUrl =>
       decryptAndValidate(encryptedToken, returnUrl) { token =>
         Action.async { implicit request =>
           implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers)

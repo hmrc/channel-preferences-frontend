@@ -20,13 +20,13 @@ import play.api.mvc.{ Action, AnyContent, Results }
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 
-class DecodeAndWhitelistSpec
+class DecodeAndAllowlistSpec
     extends WordSpec with Matchers with MockitoSugar with ScalaFutures with GuiceOneAppPerSuite with ConfigHelper {
   val allowedHost = "localhost"
 
   override implicit lazy val app: Application = fakeApp
 
-  "The DecodeAndWhitelist wrapper" should {
+  "The DecodeAndAllowlist wrapper" should {
 
     "pass through an allowed host" in new TestCase {
       allow(s"http://$allowedHost:8080/portal")
@@ -62,13 +62,13 @@ class DecodeAndWhitelistSpec
     when(action.apply(any())).thenReturn(Action(Results.Ok))
 
     def allow(url: String) {
-      val response = DecodeAndWhitelist(URLEncoder.encode(url, "UTF-8"))(action)(Set(allowedHost))(FakeRequest())
+      val response = DecodeAndAllowlist(URLEncoder.encode(url, "UTF-8"))(action)(Set(allowedHost))(FakeRequest())
       status(response) should be(OK)
       verify(action).apply(Uri.parse(url))
     }
 
     def reject(url: String, encoding: String = "UTF-8") {
-      val response = DecodeAndWhitelist(URLEncoder.encode(url, encoding))(action)(Set(allowedHost))(FakeRequest())
+      val response = DecodeAndAllowlist(URLEncoder.encode(url, encoding))(action)(Set(allowedHost))(FakeRequest())
       status(response) should be(BAD_REQUEST)
       verify(action, never()).apply(any())
     }
