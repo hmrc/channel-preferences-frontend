@@ -18,7 +18,7 @@
 
     <p class="govuk-body">
         @Link.toInternalPage(
-            cssClasses=Some("button"),
+            cssClasses=Some("govuk-button"),
             id = Some("sa-home-link"),
             url = controllers.internal.routes.ManagePaperlessController.checkSettings(hostContext).url,
             value = Some(Messages("manage.paperless.check.settings.linkText"))).toHtml

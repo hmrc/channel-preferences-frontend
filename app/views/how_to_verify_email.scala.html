@@ -32,6 +32,7 @@
             name = Some("submitButton"),
             inputType = Some("submit"),
             content = Text(Messages("message.paperless.email.request.new.email.link")),
+            classes = "button-as-link",
             attributes = Map(
                 "id" -> "resend-email-button",
                 "data-journey-click" -> "self-assessment-preferences-page:Click:Send a new verification email"
@@ -46,7 +47,10 @@
 <p class="govuk-body">@Messages("manage.paperless.email.use.explanation")</p>
 
 <p id="link-to-home" class="govuk-body">
- @Link.toInternalPage(id = Some("go-to-cys"), cssClasses = Some("govuk-button"), url = controllers.internal.routes.ManagePaperlessController.checkSettings(hostContext).url, value = Some(Messages("manage.paperless.email.button"))).toHtml
+ @Link.toInternalPage(id = Some("go-to-cys"),
+    cssClasses = Some("govuk-button"),
+    url = controllers.internal.routes.ManagePaperlessController.checkSettings(hostContext).url,
+    value = Some(Messages("manage.paperless.email.button"))).toHtml
 </p>
 }
 

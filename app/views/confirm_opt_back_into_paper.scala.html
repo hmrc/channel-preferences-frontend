@@ -17,17 +17,21 @@
 
     <p class="govuk-body">@Messages("account.opt.back.out.confirmation.letters")</p>
 
-    @form(action = controllers.internal.routes.ManagePaperlessController.submitStopPaperless(hostContext)) {
-        <p class="govuk-body">
-            @Link.toInternalPage(id = Some("cancel-link"), cssClasses = Some("govuk-button govuk-!-margin-right-1"), url = controllers.internal.routes.ManagePaperlessController.checkSettings(hostContext).url, value = Some(Messages("bt.account.keep_email_reminders"))).toHtml
-        </p>
-        @govukButton(Button(
-            name = Some("submitButton"),
-            inputType = Some("submit"),
-            content = Text(Messages("bt.account.stop_email_reminders")),
-            attributes = Map(
+    <p class="govuk-body">
+        @form(action = controllers.internal.routes.ManagePaperlessController.submitStopPaperless(hostContext)) {
+            @Link.toInternalPage(id = Some("cancel-link"),
+                cssClasses = Some("govuk-button"),
+                url = controllers.internal.routes.ManagePaperlessController.checkSettings(hostContext).url,
+                value = Some(Messages("bt.account.keep_email_reminders"))).toHtml
+            @govukButton(Button(
+                name = Some("submitButton"),
+                inputType = Some("submit"),
+                classes = "govuk-button--secondary govuk-!-margin-right-1",
+                content = Text(Messages("bt.account.stop_email_reminders")),
+                attributes = Map(
                 "id" -> "confirm-opt-out"
-            )
-        ))
-    }
+                )
+            ))
+        }
+    </p>
 }

@@ -15,6 +15,9 @@
     </header>
     <p id="verification-mail-message" class="govuk-body">@Html(Messages("account.details.verification.email.new_email", email))</p>
     <p class="pgovuk-body">
-        @Link.toInternalPage(id = Some("return-to-dashboard-button"), url = controllers.internal.routes.ManagePaperlessController.checkSettings(hostContext).url, value = Some(Messages("manage.paperless.check.settings.linkText"))).toHtml
+        @Link.toInternalPage(id = Some("return-to-dashboard-button"),
+            cssClasses = Some("govuk-button"),
+            url = controllers.internal.routes.ManagePaperlessController.checkSettings(hostContext).url,
+            value = Some(Messages("manage.paperless.check.settings.linkText"))).toHtml
     </p>
 }

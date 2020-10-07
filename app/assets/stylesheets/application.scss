@@ -8,3 +8,18 @@ $hmrc-assets-path: "/paperless/assets/lib/hmrc-frontend/hmrc/";
   display: block;
   font-weight: bold;
 }
+
+
+.button-as-link,
+.button-as-link:hover {
+  background: none!important;
+  border: none;
+  padding: 0!important;
+  color: #1d70b8;
+  box-shadow: none;
+  vertical-align: baseline!important;
+  text-decoration: underline;
+  font-size: 0.97em;
+  line-height: 1em;
+  cursor: pointer;
+}
