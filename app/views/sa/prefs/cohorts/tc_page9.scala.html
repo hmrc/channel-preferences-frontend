@@ -89,7 +89,6 @@
 
         @govukButton(Button(
             name = Some("submitButton"),
-            disabled = true,
             inputType = Some("submit"),
             content = Text(Messages("tc_page9.submitButton")),
             attributes = Map(
@@ -99,41 +98,38 @@
     }
 
     <script>
-        var submitButton = document.getElementById('submitEmailButton');
-        var radioStoreEmail = document.getElementById('opt-in');
-        var radioDontStoreEmail = document.getElementById('opt-in-2');
-        var checkBoxTandC = document.getElementById('accept-tc');
+        (function() {
+            var submitButton = document.getElementById('submitEmailButton');
+            var radioGoPaperless = document.getElementById('opt-in');
+            var radioByPost = document.getElementById('opt-in-2');
+            var checkBoxTandC = document.getElementById('accept-tc');
 
-        function enableTandCSubmitButton() {
-            submitButton.disabled = false;
-            submitButton.removeAttribute('aria-disabled');
-            submitButton.classList.remove('govuk-button--disabled');
-        }
-
-        function disableTandCSubmitButton() {
-            submitButton.disabled = true;
-            submitButton.setAttribute('aria-disabled', true);
-            submitButton.classList.add('govuk-button--disabled');
-        }
-
-        radioStoreEmail.addEventListener('change', (e) => {
-            if (e.target.checked && (checkBoxTandC.checked === true)) {
-                enableTandCSubmitButton();
-            } else if (radioDontStoreEmail.checked) {
-                enableTandCSubmitButton();
-            } else disableTandCSubmitButton();
-        });
-
-        radioDontStoreEmail.addEventListener('change', (e) => {
-            if (e.target.checked) {
-                enableTandCSubmitButton();
+            function enableSubmitButton() {
+                submitButton.disabled = false;
+                submitButton.removeAttribute('aria-disabled');
+                submitButton.classList.remove('govuk-button--disabled');
             }
-        });
 
-        checkBoxTandC.addEventListener('change', (e) => {
-            if (checkBoxTandC.checked === true) {
-                enableTandCSubmitButton();
-            } else disableTandCSubmitButton();
-        });
+            function disableSubmitButton() {
+                submitButton.disabled = true;
+                submitButton.setAttribute('aria-disabled', true);
+                submitButton.classList.add('govuk-button--disabled');
+            }
+
+            [radioGoPaperless, radioByPost, checkBoxTandC].forEach(function(elem) {
+                elem.addEventListener('change', function() {
+                    updateSubmitButtonState();
+                });
+            });
+
+            function updateSubmitButtonState() {
+                if ((radioGoPaperless.checked && (checkBoxTandC.checked === true)) || radioByPost.checked) {
+                    enableSubmitButton();
+                }
+                else disableSubmitButton();
+            }
+
+            updateSubmitButtonState();
+        })();
     </script>
 }

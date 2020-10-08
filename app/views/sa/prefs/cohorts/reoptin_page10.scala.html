@@ -59,113 +59,109 @@
 
 @mainWithHeaders(title = Messages("reoptin_page10.fg_page.title")) {
 
-<header class="page-header">
-    <h1 class="govuk-heading-xl">@Messages("reoptin_page10.fg_page.title")</h1>
-</header>
+    <header class="page-header">
+        <h1 class="govuk-heading-xl">@Messages("reoptin_page10.fg_page.title")</h1>
+    </header>
 
-<p class="govuk-body">@Messages("reoptin_page10.fg_page.choose_1")</p>
-<p class="govuk-body">@Messages("reoptin_page10.fg_page.choose_2")</p>
+    <p class="govuk-body">@Messages("reoptin_page10.fg_page.choose_1")</p>
+    <p class="govuk-body">@Messages("reoptin_page10.fg_page.choose_2")</p>
 
-<ul class="list list-bullet govuk-body">
-    <li>@Messages("reoptin_page10.fg_page.list_1")</li>
-    <li>@Messages("reoptin_page10.fg_page.list_2")</li>
-    <li>@Messages("reoptin_page10.fg_page.list_3")</li>
-</ul>
+    <ul class="list list-bullet govuk-body">
+        <li>@Messages("reoptin_page10.fg_page.list_1")</li>
+        <li>@Messages("reoptin_page10.fg_page.list_2")</li>
+        <li>@Messages("reoptin_page10.fg_page.list_3")</li>
+    </ul>
 
-<p class="govuk-body">@Messages("reoptin_page10.fg_page.choose_3")</p>
+    <p class="govuk-body">@Messages("reoptin_page10.fg_page.choose_3")</p>
 
-@form(action = submitPrefsFormAction, 'id -> "form-submit-email-address", 'novalidate -> "novalidate") {
+    @form(action = submitPrefsFormAction, 'id -> "form-submit-email-address", 'novalidate -> "novalidate") {
 
-@govukRadios(Radios(
-    fieldset = Some(Fieldset(
-        legend = Some(Legend(
-            content = Text(Messages("reoptin_page10.fg_page.paperless")),
-            classes = "govuk-fieldset__legend--l",
-            isPageHeading = true
+        @govukRadios(Radios(
+            fieldset = Some(Fieldset(
+                legend = Some(Legend(
+                    content = Text(Messages("reoptin_page10.fg_page.paperless")),
+                    classes = "govuk-fieldset__legend--l",
+                    isPageHeading = true
+                ))
+            )),
+            idPrefix = Some("opt-in"),
+            name = "opt-in",
+            items = Seq(
+                RadioItem(
+                    content = Text(Messages("reoptin_page10.fg_page.yes_send_email")),
+                    value = Some("true"),
+                    checked = emailForm("opt-in").value.contains("true"),
+                    conditionalHtml = Some(emailHtml)
+                ),
+                RadioItem(
+                    content = Text(Messages("reoptin_page10.fg_page.keep_receiving")),
+                    value = Some("false"),
+                    checked = emailForm("opt-in").value.contains("false")
+                )
+            )
         ))
-    )),
-    idPrefix = Some("opt-in"),
-    name = "opt-in",
-    items = Seq(
-        RadioItem(
-            content = Text(Messages("reoptin_page10.fg_page.yes_send_email")),
-            value = Some("true"),
-            checked = emailForm("opt-in").value.contains("true"),
-            conditionalHtml = Some(emailHtml)
-        ),
-        RadioItem(
-            content = Text(Messages("reoptin_page10.fg_page.keep_receiving")),
-            value = Some("false"),
-            checked = emailForm("opt-in").value.contains("false")
-        )
-    )
-))
 
-<div class="govuk-error-message">
-    @emailForm("opt-in").errors.map { error => <label class="error-notification">@Messages(error.message)</label>}
-    @emailForm.globalErrors.map { error => <label class="error-notification">@Messages(error.message)</label>}
-</div>
+        <div class="govuk-error-message">
+            @emailForm("opt-in").errors.map { error => <label class="error-notification">@Messages(error.message)</label>}
+            @emailForm.globalErrors.map { error => <label class="error-notification">@Messages(error.message)</label>}
+        </div>
 
-<p class="govuk-body">
-    @Html(Messages("reoptin_page10.fg_page_privacy_notice", Link.toExternalPage(id = Some("privacy-policy"), url
-    = "https://www.tax.service.gov.uk/help/privacy", hiddenInfo = Some(""), value =
-    Some(Messages("reoptin_page10.privacy_policy_linkText"))).toHtml))
-</p>
+        <p class="govuk-body">
+            @Html(Messages("reoptin_page10.fg_page_privacy_notice", Link.toExternalPage(id = Some("privacy-policy"), url
+            = "https://www.tax.service.gov.uk/help/privacy", hiddenInfo = Some(""), value =
+            Some(Messages("reoptin_page10.privacy_policy_linkText"))).toHtml))
+        </p>
 
-@govukButton(Button(
-    name = Some("submitButton"),
-    disabled = true,
-    inputType = Some("submit"),
-    content = Text(Messages("reoptin_page10.submitButton")),
-    attributes = Map(
-        "id" -> "submitEmailButton"
-    )
-))
-}
-
-<script>
-    var submitButton = document.getElementById('submitEmailButton');
-    var radioGoPaperless = document.getElementById('opt-in');
-    var radioByPost = document.getElementById('opt-in-2');
-    var checkBoxTandC = document.getElementById('accept-tc');
-    var textBoxEmail = document.getElementById('email.main');
-
-    function enableTandCSubmitButton() {
-        submitButton.disabled = false;
-        submitButton.removeAttribute('aria-disabled');
-        submitButton.classList.remove('govuk-button--disabled');
+        @govukButton(Button(
+            name = Some("submitButton"),
+            inputType = Some("submit"),
+            content = Text(Messages("reoptin_page10.submitButton")),
+            attributes = Map(
+                "id" -> "submitEmailButton"
+            )
+        ))
     }
 
-    function disableTandCSubmitButton() {
-        submitButton.disabled = true;
-        submitButton.setAttribute('aria-disabled', true);
-        submitButton.classList.add('govuk-button--disabled');
-    }
+    <script>
+        (function() {
+            var submitButton = document.getElementById('submitEmailButton');
+            var radioGoPaperless = document.getElementById('opt-in');
+            var radioByPost = document.getElementById('opt-in-2');
+            var checkBoxTandC = document.getElementById('accept-tc');
+            var textBoxEmail = document.getElementById('email.main');
 
-    radioGoPaperless.addEventListener('change', (e) => {
-        if (e.target.checked && (checkBoxTandC.checked === true) && (textBoxEmail.value.length > 0)) {
-            enableTandCSubmitButton();
-        } else if (radioByPost.checked) {
-            enableTandCSubmitButton();
-        } else disableTandCSubmitButton();
-    });
+            function enableSubmitButton() {
+                submitButton.disabled = false;
+                submitButton.removeAttribute('aria-disabled');
+                submitButton.classList.remove('govuk-button--disabled');
+            }
 
-    radioByPost.addEventListener('change', (e) => {
-        if (e.target.checked) {
-            enableTandCSubmitButton();
-        }
-    });
+            function disableSubmitButton() {
+                submitButton.disabled = true;
+                submitButton.setAttribute('aria-disabled', true);
+                submitButton.classList.add('govuk-button--disabled');
+            }
 
-    checkBoxTandC.addEventListener('change', (e) => {
-        if ((checkBoxTandC.checked === true) && (textBoxEmail.value.length > 0)) {
-            enableTandCSubmitButton();
-        } else disableTandCSubmitButton();
-    });
+            [radioGoPaperless, radioByPost, checkBoxTandC].forEach(function(elem) {
+                elem.addEventListener('change', function() {
+                    updateSubmitButtonState();
+                });
+            });
 
-    textBoxEmail.addEventListener('input', (e) => {
-        if ((checkBoxTandC.checked === true) && (textBoxEmail.value.length > 0)) {
-            enableTandCSubmitButton();
-        } else disableTandCSubmitButton();
-    });
-</script>
+            textBoxEmail.addEventListener('input', function() {
+                updateSubmitButtonState();
+            });
+
+            function updateSubmitButtonState() {
+                if ((radioGoPaperless.checked &&
+                    (checkBoxTandC.checked === true) &&
+                    (textBoxEmail.value.length > 0)) || radioByPost.checked) {
+                        enableSubmitButton();
+                }
+                else disableSubmitButton();
+            }
+
+            updateSubmitButtonState();
+        })();
+    </script>
 }
