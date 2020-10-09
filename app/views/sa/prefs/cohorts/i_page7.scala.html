@@ -112,7 +112,6 @@
             Some(Messages("i_page7.privacy_policy_linkText"))).toHtml))
         </p>
 
-
         @govukButton(Button(
             name = Some("submitButton"),
             inputType = Some("submit"),
@@ -122,47 +121,4 @@
             )
         ))
     }
-
-    <script>
-        (function() {
-            var submitButton = document.getElementById('submitEmailButton');
-            var radioGoPaperless = document.getElementById('opt-in');
-            var radioByPost = document.getElementById('opt-in-2');
-            var checkBoxTandC = document.getElementById('accept-tc');
-            var textBoxEmail = document.getElementById('email.main');
-
-            function enableSubmitButton() {
-                submitButton.disabled = false;
-                submitButton.removeAttribute('aria-disabled');
-                submitButton.classList.remove('govuk-button--disabled');
-            }
-
-            function disableSubmitButton() {
-                submitButton.disabled = true;
-                submitButton.setAttribute('aria-disabled', true);
-                submitButton.classList.add('govuk-button--disabled');
-            }
-
-            [radioGoPaperless, radioByPost, checkBoxTandC].forEach(function(elem) {
-                elem.addEventListener('change', function() {
-                    updateSubmitButtonState();
-                });
-            });
-
-            textBoxEmail.addEventListener('input', function() {
-                updateSubmitButtonState();
-            });
-
-            function updateSubmitButtonState() {
-                if ((radioGoPaperless.checked &&
-                    (checkBoxTandC.checked === true) &&
-                    (textBoxEmail.value.length > 0)) || radioByPost.checked) {
-                        enableSubmitButton();
-                }
-                else disableSubmitButton();
-            }
-
-            updateSubmitButtonState();
-        })();
-    </script>
 }

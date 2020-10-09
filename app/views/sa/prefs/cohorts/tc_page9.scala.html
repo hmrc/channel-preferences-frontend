@@ -78,8 +78,8 @@
         ))
 
         <div class="govuk-error-message">
-            @emailForm("termsAndConditions").error.map { error => <label class="error-notification">@Messages(error.message)</label>}
-            @emailForm("termsAndConditions.opt-in").errors.map { error => <label class="error-notification" style="display:inline-block">@Messages(error.message)</label>}
+            @emailForm("termsAndConditions.opt-in").error.map { error => <label class="error-notification">@Messages(error.message)</label> }
+            @emailForm("termsAndConditions.accept-tc").errors.map { error => <label class="error-notification">@Messages(error.message)</label> }
         </div>
 
         <input type="hidden" id="email.main" name="email.main" value='@emailForm("email.main").value'>
@@ -96,40 +96,4 @@
             )
         ))
     }
-
-    <script>
-        (function() {
-            var submitButton = document.getElementById('submitEmailButton');
-            var radioGoPaperless = document.getElementById('opt-in');
-            var radioByPost = document.getElementById('opt-in-2');
-            var checkBoxTandC = document.getElementById('accept-tc');
-
-            function enableSubmitButton() {
-                submitButton.disabled = false;
-                submitButton.removeAttribute('aria-disabled');
-                submitButton.classList.remove('govuk-button--disabled');
-            }
-
-            function disableSubmitButton() {
-                submitButton.disabled = true;
-                submitButton.setAttribute('aria-disabled', true);
-                submitButton.classList.add('govuk-button--disabled');
-            }
-
-            [radioGoPaperless, radioByPost, checkBoxTandC].forEach(function(elem) {
-                elem.addEventListener('change', function() {
-                    updateSubmitButtonState();
-                });
-            });
-
-            function updateSubmitButtonState() {
-                if ((radioGoPaperless.checked && (checkBoxTandC.checked === true)) || radioByPost.checked) {
-                    enableSubmitButton();
-                }
-                else disableSubmitButton();
-            }
-
-            updateSubmitButtonState();
-        })();
-    </script>
 }
