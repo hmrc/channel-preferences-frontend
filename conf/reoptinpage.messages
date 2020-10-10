@@ -9,9 +9,8 @@ reoptin_page10.fg_page.yes_send_email_info_2=Because we cannot send all letters 
 reoptin_page10.fg_page.yes_send_email_info_2=Because we cannot send all letters online yet, you will continue to get some by post.
 reoptin_page10.privacy_policy_linkText=read the privacy notice
 reoptin_page10.submitButton=Continue
-reoptin_page10.tc.linkText=terms and conditions
+reoptin_page10.tc.linkText=terms and conditions (opens in a new tab)
 reoptin_page10.tc.preLinkText=I agree to the {0}
-
 
 reoptin_page10.fg_page.title=Don''t lose access to your online tax documents
 reoptin_page10.fg_page.choose_1=You can choose to continue to get some of your tax documents and information sent through your HMRC online account instead of by post.

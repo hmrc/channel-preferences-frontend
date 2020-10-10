@@ -268,6 +268,14 @@ class ChoosePaperlessControllerSpec
       status(page) mustBe 400
 
       val document = Jsoup.parse(contentAsString(page))
+
+      document
+        .getElementById("terms-and-conditions")
+        .childNodes()
+        .get(0)
+        .toString
+        .trim mustBe "terms and conditions (opens in a new tab)"
+
       document
         .getElementById("email.main-error")
         .childNodes()
@@ -287,6 +295,14 @@ class ChoosePaperlessControllerSpec
       status(page) mustBe 400
 
       val document = Jsoup.parse(contentAsString(page))
+
+      document
+        .getElementById("terms-and-conditions")
+        .childNodes()
+        .get(0)
+        .toString
+        .trim mustBe "terms and conditions (opens in a new tab)"
+
       document
         .getElementById("accept-tc-error")
         .childNodes()
@@ -307,6 +323,14 @@ class ChoosePaperlessControllerSpec
       status(page) mustBe 400
 
       val document = Jsoup.parse(contentAsString(page))
+
+      document
+        .getElementById("terms-and-conditions")
+        .childNodes()
+        .get(0)
+        .toString
+        .trim mustBe "terms and conditions (opens in a new tab)"
+
       document
         .getElementById("accept-tc-error")
         .childNodes()
