@@ -300,7 +300,7 @@ to:
                 ),
 ```
 
-You will also need to amend the moedl file `controllers.internal.SurveyDetailsForm` and the object/case class from:
+You will also need to amend the model file `controllers.internal.SurveyDetailsForm` and the object/case class from:
 
 ```scala
 object SurveyReOptInDeclinedDetailsForm {
