@@ -1,0 +1,93 @@
+@*
+ * Copyright 2020 HM Revenue & Customs
+ *
+ *@
+
+@import controllers.auth.AuthenticatedRequest
+@import play.api.i18n.Messages.Implicits._
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+@import controllers.internal.SurveyReOptInDeclinedDetailsForm._
+@this(mainWithHeaders: views.html.main_with_headers,
+    govukButton: GovukButton,
+    govukCheckboxes: GovukCheckboxes,
+    govukTextarea: GovukTextarea)
+@(surveyForm: Form[Data], submitSurveyFormAction: Call)(implicit request: AuthenticatedRequest[_], messages: Messages, hostContext: model.HostContext)
+@import uk.gov.hmrc.urls.Link
+@import uk.gov.hmrc.play.views.html.helpers._
+
+@mainWithHeaders(title = Messages("paperless.survey.reoptin_declined.title")) {
+
+    <header class="page-header">
+        <h1 class="govuk-heading-xl">@Messages("paperless.survey.reoptin_declined.title")</h1>
+    </header>
+
+    <p class="govuk-body">@Messages("paperless.survey.reoptin_declined.paragraph.1")</p>
+
+    @form(action = submitSurveyFormAction, 'id -> "form-submit-survey", 'novalidate -> "novalidate") {
+
+        @govukCheckboxes(Checkboxes(
+            fieldset = None,
+            hint = Some(Hint(content = Text(Messages("paperless.survey.reoptin_declined.hint")))),
+            idPrefix = Some("survey-reoptin_declined"),
+            name = "survey-reoptin_declined",
+            items = Seq(
+                CheckboxItem(
+                    content = Text(Messages("paperless.survey.reoptin_declined.choice.1")),
+                    value = "true",
+                    checked = surveyForm("choice1").value.contains("true")
+                ),
+                CheckboxItem(
+                    content = Text(Messages("paperless.survey.reoptin_declined.choice.2")),
+                    value = "true",
+                    checked = surveyForm("choice2").value.contains("true")
+                ),
+                CheckboxItem(
+                    content = Text(Messages("paperless.survey.reoptin_declined.choice.3")),
+                    value = "true",
+                    checked = surveyForm("choice3").value.contains("true")
+                ),
+                CheckboxItem(
+                    content = Text(Messages("paperless.survey.reoptin_declined.choice.4")),
+                    value = "true",
+                    checked = surveyForm("choice4").value.contains("true")
+                ),
+                CheckboxItem(
+                    content = Text(Messages("paperless.survey.reoptin_declined.choice.5")),
+                    value = "true",
+                    checked = surveyForm("choice5").value.contains("true")
+                )
+            )
+        ))
+
+        <div class="govuk-error-message">
+            @surveyForm("reason").errors.map { error => <label class="error-notification">@Messages("paperless.survey.reoptin_declined.reason.label.error.maxlength")</label>}
+        </div>
+
+        @govukTextarea(Textarea(
+            id = "reason",
+            name = "reason",
+            label = Label(
+                isPageHeading = false,
+                classes = "govuk-label--s",
+                content = Text(Messages("paperless.survey.reoptin_declined.reason.label"))
+            )
+        ))
+
+        <p class="govuk-body">
+            @govukButton(Button(
+                name = Some("submitButton"),
+                inputType = Some("submit"),
+                content = Text(Messages("paperless.survey.reoptin_declined.submitButton")),
+                attributes = Map(
+                "id" -> "submitEmailButton"
+                )
+            ))
+            @Link.toInternalPage(
+                cssClasses = Some("govuk-!-margin-right-1"),
+                id = Some("sa-home-link"),
+                url = controllers.internal.routes.ManagePaperlessController.checkSettings(hostContext).url,
+                value = Some(Messages("paperless.survey.reoptin_declined.check.settings.linkText"))
+            ).toHtml
+        </p>
+    }
+}

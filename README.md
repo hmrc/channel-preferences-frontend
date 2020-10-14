@@ -258,6 +258,111 @@ object CohortCurrent {
 
 ```
 
+# How to enable/disable the re-optin declined survey
+
+Set the `reOptInPage10SurveyEnabled` config property to true to enable the survey (default is disabled)
+
+``` json
+survey.ReOptInPage10.enabled = true
+```
+
+# How to amend/add a new question in the re-optin survey
+
+Amend both `survey.messages` and `survey.messages.cy` ensuring to add a new key for the multiple choice answers *NOTE: DO NOT AMEND AN EXISTING KEY VALUE, INSTEAD, ADD A NEW KEY AS IN THE EXAMPLE BELOW*
+
+```
+paperless.survey.reoptin_declined.choice.3=I enjoy coding
+```
+
+Instead of amending `choice.3`, simply add `choice.6` for instance as such:
+
+```
+paperless.survey.reoptin_declined.choice.6=I dislike coding
+```
+
+You will also need to amend `views.sa.prefs.surveys.reoptin_declined_survey.scala.html` and amend checkbox 3 from:
+
+```
+                CheckboxItem(
+                    content = Text(Messages("paperless.survey.reoptin_declined.choice.3")),
+                    value = "true",
+                    checked = surveyForm("choice3").value.contains("true")
+                ),
+```
+
+to:
+
+```
+                CheckboxItem(
+                    content = Text(Messages("paperless.survey.reoptin_declined.choice.6")),
+                    value = "true",
+                    checked = surveyForm("choice6").value.contains("true")
+                ),
+```
+
+You will also need to amend the moedl file `controllers.internal.SurveyDetailsForm` and the object/case class from:
+
+```scala
+object SurveyReOptInDeclinedDetailsForm {
+
+  val reasonMaxLength = 500
+
+  def apply(): Form[Data] =
+    Form(
+      mapping(
+        "choice1" -> boolean,
+        "choice2" -> boolean,
+        "choice3" -> boolean,
+        "choice4" -> boolean,
+        "choice5" -> boolean,
+        "reason"  -> optional(text(maxLength = reasonMaxLength))
+      )(Data.apply)(Data.unapply)
+    )
+
+  case class Data(
+    choice1: Boolean,
+    choice2: Boolean,
+    choice3: Boolean,
+    choice4: Boolean,
+    choice5: Boolean,
+    reason: Option[String]
+  )
+}
+```
+
+to:
+
+```scala
+object SurveyReOptInDeclinedDetailsForm {
+
+  val reasonMaxLength = 500
+
+  def apply(): Form[Data] =
+    Form(
+      mapping(
+        "choice1" -> boolean,
+        "choice2" -> boolean,
+        "choice6" -> boolean,
+        "choice4" -> boolean,
+        "choice5" -> boolean,
+        "reason"  -> optional(text(maxLength = reasonMaxLength))
+      )(Data.apply)(Data.unapply)
+    )
+
+  case class Data(
+    choice1: Boolean,
+    choice2: Boolean,
+    choice6: Boolean,
+    choice4: Boolean,
+    choice5: Boolean,
+    reason: Option[String]
+  )
+}
+```
+
+As a result tests will fail and they will need to be fixed, including amending the `controllers.internal.SurveyController` methods `displayReOptInDeclinedSurveyForm` and method `auditSurvey`.
+
+Unless the question means semantically the same thing as the original question but with different grammar, a new key should be selected for a different answer to be presented to the user or it will affect the results during querying.
 
 # How to get a rendered opt-in page by a cohort number
 

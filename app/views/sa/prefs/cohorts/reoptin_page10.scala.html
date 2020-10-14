@@ -30,8 +30,10 @@
             "readonly" -> ""
         )
     ))
+
     <p id="message-after-email-input-para-1" class="govuk-body">@Messages("reoptin_page10.fg_page.yes_send_email_info_1")</p>
     <p id="message-after-email-input" class="govuk-body">@Messages("reoptin_page10.fg_page.yes_send_email_info_2")</p>
+
     @govukCheckboxes(Checkboxes(
         fieldset = None,
         idPrefix = Some("accept-tc"),
@@ -41,16 +43,16 @@
             CheckboxItem(
                 content = HtmlContent(
                     Messages("reoptin_page10.tc.preLinkText",
-                    Link.toExternalPage(
-                        id = Some("terms-and-conditions"),
-                        url = Messages("sa_printing_preference.tc.linkUrl"),
-                        value = Some(Messages("reoptin_page10.tc.linkText")),
-                        hiddenInfo = Some("")
-                    ).toHtml
-                )
-            ),
-            value = "true",
-            checked = emailForm("accept-tc").value.contains("true")
+                        Link.toExternalPage(
+                            id = Some("terms-and-conditions"),
+                            url = Messages("sa_printing_preference.tc.linkUrl"),
+                            value = Some(Messages("reoptin_page10.tc.linkText")),
+                            hiddenInfo = Some("")
+                        ).toHtml
+                    )
+                ),
+                value = "true",
+                checked = emailForm("accept-tc").value.contains("true")
             )
         ),
         classes = "govuk-checkboxes--small"

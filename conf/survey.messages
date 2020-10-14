@@ -1,0 +1,12 @@
+paperless.survey.reoptin_declined.title=Why did you choose to go back to paper letters?
+paperless.survey.reoptin_declined.paragraph.1=We only use this information to improve the service. We will not reply to you.
+paperless.survey.reoptin_declined.hint=You can select more than one choice.
+paperless.survey.reoptin_declined.choice.1=I don't remember asking for online tax letters
+paperless.survey.reoptin_declined.choice.2=I didn't want to be interrupted by that today
+paperless.survey.reoptin_declined.choice.3=I worry people will not accept online tax letters as proof
+paperless.survey.reoptin_declined.choice.4=I did not receive the email notifications about a new online tax letter
+paperless.survey.reoptin_declined.choice.5=I do not want a mix of paper letters and online letters
+paperless.survey.reoptin_declined.reason.label=Another reason
+paperless.survey.reoptin_declined.reason.label.error.maxlength=Maximum length is 500 characters
+paperless.survey.reoptin_declined.submitButton=Continue
+paperless.survey.reoptin_declined.check.settings.linkText=Skip

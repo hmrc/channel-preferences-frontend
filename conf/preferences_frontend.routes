@@ -32,6 +32,10 @@ POST        /paperless/choose/:svc/:token                                       
 GET         /paperless/choose/:cohort                                               controllers.internal.ChoosePaperlessController.displayForm(cohort: Option[controllers.internal.OptInCohort], email: Option[model.EncryptedEmail], hostContext: model.HostContext)
 POST        /paperless/choose                                                       controllers.internal.ChoosePaperlessController.submitForm(hostContext: model.HostContext)
 
+GET         /paperless/survey/reoptin-declined                                      controllers.internal.SurveyController.displayReOptInDeclinedSurveyForm(hostContext: model.HostContext)
+POST        /paperless/survey/reoptin-declined                                      controllers.internal.SurveyController.submitReOptInDeclinedSurveyForm(hostContext: model.HostContext)
+
+
 GET         /paperless/language-choose                                              controllers.internal.ChoosePaperlessController.displayLanguageForm(hostContext: model.HostContext)
 POST        /paperless/language-choose                                              controllers.internal.ChoosePaperlessController.submitLanguageForm(hostContext: model.HostContext)
 

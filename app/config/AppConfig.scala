@@ -41,5 +41,6 @@ class YtaConfig @Inject()(configuration: Configuration, runMode: RunMode, extern
   def fallbackURLForLanguageSwitcher: String = loadConfig(s"${runMode.env}.languageSwitcher.fallback.url")
   def enableLanguageSwitching: Boolean =
     configuration.getOptional[Boolean](s"${runMode.env}.enableLanguageSwitching").getOrElse(false)
-
+  def surveyReOptInPage10Enabled: Boolean =
+    configuration.getOptional[Boolean](s"survey.ReOptInPage10.enabled").getOrElse(false)
 }

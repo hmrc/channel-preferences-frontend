@@ -274,7 +274,7 @@ class ChoosePaperlessControllerSpec
         .childNodes()
         .get(0)
         .toString
-        .trim mustBe "terms and conditions (opens in a new tab)"
+        .trim mustBe "terms and conditions"
 
       document
         .getElementById("email.main-error")
@@ -301,7 +301,7 @@ class ChoosePaperlessControllerSpec
         .childNodes()
         .get(0)
         .toString
-        .trim mustBe "terms and conditions (opens in a new tab)"
+        .trim mustBe "terms and conditions"
 
       document
         .getElementById("accept-tc-error")
@@ -329,7 +329,7 @@ class ChoosePaperlessControllerSpec
         .childNodes()
         .get(0)
         .toString
-        .trim mustBe "terms and conditions (opens in a new tab)"
+        .trim mustBe "terms and conditions"
 
       document
         .getElementById("accept-tc-error")

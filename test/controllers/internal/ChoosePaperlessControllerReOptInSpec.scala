@@ -240,7 +240,7 @@ class ChoosePaperlessControllerReOptInSpec
         .childNodes()
         .get(0)
         .toString
-        .trim mustBe "terms and conditions (opens in a new tab)"
+        .trim mustBe "terms and conditions"
 
       document
         .getElementById("accept-tc-error")
@@ -288,7 +288,7 @@ class ChoosePaperlessControllerReOptInSpec
       verifyZeroInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
 
-    "when re-opting-in, do not validate the email address, save the preference and redirect to returnUrl from the host context" in new ChoosePaperlessControllerReOptInSetup {
+    "when re-opting-in, do not validate the email address, save the preference and redirect to the survey" in new ChoosePaperlessControllerReOptInSetup {
       reset(mockEntityResolverConnector)
       reset(mockEmailConnector)
       val emailAddress = "someone@email.com"
@@ -302,7 +302,7 @@ class ChoosePaperlessControllerReOptInSpec
         FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), "accept-tc" -> "true"))
 
       val checkYourSettingsUrl =
-        "/paperless/check-settings?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D&email=yCVwXTaKNqm1whFZ7gcFkQ%3D%3D&cohort=u%2Fn1h8qcsJrhpRofXkhmXg%3D%3D"
+        "/paperless/survey/reoptin-declined?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D&email=yCVwXTaKNqm1whFZ7gcFkQ%3D%3D&cohort=u%2Fn1h8qcsJrhpRofXkhmXg%3D%3D"
       header("Location", page).get must be(checkYourSettingsUrl)
       status(page) mustBe 303
       verify(mockEntityResolverConnector)

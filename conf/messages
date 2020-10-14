@@ -256,15 +256,3 @@ paperless.status.url.text.alright=Check your settings
 paperless.status.url.text.welsh_available=Change your language
 paperless.status.url.text.no_email=Set up your email address
 manage.paperless.check.settings.linkText=Continue
-
-paperless.survey.reoptin_decline.title=Why did you choose to go back to paper letters?
-paperless.survey.reoptin_decline.paragraph.1=We only use this information to improve the service. We will not reply to you.
-paperless.survey.reoptin_decline.hint=You can select more than one choice.
-paperless.survey.reoptin_decline.choice.1=I don't remember asking for online tax letters
-paperless.survey.reoptin_decline.choice.2=I didn't want to be interrupted by that today
-paperless.survey.reoptin_decline.choice.3=I worry people will not accept online tax letters as proof
-paperless.survey.reoptin_decline.choice.4=I did not receive the email notifications about a new online tax letter
-paperless.survey.reoptin_decline.choice.5=I do not want a mix of paper letters and online letters
-paperless.survey.reoptin_decline.freetext.label.1=Another reason
-paperless.survey.reoptin_decline.submitButton=Continue
-paperless.survey.reoptin_decline.skipLink=Skip

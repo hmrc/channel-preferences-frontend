@@ -252,15 +252,3 @@ paperless.status.url.text.alright=Gwirio’ch gosodiadau
 paperless.status.url.text.welsh_available=Newid eich iaith
 paperless.status.url.text.no_email=Sefydlu’ch cyfeiriad e-bost
 manage.paperless.check.settings.linkText=Yn eich blaen
-
-paperless.survey.reoptin_decline.title=Pam y gwnaethoch ddewis mynd yn ôl i lythyrau ar bapur?
-paperless.survey.reoptin_decline.paragraph.1=Rydym ond yn defnyddio’r wybodaeth hon i wella’r gwasanaeth. Ni fyddwn ymateb i chi.
-paperless.survey.reoptin_decline.hint=You can select more than one choice.
-paperless.survey.reoptin_decline.choice.1=Dwi ddim yn cofio gofyn am lythyrau treth ar-lein
-paperless.survey.reoptin_decline.choice.2=I didn't want to be interrupted by that today
-paperless.survey.reoptin_decline.choice.3=Pryderaf na fydd pobl yn derbyn llythyrau treth ar-lein fel tystiolaeth
-paperless.survey.reoptin_decline.choice.4=Ches i ddim hysbysiadau e-bost am lythyr treth ar-lein newydd
-paperless.survey.reoptin_decline.choice.5=Dwi ddim am gael cymysgedd o lythyrau ar bapur a llythyrau ar-lein
-paperless.survey.reoptin_decline.freetext.label.1=Rheswm arall
-paperless.survey.reoptin_decline.submitButton=Yn eich blaen
-paperless.survey.reoptin_decline.skipLink=Ewch yn syth ymlaen

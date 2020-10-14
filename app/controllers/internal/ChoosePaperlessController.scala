@@ -5,6 +5,7 @@
 
 package controllers.internal
 
+import config.YtaConfig
 import connectors._
 import controllers.auth.{ AuthenticatedRequest, WithAuthRetrievals }
 import controllers.internal.EmailOptInJourney._
@@ -29,6 +30,7 @@ import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import scala.concurrent.{ ExecutionContext, Future }
 
 class ChoosePaperlessController @Inject()(
+  ytaConfig: YtaConfig,
   entityResolverConnector: EntityResolverConnector,
   emailConnector: EmailConnector,
   auditConnector: AuditConnector,
@@ -160,12 +162,10 @@ class ChoosePaperlessController @Inject()(
     cohort.fold(Future.successful(BadRequest("Invalid cohort"))) { cohort =>
       val form =
         cohort.pageType match {
-          case PageType.IPage  => OptInDetailsForm()
-          case PageType.TCPage => OptInTaxCreditsDetailsForm()
-          case PageType.ReOptInPage =>
-            ReOptInDetailsForm()
-          case _ => throw (new Exception("Invalid cohort"))
-
+          case PageType.IPage       => OptInDetailsForm()
+          case PageType.TCPage      => OptInTaxCreditsDetailsForm()
+          case PageType.ReOptInPage => ReOptInDetailsForm()
+          case _                    => throw (new Exception("Invalid cohort"))
         }
       implicit val authRequest = AuthenticatedRequest[AnyContent](request, None, None, None, None)
       Future.successful(
@@ -374,7 +374,11 @@ class ChoosePaperlessController @Inject()(
       .map { preferencesStatus =>
         auditChoice(AccountDetails, cohort, terms, email, preferencesStatus)
         if (cohort.pageType == PageType.ReOptInPage) {
-          Redirect(routes.ManagePaperlessController.checkSettings(hostContext))
+          if (ytaConfig.surveyReOptInPage10Enabled) {
+            Redirect(routes.SurveyController.displayReOptInDeclinedSurveyForm(hostContext))
+          } else {
+            Redirect(routes.ManagePaperlessController.checkSettings(hostContext))
+          }
         } else if (digital && !emailAlreadyStored) {
           val encryptedEmail = email map (emailAddress => Encrypted(EmailAddress(emailAddress)))
           Redirect(routes.ChoosePaperlessController.displayNearlyDone(encryptedEmail, hostContext))
