@@ -280,24 +280,16 @@ Instead of amending `choice.3`, simply add `choice.6` for instance as such:
 paperless.survey.reoptin_declined.choice.6=I dislike coding
 ```
 
-You will also need to amend `views.sa.prefs.surveys.reoptin_declined_survey.scala.html` and amend checkbox 3 from:
+You will also need to amend `views.sa.prefs.surveys.reoptin_declined_survey.scala.html` and amend the Randomized list:
 
 ```
-                CheckboxItem(
-                    content = Text(Messages("paperless.survey.reoptin_declined.choice.3")),
-                    value = "true",
-                    checked = surveyForm("choice3").value.contains("true")
-                ),
+               items = Random.shuffle(List(1,2,3,4,5)).map(num =>
 ```
 
 to:
 
 ```
-                CheckboxItem(
-                    content = Text(Messages("paperless.survey.reoptin_declined.choice.6")),
-                    value = "true",
-                    checked = surveyForm("choice6").value.contains("true")
-                ),
+                items = Random.shuffle(List(1,2,6,4,5)).map(num =>
 ```
 
 You will also need to amend the model file `controllers.internal.SurveyDetailsForm` and the object/case class from:
@@ -310,21 +302,21 @@ object SurveyReOptInDeclinedDetailsForm {
   def apply(): Form[Data] =
     Form(
       mapping(
-        "choice1" -> boolean,
-        "choice2" -> boolean,
-        "choice3" -> boolean,
-        "choice4" -> boolean,
-        "choice5" -> boolean,
+        "choice1" -> optional(boolean),
+        "choice2" -> optional(boolean),
+        "choice3" -> optional(boolean),
+        "choice4" -> optional(boolean),
+        "choice5" -> optional(boolean),
         "reason"  -> optional(text(maxLength = reasonMaxLength))
       )(Data.apply)(Data.unapply)
     )
 
   case class Data(
-    choice1: Boolean,
-    choice2: Boolean,
-    choice3: Boolean,
-    choice4: Boolean,
-    choice5: Boolean,
+    choice1: Option[Boolean],
+    choice2: Option[Boolean],
+    choice3: Option[Boolean],
+    choice4: Option[Boolean],
+    choice5: Option[Boolean],
     reason: Option[String]
   )
 }
@@ -340,21 +332,21 @@ object SurveyReOptInDeclinedDetailsForm {
   def apply(): Form[Data] =
     Form(
       mapping(
-        "choice1" -> boolean,
-        "choice2" -> boolean,
-        "choice6" -> boolean,
-        "choice4" -> boolean,
-        "choice5" -> boolean,
+        "choice1" -> optional(boolean),
+        "choice2" -> optional(boolean),
+        "choice6" -> optional(boolean),
+        "choice4" -> optional(boolean),
+        "choice5" -> optional(boolean),
         "reason"  -> optional(text(maxLength = reasonMaxLength))
       )(Data.apply)(Data.unapply)
     )
 
   case class Data(
-    choice1: Boolean,
-    choice2: Boolean,
-    choice6: Boolean,
-    choice4: Boolean,
-    choice5: Boolean,
+    choice1: Option[Boolean],
+    choice2: Option[Boolean],
+    choice6: Option[Boolean],
+    choice4: Option[Boolean],
+    choice5: Option[Boolean],
     reason: Option[String]
   )
 }

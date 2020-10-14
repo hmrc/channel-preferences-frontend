@@ -9,7 +9,7 @@ import config.YtaConfig
 import controllers.auth.{ AuthenticatedRequest, WithAuthRetrievals }
 import javax.inject.Inject
 import model.{ HostContext, Language }
-import play.api.Configuration
+import play.api.{ Configuration, Logger }
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc._
@@ -22,6 +22,7 @@ import uk.gov.hmrc.play.bootstrap.config.AppName
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
 import scala.concurrent.{ ExecutionContext, Future }
+import scala.util.Random
 
 class SurveyController @Inject()(
   ytaConfig: YtaConfig,
@@ -41,11 +42,11 @@ class SurveyController @Inject()(
             Ok(reOptinDeclinedSurvey(
               surveyForm = SurveyReOptInDeclinedDetailsForm().fill(
                 SurveyReOptInDeclinedDetailsForm.Data(
-                  choice1 = false,
-                  choice2 = false,
-                  choice3 = false,
-                  choice4 = false,
-                  choice5 = false,
+                  choice1 = None,
+                  choice2 = None,
+                  choice3 = None,
+                  choice4 = None,
+                  choice5 = None,
                   reason = None
                 )),
               submitSurveyFormAction =
@@ -71,11 +72,11 @@ class SurveyController @Inject()(
         detail = Map(
           "utr"     -> request.saUtr.getOrElse("N/A"),
           "nino"    -> request.nino.getOrElse("N/A"),
-          "choice1" -> form.choice1.toString,
-          "choice2" -> form.choice2.toString,
-          "choice3" -> form.choice3.toString,
-          "choice4" -> form.choice4.toString,
-          "choice5" -> form.choice5.toString,
+          "choice1" -> form.choice1.getOrElse(false).toString,
+          "choice2" -> form.choice2.getOrElse(false).toString,
+          "choice3" -> form.choice3.getOrElse(false).toString,
+          "choice4" -> form.choice4.getOrElse(false).toString,
+          "choice5" -> form.choice5.getOrElse(false).toString,
           "reason"  -> form.reason.getOrElse("N/A")
         )
       )
