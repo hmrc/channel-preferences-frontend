@@ -139,12 +139,12 @@ class SurveyControllerSpec
 
       val page = controller.submitReOptInDeclinedSurveyForm(TestFixtures.reOptInHostContext("foo@bar.com"))(
         FakeRequest().withFormUrlEncodedBody(
-          "choice1" -> "true",
-          "choice2" -> "true",
-          "choice3" -> "true",
-          "choice4" -> "false",
-          "choice5" -> "true",
-          "reason"  -> "test test test"
+          "choice-0305d33f-2e8d-4cb2-82d2-52132fc325fe" -> "true",
+          "choice-ce34aa17-df2a-44fb-9d5c-4d930396483a" -> "true",
+          "choice-d0edb491-6dcb-48a8-aeca-b16f01c541a5" -> "true",
+          "choice-1e825e7d-6fc8-453f-8c20-1a7ed4d84ea5" -> "false",
+          "choice-15d28c3f-9f33-4c44-aefa-165fc84b5e23" -> "true",
+          "reason"                                      -> "test test test"
         ))
 
       status(page) mustBe 303
@@ -158,11 +158,11 @@ class SurveyControllerSpec
       value.tags must contain("transactionName" -> "Re-OptIn Declined Survey Answered")
       value.detail("utr") mustBe validUtr.value
       value.detail("nino") mustBe "N/A"
-      value.detail("choice1") mustBe "true"
-      value.detail("choice2") mustBe "true"
-      value.detail("choice3") mustBe "true"
-      value.detail("choice4") mustBe "false"
-      value.detail("choice5") mustBe "true"
+      value.detail("choice-0305d33f-2e8d-4cb2-82d2-52132fc325fe") mustBe "true"
+      value.detail("choice-ce34aa17-df2a-44fb-9d5c-4d930396483a") mustBe "true"
+      value.detail("choice-d0edb491-6dcb-48a8-aeca-b16f01c541a5") mustBe "true"
+      value.detail("choice-1e825e7d-6fc8-453f-8c20-1a7ed4d84ea5") mustBe "false"
+      value.detail("choice-15d28c3f-9f33-4c44-aefa-165fc84b5e23") mustBe "true"
       value.detail("reason") mustBe "test test test"
     }
 
@@ -170,12 +170,12 @@ class SurveyControllerSpec
 
       val page = controller.submitReOptInDeclinedSurveyForm(TestFixtures.reOptInHostContext("foo@bar.com"))(
         FakeRequest().withFormUrlEncodedBody(
-          "choice1" -> "true",
-          "choice2" -> "true",
-          "choice3" -> "true",
-          "choice4" -> "false",
-          "choice5" -> "true",
-          "reason"  -> "A" * 501
+          "choice-0305d33f-2e8d-4cb2-82d2-52132fc325fe" -> "true",
+          "choice-ce34aa17-df2a-44fb-9d5c-4d930396483a" -> "true",
+          "choice-d0edb491-6dcb-48a8-aeca-b16f01c541a5" -> "true",
+          "choice-1e825e7d-6fc8-453f-8c20-1a7ed4d84ea5" -> "false",
+          "choice-15d28c3f-9f33-4c44-aefa-165fc84b5e23" -> "true",
+          "reason"                                      -> "A" * 501
         ))
 
       status(page) mustBe 400

@@ -271,25 +271,20 @@ survey.ReOptInPage10.enabled = true
 Amend both `survey.messages` and `survey.messages.cy` ensuring to add a new key for the multiple choice answers *NOTE: DO NOT AMEND AN EXISTING KEY VALUE, INSTEAD, ADD A NEW KEY AS IN THE EXAMPLE BELOW*
 
 ```
-paperless.survey.reoptin_declined.choice.3=I enjoy coding
+paperless.survey.reoptin_declined.choice.d0edb491-6dcb-48a8-aeca-b16f01c541a5=I enjoy coding
 ```
 
-Instead of amending `choice.3`, simply add `choice.6` for instance as such:
+Instead of amending `choice.d0edb491-6dcb-48a8-aeca-b16f01c541a5`, simply add `choice.8ab5e574-1da2-4d57-86a1-051337b61c6a` for instance as such:
 
 ```
-paperless.survey.reoptin_declined.choice.6=I dislike coding
+paperless.survey.reoptin_declined.choice.8ab5e574-1da2-4d57-86a1-051337b61c6a=I dislike coding
 ```
 
 You will also need to amend `views.sa.prefs.surveys.reoptin_declined_survey.scala.html` and amend the Randomized list:
 
 ```
-               items = Random.shuffle(List(1,2,3,4,5)).map(num =>
-```
-
-to:
-
-```
-                items = Random.shuffle(List(1,2,6,4,5)).map(num =>
+       items = Random.shuffle(List("0305d33f-2e8d-4cb2-82d2-52132fc325f", "ce34aa17-df2a-44fb-9d5c-4d930396483a", "d0edb491-6dcb-48a8-aeca-b16f01c541a5", "1e825e7d-6fc8-453f-8c20-1a7ed4d84ea5", "15d28c3f-9f33-4c44-aefa-165fc84b5e23")).map(num =>
+to:    items = Random.shuffle(List("0305d33f-2e8d-4cb2-82d2-52132fc325f", "ce34aa17-df2a-44fb-9d5c-4d930396483a", "8ab5e574-1da2-4d57-86a1-051337b61c6a", "1e825e7d-6fc8-453f-8c20-1a7ed4d84ea5", "15d28c3f-9f33-4c44-aefa-165fc84b5e23")).map(num =>
 ```
 
 You will also need to amend the model file `controllers.internal.SurveyDetailsForm` and the object/case class from:
@@ -302,21 +297,21 @@ object SurveyReOptInDeclinedDetailsForm {
   def apply(): Form[Data] =
     Form(
       mapping(
-        "choice1" -> optional(boolean),
-        "choice2" -> optional(boolean),
-        "choice3" -> optional(boolean),
-        "choice4" -> optional(boolean),
-        "choice5" -> optional(boolean),
+        "choice-0305d33f-2e8d-4cb2-82d2-52132fc325f" -> optional(boolean),
+        "choice-ce34aa17-df2a-44fb-9d5c-4d930396483a" -> optional(boolean),
+        "choice-d0edb491-6dcb-48a8-aeca-b16f01c541a5" -> optional(boolean),
+        "choice-1e825e7d-6fc8-453f-8c20-1a7ed4d84ea5" -> optional(boolean),
+        "choice-15d28c3f-9f33-4c44-aefa-165fc84b5e23" -> optional(boolean),
         "reason"  -> optional(text(maxLength = reasonMaxLength))
       )(Data.apply)(Data.unapply)
     )
 
   case class Data(
-    choice1: Option[Boolean],
-    choice2: Option[Boolean],
-    choice3: Option[Boolean],
-    choice4: Option[Boolean],
-    choice5: Option[Boolean],
+    `choice-0305d33f-2e8d-4cb2-82d2-52132fc325f`: Option[Boolean],
+    `choice-ce34aa17-df2a-44fb-9d5c-4d930396483a`: Option[Boolean],
+    `choice-d0edb491-6dcb-48a8-aeca-b16f01c541a5`: Option[Boolean],
+    `choice-1e825e7d-6fc8-453f-8c20-1a7ed4d84ea5`: Option[Boolean],
+    `choice-15d28c3f-9f33-4c44-aefa-165fc84b5e23`: Option[Boolean],
     reason: Option[String]
   )
 }
@@ -332,21 +327,21 @@ object SurveyReOptInDeclinedDetailsForm {
   def apply(): Form[Data] =
     Form(
       mapping(
-        "choice1" -> optional(boolean),
-        "choice2" -> optional(boolean),
-        "choice6" -> optional(boolean),
-        "choice4" -> optional(boolean),
-        "choice5" -> optional(boolean),
+        "choice-0305d33f-2e8d-4cb2-82d2-52132fc325f" -> optional(boolean),
+        "choice-ce34aa17-df2a-44fb-9d5c-4d930396483a" -> optional(boolean),
+        "choice-8ab5e574-1da2-4d57-86a1-051337b61c6a" -> optional(boolean),
+        "choice-1e825e7d-6fc8-453f-8c20-1a7ed4d84ea5" -> optional(boolean),
+        "choice-15d28c3f-9f33-4c44-aefa-165fc84b5e23" -> optional(boolean),
         "reason"  -> optional(text(maxLength = reasonMaxLength))
       )(Data.apply)(Data.unapply)
     )
 
   case class Data(
-    choice1: Option[Boolean],
-    choice2: Option[Boolean],
-    choice6: Option[Boolean],
-    choice4: Option[Boolean],
-    choice5: Option[Boolean],
+    `choice-0305d33f-2e8d-4cb2-82d2-52132fc325f`: Option[Boolean],
+    `choice-ce34aa17-df2a-44fb-9d5c-4d930396483a`: Option[Boolean],
+    `choice-8ab5e574-1da2-4d57-86a1-051337b61c6a`: Option[Boolean],
+    `choice-1e825e7d-6fc8-453f-8c20-1a7ed4d84ea5`: Option[Boolean],
+    `choice-15d28c3f-9f33-4c44-aefa-165fc84b5e23`: Option[Boolean],
     reason: Option[String]
   )
 }

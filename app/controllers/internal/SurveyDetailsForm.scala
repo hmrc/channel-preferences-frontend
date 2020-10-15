@@ -15,21 +15,21 @@ object SurveyReOptInDeclinedDetailsForm {
   def apply(): Form[Data] =
     Form(
       mapping(
-        "choice1" -> optional(boolean),
-        "choice2" -> optional(boolean),
-        "choice3" -> optional(boolean),
-        "choice4" -> optional(boolean),
-        "choice5" -> optional(boolean),
-        "reason"  -> optional(text(maxLength = reasonMaxLength))
+        "choice-0305d33f-2e8d-4cb2-82d2-52132fc325fe" -> optional(boolean),
+        "choice-ce34aa17-df2a-44fb-9d5c-4d930396483a" -> optional(boolean),
+        "choice-d0edb491-6dcb-48a8-aeca-b16f01c541a5" -> optional(boolean),
+        "choice-1e825e7d-6fc8-453f-8c20-1a7ed4d84ea5" -> optional(boolean),
+        "choice-15d28c3f-9f33-4c44-aefa-165fc84b5e23" -> optional(boolean),
+        "reason"                                      -> optional(text(maxLength = reasonMaxLength))
       )(Data.apply)(Data.unapply)
     )
 
   case class Data(
-    choice1: Option[Boolean],
-    choice2: Option[Boolean],
-    choice3: Option[Boolean],
-    choice4: Option[Boolean],
-    choice5: Option[Boolean],
+    `choice-0305d33f-2e8d-4cb2-82d2-52132fc325fe`: Option[Boolean],
+    `choice-ce34aa17-df2a-44fb-9d5c-4d930396483a`: Option[Boolean],
+    `choice-d0edb491-6dcb-48a8-aeca-b16f01c541a5`: Option[Boolean],
+    `choice-1e825e7d-6fc8-453f-8c20-1a7ed4d84ea5`: Option[Boolean],
+    `choice-15d28c3f-9f33-4c44-aefa-165fc84b5e23`: Option[Boolean],
     reason: Option[String]
   )
 }

@@ -31,13 +31,13 @@
             hint = Some(Hint(content = Text(Messages("paperless.survey.reoptin_declined.hint")))),
             idPrefix = Some("reoptin-declined-answers"),
             name = "reoptin-declined-answers",
-            items = Random.shuffle(List(1,2,3,4,5)).map(num =>
+            items = Random.shuffle(List("0305d33f-2e8d-4cb2-82d2-52132fc325fe", "ce34aa17-df2a-44fb-9d5c-4d930396483a", "d0edb491-6dcb-48a8-aeca-b16f01c541a5", "1e825e7d-6fc8-453f-8c20-1a7ed4d84ea5", "15d28c3f-9f33-4c44-aefa-165fc84b5e23")).map(num =>
                 CheckboxItem(
                     content = Text(Messages(s"paperless.survey.reoptin_declined.choice.$num")),
-                    id = Some(s"choice$num"),
-                    name = Some(s"choice$num"),
+                    id = Some(s"choice-$num"),
+                    name = Some(s"choice-$num"),
                     value = "true",
-                    checked = surveyForm(s"choice$num").value.contains("true")
+                    checked = surveyForm(s"choice-$num").value.contains("true")
                 )
             )
         ))
