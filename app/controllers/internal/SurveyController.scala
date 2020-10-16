@@ -12,17 +12,17 @@ import model.{ HostContext, Language }
 import play.api.{ Configuration, Logger }
 import play.api.data.Form
 import play.api.i18n.I18nSupport
+import play.api.libs.json.Json
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.EventKeys
 import uk.gov.hmrc.play.audit.http.connector.{ AuditConnector, AuditResult }
-import uk.gov.hmrc.play.audit.model.{ DataEvent, EventTypes }
+import uk.gov.hmrc.play.audit.model.{ DataEvent, EventTypes, ExtendedDataEvent }
 import uk.gov.hmrc.play.bootstrap.config.AppName
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
 import scala.concurrent.{ ExecutionContext, Future }
-import scala.util.Random
 
 class SurveyController @Inject()(
   ytaConfig: YtaConfig,
@@ -63,31 +63,50 @@ class SurveyController @Inject()(
 
   def auditSurvey(languagePreference: Some[Language], form: SurveyReOptInDeclinedDetailsForm.Data)(
     implicit request: AuthenticatedRequest[_]): Future[AuditResult] =
-    auditConnector.sendEvent(
-      DataEvent(
+    auditConnector.sendExtendedEvent(
+      ExtendedDataEvent(
         auditSource = AppName.fromConfiguration(configuration),
         auditType = EventTypes.Succeeded,
         tags = Map(EventKeys.TransactionName -> "Re-OptIn Declined Survey Answered"),
-        detail = Map(
-          "utr"  -> request.saUtr.getOrElse("N/A"),
-          "nino" -> request.nino.getOrElse("N/A"),
-          "choice-0305d33f-2e8d-4cb2-82d2-52132fc325fe" -> form.`choice-0305d33f-2e8d-4cb2-82d2-52132fc325fe`
-            .getOrElse(false)
-            .toString,
-          "choice-ce34aa17-df2a-44fb-9d5c-4d930396483a" -> form.`choice-ce34aa17-df2a-44fb-9d5c-4d930396483a`
-            .getOrElse(false)
-            .toString,
-          "choice-d0edb491-6dcb-48a8-aeca-b16f01c541a5" -> form.`choice-d0edb491-6dcb-48a8-aeca-b16f01c541a5`
-            .getOrElse(false)
-            .toString,
-          "choice-1e825e7d-6fc8-453f-8c20-1a7ed4d84ea5" -> form.`choice-1e825e7d-6fc8-453f-8c20-1a7ed4d84ea5`
-            .getOrElse(false)
-            .toString,
-          "choice-15d28c3f-9f33-4c44-aefa-165fc84b5e23" -> form.`choice-15d28c3f-9f33-4c44-aefa-165fc84b5e23`
-            .getOrElse(false)
-            .toString,
-          "reason" -> form.reason.getOrElse("N/A")
-        )
+        detail = Json.toJson(
+          EventDetail(
+            utr = request.saUtr.getOrElse("N/A"),
+            nino = request.nino.getOrElse("N/A"),
+            choices = Map(
+              "choice-0305d33f-2e8d-4cb2-82d2-52132fc325fe" -> QuestionAnswer(
+                question =
+                  messagesApi("paperless.survey.reoptin_declined.choice.0305d33f-2e8d-4cb2-82d2-52132fc325fe", "N/A")(
+                    request.lang),
+                answer = form.`choice-0305d33f-2e8d-4cb2-82d2-52132fc325fe`.getOrElse(false).toString
+              ),
+              "choice-ce34aa17-df2a-44fb-9d5c-4d930396483a" -> QuestionAnswer(
+                question =
+                  messagesApi("paperless.survey.reoptin_declined.choice.ce34aa17-df2a-44fb-9d5c-4d930396483a", "N/A")(
+                    request.lang),
+                answer = form.`choice-ce34aa17-df2a-44fb-9d5c-4d930396483a`.getOrElse(false).toString
+              ),
+              "choice-d0edb491-6dcb-48a8-aeca-b16f01c541a5" -> QuestionAnswer(
+                question =
+                  messagesApi("paperless.survey.reoptin_declined.choice.d0edb491-6dcb-48a8-aeca-b16f01c541a5", "N/A")(
+                    request.lang),
+                answer = form.`choice-d0edb491-6dcb-48a8-aeca-b16f01c541a5`.getOrElse(false).toString
+              ),
+              "choice-1e825e7d-6fc8-453f-8c20-1a7ed4d84ea5" -> QuestionAnswer(
+                question =
+                  messagesApi("paperless.survey.reoptin_declined.choice.1e825e7d-6fc8-453f-8c20-1a7ed4d84ea5", "N/A")(
+                    request.lang),
+                answer = form.`choice-1e825e7d-6fc8-453f-8c20-1a7ed4d84ea5`.getOrElse(false).toString
+              ),
+              "choice-15d28c3f-9f33-4c44-aefa-165fc84b5e23" -> QuestionAnswer(
+                question =
+                  messagesApi("paperless.survey.reoptin_declined.choice.15d28c3f-9f33-4c44-aefa-165fc84b5e23", "N/A")(
+                    request.lang),
+                answer = form.`choice-15d28c3f-9f33-4c44-aefa-165fc84b5e23`.getOrElse(false).toString
+              )
+            ),
+            reason = form.reason.getOrElse("N/A"),
+            language = languagePreference.getOrElse("N/A").toString
+          ))
       )
     )
 

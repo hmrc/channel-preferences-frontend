@@ -374,7 +374,7 @@ class ChoosePaperlessController @Inject()(
       .map { preferencesStatus =>
         auditChoice(AccountDetails, cohort, terms, email, preferencesStatus)
         if (cohort.pageType == PageType.ReOptInPage) {
-          if (ytaConfig.surveyReOptInPage10Enabled) {
+          if (ytaConfig.surveyReOptInPage10Enabled && !digital) {
             Redirect(routes.SurveyController.displayReOptInDeclinedSurveyForm(hostContext))
           } else {
             Redirect(routes.ManagePaperlessController.checkSettings(hostContext))

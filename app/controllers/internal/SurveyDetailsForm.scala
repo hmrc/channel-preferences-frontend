@@ -7,6 +7,7 @@ package controllers.internal
 
 import play.api.data.Form
 import play.api.data.Forms._
+import play.api.libs.json.Json
 
 object SurveyReOptInDeclinedDetailsForm {
 
@@ -32,4 +33,19 @@ object SurveyReOptInDeclinedDetailsForm {
     `choice-15d28c3f-9f33-4c44-aefa-165fc84b5e23`: Option[Boolean],
     reason: Option[String]
   )
+}
+
+case class QuestionAnswer(question: String, answer: String)
+object QuestionAnswer {
+  implicit val formats = Json.format[QuestionAnswer]
+}
+
+case class EventDetail(
+  utr: String,
+  nino: String,
+  language: String,
+  choices: Map[String, QuestionAnswer],
+  reason: String)
+object EventDetail {
+  implicit val formats = Json.format[EventDetail]
 }
