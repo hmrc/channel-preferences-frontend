@@ -26,11 +26,17 @@ $hmrc-assets-path: "/paperless/assets/lib/hmrc-frontend/hmrc/";
 }
 
 .skip-link,
-.skip-link:hover,
+.skip-link:link,
 .skip-link:visited,
-.skip-link:active {
-    color: #1d70b8;
-    text-decoration: underline;
-    background: none;
-    box-shadow: none;
+.skip-link:active,
+.skip-link:hover {
+    color: #1d70b8!important;;
+    text-decoration: none!important;;
+    background: none!important;;
+    box-shadow: none!important;;
+
+   &:hover,
+    :focus {
+        text-decoration: underline!important;;
+   }
 }
