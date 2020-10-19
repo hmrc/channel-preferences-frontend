@@ -9,6 +9,9 @@ $hmrc-assets-path: "/paperless/assets/lib/hmrc-frontend/hmrc/";
   font-weight: bold;
 }
 
+.govuk-heading-xl {
+  word-break: break-word;
+}
 
 .button-as-link,
 .button-as-link:hover {
@@ -30,13 +33,13 @@ $hmrc-assets-path: "/paperless/assets/lib/hmrc-frontend/hmrc/";
 .skip-link:visited,
 .skip-link:active,
 .skip-link:hover {
-    color: #1d70b8!important;;
-    text-decoration: none!important;;
-    background: none!important;;
-    box-shadow: none!important;;
+  color: #1d70b8!important;;
+  text-decoration: none!important;;
+  background: none!important;;
+  box-shadow: none!important;;
 
-   &:hover,
-    :focus {
-        text-decoration: underline!important;;
-   }
+  &:hover,
+  :focus {
+    text-decoration: underline!important;;
+  }
 }
