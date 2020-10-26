@@ -22,7 +22,7 @@ trait MicroService {
     ExternalService("AUTH"),
     ExternalService("AUTH_LOGIN_API"),
     ExternalService("USER_DETAILS"),
-    ExternalService(name = "PREFERENCES", extraConfig = Map("featureFlag.switchOn" -> "true")),
+    ExternalService(name = "PREFERENCES", enableTestOnlyEndpoints = true, extraConfig = Map("featureFlag.switchOn" -> "true")),
     ExternalService("DATASTREAM"),
     ExternalService("ENTITY_RESOLVER"),
     ExternalService("MAILGUN_STUB"),

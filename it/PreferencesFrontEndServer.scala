@@ -96,13 +96,29 @@ class TestCase
       wsClient
         .url(s"http://localhost:8015/preferences/terms-and-conditions")
         .withHttpHeaders(header)
-        .post(Json.parse(s"""{"generic":{"accepted":true}, "email":"$pendingEmail"}"""))
+        .post(Json.parse(s"""{
+                            |  "generic": {
+                            |    "accepted": true,
+                            |    "optInPage":{
+                            |      "version": {"major":2,"minor":1}, "cohort":1, "pageType":"IPage"}
+                            |  },
+                            |  "email":"$pendingEmail",
+                            |  "language": "en"
+                            |}""".stripMargin))
 
     def postGenericOptOut() =
       wsClient
         .url(s"http://localhost:8015/preferences/terms-and-conditions")
         .withHttpHeaders(header)
-        .post(Json.parse(s"""{"generic":{"accepted":false}}"""))
+        .post(Json.parse(s"""{
+                            |  "generic": {
+                            |    "accepted": false,
+                            |    "optInPage":{
+                            |      "version": {"major":2,"minor":1}, "cohort":1, "pageType":"IPage"}
+                            |  },
+                            |
+                            |  "language": "en"
+                            |}""".stripMargin))
   }
 
   def `/entity-resolver/sa/:utr`(utr: String) = {

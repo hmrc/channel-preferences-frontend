@@ -105,7 +105,7 @@ class PaperlessWarningPartialISpec extends EmailSupport with SessionCookieEncryp
       response.body must include("There&#x27;s a problem with your paperless notification emails")
     }
 
-    "have no warning if user then opts out" in new TestCase {
+    "have no warning if user then opts out" ignore new TestCase {
       val email = uniqueEmail
       `/preferences/terms-and-conditions`(ggAuthHeaderWithUtr).postGenericOptIn(email).futureValue.status must be(
         CREATED)
