@@ -119,7 +119,8 @@
             inputType = Some("submit"),
             content = Text(Messages("i_page7.submitButton")),
             attributes = Map(
-                "id" -> "submitEmailButton"
+                "id" -> "submitEmailButton",
+                "data-prevent-double-click" -> "true"
             )
         ))
     }

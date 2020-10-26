@@ -62,7 +62,8 @@
                 inputType = Some("submit"),
                 content = Text(Messages("paperless.survey.reoptin_declined.submitButton")),
                 attributes = Map(
-                "id" -> "submitEmailButton"
+                "id" -> "submitEmailButton",
+                "data-prevent-double-click" -> "true"
                 )
             ))
             @Link.toInternalPage(
