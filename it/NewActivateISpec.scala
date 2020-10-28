@@ -65,8 +65,8 @@ class NewActivateGraceOutISpec extends EmailSupport with SessionCookieEncryption
       val response = `/paperless/activate`(utr)().put().futureValue
       response.status must be(OK)
     }
-//created DC-2833 this tests cant be tested with current setup in preferences
-    "set language preference based on cookie language value for Existing Opted-in customer which has no existing language preference" ignore {
+
+    "set language preference based on cookie language value for Existing Opted-in customer which has no existing language preference" in {
       val utr = Generate.utr
       val email = uniqueEmail
       clearEmails()
@@ -75,6 +75,9 @@ class NewActivateGraceOutISpec extends EmailSupport with SessionCookieEncryption
         .futureValue
         .status must be(CREATED)
       aVerificationEmailIsReceivedFor(email)
+
+      val entityId = `/entity-resolver/sa/:utr`(utr.value)
+      `/preferences-admin/remove-language`(entityId)
 
       val prefStatusResponse = `/preferences`(authHelper.authHeader(utr)).getPreference.futureValue
       prefStatusResponse.status must be(OK)
@@ -95,7 +98,7 @@ class NewActivateGraceOutISpec extends EmailSupport with SessionCookieEncryption
       (prefStatusActivatedResponse.json \ "email" \ "language").as[String] must be("cy")
     }
 
-    "not silently overwrite a language preference based on cookie value for Existing Opted-in customer which has an existing language preference" ignore {
+    "not silently overwrite a language preference based on cookie value for Existing Opted-in customer which has an existing language preference" in {
       val utr = Generate.utr
       val email = uniqueEmail
       clearEmails()
@@ -104,6 +107,9 @@ class NewActivateGraceOutISpec extends EmailSupport with SessionCookieEncryption
         .futureValue
         .status must be(CREATED)
       aVerificationEmailIsReceivedFor(email)
+
+      val entityId = `/entity-resolver/sa/:utr`(utr.value)
+      `/preferences-admin/remove-language`(entityId)
 
       val prefStatusResponse = `/preferences`(authHelper.authHeader(utr)).getPreference.futureValue
       prefStatusResponse.status must be(OK)

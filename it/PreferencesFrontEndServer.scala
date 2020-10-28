@@ -116,7 +116,6 @@ class TestCase
                             |    "optInPage":{
                             |      "version": {"major":2,"minor":1}, "cohort":1, "pageType":"IPage"}
                             |  },
-                            |
                             |  "language": "en"
                             |}""".stripMargin))
   }
@@ -146,6 +145,12 @@ class TestCase
       wsClient.url("http://localhost:8025/preferences-admin/bounce-email").post(Json.parse(s"""{
                                                                                               |"emailAddress": "$emailAddress"
                                                                                               |}""".stripMargin))
+  }
+
+  def `/preferences-admin/remove-language`(entityId: String) = {
+    val response =
+      wsClient.url(s"http://localhost:8025/preferences-admin/remove-language/$entityId").put("{}").futureValue
+    response.status must be(OK)
   }
 
   val `/preferences-admin/sa/bounce-email-inbox-full` = new {
