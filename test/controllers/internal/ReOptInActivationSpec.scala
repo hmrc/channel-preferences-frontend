@@ -57,7 +57,7 @@ class ReOptInActivationSpec
     "paperless is true and " when {
       "preference's majorVersion is lower than current majorVersion and " when {
         "Affinity group is Individual and " when {
-          "ConfidenceLeve == 200" should {
+          "ConfidenceLevel == 200" should {
             "return PRECONDITION_FAILED" in new TestCase(paperless = Some(true)) {
               val response: Future[Result] = controller.activate(TestFixtures.sampleHostContext)(request)
               status(response) mustBe PRECONDITION_FAILED
@@ -73,7 +73,7 @@ class ReOptInActivationSpec
     "paperless is false and " when {
       "preference's majorVersion is lower than current majorVersion and " when {
         "Affinity group is Individual and " when {
-          "ConfidenceLeve == 200" should {
+          "ConfidenceLevel == 200" should {
             "return OK" in new TestCase(paperless = Some(false)) {
               val response: Future[Result] = controller.activate(TestFixtures.sampleHostContext)(request)
               status(response) mustBe OK
@@ -86,7 +86,7 @@ class ReOptInActivationSpec
     "paperless is not defined and " when {
       "preference's majorVersion is lower than current majorVersion and" when {
         "Affinity group is Individual and " when {
-          "ConfidenceLeve == 200" should {
+          "ConfidenceLevel == 200" should {
             "return OK" in new TestCase(paperless = None) {
               val response: Future[Result] = controller.activate(TestFixtures.sampleHostContext)(request)
               status(response) mustBe OK
@@ -97,7 +97,7 @@ class ReOptInActivationSpec
     }
     "preference's majorVersion is lower than the current majorVersion and " when {
       "Affinity group is Organization and " when {
-        "ConfidenceLeve is == 200" should {
+        "ConfidenceLevel is == 200" should {
           "return OK" in new TestCase(affinityGroup = AffinityGroup.Organisation) {
             val response: Future[Result] = controller.activate(TestFixtures.sampleHostContext)(request)
             status(response) mustBe OK
@@ -108,7 +108,7 @@ class ReOptInActivationSpec
 
     "preference's majorVersion is lower than the current majorVersion and " when {
       "Affinity group is Individual and " when {
-        "ConfidenceLeve is <  200" should {
+        "ConfidenceLevel is <  200" should {
           "return OK" in new TestCase(confidenceLevel = ConfidenceLevel.L100) {
             val response: Future[Result] = controller.activate(TestFixtures.sampleHostContext)(request)
             status(response) mustBe OK
@@ -119,7 +119,7 @@ class ReOptInActivationSpec
 
     "preference's majorVersion is lower than the current majorVersion and " when {
       "Affinity group is Individual and " when {
-        "ConfidenceLeve is >  200" should {
+        "ConfidenceLevel is >  200" should {
           "return OK" in new TestCase(confidenceLevel = ConfidenceLevel.L300) {
             val response: Future[Result] = controller.activate(TestFixtures.sampleHostContext)(request)
             status(response) mustBe OK
@@ -129,7 +129,7 @@ class ReOptInActivationSpec
     }
     "preference's majorVersion is the same as current majorVersion and " when {
       "Affinity group is Individual and " when {
-        "ConfidenceLeve is >= 200" should {
+        "ConfidenceLevel is >= 200" should {
           "return OK" in new TestCase(prefMajor = CohortCurrent.ipage.majorVersion) {
             val response: Future[Result] = controller.activate(TestFixtures.sampleHostContext)(request)
             status(response) mustBe OK
@@ -141,7 +141,7 @@ class ReOptInActivationSpec
     "preference's majorVersion is lower than the current majorVersion and " when {
       "there is a pending email in preferneces" when {
         "Affinity group is Individual and " when {
-          "ConfidenceLeve is ==  200" should {
+          "ConfidenceLevel is ==  200" should {
             "return OK" in new TestCase(pendingEmail = Some("foo@bar.com")) {
               val response: Future[Result] = controller.activate(TestFixtures.sampleHostContext)(request)
               status(response) mustBe OK
@@ -194,7 +194,7 @@ class ReOptInActivationSpec
       .displayForm(
         Some(CohortCurrent.reoptinpage),
         email = None,
-        TestFixtures.reOptInHostContext(email.email).copy(cohort = Some(ReOptInPage10)))
+        TestFixtures.reOptInHostContext(email.email).copy(cohort = Some(ReOptInPage52)))
     initMocks()
   }
 

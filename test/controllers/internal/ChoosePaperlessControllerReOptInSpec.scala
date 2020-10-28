@@ -129,7 +129,7 @@ class ChoosePaperlessControllerReOptInSpec
     }
 
     "show reoptin title" in new ChoosePaperlessControllerReOptInSetup {
-      val reOptInTitle = messageApi.translate("reoptin_page10.fg_page.title", Nil)(Lang("en", "")).get
+      val reOptInTitle = messageApi.translate("reoptin_page52.fg_page.title", Nil)(Lang("en", "")).get
       val page =
         controller.displayForm(Some(assignedCohort), None, TestFixtures.reOptInHostContext("foo@bar.com"))(request)
       status(page) mustBe 200

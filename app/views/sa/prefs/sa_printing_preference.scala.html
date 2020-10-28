@@ -9,7 +9,8 @@
   iPage7: views.html.sa.prefs.cohorts.i_page7,
   iPage8: views.html.sa.prefs.cohorts.i_page8,
   tcPage9: views.html.sa.prefs.cohorts.tc_page9,
-  reOptInPage10: views.html.sa.prefs.cohorts.reoptin_page10
+  reOptInPage10: views.html.sa.prefs.cohorts.reoptin_page10,
+  reOptInPage52: views.html.sa.prefs.cohorts.reoptin_page52
 )
 @(emailForm: Form[_], submitPrefsFormAction: Call, cohort: controllers.internal.OptInCohort)(implicit request: AuthenticatedRequest[_], messages: Messages)
 
@@ -21,5 +22,6 @@
         case IPage8 => iPage8(emailForm, submitPrefsFormAction)
         case TCPage9 => tcPage9(emailForm, submitPrefsFormAction)
         case ReOptInPage10 => reOptInPage10(emailForm, submitPrefsFormAction)
+        case ReOptInPage52 => reOptInPage52(emailForm, submitPrefsFormAction)
     }
 }

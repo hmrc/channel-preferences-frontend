@@ -34,5 +34,14 @@
     "minorVersion":0,
     "description":"",
     "date":"2020-07-02"
+  },
+  {
+    "id":52,
+    "name":"ReOptInPage52",
+    "pageType":"ReOptInPage",
+    "majorVersion":1,
+    "minorVersion":1,
+    "description":"",
+    "date":"2020-10-21"
   }
 ]

@@ -33,9 +33,8 @@ object HostContext {
         val emailOptionResult = stringBinder.bind("email", params).liftDecryptedOption
         val alreadyOptedInUrl = stringBinder.bind("alreadyOptedInUrl", params).liftDecryptedOption
         val languageResult = stringBinder.bind("language", params).liftDecryptedOption
-        val cohortResult = stringBinder.bind("cohort", params).liftDecryptedOption.flatMap { x =>
-          OptInCohort.fromId(x.toInt)
-        }
+        val cohortResult =
+          stringBinder.bind("cohort", params).liftDecryptedOption.flatMap(x => OptInCohort.fromId(x.toInt))
 
         (
           returnUrlResult,

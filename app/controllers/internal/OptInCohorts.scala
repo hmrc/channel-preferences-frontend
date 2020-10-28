@@ -98,6 +98,17 @@ object ReOptInPage10 extends OptInCohort {
   override val date: LocalDate = new LocalDate("2020-07-02")
 }
 
+object ReOptInPage52 extends OptInCohort {
+  override val id: Int = 52
+  override val name: String = "ReOptInPage52"
+  override val terms: TermsType = GenericTerms
+  override val pageType: PageType = PageType.ReOptInPage
+  override val majorVersion: Int = 1
+  override val minorVersion: Int = 1
+  override val description: String = ""
+  override val date: LocalDate = new LocalDate("2020-10-21")
+}
+
 object CYSConfirmPage47 extends OptInCohort {
   override val id: Int = 47
   override val name: String = "CYSConfirmPage47"
@@ -500,6 +511,6 @@ object IosOptOutPage46 extends OptInCohort {
 object CohortCurrent {
   val ipage: OptInCohort = IPage8
   val tcpage: OptInCohort = TCPage9
-  val reoptinpage: OptInCohort = ReOptInPage10
+  val reoptinpage: OptInCohort = ReOptInPage52
   val cysConfirmPage: OptInCohort = CYSConfirmPage47
 }

@@ -5,7 +5,7 @@
 
 package model
 
-import controllers.internal.ReOptInPage10
+import controllers.internal.{ ReOptInPage10, ReOptInPage52 }
 import helpers.ConfigHelper
 import org.scalatest.{ Matchers, WordSpec }
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -23,7 +23,8 @@ class HostContextSpec extends WordSpec with Matchers with GuiceOneAppPerSuite wi
     val validTaxCreditsTermsAndConditions = "termsAndConditions" -> Seq("J1Vy/h2rVt/JkA1b/lTfgg==") // taxCredits
     val validEmailAddress = "email"                              -> Seq("J5lnze8P0QQ8NwFTHVHhVw==") // test@test.com
     val validWelshLanguage = "language"                          -> Seq("5W0FAIi6JRZBSf4/hwE00w==") // cy
-    val validCohortType = "cohort"                               -> Seq("u/n1h8qcsJrhpRofXkhmXg==") // ReOptInPage10
+    val validCohortType10 = "cohort"                             -> Seq("u/n1h8qcsJrhpRofXkhmXg==") // ReOptInPage10
+    val validCohortType52 = "cohort"                             -> Seq("dPFnTTu7gdct/zMj/owK2Q==") // ReOptInPage52
 
     "read the returnURL and returnLinkText if both present" in {
       model.HostContext.hostContextBinder.bind("anyValName", Map(validReturnUrl, validReturnLinkText)) should contain(
@@ -83,8 +84,8 @@ class HostContextSpec extends WordSpec with Matchers with GuiceOneAppPerSuite wi
     }
     "read the cohort if present" in {
       model.HostContext.hostContextBinder
-        .bind("anyValName", Map(validReturnUrl, validReturnLinkText, validCohortType)) should contain(
-        Right(HostContext(returnUrl = "foo", returnLinkText = "bar", cohort = Some(ReOptInPage10)))
+        .bind("anyValName", Map(validReturnUrl, validReturnLinkText, validCohortType52)) should contain(
+        Right(HostContext(returnUrl = "foo", returnLinkText = "bar", cohort = Some(ReOptInPage52)))
       )
     }
   }
