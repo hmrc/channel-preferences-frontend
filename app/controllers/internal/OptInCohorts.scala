@@ -483,6 +483,26 @@ object AndroidOptOutPage44 extends OptInCohort {
   override val description: String = ""
   override val date: LocalDate = new LocalDate("2020-01-01")
 }
+object AndroidReOptInPage48 extends OptInCohort {
+  override val id: Int = 48
+  override val name: String = "AndroidReOptInPage48"
+  override val terms: TermsType = GenericTerms
+  override val pageType: PageType = PageType.AndroidReOptInPage
+  override val majorVersion: Int = 1
+  override val minorVersion: Int = 3
+  override val description: String = ""
+  override val date: LocalDate = new LocalDate("2020-08-01")
+}
+object AndroidReOptOutPage49 extends OptInCohort {
+  override val id: Int = 49
+  override val name: String = "AndroidReOptOutPage49"
+  override val terms: TermsType = GenericTerms
+  override val pageType: PageType = PageType.AndroidReOptOutPage
+  override val majorVersion: Int = 1
+  override val minorVersion: Int = 3
+  override val description: String = ""
+  override val date: LocalDate = new LocalDate("2020-08-01")
+}
 // end of Android 1.3 ///////////////////////////////////////////////////////
 
 // Ios 1.3 ////////////////////////////////////////////////////////////////
@@ -505,6 +525,26 @@ object IosOptOutPage46 extends OptInCohort {
   override val minorVersion: Int = 3
   override val description: String = ""
   override val date: LocalDate = new LocalDate("2020-01-01")
+}
+object IosReOptInPage50 extends OptInCohort {
+  override val id: Int = 50
+  override val name: String = "IosReOptInPage50"
+  override val terms: TermsType = GenericTerms
+  override val pageType: PageType = PageType.IosReOptInPage
+  override val majorVersion: Int = 1
+  override val minorVersion: Int = 3
+  override val description: String = ""
+  override val date: LocalDate = new LocalDate("2020-08-01")
+}
+object IosReOptOutPage51 extends OptInCohort {
+  override val id: Int = 51
+  override val name: String = "IosReOptOutPage51"
+  override val terms: TermsType = GenericTerms
+  override val pageType: PageType = PageType.IosReOptOutPage
+  override val majorVersion: Int = 1
+  override val minorVersion: Int = 3
+  override val description: String = ""
+  override val date: LocalDate = new LocalDate("2020-08-01")
 }
 // end of Ios 1.3 ///////////////////////////////////////////////////////
 
