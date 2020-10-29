@@ -40,6 +40,11 @@ class ActivationController @Inject()(
       .getOptional[Int](s"${runMode.env}.activation.gracePeriodInMin")
       .getOrElse(throw new RuntimeException(s"missing ${runMode.env}.activation.gracePeriodInMin"))
 
+  private lazy val reoptInEnabled =
+    config
+      .getOptional[Boolean](s"reoptIn.switchOn")
+      .getOrElse(throw new RuntimeException(s"missing reoptIn.switchOn flag"))
+
   def preferences(): Action[AnyContent] = Action.async { implicit request =>
     withAuthenticatedRequest { implicit authenticatedRequest: AuthenticatedRequest[_] => implicit hc: HeaderCarrier =>
       entityResolverConnector.getPreferences().map {
@@ -193,12 +198,15 @@ class ActivationController @Inject()(
     authenticatedRequest: AuthenticatedRequest[_],
     emailPreference: Option[EmailPreference],
     majorVersion: Int,
-    paperless: Option[Boolean]) = {
-    val versionBehind = majorVersion < CohortCurrent.ipage.majorVersion
-    val isIndividual = authenticatedRequest.affinityGroup.exists(_ == AffinityGroup.Individual)
-    val individualConfidenceLevel = authenticatedRequest.confidenceLevel.exists(_.level == 200)
-    val noPendingEmail = emailPreference.exists(_.pendingEmail.isEmpty)
-    val isPaperless = paperless.exists(identity)
-    versionBehind && isIndividual && individualConfidenceLevel && noPendingEmail && isPaperless
-  }
+    paperless: Option[Boolean]) =
+    if (!reoptInEnabled)
+      false
+    else {
+      val versionBehind = majorVersion < CohortCurrent.ipage.majorVersion
+      val isIndividual = authenticatedRequest.affinityGroup.exists(_ == AffinityGroup.Individual)
+      val individualConfidenceLevel = authenticatedRequest.confidenceLevel.exists(_.level == 200)
+      val noPendingEmail = emailPreference.exists(_.pendingEmail.isEmpty)
+      val isPaperless = paperless.exists(identity)
+      versionBehind && isIndividual && individualConfidenceLevel && noPendingEmail && isPaperless
+    }
 }

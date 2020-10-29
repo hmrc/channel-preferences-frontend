@@ -40,7 +40,8 @@ class ReOptInActivationSpec
     new GuiceApplicationBuilder()
       .configure(
         "govuk-tax.Test.preferences-frontend.host" -> "",
-        "Test.activation.gracePeriodInMin"         -> gracePeriod
+        "Test.activation.gracePeriodInMin"         -> gracePeriod,
+        "reoptIn.switchOn"                         -> true
       )
       .overrides(
         bind[AuthConnector].toInstance(mockAuthConnector),
