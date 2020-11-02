@@ -11,7 +11,7 @@ import play.api.libs.json.Json
 
 object SurveyReOptInDeclinedDetailsForm {
 
-  val reasonMaxLength = 500
+  val reasonMaxLength = 3000
 
   def apply(): Form[Data] =
     Form(
@@ -21,7 +21,8 @@ object SurveyReOptInDeclinedDetailsForm {
         "choice-d0edb491-6dcb-48a8-aeca-b16f01c541a5" -> optional(boolean),
         "choice-1e825e7d-6fc8-453f-8c20-1a7ed4d84ea5" -> optional(boolean),
         "choice-15d28c3f-9f33-4c44-aefa-165fc84b5e23" -> optional(boolean),
-        "reason"                                      -> optional(text(maxLength = reasonMaxLength))
+        "reason"                                      -> optional(text(maxLength = reasonMaxLength)),
+        "submissionType"                              -> optional(text)
       )(Data.apply)(Data.unapply)
     )
 
@@ -31,7 +32,8 @@ object SurveyReOptInDeclinedDetailsForm {
     `choice-d0edb491-6dcb-48a8-aeca-b16f01c541a5`: Option[Boolean],
     `choice-1e825e7d-6fc8-453f-8c20-1a7ed4d84ea5`: Option[Boolean],
     `choice-15d28c3f-9f33-4c44-aefa-165fc84b5e23`: Option[Boolean],
-    reason: Option[String]
+    reason: Option[String],
+    submissionType: Option[String]
   )
 }
 
@@ -41,6 +43,7 @@ object QuestionAnswer {
 }
 
 case class EventDetail(
+  submissionType: String,
   utr: String,
   nino: String,
   language: String,

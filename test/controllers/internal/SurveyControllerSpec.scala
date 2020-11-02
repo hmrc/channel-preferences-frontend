@@ -144,7 +144,8 @@ class SurveyControllerSpec
           "choice-d0edb491-6dcb-48a8-aeca-b16f01c541a5" -> "true",
           "choice-1e825e7d-6fc8-453f-8c20-1a7ed4d84ea5" -> "false",
           "choice-15d28c3f-9f33-4c44-aefa-165fc84b5e23" -> "true",
-          "reason"                                      -> "test test test"
+          "reason"                                      -> "test test test",
+          "submissionType"                              -> "submitted"
         ))
 
       status(page) mustBe 303
@@ -165,9 +166,10 @@ class SurveyControllerSpec
       detail.choices.get("choice-1e825e7d-6fc8-453f-8c20-1a7ed4d84ea5").get.answer mustBe "false"
       detail.choices.get("choice-15d28c3f-9f33-4c44-aefa-165fc84b5e23").get.answer mustBe "true"
       detail.reason mustBe "test test test"
+      detail.submissionType mustBe "submitted"
     }
 
-    "not be created when a user submits an invalid survey form with more than 500 characters in the reason field" in new SurveyControllerSetup {
+    "be created as EventTypes.Succeeded when a user skips a survey" in new SurveyControllerSetup {
 
       val page = controller.submitReOptInDeclinedSurveyForm(TestFixtures.reOptInHostContext("foo@bar.com"))(
         FakeRequest().withFormUrlEncodedBody(
@@ -176,20 +178,86 @@ class SurveyControllerSpec
           "choice-d0edb491-6dcb-48a8-aeca-b16f01c541a5" -> "true",
           "choice-1e825e7d-6fc8-453f-8c20-1a7ed4d84ea5" -> "false",
           "choice-15d28c3f-9f33-4c44-aefa-165fc84b5e23" -> "true",
-          "reason"                                      -> "A" * 501
+          "reason"                                      -> "test test test",
+          "submissionType"                              -> "skipped"
+        ))
+
+      status(page) mustBe 303
+
+      val eventArg: ArgumentCaptor[ExtendedDataEvent] = ArgumentCaptor.forClass(classOf[ExtendedDataEvent])
+      verify(mockAuditConnector).sendExtendedEvent(eventArg.capture())(any(), any())
+
+      private val value: ExtendedDataEvent = eventArg.getValue
+      value.auditSource mustBe "preferences-frontend"
+      value.auditType mustBe EventTypes.Succeeded
+      value.tags must contain("transactionName" -> "Re-OptIn Declined Survey Answered")
+      val detail = Json.fromJson[EventDetail](value.detail).get
+      detail.utr mustBe validUtr.value
+      detail.nino mustBe "N/A"
+      detail.choices.get("choice-0305d33f-2e8d-4cb2-82d2-52132fc325fe").get.answer mustBe "true"
+      detail.choices.get("choice-ce34aa17-df2a-44fb-9d5c-4d930396483a").get.answer mustBe "true"
+      detail.choices.get("choice-d0edb491-6dcb-48a8-aeca-b16f01c541a5").get.answer mustBe "true"
+      detail.choices.get("choice-1e825e7d-6fc8-453f-8c20-1a7ed4d84ea5").get.answer mustBe "false"
+      detail.choices.get("choice-15d28c3f-9f33-4c44-aefa-165fc84b5e23").get.answer mustBe "true"
+      detail.reason mustBe "test test test"
+      detail.submissionType mustBe "skipped"
+    }
+
+    "not be created when a user submits an invalid survey form with more than 3000 characters in the reason field" in new SurveyControllerSetup {
+
+      val page = controller.submitReOptInDeclinedSurveyForm(TestFixtures.reOptInHostContext("foo@bar.com"))(
+        FakeRequest().withFormUrlEncodedBody(
+          "choice-0305d33f-2e8d-4cb2-82d2-52132fc325fe" -> "true",
+          "choice-ce34aa17-df2a-44fb-9d5c-4d930396483a" -> "true",
+          "choice-d0edb491-6dcb-48a8-aeca-b16f01c541a5" -> "true",
+          "choice-1e825e7d-6fc8-453f-8c20-1a7ed4d84ea5" -> "false",
+          "choice-15d28c3f-9f33-4c44-aefa-165fc84b5e23" -> "true",
+          "reason"                                      -> "A" * 3001,
+          "submissionType"                              -> "submitted"
         ))
 
       status(page) mustBe 400
 
       val document = Jsoup.parse(contentAsString(page))
       document
-        .getElementsByClass("error-notification")
-        .get(0)
-        .childNode(0)
-        .toString
-        .trim mustBe "Maximum length is 500 characters"
+        .getElementById("reason-error")
+        .toString mustBe """<span id="reason-error" class="govuk-error-message"> <span class="govuk-visually-hidden">Error:</span> Reason must be 3000 characters or fewer </span>"""
 
       verifyZeroInteractions(mockAuditConnector)
+    }
+
+    "be created and reason field trimmed to 3000 characters when the survey is skipped with more than 3000 characters in the reason field" in new SurveyControllerSetup {
+
+      val page = controller.submitReOptInDeclinedSurveyForm(TestFixtures.reOptInHostContext("foo@bar.com"))(
+        FakeRequest().withFormUrlEncodedBody(
+          "choice-0305d33f-2e8d-4cb2-82d2-52132fc325fe" -> "true",
+          "choice-ce34aa17-df2a-44fb-9d5c-4d930396483a" -> "true",
+          "choice-d0edb491-6dcb-48a8-aeca-b16f01c541a5" -> "true",
+          "choice-1e825e7d-6fc8-453f-8c20-1a7ed4d84ea5" -> "false",
+          "choice-15d28c3f-9f33-4c44-aefa-165fc84b5e23" -> "true",
+          "reason"                                      -> "A" * 5000,
+          "submissionType"                              -> "skipped"
+        ))
+
+      status(page) mustBe 303
+
+      val eventArg: ArgumentCaptor[ExtendedDataEvent] = ArgumentCaptor.forClass(classOf[ExtendedDataEvent])
+      verify(mockAuditConnector).sendExtendedEvent(eventArg.capture())(any(), any())
+
+      private val value: ExtendedDataEvent = eventArg.getValue
+      value.auditSource mustBe "preferences-frontend"
+      value.auditType mustBe EventTypes.Succeeded
+      value.tags must contain("transactionName" -> "Re-OptIn Declined Survey Answered")
+      val detail = Json.fromJson[EventDetail](value.detail).get
+      detail.utr mustBe validUtr.value
+      detail.nino mustBe "N/A"
+      detail.choices.get("choice-0305d33f-2e8d-4cb2-82d2-52132fc325fe").get.answer mustBe "true"
+      detail.choices.get("choice-ce34aa17-df2a-44fb-9d5c-4d930396483a").get.answer mustBe "true"
+      detail.choices.get("choice-d0edb491-6dcb-48a8-aeca-b16f01c541a5").get.answer mustBe "true"
+      detail.choices.get("choice-1e825e7d-6fc8-453f-8c20-1a7ed4d84ea5").get.answer mustBe "false"
+      detail.choices.get("choice-15d28c3f-9f33-4c44-aefa-165fc84b5e23").get.answer mustBe "true"
+      detail.reason mustBe "A" * 3000 // Reason is trimmed to 3000 characters on strip
+      detail.submissionType mustBe "skipped"
     }
   }
 }

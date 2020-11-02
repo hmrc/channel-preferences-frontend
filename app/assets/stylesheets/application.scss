@@ -22,24 +22,42 @@ $hmrc-assets-path: "/paperless/assets/lib/hmrc-frontend/hmrc/";
   color: #1d70b8;
   box-shadow: none;
   vertical-align: baseline!important;
-  text-decoration: underline;
+  text-decoration: none!important;
   line-height: 1em;
   cursor: pointer;
   width: auto;
+
+  &.skip-link-button {
+    margin-left: 0;
+    width: 100%;
+    line-height: 2em;
+    text-decoration: none!important;
+
+    &:hover,
+    :focus {
+      text-decoration: underline!important;
+    }
+
+    @media (min-width: 40.0625em) {
+      width: auto;
+      margin-left: 40px;
+    }
+  }
 }
+
+
 
 .skip-link,
 .skip-link:link,
 .skip-link:visited,
-.skip-link:active,
-.skip-link:hover {
-  color: #1d70b8!important;;
-  text-decoration: none!important;;
-  background: none!important;;
-  box-shadow: none!important;;
+.skip-link:active {
+  color: #1d70b8!important;
+  text-decoration: none!important;
+  background: none!important;
+  box-shadow: none!important;
 
   &:hover,
   :focus {
-    text-decoration: underline!important;;
+    text-decoration: underline!important;
   }
 }
