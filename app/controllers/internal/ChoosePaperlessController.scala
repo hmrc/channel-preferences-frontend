@@ -461,7 +461,7 @@ class ChoosePaperlessController @Inject()(
             "journey" -> journey.toString,
             "cohort"  -> cohort.toString
           ),
-          generatedAt = DateTime.now()
+          generatedAt = DateTime.now().toDate.toInstant
         ),
         response = DataCall(
           tags = hc.toAuditTags("Show Print Preference Option", request.path),
@@ -471,7 +471,7 @@ class ChoosePaperlessController @Inject()(
             "journey" -> journey.toString,
             "cohort"  -> cohort.toString
           ),
-          generatedAt = DateTime.now()
+          generatedAt = DateTime.now().toDate.toInstant
         )
       )
     )
@@ -505,7 +505,7 @@ class ChoosePaperlessController @Inject()(
             "email"                     -> emailOption.getOrElse(""),
             "newUserPreferencesCreated" -> (preferencesStatus == PreferencesCreated).toString
           ),
-          generatedAt = DateTime.now()
+          generatedAt = DateTime.now().toDate.toInstant
         ),
         response = DataCall(
           tags = hc.toAuditTags("Set Print Preference", request.path),
@@ -521,7 +521,7 @@ class ChoosePaperlessController @Inject()(
             "email"                     -> emailOption.getOrElse(""),
             "newUserPreferencesCreated" -> (preferencesStatus == PreferencesCreated).toString
           ),
-          generatedAt = DateTime.now()
+          generatedAt = DateTime.now().toDate.toInstant
         )
       )
     )
