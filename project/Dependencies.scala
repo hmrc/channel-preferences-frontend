@@ -1,26 +1,8 @@
-import play.sbt.routes.RoutesKeys.routesImport
-import play.sbt.PlayImport._
-import sbt._
+import play.sbt.PlayImport.ws
+import sbt.Tests.{Group, SubProcess}
+import sbt.{ForkOptions, TestDefinition, _}
 
-import scala.util.Properties._
-
-object FrontendBuild extends Build with MicroService {
-
-  import Dependencies._
-
-  val appName = "preferences-frontend"
-
-  override lazy val appDependencies = requiredDependencies
-
-  override lazy val playSettings = Seq(
-    routesImport ++= Seq(
-      "uk.gov.hmrc.domain._",
-      "controllers.Assets"
-    ))
-}
-
-private object Dependencies {
-
+object Dependencies {
   val requiredDependencies = Seq(
     ws,
     "uk.gov.hmrc"            %% "a-b-test"                 % "3.2.0",
@@ -47,4 +29,9 @@ private object Dependencies {
     "uk.gov.hmrc"            %% "browser-test"             % "2.3.0" % "functional",
     "com.github.tomakehurst" % "wiremock"                  % "2.26.3" % "functional"
   )
+
+  def oneForkedJvmPerTest(tests: Seq[TestDefinition]) =
+    tests map { test =>
+      Group(test.name, Seq(test), runPolicy =  SubProcess(ForkOptions().withRunJVMOptions(Vector("-Dtest.name=" + test.name))))
+    }
 }
