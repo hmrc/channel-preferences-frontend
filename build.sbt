@@ -1,5 +1,5 @@
-import uk.gov.hmrc.DefaultBuildSettings
-import uk.gov.hmrc.DefaultBuildSettings.integrationTestSettings
+import uk.gov.hmrc.DefaultBuildSettings.{defaultSettings, scalaSettings, integrationTestSettings}
+import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
 import scoverage.ScoverageKeys
 
 val appName = "channel-preferences-frontend"
@@ -9,9 +9,9 @@ val silencerVersion = "1.7.0"
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin)
   .disablePlugins(JUnitXmlReportPlugin) // Required to prevent https://github.com/scalatest/scalatest/issues/1427
-  .settings(DefaultBuildSettings.scalaSettings: _*)
-  .settings(DefaultBuildSettings.defaultSettings(): _*)
-  .settings(SbtDistributablesPlugin.publishingSettings: _*)
+  .settings(scalaSettings: _*)
+  .settings(defaultSettings(): _*)
+  .settings(publishingSettings: _*)
   .settings(
     majorVersion                     := 0,
     scalaVersion                     := "2.12.12",
@@ -23,9 +23,6 @@ lazy val microservice = Project(appName, file("."))
       "uk.gov.hmrc.hmrcfrontend.views.html.components._"
     ),
     PlayKeys.playDefaultPort := 9053,
-    ScoverageKeys.coverageMinimum := 99,
-    ScoverageKeys.coverageFailOnMinimum := true,
-    ScoverageKeys.coverageHighlighting := true,
     retrieveManaged := true,
     evictionWarningOptions in update :=
       EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
@@ -48,6 +45,13 @@ lazy val microservice = Project(appName, file("."))
     )
     // ***************
   )
+  .settings(
+    ScoverageKeys.coverageExcludedFiles := "<empty>;Reverse.*;.*Routes.*;",
+    ScoverageKeys.coverageMinimum := 99,
+    ScoverageKeys.coverageFailOnMinimum := true,
+    ScoverageKeys.coverageHighlighting := true,
+  )
   .configs(IntegrationTest)
   .settings(integrationTestSettings(): _*)
+  .settings(inConfig(IntegrationTest)(Defaults.itSettings): _*)
   .settings(resolvers += Resolver.jcenterRepo)
