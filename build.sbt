@@ -3,8 +3,8 @@ import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
 import scoverage.ScoverageKeys
 import com.lucidchart.sbt.scalafmt.ScalafmtCorePlugin.autoImport._
 import uk.gov.hmrc.SbtBobbyPlugin.BobbyKeys.bobbyRulesURL
-import wartremover.Wart
-import wartremover.WartRemover.autoImport.{wartremoverExcluded, wartremoverErrors}
+//import wartremover.Wart
+//import wartremover.WartRemover.autoImport.{wartremoverExcluded, wartremoverErrors}
 
 val appName = "channel-preferences-frontend"
 
@@ -39,9 +39,9 @@ lazy val microservice = Project(appName, file("."))
     scalacOptions ++= Seq(
       "-P:silencer:pathFilters=target/.*",
       s"-P:silencer:sourceRoots=${baseDirectory.value.getCanonicalPath}",
-      "-P:wartremover:excluded:/conf/app.routes",
+//      "-P:wartremover:excluded:/conf/app.routes",
       "-P:silencer:pathFilters=app.routes",
-      "-P:wartremover:traverser:org.wartremover.warts.Unsafe",
+//      "-P:wartremover:traverser:org.wartremover.warts.Unsafe",
       "-deprecation", // Emit warning and location for usages of deprecated APIs.
       "-encoding",
       "utf-8", // Specify character encoding used by source files.
@@ -120,11 +120,10 @@ lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
 compileScalastyle := scalastyle.in(Compile).toTask("").value
 (compile in Compile) := ((compile in Compile) dependsOn compileScalastyle).value
 
-wartremoverErrors in (Compile, compile) ++= Warts.allBut(Wart.Equals, Wart.ImplicitParameter, Wart.Nothing)
-wartremoverExcluded ++= routes.in(Compile).value
-wartremoverExcluded ++= (baseDirectory.value / "app"/ "uk" / "gov"/ "hmrc"/ "channelpreferencesfrontend" / "views" ** "*.scala*").get
+//wartremoverErrors in (Compile, compile) ++= Warts.allBut(Wart.Equals, Wart.ImplicitParameter, Wart.Nothing, Wart.DefaultArguments)
+//wartremoverExcluded ++= routes.in(Compile).value
+//wartremoverExcluded ++= (baseDirectory.value / "app"/ "uk" / "gov"/ "hmrc"/ "channelpreferencesfrontend" / "views" ** "*.scala*").get
 //wartremoverExcluded ++= (target in TwirlKeys.compileTemplates).value
-addCompilerPlugin("org.wartremover" %% "wartremover" % "2.4.13" cross CrossVersion.full)
 bobbyRulesURL := Some(new URL("https://webstore.tax.service.gov.uk/bobby-config/deprecated-dependencies.json"))
 scalafmtOnCompile := true
 
@@ -136,16 +135,15 @@ lazy val silencerSettings: Seq[Setting[_]] = {
   )
 }
 
-dependencyUpdatesFailBuild := true
 (compile in Compile) := ((compile in Compile) dependsOn dependencyUpdates).value
+dependencyUpdatesFilter -= moduleFilter(name = "flexmark-all")
 dependencyUpdatesFilter -= moduleFilter(organization = "org.scala-lang")
 dependencyUpdatesFilter -= moduleFilter(organization = "com.github.ghik")
 dependencyUpdatesFilter -= moduleFilter(organization = "com.typesafe.play")
 dependencyUpdatesFilter -= moduleFilter(organization = "org.scalatestplus.play")
-
+dependencyUpdatesFailBuild := true
 sources in (Compile, doc) := Seq.empty
 
-swaggerDomainNameSpaces := Seq("uk.gov.hmrc.securemessage.models.api")
 swaggerTarget := baseDirectory.value / "public"
 swaggerFileName := "schema.json"
 swaggerPrettyJson := true
