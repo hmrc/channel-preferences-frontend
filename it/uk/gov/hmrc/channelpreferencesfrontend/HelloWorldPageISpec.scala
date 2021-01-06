@@ -5,12 +5,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-//import play.api.test._
-//import org.scalatest.Matchers.convertToAnyShouldWrapper
 import uk.gov.hmrc.http.HttpClient
-//import uk.gov.hmrc.play.HeaderCarrierConverter
-
-//import scala.concurrent.ExecutionContext.Implicits._
 
 class HelloWorldPageISpec extends PlaySpec with GuiceOneAppPerSuite {
 
@@ -29,7 +24,6 @@ class HelloWorldPageISpec extends PlaySpec with GuiceOneAppPerSuite {
       val fakeRequest = FakeRequest(GET, s"/channel-preferences-frontend/hello-world")
         .withHeaders("Content-Type" -> "application/x-www-form-urlencoded")
         .withHeaders("Csrf-Token" -> "nocheck")
-//      implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(fakeRequest.headers)
 
       val result = route(app, fakeRequest).get
       status(result) mustBe OK
