@@ -16,6 +16,8 @@ lazy val microservice = Project(appName, file("."))
   .settings(scalaSettings: _*)
   .settings(defaultSettings(): _*)
   .settings(publishingSettings: _*)
+  .configs(IntegrationTest)
+  .settings(integrationTestSettings(): _*)
   .settings(
     majorVersion                     := 0,
     scalaVersion                     := "2.12.12",
@@ -149,3 +151,17 @@ swaggerFileName := "schema.json"
 swaggerPrettyJson := true
 swaggerRoutesFile := "prod.routes"
 swaggerV3 := true
+
+val codeStyleIntegrationTest = taskKey[Unit]("enforce code style then integration test")
+
+// and then in settings...
+Project.inConfig(IntegrationTest)(ScalastylePlugin.rawScalastyleSettings()) ++
+  Seq(
+    scalastyleConfig in IntegrationTest := (scalastyleConfig in scalastyle).value,
+    scalastyleTarget in IntegrationTest := target.value / "scalastyle-it-results.xml",
+    scalastyleFailOnError in IntegrationTest := (scalastyleFailOnError in scalastyle).value,
+    (scalastyleFailOnWarning in IntegrationTest) := (scalastyleFailOnWarning in scalastyle).value,
+    scalastyleSources in IntegrationTest := (unmanagedSourceDirectories in IntegrationTest).value,
+    codeStyleIntegrationTest := scalastyle.in(IntegrationTest).toTask("").value,
+    (test in IntegrationTest) := ((test in IntegrationTest) dependsOn codeStyleIntegrationTest).value
+  )
