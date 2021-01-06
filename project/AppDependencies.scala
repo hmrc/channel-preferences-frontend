@@ -20,6 +20,7 @@ object AppDependencies {
     "org.jsoup"              % "jsoup"                   % "1.13.1" % Test,
     "org.mockito"            % "mockito-core"            % "3.7.0",
     "com.vladsch.flexmark"   % "flexmark-all"            % "0.36.8" % "test, it",
-    "org.pegdown"            % "pegdown"                 % "1.6.0" % "test, it"
+    "org.pegdown"            % "pegdown"                 % "1.6.0" % "test, it",
+    "com.github.tomakehurst" % "wiremock-jre8"           % "2.27.2" % "test,it"
   )
 }
