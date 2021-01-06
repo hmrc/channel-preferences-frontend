@@ -26,6 +26,7 @@ import uk.gov.hmrc.play.bootstrap.tools.Stubs.stubMessagesControllerComponents
 import uk.gov.hmrc.channelpreferencesfrontend.config.AppConfig
 import uk.gov.hmrc.channelpreferencesfrontend.views.html.HelloWorldPage
 
+@SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
 class HelloWorldControllerSpec extends PlaySpec with GuiceOneAppPerSuite {
   private val fakeRequest = FakeRequest("GET", "/")
 

@@ -1,12 +1,25 @@
+/*
+ * Copyright 2021 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import uk.gov.hmrc.DefaultBuildSettings.{ defaultSettings, integrationTestSettings, scalaSettings }
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
-import scoverage.ScoverageKeys
 import com.lucidchart.sbt.scalafmt.ScalafmtCorePlugin.autoImport._
 import uk.gov.hmrc.ExternalService
 import uk.gov.hmrc.SbtBobbyPlugin.BobbyKeys.bobbyRulesURL
 import uk.gov.hmrc.ServiceManagerPlugin.Keys.itDependenciesList
-import wartremover.Wart
-import wartremover.WartRemover.autoImport.{ wartremoverErrors, wartremoverExcluded }
 import play.twirl.sbt.Import.TwirlKeys
 
 val appName = "channel-preferences-frontend"
@@ -19,24 +32,11 @@ lazy val externalServices = List(
 
 lazy val wartremoverSettings =
   Seq(
-    wartremoverErrors in (Compile, compile) ++= Warts.allBut(
-      Wart.Equals,
-      Wart.ImplicitParameter,
-      Wart.Nothing,
-      Wart.DefaultArguments,
-      Wart.Option2Iterable
-    ),
-    wartremoverErrors in (Test, compile) --= Seq(Wart.NonUnitStatements),
+    WartRemoverSettings.wartRemoverError,
+    WartRemoverSettings.wartRemoverErrorTest,
+//    wartremoverErrors in (Test, compile) -= Wart.NonUnitStatements, // does not seem to work as intended
     wartremoverExcluded in (Compile, compile) ++= routes.in(Compile).value,
     wartremoverExcluded += (target in TwirlKeys.compileTemplates).value
-  )
-
-lazy val scoverageSettings =
-  Seq(
-    ScoverageKeys.coverageExcludedPackages := "<empty>;.*Reverse.*;.*(config|testonly|views).*;.*(BuildInfo|Routes).*",
-    ScoverageKeys.coverageMinimum := 90.00,
-    ScoverageKeys.coverageFailOnMinimum := true,
-    ScoverageKeys.coverageHighlighting := true
   )
 
 lazy val microservice = Project(appName, file("."))
@@ -127,12 +127,6 @@ lazy val microservice = Project(appName, file("."))
     // ***************
   )
   .settings(
-    ScoverageKeys.coverageExcludedFiles := "<empty>;Reverse.*;.*(config|views.*);.*(AuthService|BuildInfo|Routes).*",
-    ScoverageKeys.coverageMinimum := 68,
-    ScoverageKeys.coverageFailOnMinimum := true,
-    ScoverageKeys.coverageHighlighting := true
-  )
-  .settings(
     resolvers += Resolver.jcenterRepo,
     inConfig(IntegrationTest)(
       scalafmtCoreSettings ++
@@ -145,8 +139,8 @@ lazy val microservice = Project(appName, file("."))
   )
   .settings(ServiceManagerPlugin.serviceManagerSettings)
   .settings(itDependenciesList := externalServices)
+  .settings(ScoverageSettings())
   .settings(wartremoverSettings: _*)
-  .settings(scoverageSettings: _*)
 
 lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
 compileScalastyle := scalastyle.in(Compile).toTask("").value
