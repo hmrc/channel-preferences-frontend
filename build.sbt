@@ -1,12 +1,26 @@
+/*
+ * Copyright 2021 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import uk.gov.hmrc.DefaultBuildSettings.{ defaultSettings, integrationTestSettings, scalaSettings }
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
-import scoverage.ScoverageKeys
 import com.lucidchart.sbt.scalafmt.ScalafmtCorePlugin.autoImport._
 import uk.gov.hmrc.ExternalService
 import uk.gov.hmrc.SbtBobbyPlugin.BobbyKeys.bobbyRulesURL
 import uk.gov.hmrc.ServiceManagerPlugin.Keys.itDependenciesList
-//import wartremover.Wart
-//import wartremover.WartRemover.autoImport.{wartremoverExcluded, wartremoverErrors}
+import play.twirl.sbt.Import.TwirlKeys
 
 val appName = "channel-preferences-frontend"
 
@@ -15,6 +29,15 @@ val silencerVersion = "1.7.0"
 lazy val externalServices = List(
   ExternalService("DATASTREAM")
 )
+
+lazy val wartremoverSettings =
+  Seq(
+    WartRemoverSettings.wartRemoverError,
+    WartRemoverSettings.wartRemoverErrorTest,
+//    wartremoverErrors in (Test, compile) -= Wart.NonUnitStatements, // does not seem to work as intended
+    wartremoverExcluded in (Compile, compile) ++= routes.in(Compile).value,
+    wartremoverExcluded += (target in TwirlKeys.compileTemplates).value
+  )
 
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SwaggerPlugin)
@@ -47,9 +70,9 @@ lazy val microservice = Project(appName, file("."))
     scalacOptions ++= Seq(
       "-P:silencer:pathFilters=target/.*",
       s"-P:silencer:sourceRoots=${baseDirectory.value.getCanonicalPath}",
-//      "-P:wartremover:excluded:/conf/app.routes",
+      "-P:wartremover:excluded:/conf/app.routes",
       "-P:silencer:pathFilters=app.routes",
-//      "-P:wartremover:traverser:org.wartremover.warts.Unsafe",
+      "-P:wartremover:traverser:org.wartremover.warts.Unsafe",
       "-deprecation", // Emit warning and location for usages of deprecated APIs.
       "-encoding",
       "utf-8", // Specify character encoding used by source files.
@@ -104,14 +127,6 @@ lazy val microservice = Project(appName, file("."))
     // ***************
   )
   .settings(
-    ScoverageKeys.coverageExcludedFiles := "<empty>;Reverse.*;.*(config|views.*);.*(AuthService|BuildInfo|Routes).*",
-    ScoverageKeys.coverageMinimum := 68,
-    ScoverageKeys.coverageFailOnMinimum := true,
-    ScoverageKeys.coverageHighlighting := true
-  )
-  .configs(IntegrationTest)
-  .settings(integrationTestSettings(): _*)
-  .settings(
     resolvers += Resolver.jcenterRepo,
     inConfig(IntegrationTest)(
       scalafmtCoreSettings ++
@@ -124,15 +139,13 @@ lazy val microservice = Project(appName, file("."))
   )
   .settings(ServiceManagerPlugin.serviceManagerSettings)
   .settings(itDependenciesList := externalServices)
+  .settings(ScoverageSettings())
+  .settings(wartremoverSettings: _*)
 
 lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
 compileScalastyle := scalastyle.in(Compile).toTask("").value
 (compile in Compile) := ((compile in Compile) dependsOn compileScalastyle).value
 
-//wartremoverErrors in (Compile, compile) ++= Warts.allBut(Wart.Equals, Wart.ImplicitParameter, Wart.Nothing, Wart.DefaultArguments)
-//wartremoverExcluded ++= routes.in(Compile).value
-//wartremoverExcluded ++= (baseDirectory.value / "app"/ "uk" / "gov"/ "hmrc"/ "channelpreferencesfrontend" / "views" ** "*.scala*").get
-//wartremoverExcluded ++= (target in TwirlKeys.compileTemplates).value
 bobbyRulesURL := Some(new URL("https://webstore.tax.service.gov.uk/bobby-config/deprecated-dependencies.json"))
 scalafmtOnCompile := true
 
