@@ -16,8 +16,7 @@
 
 package uk.gov.hmrc.channelpreferencesfrontend.controllers
 
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.Status
 import play.api.test.FakeRequest
@@ -27,7 +26,7 @@ import uk.gov.hmrc.play.bootstrap.tools.Stubs.stubMessagesControllerComponents
 import uk.gov.hmrc.channelpreferencesfrontend.config.AppConfig
 import uk.gov.hmrc.channelpreferencesfrontend.views.html.HelloWorldPage
 
-class HelloWorldControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuite {
+class HelloWorldControllerSpec extends PlaySpec with GuiceOneAppPerSuite {
   private val fakeRequest = FakeRequest("GET", "/")
 
   private val env = Environment.simple()
@@ -41,13 +40,13 @@ class HelloWorldControllerSpec extends AnyWordSpec with Matchers with GuiceOneAp
   "GET /" should {
     "return 200" in {
       val result = controller.helloWorld(fakeRequest)
-      status(result) shouldBe Status.OK
+      status(result) mustBe Status.OK
     }
 
     "return HTML" in {
       val result = controller.helloWorld(fakeRequest)
-      contentType(result) shouldBe Some("text/html")
-      charset(result) shouldBe Some("utf-8")
+      contentType(result) mustBe Some("text/html")
+      charset(result) mustBe Some("utf-8")
     }
   }
 }
