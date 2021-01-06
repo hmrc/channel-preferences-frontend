@@ -2,13 +2,19 @@ import uk.gov.hmrc.DefaultBuildSettings.{ defaultSettings, integrationTestSettin
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
 import scoverage.ScoverageKeys
 import com.lucidchart.sbt.scalafmt.ScalafmtCorePlugin.autoImport._
+import uk.gov.hmrc.ExternalService
 import uk.gov.hmrc.SbtBobbyPlugin.BobbyKeys.bobbyRulesURL
+import uk.gov.hmrc.ServiceManagerPlugin.Keys.itDependenciesList
 //import wartremover.Wart
 //import wartremover.WartRemover.autoImport.{wartremoverExcluded, wartremoverErrors}
 
 val appName = "channel-preferences-frontend"
 
 val silencerVersion = "1.7.0"
+
+lazy val externalServices = List(
+  ExternalService("DATASTREAM")
+)
 
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SwaggerPlugin)
@@ -116,6 +122,8 @@ lazy val microservice = Project(appName, file("."))
         }.value)
     )
   )
+  .settings(ServiceManagerPlugin.serviceManagerSettings)
+  .settings(itDependenciesList := externalServices)
 
 lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
 compileScalastyle := scalastyle.in(Compile).toTask("").value
