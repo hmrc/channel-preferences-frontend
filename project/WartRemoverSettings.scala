@@ -14,28 +14,20 @@
  * limitations under the License.
  */
 
-import sbt.{ Compile, Test }
+import sbt.Compile
 import sbt.Keys.compile
 import wartremover.Wart._
-import wartremover.WartRemover.autoImport.{ Warts, wartremoverErrors, wartremoverExcluded }
+import wartremover.WartRemover.autoImport.{ Warts, wartremoverErrors }
 
 object WartRemoverSettings {
 
   lazy val wartRemoverError = {
     val errorWarts = Seq(
-      Equals,
-      ImplicitParameter,
       Nothing,
+      ImplicitParameter,
       DefaultArguments,
       Option2Iterable
     )
     wartremoverErrors in (Compile, compile) ++= Warts.allBut(errorWarts: _*)
-  }
-
-  lazy val wartRemoverErrorTest = {
-    val errorWarts = Seq(
-      NonUnitStatements
-    )
-    wartremoverErrors in (Test, compile) ++= Warts.allBut(errorWarts: _*)
   }
 }
