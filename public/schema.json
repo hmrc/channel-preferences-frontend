@@ -1,0 +1,18 @@
+{
+  "components" : {
+    "schemas" : {
+    }
+  },
+  "openapi" : "3.0.3",
+  "paths" : {
+  },
+  "produces" : [ "application/json" ],
+  "info" : {
+    "title" : "Channel Preferences Frontend API",
+    "version" : "0.0.0-SNAPSHOT"
+  },
+  "consumes" : [ "application/json" ],
+  "tags" : [ {
+    "name" : "app"
+  } ]
+}
