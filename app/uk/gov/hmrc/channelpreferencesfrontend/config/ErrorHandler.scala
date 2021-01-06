@@ -29,6 +29,7 @@ class ErrorHandler @Inject()(errorTemplate: ErrorTemplate, val messagesApi: Mess
     extends FrontendErrorHandler {
 
   override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(
-    implicit request: Request[_]): Html =
+    implicit
+    request: Request[_]): Html =
     errorTemplate(pageTitle, heading, message)
 }

@@ -29,8 +29,8 @@ import scala.concurrent.Future
 class HelloWorldController @Inject()(
   appConfig: AppConfig,
   mcc: MessagesControllerComponents,
-  helloWorldPage: HelloWorldPage)
-    extends FrontendController(mcc) {
+  helloWorldPage: HelloWorldPage
+) extends FrontendController(mcc) {
 
   implicit val config: AppConfig = appConfig
 
