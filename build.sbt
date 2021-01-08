@@ -126,6 +126,14 @@ lazy val microservice = Project(appName, file("."))
     // ***************
   )
   .settings(
+    ScoverageKeys.coverageExcludedFiles := "<empty>;Reverse.*;.*(config|views.*);.*(AuthService|BuildInfo|Routes).*",
+    ScoverageKeys.coverageMinimum := 68,
+    ScoverageKeys.coverageFailOnMinimum := false,
+    ScoverageKeys.coverageHighlighting := true
+  )
+  .configs(IntegrationTest)
+  .settings(integrationTestSettings(): _*)
+  .settings(
     resolvers += Resolver.jcenterRepo,
     inConfig(IntegrationTest)(
       scalafmtCoreSettings ++
