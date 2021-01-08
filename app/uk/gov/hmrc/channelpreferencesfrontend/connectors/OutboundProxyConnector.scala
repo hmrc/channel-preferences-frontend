@@ -136,6 +136,7 @@ object OutboundProxyConnector {
   private def flattenToSeq(map: Map[String, Seq[String]]): Seq[(String, String)] =
     map.toSeq.flatMap(entry => entry._2.map(value => (entry._1, value)))
 
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   private def processResponseHeaders(headers: Seq[HttpHeader]): Map[String, String] =
     expandToMap(headers).filter(_._1 != CONTENT_TYPE)
 
