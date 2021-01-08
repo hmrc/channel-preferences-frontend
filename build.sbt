@@ -167,6 +167,7 @@ dependencyUpdatesFilter -= moduleFilter(organization = "org.scalatestplus.play")
 dependencyUpdatesFailBuild := true
 sources in (Compile, doc) := Seq.empty
 
+swaggerDomainNameSpaces := Seq("models")
 swaggerTarget := baseDirectory.value / "public"
 swaggerFileName := "schema.json"
 swaggerPrettyJson := true
