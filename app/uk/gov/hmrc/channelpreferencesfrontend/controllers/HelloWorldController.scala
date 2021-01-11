@@ -38,4 +38,8 @@ class HelloWorldController @Inject()(
     Future.successful(Ok(helloWorldPage()))
   }
 
+  def getTest: Action[AnyContent] = Action.async { implicit request =>
+    Future.successful(Ok(helloWorldPage()))
+  }
+
 }
