@@ -1,18 +1,61 @@
 {
   "components" : {
-    "schemas" : {
-    }
+    "schemas" : { }
   },
   "openapi" : "3.0.3",
   "paths" : {
+    "/govuk-frontend/assets/{file}" : {
+      "get" : {
+        "operationId" : "at",
+        "parameters" : [ {
+          "schema" : {
+            "type" : "string"
+          },
+          "in" : "path",
+          "name" : "file",
+          "required" : true
+        } ],
+        "tags" : [ "govuk" ]
+      }
+    },
+    "/hmrc-frontend/assets/{file}" : {
+      "get" : {
+        "operationId" : "at",
+        "parameters" : [ {
+          "schema" : {
+            "type" : "string"
+          },
+          "in" : "path",
+          "name" : "file",
+          "required" : true
+        } ],
+        "tags" : [ "hmrcfrontend" ]
+      }
+    },
+    "/channel-preferences-frontend/hello-world" : {
+      "get" : {
+        "operationId" : "helloWorld",
+        "tags" : [ "app" ]
+      }
+    },
+    "/paperless/test" : {
+      "get" : {
+        "operationId" : "getTest",
+        "tags" : [ "app" ]
+      }
+    }
   },
   "produces" : [ "application/json" ],
   "info" : {
     "title" : "Channel Preferences Frontend API",
-    "version" : "0.0.0-SNAPSHOT"
+    "version" : "0.5.0-SNAPSHOT"
   },
   "consumes" : [ "application/json" ],
   "tags" : [ {
+    "name" : "govuk"
+  }, {
+    "name" : "hmrcfrontend"
+  }, {
     "name" : "app"
   } ]
 }
