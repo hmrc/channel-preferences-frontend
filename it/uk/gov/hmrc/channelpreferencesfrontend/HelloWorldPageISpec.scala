@@ -37,7 +37,7 @@ class HelloWorldPageISpec extends PlaySpec with GuiceOneAppPerSuite {
 
     "return an OK response" in {
 
-      val fakeRequest = FakeRequest(GET, s"/hello-world")
+      val fakeRequest = FakeRequest(GET, s"/channel-preferences-frontend/hello-world")
         .withHeaders("Content-Type" -> "application/x-www-form-urlencoded")
         .withHeaders("Csrf-Token" -> "nocheck")
 
