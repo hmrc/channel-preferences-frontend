@@ -1,7 +1,11 @@
 # microservice specific routes
 
-->         /govuk-frontend          govuk.Routes
-->         /hmrc-frontend           hmrcfrontend.Routes
-GET        /hello-world             uk.gov.hmrc.channelpreferencesfrontend.controllers.HelloWorldController.helloWorld
 ### NoDocs ###
-GET        /assets/*file            controllers.Assets.versioned(path = "/public", file: Asset)
+->          /govuk-frontend         govuk.Routes
+### NoDocs ###
+->          /hmrc-frontend          hmrcfrontend.Routes
+
+GET         /hello-world            uk.gov.hmrc.channelpreferencesfrontend.controllers.HelloWorldController.helloWorld
+
+### NoDocs ###
+GET         /assets/*file           controllers.Assets.versioned(path = "/public", file: Asset)

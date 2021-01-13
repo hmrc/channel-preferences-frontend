@@ -39,7 +39,7 @@ lazy val wartremoverSettings =
   )
 
 lazy val microservice = Project(appName, file("."))
-  .enablePlugins(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SwaggerPlugin)
+  .enablePlugins(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, BuildInfoPlugin)
   .disablePlugins(JUnitXmlReportPlugin) // Required to prevent https://github.com/scalatest/scalatest/issues/1427
   .settings(scalaSettings: _*)
   .settings(defaultSettings(): _*)
@@ -140,6 +140,10 @@ lazy val microservice = Project(appName, file("."))
   .settings(itDependenciesList := externalServices)
   .settings(ScoverageSettings())
   .settings(wartremoverSettings: _*)
+  .settings(
+    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
+    buildInfoPackage := "uk.gov.hmrc.channelpreferencesfrontend"
+  )
 
 lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
 compileScalastyle := scalastyle.in(Compile).toTask("").value
@@ -166,13 +170,6 @@ dependencyUpdatesFilter -= moduleFilter(organization = "org.scalatest")
 dependencyUpdatesFilter -= moduleFilter(organization = "org.scalatestplus.play")
 dependencyUpdatesFailBuild := true
 sources in (Compile, doc) := Seq.empty
-
-swaggerDomainNameSpaces := Seq("models")
-swaggerTarget := baseDirectory.value / "public"
-swaggerFileName := "schema.json"
-swaggerPrettyJson := true
-swaggerRoutesFile := "prod.routes"
-swaggerV3 := true
 
 val codeStyleIntegrationTest = taskKey[Unit]("enforce code style then integration test")
 
