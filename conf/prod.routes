@@ -4,3 +4,9 @@
 
 ### NoDocs ###
 GET        /admin/metrics                   com.kenshoo.play.metrics.MetricsController.metrics
+
+GET        /*path             @uk.gov.hmrc.channelpreferencesfrontend.controllers.ProxyController.proxy(path: String)
+POST       /*path             @uk.gov.hmrc.channelpreferencesfrontend.controllers.ProxyController.proxy(path: String)
+PUT        /*path             @uk.gov.hmrc.channelpreferencesfrontend.controllers.ProxyController.proxy(path: String)
+PATCH      /*path             @uk.gov.hmrc.channelpreferencesfrontend.controllers.ProxyController.proxy(path: String)
+DELETE     /*path             @uk.gov.hmrc.channelpreferencesfrontend.controllers.ProxyController.proxy(path: String)

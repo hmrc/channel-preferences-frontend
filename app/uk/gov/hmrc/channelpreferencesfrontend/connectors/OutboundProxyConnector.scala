@@ -24,14 +24,13 @@ import akka.stream.scaladsl.Source
 import akka.util.ByteString
 import com.google.inject.name.Named
 import controllers.Assets.CONTENT_TYPE
-
-import javax.inject.{ Inject, Singleton }
 import play.api.http.HeaderNames._
 import play.api.http.HttpEntity.Streamed
 import play.api.mvc._
 import play.api.{ Logger, LoggerLike }
 import uk.gov.hmrc.play.http.logging.Mdc.preservingMdc
 
+import javax.inject.{ Inject, Singleton }
 import scala.concurrent.{ ExecutionContext, Future }
 
 @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
@@ -55,15 +54,15 @@ class OutboundProxyConnector @Inject()(
       http
         .singleRequest(request = request)
     ).map { response =>
-      val flattenedHeaders = processResponseHeaders(response.headers)
-      val contentType = flattenedHeaders.get(CONTENT_TYPE)
+      val contentType = response.entity.contentType
+      val flattenedHeaders = processResponseHeaders(response.headers) + (CONTENT_TYPE -> s"$contentType")
       val contentLength = flattenedHeaders.get(CONTENT_LENGTH).map(_.toLong)
 
       logResponse(inboundRequest, response)
 
       Result(
         ResponseHeader(response.status.intValue(), flattenedHeaders),
-        Streamed(response.entity.dataBytes, contentLength, contentType)
+        Streamed(response.entity.dataBytes, contentLength, Some(s"$contentType"))
       )
     }
   }
@@ -100,7 +99,7 @@ class OutboundProxyConnector @Inject()(
 
 object OutboundProxyConnector {
 
-  private val outboundHeaderBlackList =
+  private val outboundHeaderAllowList =
     Set(
       CONNECTION,
       CONTENT_LENGTH,
@@ -116,13 +115,13 @@ object OutboundProxyConnector {
     )
 
   val outboundHeadersFilter: ((String, String)) => Boolean = {
-    case (key, _) => !outboundHeaderBlackList.contains(key)
+    case (key, _) => !outboundHeaderAllowList.contains(key)
   }
 
-  val loggedHeaderBlacklist: Set[String] = Set("Ocp-Apim-Subscription-Key", AUTHORIZATION)
+  val loggedHeaderAllowlist: Set[String] = Set("Ocp-Apim-Subscription-Key", AUTHORIZATION)
 
   val loggedHeadersFilter: ((String, String)) => Boolean = {
-    case (key, _) => !loggedHeaderBlacklist.contains(key)
+    case (key, _) => !loggedHeaderAllowlist.contains(key)
   }
 
   private def processInboundHeaders(inboundHeaders: Headers): Seq[RawHeader] = {
@@ -138,7 +137,7 @@ object OutboundProxyConnector {
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   private def processResponseHeaders(headers: Seq[HttpHeader]): Map[String, String] =
-    expandToMap(headers).filter(_._1 != CONTENT_TYPE)
+    expandToMap(headers) //.filter(_._1 != CONTENT_TYPE)
 
   private def fullPath(request: Request[_]): String =
     if (request.rawQueryString.nonEmpty) s"${request.path}?${request.rawQueryString}" else request.path

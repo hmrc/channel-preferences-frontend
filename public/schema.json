@@ -1,18 +1,119 @@
 {
   "components" : {
-    "schemas" : {
-    }
+    "schemas" : { }
   },
   "openapi" : "3.0.3",
   "paths" : {
+    "/channel-preferences-frontend/govuk-frontend/assets/{file}" : {
+      "get" : {
+        "operationId" : "at",
+        "parameters" : [ {
+          "schema" : {
+            "type" : "string"
+          },
+          "in" : "path",
+          "name" : "file",
+          "required" : true
+        } ],
+        "tags" : [ "govuk" ]
+      }
+    },
+    "/channel-preferences-frontend/hmrc-frontend/assets/{file}" : {
+      "get" : {
+        "operationId" : "at",
+        "parameters" : [ {
+          "schema" : {
+            "type" : "string"
+          },
+          "in" : "path",
+          "name" : "file",
+          "required" : true
+        } ],
+        "tags" : [ "hmrcfrontend" ]
+      }
+    },
+    "/channel-preferences-frontend/hello-world" : {
+      "get" : {
+        "operationId" : "helloWorld",
+        "tags" : [ "app" ]
+      }
+    },
+    "/{path}" : {
+      "patch" : {
+        "operationId" : "proxy",
+        "parameters" : [ {
+          "schema" : {
+            "type" : "string"
+          },
+          "in" : "path",
+          "name" : "path",
+          "required" : true
+        } ],
+        "tags" : [ "prod" ]
+      },
+      "post" : {
+        "operationId" : "proxy",
+        "parameters" : [ {
+          "schema" : {
+            "type" : "string"
+          },
+          "in" : "path",
+          "name" : "path",
+          "required" : true
+        } ],
+        "tags" : [ "prod" ]
+      },
+      "get" : {
+        "operationId" : "proxy",
+        "parameters" : [ {
+          "schema" : {
+            "type" : "string"
+          },
+          "in" : "path",
+          "name" : "path",
+          "required" : true
+        } ],
+        "tags" : [ "prod" ]
+      },
+      "delete" : {
+        "operationId" : "proxy",
+        "parameters" : [ {
+          "schema" : {
+            "type" : "string"
+          },
+          "in" : "path",
+          "name" : "path",
+          "required" : true
+        } ],
+        "tags" : [ "prod" ]
+      },
+      "put" : {
+        "operationId" : "proxy",
+        "parameters" : [ {
+          "schema" : {
+            "type" : "string"
+          },
+          "in" : "path",
+          "name" : "path",
+          "required" : true
+        } ],
+        "tags" : [ "prod" ]
+      }
+    }
   },
   "produces" : [ "application/json" ],
   "info" : {
     "title" : "Channel Preferences Frontend API",
-    "version" : "0.0.0-SNAPSHOT"
+    "version" : "0.5.0-SNAPSHOT"
   },
   "consumes" : [ "application/json" ],
   "tags" : [ {
+    "name" : "govuk"
+  }, {
+    "name" : "hmrcfrontend"
+  }, {
     "name" : "app"
+  }, {
+    "name" : "prod"
   } ]
 }
