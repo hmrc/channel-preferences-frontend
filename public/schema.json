@@ -38,6 +38,12 @@
         "tags" : [ "app" ]
       }
     },
+    "/paperless/hello-world" : {
+      "get" : {
+        "operationId" : "helloWorld",
+        "tags" : [ "prod" ]
+      }
+    },
     "/{path}" : {
       "patch" : {
         "operationId" : "proxy",

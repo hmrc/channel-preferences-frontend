@@ -2,6 +2,8 @@
 ->         /channel-preferences-frontend    app.Routes
 ->         /                                health.Routes
 
+GET        /paperless/hello-world           uk.gov.hmrc.channelpreferencesfrontend.controllers.HelloWorldController.helloWorld
+
 ### NoDocs ###
 GET        /admin/metrics                   com.kenshoo.play.metrics.MetricsController.metrics
 
