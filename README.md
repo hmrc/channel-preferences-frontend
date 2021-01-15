@@ -15,9 +15,15 @@ Format:
 
 `sbt fmt`
 
-Then run the tests:
+Then run the tests and coverage report:
 
-`sbt test it:test`
+`sbt clean coverage test coverageReport`
+
+If your build fails due to poor testing coverage, *DO NOT* lower the test coverage, instead inspect the generated report located here on your local repo: `/target/scala-2.12/scoverage-report/index.html`
+
+Then run the integration tests:
+
+`sbt it:test`
 
 ## Swagger endpoint
 
@@ -26,5 +32,3 @@ Available locally here: http://localhost:9053/channel-preferences-frontend/api/s
 ### License
 
 This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html").
-
-
