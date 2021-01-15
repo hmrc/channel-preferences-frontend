@@ -8,4 +8,7 @@
 GET         /hello-world            uk.gov.hmrc.channelpreferencesfrontend.controllers.HelloWorldController.helloWorld
 
 ### NoDocs ###
+GET        /language/:lang          uk.gov.hmrc.channelpreferencesfrontend.controllers.LanguageSwitchController.selectLanguage(lang: Language)
+
+### NoDocs ###
 GET         /assets/*file           controllers.Assets.versioned(path = "/public", file: Asset)

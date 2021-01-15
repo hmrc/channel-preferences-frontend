@@ -22,15 +22,17 @@ import sbt._
 object AppDependencies {
 
   val compile = Seq(
-    "uk.gov.hmrc"  %% "bootstrap-frontend-play-27" % "3.3.0",
-    "uk.gov.hmrc"  %% "play-frontend-hmrc"         % "0.37.0-play-27",
-    "uk.gov.hmrc"  %% "play-frontend-govuk"        % "0.58.0-play-27",
-    "com.iterable" %% "swagger-play"               % "2.0.1",
-    "com.iheart"   %% "play-swagger"               % "0.10.2"
+    "uk.gov.hmrc"   %% "bootstrap-frontend-play-27" % "3.4.0",
+    "uk.gov.hmrc"   %% "play-frontend-hmrc"         % "0.38.0-play-27",
+    "uk.gov.hmrc"   %% "play-frontend-govuk"        % "0.60.0-play-27",
+    "uk.gov.hmrc"   %% "play-language"              % "4.10.0-play-27",
+    "com.iterable"  %% "swagger-play"               % "2.0.1",
+    "com.iheart"    %% "play-swagger"               % "0.10.2",
+    "org.typelevel" %% "cats-core"                  % "2.3.1"
   )
 
   val test = Seq(
-    "uk.gov.hmrc"            %% "bootstrap-test-play-27" % "3.3.0" % Test,
+    "uk.gov.hmrc"            %% "bootstrap-test-play-27" % "3.4.0" % Test,
     "org.scalatest"          %% "scalatest"              % "3.0.0" % Test,
     "org.jsoup"              % "jsoup"                   % "1.13.1" % Test,
     "com.typesafe.play"      %% "play-test"              % current % Test,
