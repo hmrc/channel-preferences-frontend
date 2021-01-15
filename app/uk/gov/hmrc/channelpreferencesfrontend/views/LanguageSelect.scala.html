@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,21 +12,19 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package uk.gov.hmrc.channelpreferencesfrontend.config
+@import uk.gov.hmrc.channelpreferencesfrontend.controllers.routes.LanguageSwitchController._
+@import uk.gov.hmrc.channelpreferencesfrontend.config.AppConfig
+@import uk.gov.hmrc.hmrcfrontend.views.html.components.HmrcLanguageSelect
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.language.LanguageSelect
 
-import javax.inject.{ Inject, Singleton }
-import play.api.Configuration
-import play.api.i18n.Lang
+@this(hmrcLanguageSelect: HmrcLanguageSelect)
 
-@Singleton
-class AppConfig @Inject()(config: Configuration) {
+@()(implicit messages: Messages, appConfig: AppConfig)
+@hmrcLanguageSelect(LanguageSelect(
+    if (messages.lang.code == "cy") Cy else En,
+    (En, switchToLanguage("en").url),
+    (Cy, switchToLanguage("cy").url)
+))
 
-  val welshLanguageSupportEnabled: Boolean =
-    config.getOptional[Boolean]("features.welsh-language-support").getOrElse(false)
-
-  val en: String = "en"
-  val cy: String = "cy"
-  val defaultLanguage: Lang = Lang(en)
-}
