@@ -23,7 +23,7 @@ object AppDependencies {
 
   val compile = Seq(
     "uk.gov.hmrc"  %% "bootstrap-frontend-play-27" % "3.3.0",
-    "uk.gov.hmrc"  %% "play-frontend-hmrc"         % "0.35.0-play-27",
+    "uk.gov.hmrc"  %% "play-frontend-hmrc"         % "0.36.0-play-27",
     "uk.gov.hmrc"  %% "play-frontend-govuk"        % "0.57.0-play-27",
     "com.iterable" %% "swagger-play"               % "2.0.1",
     "com.iheart"   %% "play-swagger"               % "0.10.2"
@@ -38,7 +38,8 @@ object AppDependencies {
     "org.jsoup"              % "jsoup"                   % "1.13.1" % Test,
     "org.mockito"            % "mockito-core"            % "3.7.0",
     "com.vladsch.flexmark"   % "flexmark-all"            % "0.36.8" % "test, it",
-    "org.pegdown"            % "pegdown"                 % "1.6.0" % "test, it"
+    "org.pegdown"            % "pegdown"                 % "1.6.0" % "test, it",
+    "com.github.tomakehurst" % "wiremock-jre8"           % "2.27.2" % "test,it"
   )
 
   val dependencyOverrides = Seq(
