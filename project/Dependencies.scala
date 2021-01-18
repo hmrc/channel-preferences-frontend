@@ -32,6 +32,6 @@ object Dependencies {
 
   def oneForkedJvmPerTest(tests: Seq[TestDefinition]) =
     tests map { test =>
-      Group(test.name, Seq(test), runPolicy =  SubProcess(ForkOptions().withRunJVMOptions(Vector("-Dtest.name=" + test.name))))
+      new Group(test.name, Seq(test), SubProcess(ForkOptions(runJVMOptions = Seq("-Dtest.name=" + test.name))))
     }
 }
