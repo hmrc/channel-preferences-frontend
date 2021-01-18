@@ -27,7 +27,7 @@ object Dependencies {
     "org.jsoup"              % "jsoup"                     % "1.13.1" % "test, it",
     "org.pegdown"            % "pegdown"                   % "1.6.0" % "test, it",
     "uk.gov.hmrc"            %% "browser-test"             % "2.3.0" % "functional",
-    "com.github.tomakehurst" % "wiremock"                  % "2.26.3" % "functional"
+    "com.github.tomakehurst" % "wiremock-jre8"             % "2.27.2" % "functional,it"
   )
 
   def oneForkedJvmPerTest(tests: Seq[TestDefinition]) =
