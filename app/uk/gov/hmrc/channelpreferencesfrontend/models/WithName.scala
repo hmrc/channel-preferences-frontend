@@ -14,19 +14,8 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.channelpreferencesfrontend.config
+package uk.gov.hmrc.channelpreferencesfrontend.models
 
-import javax.inject.{ Inject, Singleton }
-import play.api.i18n.Lang
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-
-@Singleton
-class AppConfig @Inject()(servicesConfig: ServicesConfig) {
-
-  lazy val welshTranslationEnabled: Boolean =
-    servicesConfig.getBoolean("features.welshTranslationEnabled")
-
-  val en: String = "en"
-  val cy: String = "cy"
-  val defaultLanguage: Lang = Lang(en)
+class WithName(string: String) {
+  override val toString: String = string
 }

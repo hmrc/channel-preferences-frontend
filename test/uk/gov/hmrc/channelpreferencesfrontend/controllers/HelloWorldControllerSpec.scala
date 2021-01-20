@@ -22,6 +22,7 @@ import play.api.http.Status
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.api.{ Configuration, Environment }
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.tools.Stubs.stubMessagesControllerComponents
 import uk.gov.hmrc.channelpreferencesfrontend.config.AppConfig
 import uk.gov.hmrc.channelpreferencesfrontend.views.html.HelloWorldPage
@@ -32,7 +33,8 @@ class HelloWorldControllerSpec extends PlaySpec with GuiceOneAppPerSuite {
 
   private val env = Environment.simple()
   private val configuration = Configuration.load(env)
-  private val appConfig = new AppConfig(configuration)
+  private val serviceConfigs = new ServicesConfig(configuration)
+  private val appConfig = new AppConfig(serviceConfigs)
 
   val helloWorldPage: HelloWorldPage = app.injector.instanceOf[HelloWorldPage]
 

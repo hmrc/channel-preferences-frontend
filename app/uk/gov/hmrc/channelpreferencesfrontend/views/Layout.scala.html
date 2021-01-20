@@ -37,7 +37,9 @@
 }
 
 @beforeContentBlock = {
-    @if(appConfig.welshLanguageSupportEnabled) {@languageSelect()}
+    @if(appConfig.welshTranslationEnabled) {
+        @languageSelect()
+    }
     <nav aria-label="back-link">
         @govukBackLink(BackLink(href = "javascript:history.back()", content = Text(Messages("back.button.text"))))
     </nav>

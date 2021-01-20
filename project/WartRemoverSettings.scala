@@ -26,7 +26,10 @@ object WartRemoverSettings {
       Nothing,
       ImplicitParameter,
       DefaultArguments,
-      Option2Iterable
+      Option2Iterable,
+      Throw,
+      Overloading,
+      ToString
     )
     wartremoverErrors in (Compile, compile) ++= Warts.allBut(errorWarts: _*)
   }

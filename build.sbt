@@ -21,6 +21,7 @@ import uk.gov.hmrc.ExternalService
 import uk.gov.hmrc.SbtBobbyPlugin.BobbyKeys.bobbyRulesURL
 import uk.gov.hmrc.ServiceManagerPlugin.Keys.itDependenciesList
 import play.twirl.sbt.Import.TwirlKeys
+import play.sbt.routes.RoutesKeys
 
 val appName = "channel-preferences-frontend"
 
@@ -49,6 +50,8 @@ lazy val microservice = Project(appName, file("."))
   .settings(
     majorVersion := 0,
     scalaVersion := "2.12.12",
+    name := appName,
+    RoutesKeys.routesImport += "uk.gov.hmrc.channelpreferencesfrontend.models._",
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
     TwirlKeys.templateImports ++= Seq(
       "uk.gov.hmrc.channelpreferencesfrontend.config.AppConfig",
