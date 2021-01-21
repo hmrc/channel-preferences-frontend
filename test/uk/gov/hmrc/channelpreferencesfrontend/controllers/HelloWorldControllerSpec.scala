@@ -29,7 +29,7 @@ import uk.gov.hmrc.channelpreferencesfrontend.views.html.HelloWorldPage
 
 @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
 class HelloWorldControllerSpec extends PlaySpec with GuiceOneAppPerSuite {
-  private val fakeRequest = FakeRequest("GET", "/")
+  private val fakeRequest = FakeRequest("GET", "/hello-world")
 
   private val env = Environment.simple()
   private val configuration = Configuration.load(env)
@@ -40,7 +40,7 @@ class HelloWorldControllerSpec extends PlaySpec with GuiceOneAppPerSuite {
 
   private val controller = new HelloWorldController(appConfig, stubMessagesControllerComponents(), helloWorldPage)
 
-  "GET /" should {
+  "GET /hello-world" should {
     "return 200" in {
       val result = controller.helloWorld(fakeRequest)
       status(result) mustBe Status.OK
