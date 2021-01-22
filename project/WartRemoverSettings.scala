@@ -17,7 +17,7 @@
 import sbt.Compile
 import sbt.Keys.compile
 import wartremover.Wart._
-import wartremover.WartRemover.autoImport.{ Warts, wartremoverErrors }
+import wartremover.WartRemover.autoImport.{ Warts, wartremoverErrors, wartremoverWarnings }
 
 object WartRemoverSettings {
 
@@ -28,6 +28,6 @@ object WartRemoverSettings {
       DefaultArguments,
       Option2Iterable
     )
-    wartremoverErrors in (Compile, compile) ++= Warts.allBut(errorWarts: _*)
+    wartremoverWarnings in (Compile, compile) ++= Warts.allBut(errorWarts: _*)
   }
 }

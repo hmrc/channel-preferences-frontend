@@ -32,10 +32,10 @@ lazy val externalServices = List(
 
 lazy val wartremoverSettings =
   Seq(
-    WartRemoverSettings.wartRemoverError,
+    //WartRemoverSettings.wartRemoverError,
 //    wartremoverErrors in (Test, compile) -= Wart.NonUnitStatements, // does not seem to work as intended
-    wartremoverExcluded in (Compile, compile) ++= routes.in(Compile).value,
-    wartremoverExcluded += (target in TwirlKeys.compileTemplates).value
+    //wartremoverExcluded in (Compile, compile) ++= routes.in(Compile).value,
+    //wartremoverExcluded += (target in TwirlKeys.compileTemplates).value
   )
 
 lazy val microservice = Project(appName, file("."))
@@ -69,9 +69,10 @@ lazy val microservice = Project(appName, file("."))
     scalacOptions ++= Seq(
       "-P:silencer:pathFilters=target/.*",
       s"-P:silencer:sourceRoots=${baseDirectory.value.getCanonicalPath}",
-      "-P:wartremover:excluded:/conf/app.routes",
+      //"-P:wartremover:excluded:/conf/app.routes",
+      "-P:wartremover:excluded:/",
       "-P:silencer:pathFilters=app.routes",
-      "-P:wartremover:traverser:org.wartremover.warts.Unsafe",
+      //"-P:wartremover:traverser:org.wartremover.warts.Unsafe",
       "-deprecation", // Emit warning and location for usages of deprecated APIs.
       "-encoding",
       "utf-8", // Specify character encoding used by source files.
@@ -82,8 +83,8 @@ lazy val microservice = Project(appName, file("."))
       "-language:higherKinds", // Allow higher-kinded types
       "-language:implicitConversions", // Allow definition of implicit functions called views
       "-unchecked", // Enable additional warnings where generated code depends on assumptions.
-      "-Xcheckinit", // Wrap field accessors to throw an exception on uninitialized access.
-      "-Xfatal-warnings", // Fail the compilation if there are any warnings.
+      //"-Xcheckinit", // Wrap field accessors to throw an exception on uninitialized access.
+      //"-Xfatal-warnings", // Fail the compilation if there are any warnings.
       "-Xfuture", // Turn on future language features.
       "-Xlint:adapted-args", // Warn if an argument list is modified to match the receiver.
       "-Xlint:by-name-right-associative", // By-name parameter of right associative operator.
@@ -139,15 +140,22 @@ lazy val microservice = Project(appName, file("."))
   .settings(ServiceManagerPlugin.serviceManagerSettings)
   .settings(itDependenciesList := externalServices)
   .settings(ScoverageSettings())
-  .settings(wartremoverSettings: _*)
+  //.settings(wartremoverSettings: _*)
   .settings(
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage := "uk.gov.hmrc.channelpreferencesfrontend"
   )
+  .settings(
+    resolvers += Resolver.jcenterRepo,
+    resolvers += Resolver.bintrayRepo("hmrc", "releases"),
+    resolvers += "hmrc-releases" at "https://artefacts.tax.service.gov.uk/artifactory/hmrc-releases/"
+  )
 
-lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
-compileScalastyle := scalastyle.in(Compile).toTask("").value
-(compile in Compile) := ((compile in Compile) dependsOn compileScalastyle).value
+//lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
+//compileScalastyle := scalastyle.in(Compile).toTask("").value
+//(compile in Compile) := ((compile in Compile) dependsOn compileScalastyle).value
+wartremoverWarnings ++= Warts.all
+//wartremoverExcluded += baseDirectory.value
 
 bobbyRulesURL := Some(new URL("https://webstore.tax.service.gov.uk/bobby-config/deprecated-dependencies.json"))
 scalafmtOnCompile := true
@@ -174,13 +182,13 @@ sources in (Compile, doc) := Seq.empty
 val codeStyleIntegrationTest = taskKey[Unit]("enforce code style then integration test")
 
 // and then in settings...
-Project.inConfig(IntegrationTest)(ScalastylePlugin.rawScalastyleSettings()) ++
-  Seq(
-    scalastyleConfig in IntegrationTest := (scalastyleConfig in scalastyle).value,
-    scalastyleTarget in IntegrationTest := target.value / "scalastyle-it-results.xml",
-    scalastyleFailOnError in IntegrationTest := (scalastyleFailOnError in scalastyle).value,
-    (scalastyleFailOnWarning in IntegrationTest) := (scalastyleFailOnWarning in scalastyle).value,
-    scalastyleSources in IntegrationTest := (unmanagedSourceDirectories in IntegrationTest).value,
-    codeStyleIntegrationTest := scalastyle.in(IntegrationTest).toTask("").value,
-    (test in IntegrationTest) := ((test in IntegrationTest) dependsOn codeStyleIntegrationTest).value
-  )
+// Project.inConfig(IntegrationTest)(ScalastylePlugin.rawScalastyleSettings()) ++
+//   Seq(
+//     scalastyleConfig in IntegrationTest := (scalastyleConfig in scalastyle).value,
+//     scalastyleTarget in IntegrationTest := target.value / "scalastyle-it-results.xml",
+//     scalastyleFailOnError in IntegrationTest := (scalastyleFailOnError in scalastyle).value,
+//     (scalastyleFailOnWarning in IntegrationTest) := (scalastyleFailOnWarning in scalastyle).value,
+//     scalastyleSources in IntegrationTest := (unmanagedSourceDirectories in IntegrationTest).value,
+//     codeStyleIntegrationTest := scalastyle.in(IntegrationTest).toTask("").value,
+//     (test in IntegrationTest) := ((test in IntegrationTest) dependsOn codeStyleIntegrationTest).value
+//   )

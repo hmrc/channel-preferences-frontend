@@ -1,0 +1,33 @@
+@*
+ * Copyright 2021 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import model.HostContext
+@(emailPreference: connectors.EmailPreference, hostContext: HostContext)(implicit request: Request[_], messages: Messages)
+@import uk.gov.hmrc.urls.Link
+@import views.sa.prefs.helpers.DateFormat.longDateFormat
+
+<details id="sa-prefs-status">
+    <summary>@Messages("pending.email.verification.summary")<span class="flag flag--urgent">@Messages("pending.email.verification.now")</span></summary>
+    <div class="panel-indent">
+        <p>@Html(Messages("pending.email.verification.para_1", emailPreference.email, longDateFormat(emailPreference.linkSent).getOrElse("")))</p>
+        <p>@Messages("pending.email.verification.para_2")
+            @Link.toInternalPage(
+            id = Some("remindersProblem"),
+            url = controllers.internal.routes.ManagePaperlessController.checkSettings(hostContext).url,
+            value = Some(Messages("manage.paperless.check.settings.linkText"))
+            ).toHtml </p>
+    </div>
+</details>
