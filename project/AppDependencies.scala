@@ -22,17 +22,11 @@ import sbt._
 object AppDependencies {
 
   val compile = Seq(
-    "com.beachape"      %% "enumeratum"                 % "1.6.1",
-    "com.beachape"      %% "enumeratum-play-json"       % "1.6.1",
-    "com.iheart"        %% "play-swagger"               % "0.10.2",
-    "com.iterable"      %% "swagger-play"               % "2.0.1",
-    "com.typesafe.play" %% "play-json-joda"             % "2.6.13",
-    "uk.gov.hmrc"       %% "domain"                     % "5.10.0-play-27",
-    "uk.gov.hmrc"       %% "bootstrap-frontend-play-27" % "3.3.0",
-    "uk.gov.hmrc"       %% "emailaddress"               % "3.5.0",
-    "uk.gov.hmrc"       %% "play-frontend-govuk"        % "0.60.0-play-27",
-    "uk.gov.hmrc"       %% "play-frontend-hmrc"         % "0.38.0-play-27",
-    "uk.gov.hmrc"       %% "reactive-circuit-breaker"   % "3.5.0"
+    "uk.gov.hmrc"  %% "bootstrap-frontend-play-27" % "3.3.0",
+    "uk.gov.hmrc"  %% "play-frontend-hmrc"         % "0.38.0-play-27",
+    "uk.gov.hmrc"  %% "play-frontend-govuk"        % "0.60.0-play-27",
+    "com.iterable" %% "swagger-play"               % "2.0.1",
+    "com.iheart"   %% "play-swagger"               % "0.10.2"
   )
 
   val test = Seq(
