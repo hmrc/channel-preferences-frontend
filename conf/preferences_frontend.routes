@@ -1,5 +1,5 @@
-->          /govuk-frontend                    govuk.Routes
-->          /hmrc-frontend                     hmrcfrontend.Routes
+#->          /govuk-frontend                    govuk.Routes
+#->          /hmrc-frontend                     hmrcfrontend.Routes
 
 # proxy routes
 # GET     /paperless/hello-world                                                  @controllers.ProxyController.proxy(path = "/paperless/hello-world")

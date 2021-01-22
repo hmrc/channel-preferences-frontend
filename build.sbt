@@ -27,7 +27,19 @@ val appName = "channel-preferences-frontend"
 val silencerVersion = "1.7.0"
 
 lazy val externalServices = List(
-  ExternalService("DATASTREAM")
+  ExternalService("AUTH"),
+  ExternalService("AUTH_LOGIN_API"),
+  ExternalService("USER_DETAILS"),
+  ExternalService(
+    name = "PREFERENCES",
+    enableTestOnlyEndpoints = true,
+    extraConfig = Map("featureFlag.switchOn" -> "true")),
+  ExternalService("DATASTREAM"),
+  ExternalService("ENTITY_RESOLVER"),
+  ExternalService("MAILGUN_STUB"),
+  ExternalService("HMRC_EMAIL_RENDERER"),
+  ExternalService("IDENTITY_VERIFICATION", enableTestOnlyEndpoints = true),
+  ExternalService("EMAIL")
 )
 
 lazy val wartremoverSettings =
@@ -143,7 +155,8 @@ lazy val microservice = Project(appName, file("."))
   //.settings(wartremoverSettings: _*)
   .settings(
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
-    buildInfoPackage := "uk.gov.hmrc.channelpreferencesfrontend"
+    buildInfoPackage := "uk.gov.hmrc.channelpreferencesfrontend",
+    parallelExecution in IntegrationTest := false
   )
   .settings(
     resolvers += Resolver.jcenterRepo,
