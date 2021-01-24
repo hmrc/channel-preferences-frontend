@@ -51,7 +51,6 @@ class TestCase
 
   implicit val wsClient = app.injector.instanceOf[WSClient]
   val myPublicAddress = s"localhost:$port"
-  println(s"myPublicAddress: $myPublicAddress")
 
   def uniqueEmail = s"${UUID.randomUUID().toString}@email.com"
 
@@ -65,7 +64,6 @@ class TestCase
       def apply(returnUrl: String = "", returnLinkText: String = "") = {
         val fullUrl =
           s"$url?returnUrl=${encryptAndEncode(returnUrl)}&returnLinkText=${encryptAndEncode(returnLinkText)}"
-        println(s"**** FULL URL: $fullUrl")
         wsUrl(s"$url?returnUrl=${encryptAndEncode(returnUrl)}&returnLinkText=${encryptAndEncode(returnLinkText)}")(
           //PortNumber(port),
           PortNumber(port),
@@ -245,7 +243,6 @@ trait TestCaseWithFrontEndAuthentication extends TestCase with SessionCookieEncr
             case (key, Some(value)) => (key -> applicatinCrypto.QueryParameterCrypto.encrypt(PlainText(value)).value)
           }.toSeq: _*
         )
-      println(s"HEADERS $url.headers")
 
       private val formTypeBody = Json.parse("""{"active":true}""")
 

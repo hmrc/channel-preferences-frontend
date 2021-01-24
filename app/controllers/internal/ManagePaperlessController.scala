@@ -220,7 +220,6 @@ class ManagePaperlessController @Inject()(
 
   def checkSettings(implicit hostContext: HostContext): Action[AnyContent] =
     Action.async { implicit request =>
-      println(s"CHECKSETTINGS")
       withAuthenticatedRequest { implicit withAuthenticatedRequest: AuthenticatedRequest[_] => implicit hc =>
         entityResolverConnector.getPreferences() map { pref =>
           Ok(pref match {
