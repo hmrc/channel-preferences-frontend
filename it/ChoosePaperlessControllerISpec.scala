@@ -23,7 +23,8 @@ class ChoosePaperlessControllerISpec
 
   override lazy val app = new GuiceApplicationBuilder()
     .configure(
-      "play.filters.csrf.header.bypassHeaders.Csrf-Token" -> "nocheck"
+      "play.filters.csrf.header.bypassHeaders.Csrf-Token" -> "nocheck",
+      "play.http.router"                                  -> "preferences_frontend.Routes"
     )
     .build()
 

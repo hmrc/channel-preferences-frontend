@@ -10,6 +10,7 @@ import org.scalatestplus.play.{ PlaySpec, WsScalaTestClient }
 import play.api.libs.json.Json
 import play.api.libs.ws.{ WSClient, WSRequest }
 import play.api.test.Helpers._
+import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.crypto.{ ApplicationCrypto, PlainText }
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.http.{ HeaderCarrier, SessionKeys }
@@ -178,6 +179,13 @@ class TestCase
 }
 
 trait TestCaseWithFrontEndAuthentication extends TestCase with SessionCookieEncryptionSupport {
+
+  override lazy val app = new GuiceApplicationBuilder()
+    .configure(
+      "play.filters.csrf.header.bypassHeaders.Csrf-Token" -> "nocheck",
+      "play.http.router"                                  -> "preferences_frontend.Routes"
+    )
+    .build()
 
   implicit val hc = HeaderCarrier()
   val authHelper = app.injector.instanceOf[ItAuthHelper]

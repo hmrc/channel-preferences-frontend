@@ -1,7 +1,7 @@
 # Add all the application routes to the app.routes file
 ->         /channel-preferences-frontend    app.Routes
 ->         /                                health.Routes
-->          /                                   preferences_frontend.Routes
+#->          /                                   preferences_frontend.Routes
 
 
 ### NoDocs ###

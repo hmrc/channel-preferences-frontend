@@ -10,6 +10,7 @@ class NewActivateGraceOutISpec extends EmailSupport with SessionCookieEncryption
   private def additionalConfig =
     Map(
       "controllers.controllers.internal.ActivationController.needsAuth" -> false,
+      "play.http.router"                                                -> "preferences_frontend.Routes",
       "Test.activation.gracePeriodInMin"                                -> 0
     )
 
@@ -177,6 +178,7 @@ class NewActivateGraceInISpec extends EmailSupport with SessionCookieEncryptionS
   private def additionalConfig =
     Map(
       "controllers.controllers.internal.ActivationController.needsAuth" -> false,
+      "play.http.router"                                                -> "preferences_frontend.Routes",
       "Test.activation.gracePeriodInMin"                                -> 10
     )
 
