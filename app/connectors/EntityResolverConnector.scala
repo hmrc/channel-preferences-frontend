@@ -83,12 +83,12 @@ object OptInPage {
         case JsUndefined() => JsError(Seq(JsPath -> Seq(JsonValidationError("missing cohort"))))
     })
     and
-      (__ \ "pageType").read[PageType])((ver, cohort, pageType) =>
-    if (ver.major == cohort.majorVersion && ver.minor == cohort.minorVersion && cohort.pageType == pageType) {
-      OptInPage(ver, cohort, pageType)
-    } else {
-      throw new IllegalArgumentException("Invalid constructor arguments")
-  })
+      (__ \ "pageType").read[PageType])(
+    (ver, cohort, pageType) =>
+      if (ver.major == cohort.majorVersion && ver.minor == cohort.minorVersion && cohort.pageType == pageType)
+        OptInPage(ver, cohort, pageType)
+      else
+        throw new IllegalArgumentException("Invalid constructor arguments"))
   implicit val optInPageFormat: Format[OptInPage] = Format(optInPageReads, optInPageWrites)
 }
 
@@ -183,14 +183,14 @@ class EntityResolverConnector @Inject()(config: Configuration, env: Environment,
     getPreferencesStatus_Final(termsAndCond, url(s"/preferences"))
 
   def getPreferencesStatusByToken(svc: String, token: String, termsAndCond: String = "generic")(
-    implicit headerCarrier: HeaderCarrier
-  ): Future[Either[Int, PreferenceStatus]] =
+    implicit
+    headerCarrier: HeaderCarrier): Future[Either[Int, PreferenceStatus]] =
     getPreferencesStatus_Final(termsAndCond, url(s"/preferences/$svc/$token"))
 
   def getPreferencesStatus_Final(termsAndCond: String, request_url: String)(
-    implicit headerCarrier: HeaderCarrier
-  ): Future[Either[Int, PreferenceStatus]] =
-    withCircuitBreaker({
+    implicit
+    headerCarrier: HeaderCarrier): Future[Either[Int, PreferenceStatus]] =
+    withCircuitBreaker {
       http.GET[Option[PreferenceResponse]](request_url).map {
         case Some(preference) =>
           preference.termsAndConditions
@@ -202,12 +202,13 @@ class EntityResolverConnector @Inject()(config: Configuration, env: Environment,
                   preference.email,
                   acceptance.updatedAt,
                   acceptance.majorVersion,
-                  paperless = acceptance.paperless)
+                  paperless = acceptance.paperless
+                )
               )
             }
         case None => Right(PreferenceNotFound(None))
       }
-    }).recover {
+    }.recover {
       case response: Upstream4xxResponse =>
         response.upstreamResponseCode match {
           case NOT_FOUND    => Left(NOT_FOUND)
@@ -228,10 +229,11 @@ class EntityResolverConnector @Inject()(config: Configuration, env: Environment,
     }
 
   def getEmailAddress(taxId: TaxIdentifier)(implicit hc: HeaderCarrier): Future[Option[String]] = {
-    def basedOnTaxIdType = taxId match {
-      case SaUtr(utr) => s"/portal/preferences/sa/$utr/verified-email-address"
-      case Nino(nino) => s"/portal/preferences/paye/$nino/verified-email-address"
-    }
+    def basedOnTaxIdType =
+      taxId match {
+        case SaUtr(utr) => s"/portal/preferences/sa/$utr/verified-email-address"
+        case Nino(nino) => s"/portal/preferences/paye/$nino/verified-email-address"
+      }
 
     withCircuitBreaker(http.GET[Option[Email]](url(basedOnTaxIdType))).map(_.map(_.email))
   }

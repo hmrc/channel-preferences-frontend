@@ -39,7 +39,7 @@ class LastSignInSpec extends PlaySpec with GuiceOneAppPerSuite with LanguageHelp
       document.getElementsByClass("alert__message").first().text() must startWith("Last sign in:")
       document
         .getElementsByAttributeValue("href", "https://www.gov.uk/hmrc-online-services-helpdesk")
-        .text() mustBe ("Contact HMRC")
+        .text() mustBe "Contact HMRC"
       document.getElementsByClass("flush--bottom").first().text() must endWith("if it wasn't you.")
     }
 
@@ -53,7 +53,7 @@ class LastSignInSpec extends PlaySpec with GuiceOneAppPerSuite with LanguageHelp
       document.getElementsByClass("alert__message").first().text() must startWith("Mewngofnodwyd diwethaf:")
       document
         .getElementsByAttributeValue("href", "https://www.gov.uk/hmrc-online-services-helpdesk")
-        .text() mustBe ("Cysylltwch â CThEM")
+        .text() mustBe "Cysylltwch â CThEM"
       document.getElementsByClass("flush--bottom").first().text() must endWith("os nad chi ydoedd.")
     }
   }

@@ -11,8 +11,8 @@
 
 # Add all the application routes to the prod.routes file
 
-GET         /channel-preferences-frontend/api/schema.json        uk.gov.hmrc.channelpreferencesfrontend.controllers.swagger.ApiSpecs.specs
+#GET         /channel-preferences-frontend/api/schema.json        uk.gov.hmrc.channelpreferencesfrontend.controllers.swagger.ApiSpecs.specs
 
-GET        /paperless/hello-world           uk.gov.hmrc.channelpreferencesfrontend.controllers.HelloWorldController.helloWorld
+#GET        /paperless/hello-world           uk.gov.hmrc.channelpreferencesfrontend.controllers.HelloWorldController.helloWorld
 
-->          /                       prod.Routes
+#->          /                       prod.Routes

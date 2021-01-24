@@ -52,7 +52,9 @@ class EmailConnectorSpec extends PlaySpec with MockitoSugar with ScalaFutures wi
           Matchers.any(),
           Matchers.any(),
           Matchers.any(),
-          Matchers.any())).thenReturn(Future.successful(true))
+          Matchers.any()
+        )
+      ).thenReturn(Future.successful(true))
 
       connector.isValid(exampleEmailAddress).futureValue mustBe true
     }
@@ -63,7 +65,9 @@ class EmailConnectorSpec extends PlaySpec with MockitoSugar with ScalaFutures wi
           Matchers.any(),
           Matchers.any(),
           Matchers.any(),
-          Matchers.any())).thenReturn(Future.successful(false))
+          Matchers.any()
+        )
+      ).thenReturn(Future.successful(false))
       connector.isValid(exampleEmailAddress).futureValue mustBe false
     }
 
@@ -73,7 +77,9 @@ class EmailConnectorSpec extends PlaySpec with MockitoSugar with ScalaFutures wi
           Matchers.any(),
           Matchers.any(),
           Matchers.any(),
-          Matchers.any())).thenReturn(Future.failed(new Exception("service down")))
+          Matchers.any()
+        )
+      ).thenReturn(Future.failed(new Exception("service down")))
       connector.isValid(exampleEmailAddress).futureValue mustBe false
     }
   }

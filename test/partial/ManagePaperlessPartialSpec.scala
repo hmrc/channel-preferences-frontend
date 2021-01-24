@@ -57,7 +57,8 @@ class ManagePaperlessPartialSpec
         email = "test@test.com",
         status = Status.Pending,
         mailboxFull = false,
-        linkSent = Some(new LocalDate(2014, 10, 2)))
+        linkSent = Some(new LocalDate(2014, 10, 2))
+      )
       val saPreference = SaPreference(digital = true, Some(emailPreferences)).toNewPreference()
 
       managePaperlessPartial(Some(saPreference)).body must (
@@ -172,9 +173,10 @@ class ManagePaperlessPartialSpec
         include("Replace the letters you get about taxes with emails.") and
           include(
             linkTo(
-              routes.ChoosePaperlessController.redirectToDisplayFormWithCohort(
-                Some(Encrypted(EmailAddress("pihklyljtgoxeoh@mail.com"))),
-                hostContext))) and
+              routes.ChoosePaperlessController
+                .redirectToDisplayFormWithCohort(Some(Encrypted(EmailAddress("pihklyljtgoxeoh@mail.com"))), hostContext)
+            )
+          ) and
           not include linkTo(routes.ManagePaperlessController.resendVerificationEmail(hostContext))
       )
     }

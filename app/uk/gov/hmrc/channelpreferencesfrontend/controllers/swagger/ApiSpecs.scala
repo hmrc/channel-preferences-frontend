@@ -33,7 +33,8 @@ class ApiSpecs @Inject()(
     com.iheart.playSwagger.SwaggerSpecGenerator(
       swaggerV3 = true,
       modelQualifier = PrefixDomainModelQualifier(domainPackage),
-      apiVersion = Some(uk.gov.hmrc.channelpreferencesfrontend.BuildInfo.version))
+      apiVersion = Some(uk.gov.hmrc.channelpreferencesfrontend.BuildInfo.version)
+    )
 
   lazy val swagger = Action { _ =>
     generator

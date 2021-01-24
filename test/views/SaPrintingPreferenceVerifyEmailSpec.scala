@@ -39,7 +39,9 @@ class SaPrintingPreferenceVerifyEmailSpec
         template(email, OptInCohort.fromId(8).get, Call("GET", "/"), "redirectUrl")(
           engRequest,
           messagesInEnglish(),
-          TestFixtures.sampleHostContext).toString())
+          TestFixtures.sampleHostContext
+        ).toString()
+      )
 
       document.getElementsByTag("title").get(0).text() mustBe "Check your email address"
       document.getElementById("email-is-not-correct-link").text() mustBe "Change this email address"
@@ -52,7 +54,9 @@ class SaPrintingPreferenceVerifyEmailSpec
         template(email, OptInCohort.fromId(8).get, Call("GET", "/"), "redirectUrl")(
           welshRequest,
           messagesInWelsh(),
-          TestFixtures.sampleHostContext).toString())
+          TestFixtures.sampleHostContext
+        ).toString()
+      )
 
       document.getElementsByTag("title").get(0).text() mustBe "Gwirio'ch cyfeiriad e-bost"
       document.getElementsByTag("h1").get(0).text() mustBe "Cofrestrwch ar gyfer hysbysiadau di-bapur"

@@ -27,14 +27,15 @@ import uk.gov.hmrc.play.HeaderCarrierConverter
 import scala.concurrent.{ ExecutionContext, Future }
 
 trait WithAuthRetrievals extends AuthorisedFunctions {
-  def withAuthenticatedRequest[A](block: AuthenticatedRequest[A] => HeaderCarrier => Future[Result])(
-    implicit request: Request[A],
-    ec: ExecutionContext) = {
+  def withAuthenticatedRequest[A](
+    block: AuthenticatedRequest[A] => HeaderCarrier => Future[Result]
+  )(implicit request: Request[A], ec: ExecutionContext) = {
     implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
     authorised().retrieve(
       Retrievals.name and Retrievals.loginTimes and Retrievals.nino and Retrievals.saUtr and
-        Retrievals.affinityGroup and Retrievals.confidenceLevel) {
-      case name ~ retLoginTimes ~ nino ~ utr ~ affinityGroup ~ confidenceLevel => {
+        Retrievals.affinityGroup and Retrievals.confidenceLevel
+    ) {
+      case name ~ retLoginTimes ~ nino ~ utr ~ affinityGroup ~ confidenceLevel =>
         val previousLoginTime: Option[DateTime] = retLoginTimes.previousLogin
         val fullName = name.map { n =>
           (n.name, n.lastName) match {
@@ -45,15 +46,8 @@ trait WithAuthRetrievals extends AuthorisedFunctions {
           }
         }.flatten
         block(
-          AuthenticatedRequest[A](
-            request,
-            fullName,
-            previousLoginTime,
-            nino,
-            utr,
-            affinityGroup,
-            Some(confidenceLevel)))(hc)
-      }
+          AuthenticatedRequest[A](request, fullName, previousLoginTime, nino, utr, affinityGroup, Some(confidenceLevel))
+        )(hc)
       case _ => Future.successful(Results.Unauthorized)
     }
   }.recover {

@@ -61,7 +61,8 @@ class AuthControllerSpecs extends PlaySpec with MockitoSugar with GuiceOneAppPer
           Some(AffinityGroup.Individual)
         ),
         ConfidenceLevel.L200
-      ))
+      )
+    )
 
   val mockAuthConnector: AuthConnector = mock[AuthConnector]
 
@@ -72,13 +73,15 @@ class AuthControllerSpecs extends PlaySpec with MockitoSugar with GuiceOneAppPer
       )
       .build()
   class FakeController(val authConnector: AuthConnector, mcc: MessagesControllerComponents)(
-    implicit ec: ExecutionContext)
+    implicit
+    ec: ExecutionContext)
       extends FrontendController(mcc) with WithAuthRetrievals {
-    def onPageLoad() = Action.async { implicit request =>
-      withAuthenticatedRequest { authenticatedRequest: AuthenticatedRequest[_] => hc: HeaderCarrier =>
-        Future.successful(Ok)
+    def onPageLoad() =
+      Action.async { implicit request =>
+        withAuthenticatedRequest { authenticatedRequest: AuthenticatedRequest[_] => hc: HeaderCarrier =>
+          Future.successful(Ok)
+        }
       }
-    }
   }
   val mcc = app.injector.instanceOf[MessagesControllerComponents]
   implicit val ec = app.injector.instanceOf[ExecutionContext]

@@ -148,7 +148,8 @@ class SurveyControllerSpec
           "choice-15d28c3f-9f33-4c44-aefa-165fc84b5e23" -> "true",
           "reason"                                      -> "test test test",
           "submissionType"                              -> "submitted"
-        ))
+        )
+      )
 
       status(page) mustBe 303
 
@@ -182,7 +183,8 @@ class SurveyControllerSpec
           "choice-15d28c3f-9f33-4c44-aefa-165fc84b5e23" -> "true",
           "reason"                                      -> "test test test",
           "submissionType"                              -> "skipped"
-        ))
+        )
+      )
 
       status(page) mustBe 303
 
@@ -216,7 +218,8 @@ class SurveyControllerSpec
           "choice-15d28c3f-9f33-4c44-aefa-165fc84b5e23" -> "true",
           "reason"                                      -> "A" * 3001,
           "submissionType"                              -> "submitted"
-        ))
+        )
+      )
 
       status(page) mustBe 400
 
@@ -239,7 +242,8 @@ class SurveyControllerSpec
           "choice-15d28c3f-9f33-4c44-aefa-165fc84b5e23" -> "true",
           "reason"                                      -> "A" * 5000,
           "submissionType"                              -> "skipped"
-        ))
+        )
+      )
 
       status(page) mustBe 303
 

@@ -5,7 +5,7 @@
     "text": "Ni allwn anfon e-byst atoch. Mae’n rhaid i chi sefydlu e-bost cyn i chi gael llythyrau treth Hunanasesiad ar-lein."
   },
   "url": {
-    "link": "http://localhost:9024/paperless/check-settings?returnUrl=VYBxyuFWQBQZAGpe5tSgmw%3D%3D&returnLinkText=VYBxyuFWQBQZAGpe5tSgmw%3D%3D",
+    "link": "http://localhost:9053/paperless/check-settings?returnUrl=VYBxyuFWQBQZAGpe5tSgmw%3D%3D&returnLinkText=VYBxyuFWQBQZAGpe5tSgmw%3D%3D",
     "text": "Sefydlu’ch cyfeiriad e-bost"
   }
 }

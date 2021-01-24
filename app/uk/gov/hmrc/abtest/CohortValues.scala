@@ -25,7 +25,8 @@ trait CohortValues[C <: Cohort] {
     val cohorts = availableValues.filter(isEnabled)
     Cohorts(
       cohorts.headOption.getOrElse(throw new IllegalArgumentException("No cohorts are enabled")),
-      cohorts.tail: _*)
+      cohorts.tail: _*
+    )
   }
 
   def isEnabled(cohort: C): Boolean

@@ -85,7 +85,8 @@ class ActivationControllerSpec
           Some(AffinityGroup.Individual)
         ),
         ConfidenceLevel.L200
-      ))
+      )
+    )
 
   when(mockAuthConnector.authorise[AuthRetrievals](any(), any())(any(), any()))
     .thenReturn(retrievalResult)
@@ -100,8 +101,9 @@ class ActivationControllerSpec
           mockEntityResolverConnector
             .updateTermsAndConditions(is(TermsAndConditionsUpdate.fromLanguage(Some(Language.English))))(
               any(),
-              is(TestFixtures.sampleHostContext)))
-          .thenReturn(Future.successful(PreferencesCreated))
+              is(TestFixtures.sampleHostContext)
+            )
+        ).thenReturn(Future.successful(PreferencesCreated))
         val cookies = Cookie("PLAY_LANG", "en")
         val res: Future[Result] = controller.activate(TestFixtures.sampleHostContext)(request.withCookies(cookies))
         status(res) mustBe Ok.header.status
@@ -110,7 +112,8 @@ class ActivationControllerSpec
         verify(mockEntityResolverConnector, times(1))
           .updateTermsAndConditions(is(TermsAndConditionsUpdate.fromLanguage(Some(Language.English))))(
             any(),
-            is(TestFixtures.sampleHostContext))
+            is(TestFixtures.sampleHostContext)
+          )
       }
       "redirect to the alreadyOptedInUrl if preference is found and opted-in and an alreadyOptedInUrl is present" in {
         val email = EmailPreference("test@test.com", isVerified = false, hasBounces = false, mailboxFull = false, None)
@@ -121,8 +124,9 @@ class ActivationControllerSpec
           mockEntityResolverConnector
             .updateTermsAndConditions(is(TermsAndConditionsUpdate.fromLanguage(Some(Language.Welsh))))(
               any(),
-              is(TestFixtures.alreadyOptedInUrlHostContext)))
-          .thenReturn(Future.successful(PreferencesCreated))
+              is(TestFixtures.alreadyOptedInUrlHostContext)
+            )
+        ).thenReturn(Future.successful(PreferencesCreated))
         val cookies = Cookie("PLAY_LANG", "cy")
         val res: Future[Result] =
           controller.activate(TestFixtures.alreadyOptedInUrlHostContext)(request.withCookies(cookies))
@@ -135,7 +139,8 @@ class ActivationControllerSpec
         verify(mockEntityResolverConnector, times(1))
           .updateTermsAndConditions(is(TermsAndConditionsUpdate.fromLanguage(Some(Language.Welsh))))(
             any(),
-            is(TestFixtures.alreadyOptedInUrlHostContext))
+            is(TestFixtures.alreadyOptedInUrlHostContext)
+          )
       }
 
       "not attempt to store in preferences the user's language held in the user's cookie when there is an existing language setting in preferences and" should {
@@ -146,7 +151,8 @@ class ActivationControllerSpec
             hasBounces = false,
             mailboxFull = false,
             None,
-            Some(Language.Welsh))
+            Some(Language.Welsh)
+          )
           reset(mockEntityResolverConnector)
           when(mockEntityResolverConnector.getPreferencesStatus(any())(any()))
             .thenReturn(Future.successful(Right(PreferenceFound(accepted = true, Some(email), paperless = None))))
@@ -165,7 +171,8 @@ class ActivationControllerSpec
             hasBounces = false,
             mailboxFull = false,
             None,
-            Some(Language.English))
+            Some(Language.English)
+          )
           reset(mockEntityResolverConnector)
           when(mockEntityResolverConnector.getPreferencesStatus(any())(any()))
             .thenReturn(Future.successful(Right(PreferenceFound(accepted = true, Some(email), paperless = None))))
@@ -217,8 +224,10 @@ class ActivationControllerSpec
 
           reset(mockEntityResolverConnector)
           when(mockEntityResolverConnector.getPreferencesStatus(any())(any()))
-            .thenReturn(Future.successful(
-              Right(PreferenceFound(accepted = false, Some(email), Some(lastUpdated), paperless = None))))
+            .thenReturn(
+              Future
+                .successful(Right(PreferenceFound(accepted = false, Some(email), Some(lastUpdated), paperless = None)))
+            )
           val res: Future[Result] = controller.activate(TestFixtures.sampleHostContext)(request)
 
           status(res) mustBe Ok.header.status
@@ -235,8 +244,10 @@ class ActivationControllerSpec
 
           reset(mockEntityResolverConnector)
           when(mockEntityResolverConnector.getPreferencesStatus(any())(any()))
-            .thenReturn(Future.successful(
-              Right(PreferenceFound(accepted = false, Some(email), Some(lastUpdated), paperless = None))))
+            .thenReturn(
+              Future
+                .successful(Right(PreferenceFound(accepted = false, Some(email), Some(lastUpdated), paperless = None)))
+            )
           val res: Future[Result] = controller.activate(TestFixtures.sampleHostContext)(request)
 
           status(res) mustBe Ok.header.status
@@ -258,7 +269,8 @@ class ActivationControllerSpec
           status(res) mustBe PRECONDITION_FAILED
           val document = Jsoup.parse(contentAsString(res))
           document.getElementsByTag("body").first().html() must startWith(
-            """{"redirectUserTo":"/paperless/choose?email=""")
+            """{"redirectUserTo":"/paperless/choose?email="""
+          )
           verify(mockEntityResolverConnector, never()).updateTermsAndConditions(any())(any(), any())
         }
 
@@ -273,7 +285,8 @@ class ActivationControllerSpec
           status(res) mustBe PRECONDITION_FAILED
           val document = Jsoup.parse(contentAsString(res))
           document.getElementsByTag("body").first().html() must startWith(
-            """{"redirectUserTo":"/paperless/choose?email=""")
+            """{"redirectUserTo":"/paperless/choose?email="""
+          )
           verify(mockEntityResolverConnector, never()).updateTermsAndConditions(any())(any(), any())
         }
       }
@@ -298,24 +311,34 @@ class ActivationControllerSpec
         status(res) mustBe PreconditionFailed.header.status
         val document = Jsoup.parse(contentAsString(res))
         document.getElementsByTag("body").first().html() must startWith(
-          """{"redirectUserTo":"/paperless/choose/cohort/mtdfbit/token?email=""")
+          """{"redirectUserTo":"/paperless/choose/cohort/mtdfbit/token?email="""
+        )
       }
 
       "succeed when the preferences retrieved contain a majorVersion (opt-in feature flag on)" in {
         when(mockEntityResolverConnector.getPreferencesStatusByToken(any(), any(), any())(any()))
-          .thenReturn(Future.successful(Right(PreferenceFound(
-            accepted = true,
-            Some(EmailPreference(
-              "test@test.com",
-              isVerified = true,
-              hasBounces = false,
-              mailboxFull = false,
-              None,
-              Some(Language.English))),
-            Some(new DateTime(updatedAtLong)),
-            majorVersion = Some(1),
-            paperless = Some(true)
-          ))))
+          .thenReturn(
+            Future.successful(
+              Right(
+                PreferenceFound(
+                  accepted = true,
+                  Some(
+                    EmailPreference(
+                      "test@test.com",
+                      isVerified = true,
+                      hasBounces = false,
+                      mailboxFull = false,
+                      None,
+                      Some(Language.English)
+                    )
+                  ),
+                  Some(new DateTime(updatedAtLong)),
+                  majorVersion = Some(1),
+                  paperless = Some(true)
+                )
+              )
+            )
+          )
         val res: Future[Result] =
           controller.activateFromToken("mtdfbit", "token", TestFixtures.sampleHostContext)(request)
         status(res) mustBe Ok.header.status
@@ -323,19 +346,28 @@ class ActivationControllerSpec
 
       "succeed when the preferences retrieved do not contain a majorVersion (opt-in feature flag off)" in {
         when(mockEntityResolverConnector.getPreferencesStatusByToken(any(), any(), any())(any()))
-          .thenReturn(Future.successful(Right(PreferenceFound(
-            accepted = true,
-            Some(EmailPreference(
-              "test@test.com",
-              isVerified = true,
-              hasBounces = false,
-              mailboxFull = false,
-              None,
-              Some(Language.English))),
-            Some(new DateTime(updatedAtLong)),
-            majorVersion = None,
-            paperless = Some(true)
-          ))))
+          .thenReturn(
+            Future.successful(
+              Right(
+                PreferenceFound(
+                  accepted = true,
+                  Some(
+                    EmailPreference(
+                      "test@test.com",
+                      isVerified = true,
+                      hasBounces = false,
+                      mailboxFull = false,
+                      None,
+                      Some(Language.English)
+                    )
+                  ),
+                  Some(new DateTime(updatedAtLong)),
+                  majorVersion = None,
+                  paperless = Some(true)
+                )
+              )
+            )
+          )
         val res: Future[Result] =
           controller.activateFromToken("mtdfbit", "token", TestFixtures.sampleHostContext)(request)
         status(res) mustBe Ok.header.status
@@ -352,12 +384,14 @@ class ActivationControllerSpec
             mockEntityResolverConnector
               .updateTermsAndConditions(is(TermsAndConditionsUpdate.fromLanguage(Some(Language.English))))(
                 any(),
-                is(TestFixtures.sampleHostContext)))
-            .thenReturn(Future.successful(PreferencesCreated))
+                is(TestFixtures.sampleHostContext)
+              )
+          ).thenReturn(Future.successful(PreferencesCreated))
           val cookies = Cookie("PLAY_LANG", "en")
           val res: Future[Result] =
             controller.activateFromToken("mtdfbit", "token", TestFixtures.sampleHostContext)(
-              request.withCookies(cookies))
+              request.withCookies(cookies)
+            )
 
           status(res) mustBe Ok.header.status
           val document = Jsoup.parse(contentAsString(res))
@@ -365,7 +399,8 @@ class ActivationControllerSpec
           verify(mockEntityResolverConnector, times(1))
             .updateTermsAndConditions(is(TermsAndConditionsUpdate.fromLanguage(Some(Language.English))))(
               any(),
-              is(TestFixtures.sampleHostContext))
+              is(TestFixtures.sampleHostContext)
+            )
         }
 
         "return a json body with optedIn set to true if preference is found and opted-in and an alreadyOptedInUrl is present but without a language setting" in {
@@ -378,12 +413,14 @@ class ActivationControllerSpec
             mockEntityResolverConnector
               .updateTermsAndConditions(is(TermsAndConditionsUpdate.fromLanguage(Some(Language.Welsh))))(
                 any(),
-                is(TestFixtures.alreadyOptedInUrlHostContext)))
-            .thenReturn(Future.successful(PreferencesCreated))
+                is(TestFixtures.alreadyOptedInUrlHostContext)
+              )
+          ).thenReturn(Future.successful(PreferencesCreated))
           val cookies = Cookie("PLAY_LANG", "cy")
           val res: Future[Result] =
             controller.activateFromToken("mtdfbit", "token", TestFixtures.alreadyOptedInUrlHostContext)(
-              request.withCookies(cookies))
+              request.withCookies(cookies)
+            )
 
           status(res) mustBe Ok.header.status
           val document = Jsoup.parse(contentAsString(res))
@@ -391,7 +428,8 @@ class ActivationControllerSpec
           verify(mockEntityResolverConnector, times(1))
             .updateTermsAndConditions(is(TermsAndConditionsUpdate.fromLanguage(Some(Language.Welsh))))(
               any(),
-              is(TestFixtures.alreadyOptedInUrlHostContext))
+              is(TestFixtures.alreadyOptedInUrlHostContext)
+            )
         }
       }
 
@@ -408,7 +446,8 @@ class ActivationControllerSpec
           status(res) mustBe Ok.header.status
           val document = Jsoup.parse(contentAsString(res))
           document.getElementsByTag("body").first().html() must startWith(
-            """{"optedIn":false,"redirectUserTo":"/paperless/choose/cohort/mtdfbit/token?email=""")
+            """{"optedIn":false,"redirectUserTo":"/paperless/choose/cohort/mtdfbit/token?email="""
+          )
           verify(mockEntityResolverConnector, never()).updateTermsAndConditions(any())(any(), any())
         }
       }

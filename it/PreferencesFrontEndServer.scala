@@ -19,6 +19,7 @@ import views.sa.prefs.helpers.DateFormat
 
 import java.net.URLEncoder
 import java.util.UUID
+import org.scalatestplus.play.PortNumber
 
 trait TestUser {
   def userId = "SA0055"
@@ -49,6 +50,7 @@ class TestCase
 
   implicit val wsClient = app.injector.instanceOf[WSClient]
   val myPublicAddress = s"localhost:$port"
+  println(s"myPublicAddress: $myPublicAddress")
 
   def uniqueEmail = s"${UUID.randomUUID().toString}@email.com"
 
@@ -57,10 +59,19 @@ class TestCase
   def encryptAndEncode(value: String) =
     URLEncoder.encode(applicatinCrypto.QueryParameterCrypto.encrypt(PlainText(value)).value, "UTF-8")
 
-  def urlWithHostContext(url: String) = new {
-    def apply(returnUrl: String = "", returnLinkText: String = "") =
-      wsUrl(s"$url?returnUrl=${encryptAndEncode(returnUrl)}&returnLinkText=${encryptAndEncode(returnLinkText)}")
-  }
+  def urlWithHostContext(url: String) =
+    new {
+      def apply(returnUrl: String = "", returnLinkText: String = "") = {
+        val fullUrl =
+          s"$url?returnUrl=${encryptAndEncode(returnUrl)}&returnLinkText=${encryptAndEncode(returnLinkText)}"
+        println(s"**** FULL URL: $fullUrl")
+        wsUrl(s"$url?returnUrl=${encryptAndEncode(returnUrl)}&returnLinkText=${encryptAndEncode(returnLinkText)}")(
+          //PortNumber(port),
+          PortNumber(port),
+          wsClient
+        )
+      }
+    }
 
   def `/sa/print-preferences/assets/`(file: String) =
     wsUrl(s"/sa/print-preferences/assets/$file")
@@ -71,16 +82,17 @@ class TestCase
 
   val payeFormTypeBody = Json.parse(s"""{"active":true}""")
 
-  def `/preferences`(header: (String, String)) = new {
-    def getPreference =
-      wsClient.url("http://localhost:8015/preferences").withHttpHeaders(header).get
+  def `/preferences`(header: (String, String)) =
+    new {
+      def getPreference =
+        wsClient.url("http://localhost:8015/preferences").withHttpHeaders(header).get
 
-    def putPendingEmail(email: String) =
-      wsClient
-        .url("http://localhost:8015/preferences/pending-email")
-        .withHttpHeaders(header)
-        .put(Json.parse(s"""{"email":"$email"}"""))
-  }
+      def putPendingEmail(email: String) =
+        wsClient
+          .url("http://localhost:8015/preferences/pending-email")
+          .withHttpHeaders(header)
+          .put(Json.parse(s"""{"email":"$email"}"""))
+    }
 
   val `/portal/preferences` = new {
 
@@ -89,34 +101,35 @@ class TestCase
     def getForNino(nino: String) = wsUrl(s"http://localhost:8015/portal/preferences/paye/$nino").get().futureValue
   }
 
-  def `/preferences/terms-and-conditions`(header: (String, String)) = new {
-    def postGenericOptIn(pendingEmail: String) =
-      wsClient
-        .url(s"http://localhost:8015/preferences/terms-and-conditions")
-        .withHttpHeaders(header)
-        .post(Json.parse(s"""{
-                            |  "generic": {
-                            |    "accepted": true,
-                            |    "optInPage":{
-                            |      "version": {"major":2,"minor":1}, "cohort":1, "pageType":"IPage"}
-                            |  },
-                            |  "email":"$pendingEmail",
-                            |  "language": "en"
-                            |}""".stripMargin))
+  def `/preferences/terms-and-conditions`(header: (String, String)) =
+    new {
+      def postGenericOptIn(pendingEmail: String) =
+        wsClient
+          .url(s"http://localhost:8015/preferences/terms-and-conditions")
+          .withHttpHeaders(header)
+          .post(Json.parse(s"""{
+                              |  "generic": {
+                              |    "accepted": true,
+                              |    "optInPage":{
+                              |      "version": {"major":2,"minor":1}, "cohort":1, "pageType":"IPage"}
+                              |  },
+                              |  "email":"$pendingEmail",
+                              |  "language": "en"
+                              |}""".stripMargin))
 
-    def postGenericOptOut() =
-      wsClient
-        .url(s"http://localhost:8015/preferences/terms-and-conditions")
-        .withHttpHeaders(header)
-        .post(Json.parse(s"""{
-                            |  "generic": {
-                            |    "accepted": false,
-                            |    "optInPage":{
-                            |      "version": {"major":2,"minor":1}, "cohort":1, "pageType":"IPage"}
-                            |  },
-                            |  "language": "en"
-                            |}""".stripMargin))
-  }
+      def postGenericOptOut() =
+        wsClient
+          .url(s"http://localhost:8015/preferences/terms-and-conditions")
+          .withHttpHeaders(header)
+          .post(Json.parse(s"""{
+                              |  "generic": {
+                              |    "accepted": false,
+                              |    "optInPage":{
+                              |      "version": {"major":2,"minor":1}, "cohort":1, "pageType":"IPage"}
+                              |  },
+                              |  "language": "en"
+                              |}""".stripMargin))
+    }
 
   def `/entity-resolver/sa/:utr`(utr: String) = {
     val response = wsClient.url(s"http://localhost:8015/entity-resolver/sa/$utr").get().futureValue
@@ -179,31 +192,31 @@ trait TestCaseWithFrontEndAuthentication extends TestCase with SessionCookieEncr
   val encryptedReturnText =
     URLEncoder.encode(applicatinCrypto.QueryParameterCrypto.encrypt(PlainText(returnLinkText)).value, "UTF-8")
 
-  def `/paperless/activate-from-token/:svc/:token`(svc: String, token: String) = new {
+  def `/paperless/activate-from-token/:svc/:token`(svc: String, token: String) =
+    new {
 
-    val queryParamsMap: Map[String, Option[String]] = Map(
-      "returnUrl"      -> Some(returnUrl),
-      "returnLinkText" -> Some(returnLinkText)
-    )
-
-    val url = wsUrl(s"/paperless/activate-from-token/$svc/$token")
-      .withSession((SessionKeys.authToken -> authHelper.authorisedTokenFor().futureValue._1))()
-      .withQueryString(
-        queryParamsMap.collect {
-          case (key, Some(value)) => (key -> applicatinCrypto.QueryParameterCrypto.encrypt(PlainText(value)).value)
-        }.toSeq: _*
+      val queryParamsMap: Map[String, Option[String]] = Map(
+        "returnUrl"      -> Some(returnUrl),
+        "returnLinkText" -> Some(returnLinkText)
       )
 
-    val formTypeBody = Json.parse("""{"active":true}""")
+      val url = wsUrl(s"/paperless/activate-from-token/$svc/$token")
+        .withSession((SessionKeys.authToken -> authHelper.authorisedTokenFor().futureValue._1))()
+        .withQueryString(
+          queryParamsMap.collect {
+            case (key, Some(value)) => (key -> applicatinCrypto.QueryParameterCrypto.encrypt(PlainText(value)).value)
+          }.toSeq: _*
+        )
 
-    def put() =
-      url.put(formTypeBody)
-  }
+      val formTypeBody = Json.parse("""{"active":true}""")
 
-  def `/paperless/activate`(taxIdentifiers: TaxIdentifier*)(
-    termsAndConditions: Option[String] = None,
-    emailAddress: Option[String] = None,
-    language: Option[String] = None) =
+      def put() =
+        url.put(formTypeBody)
+    }
+
+  def `/paperless/activate`(
+    taxIdentifiers: TaxIdentifier*
+  )(termsAndConditions: Option[String] = None, emailAddress: Option[String] = None, language: Option[String] = None) =
     new {
 
       val queryParamsMap: Map[String, Option[String]] = Map(
@@ -224,6 +237,7 @@ trait TestCaseWithFrontEndAuthentication extends TestCase with SessionCookieEncr
             case (key, Some(value)) => (key -> applicatinCrypto.QueryParameterCrypto.encrypt(PlainText(value)).value)
           }.toSeq: _*
         )
+      println(s"HEADERS $url.headers")
 
       private val formTypeBody = Json.parse("""{"active":true}""")
 

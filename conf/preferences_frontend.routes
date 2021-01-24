@@ -6,7 +6,6 @@
 # GET     /$pred<channel-preferences-frontend>/*path                       @controllers.ProxyController.proxy2(pred, path)
 # end of proxy routes
 
-GET         /paperless/assets/*file                                                 controllers.Assets.versioned(path="/public", file: Asset)
 
 #Deprecated - use /paperless/activate
 PUT         /paperless/activate/:formType/:taxIdentifier                            controllers.internal.ActivationController.activateLegacyFromTaxIdentifier(formType: model.FormType, taxIdentifier: String, hostContext: model.HostContext)

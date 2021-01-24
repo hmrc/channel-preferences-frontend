@@ -94,7 +94,8 @@ class FilingInterceptControllerSpec
       val page = controller.redirectWithEmailAddress(
         validToken,
         encodedReturnUrl,
-        Some(Encrypted(EmailAddress("other@me.com"))))(FakeRequest())
+        Some(Encrypted(EmailAddress("other@me.com")))
+      )(FakeRequest())
       status(page) shouldBe 303
       header("Location", page).value should be(decodedReturnUrlWithEmailAddress)
     }
@@ -128,7 +129,8 @@ class FilingInterceptControllerSpec
       urlEncode(crypto.encrypt(PlainText(s"$validUtr:${DateTime.now(DateTimeZone.UTC).getMillis}")).value, "UTF-8")
     lazy val expiredToken = urlEncode(
       crypto.encrypt(PlainText(s"$validUtr:${DateTime.now(DateTimeZone.UTC).minusDays(1).getMillis}")).value,
-      "UTF-8")
+      "UTF-8"
+    )
     lazy val incorrectToken = "this is an incorrect token khdskjfhasduiy3784y37yriuuiyr3i7rurkfdsfhjkdskh"
     val decodedReturnUrl = "http://localhost:8080/portal?exampleQuery=exampleValue"
     val encodedReturnUrl = urlEncode(decodedReturnUrl, "UTF-8")
@@ -143,7 +145,8 @@ class FilingInterceptControllerSpec
     def request(
       optIn: Option[Boolean],
       mainEmail: Option[String] = None,
-      mainEmailConfirmation: Option[String] = None): Request[AnyContent] = {
+      mainEmailConfirmation: Option[String] = None
+    ): Request[AnyContent] = {
 
       val params = (
         Seq(mainEmail.map { v =>

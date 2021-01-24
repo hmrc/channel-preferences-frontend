@@ -57,12 +57,12 @@ class ChoosePaperlessControllerISpec
       implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(fakeRequest.headers)
 
       val result = route(app, fakeRequest).get
-      status(result) mustBe (303)
+      status(result) mustBe 303
 
       val prefererencesResponse =
         http.GET[Option[PreferenceResponse]](s"http://localhost:8015/preferences").futureValue
       prefererencesResponse.get.termsAndConditions("generic").majorVersion.get mustBe (IPage7.majorVersion)
-      prefererencesResponse.get.email.get.pendingEmail.get mustBe ("test@foo.com")
+      prefererencesResponse.get.email.get.pendingEmail.get mustBe "test@foo.com"
 
     }
   }

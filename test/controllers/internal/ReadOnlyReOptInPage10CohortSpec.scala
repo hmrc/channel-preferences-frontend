@@ -28,25 +28,25 @@ class ReadOnlyReOptInPage10CohortSpec extends PlaySpec {
       val cohortUnderTest = ReOptInPage10
 
       withClue("id") {
-        cohortUnderTest.id mustBe (10)
+        cohortUnderTest.id mustBe 10
       }
       withClue("name") {
-        cohortUnderTest.name mustBe ("ReOptInPage10")
+        cohortUnderTest.name mustBe "ReOptInPage10"
       }
       withClue("terms") {
-        cohortUnderTest.terms mustBe (GenericTerms)
+        cohortUnderTest.terms mustBe GenericTerms
       }
       withClue("pageType") {
         cohortUnderTest.pageType mustBe (PageType.ReOptInPage)
       }
       withClue("majorVersion") {
-        cohortUnderTest.majorVersion mustBe (1)
+        cohortUnderTest.majorVersion mustBe 1
       }
       withClue("minorVersion") {
-        cohortUnderTest.minorVersion mustBe (0)
+        cohortUnderTest.minorVersion mustBe 0
       }
       withClue("description") {
-        cohortUnderTest.description mustBe ("")
+        cohortUnderTest.description mustBe ""
       }
       withClue("date") {
         cohortUnderTest.date mustBe new LocalDate("2020-07-02")

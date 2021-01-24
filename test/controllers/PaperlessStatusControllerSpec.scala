@@ -54,7 +54,8 @@ class PaperlessStatusControllerSpec extends WordSpec with MockitoSugar with Guic
 
     "return a 200 with a bounced email json" in new TestContext(
       statusName = BouncedEmail,
-      preference = preferences(hasBounces = true)) {
+      preference = preferences(hasBounces = true)
+    ) {
       val bouncedResponse: JsValue = Resources.readJson("PaperlessStatusBounced.json")
       val welshBouncedResponse: JsValue = Resources.readJson("PaperlessStatusBouncedWelsh.json")
       verify(request = request, response = bouncedResponse)
@@ -64,7 +65,8 @@ class PaperlessStatusControllerSpec extends WordSpec with MockitoSugar with Guic
 
     "return a 200 with a email not verified json" in new TestContext(
       statusName = EmailNotVerified,
-      preference = preferences(isVerified = false)) {
+      preference = preferences(isVerified = false)
+    ) {
       val notYetVerified: JsValue = Resources.readJson("PaperlessStatusNotVerified.json")
       val welshNotYetVerified: JsValue = Resources.readJson("PaperlessStatusNotVerifiedWelsh.json")
       verify(request = request, response = notYetVerified)
@@ -73,7 +75,8 @@ class PaperlessStatusControllerSpec extends WordSpec with MockitoSugar with Guic
 
     "return a 200 with a paper json" in new TestContext(
       statusName = Paper,
-      preference = preferences(termsAcceptance = false)) {
+      preference = preferences(termsAcceptance = false)
+    ) {
       val paper: JsValue = Resources.readJson("PaperlessStatusPaper.json")
       val welshPaper: JsValue = Resources.readJson("PaperlessStatusPaperWelsh.json")
       verify(request = request, response = paper)
@@ -82,7 +85,8 @@ class PaperlessStatusControllerSpec extends WordSpec with MockitoSugar with Guic
 
     "return a 200 with a new customer json when no preferences are found" in new TestContext(
       statusName = NewCustomer,
-      preference = None) {
+      preference = None
+    ) {
       val newCustomer: JsValue = Resources.readJson("PaperlessStatusNewCustomer.json")
       val welshNewCustomer: JsValue = Resources.readJson("PaperlessStatusNewCustomerWelsh.json")
       verify(request = request, response = newCustomer)
@@ -91,7 +95,8 @@ class PaperlessStatusControllerSpec extends WordSpec with MockitoSugar with Guic
 
     "return a 200 with a no email json when a preference record is found but no has no email" in new TestContext(
       statusName = NoEmail,
-      preference = preferences(containsEmail = false)) {
+      preference = preferences(containsEmail = false)
+    ) {
       val noEmail: JsValue = Resources.readJson("PaperlessStatusNoEmail.json")
       val welshNoEmail: JsValue = Resources.readJson("PaperlessStatusNoEmailWelsh.json")
       verify(request = request, response = noEmail)
@@ -103,7 +108,8 @@ class PaperlessStatusControllerSpec extends WordSpec with MockitoSugar with Guic
     isVerified: Boolean = true,
     hasBounces: Boolean = false,
     termsAcceptance: Boolean = true,
-    containsEmail: Boolean = true): Option[PreferenceResponse] =
+    containsEmail: Boolean = true
+  ): Option[PreferenceResponse] =
     Some(
       PreferenceResponse(
         Map("generic" -> TermsAndConditonsAcceptance(termsAcceptance)),
@@ -116,8 +122,11 @@ class PaperlessStatusControllerSpec extends WordSpec with MockitoSugar with Guic
               isVerified = isVerified,
               hasBounces = hasBounces,
               mailboxFull = false,
-              linkSent = None))
-      ))
+              linkSent = None
+            )
+          )
+      )
+    )
 
   val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
   val welshRequest: FakeRequest[AnyContentAsEmpty.type] = request.withCookies(Cookie("PLAY_LANG", "CY"))
@@ -159,7 +168,8 @@ class PaperlessStatusControllerSpec extends WordSpec with MockitoSugar with Guic
             Some(AffinityGroup.Individual)
           ),
           ConfidenceLevel.L200
-        ))
+        )
+      )
 
     private val controller = app.injector.instanceOf[PaperlessStatusController]
 

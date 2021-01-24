@@ -29,9 +29,10 @@ class PaperlessStatusSpec extends PlaySpec {
     PaperlessStatus(
       EmailNotVerified,
       ActionRequired,
-      "You need to verify your email address before you can get Self Assessment tax letters online"),
+      "You need to verify your email address before you can get Self Assessment tax letters online"
+    ),
     Url(
-      "http://localhost:9024/paperless/check-settings?returnUrl=VYBxyuFWQBQZAGpe5tSgmw%3D%3D&returnLinkText=VYBxyuFWQBQZAGpe5tSgmw%3D%3D",
+      "http://localhost:9053/paperless/check-settings?returnUrl=VYBxyuFWQBQZAGpe5tSgmw%3D%3D&returnLinkText=VYBxyuFWQBQZAGpe5tSgmw%3D%3D",
       "Verify your email address"
     )
   )
@@ -65,7 +66,8 @@ class PaperlessStatusSpec extends PlaySpec {
       Category.values.map(name => Json.toJson(name)).toList mustBe List(
         JsString("ACTION_REQUIRED"),
 //        JsString("OPTION_AVAILABLE"),
-        JsString("INFO"))
+        JsString("INFO")
+      )
     }
   }
 }

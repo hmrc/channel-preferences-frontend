@@ -31,7 +31,11 @@ class ExternalUrlPrefixes @Inject()(configuration: Configuration, env: Environme
 }
 
 @Singleton
-class ExternalUrls @Inject()(configuration: Configuration, env: Environment, externalUrlPrefixes: ExternalUrlPrefixes) {
+class ExternalUrls @Inject()(
+  configuration: Configuration,
+  env: Environment,
+  externalUrlPrefixes: ExternalUrlPrefixes
+) {
 
   lazy val betaFeedbackUrl = s"${externalUrlPrefixes.caUrlPrefix}/contact/beta-feedback"
   lazy val betaFeedbackUnauthenticatedUrl = s"${externalUrlPrefixes.caUrlPrefix}/contact/beta-feedback-unauthenticated"

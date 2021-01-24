@@ -85,9 +85,11 @@ class ManagePaperlessControllerSpec
         new ~(
           new ~(Some(Name(Some("Alex"), Some("Brown"))), LoginTimes(currentLogin, Some(previousLogin))),
           //Some("AB123456D")),
-          Option.empty[String]),
+          Option.empty[String]
+        ),
         Some("1234567890")
-      ))
+      )
+    )
 
   when(mockAuthConnector.authorise[AuthRetrievals](any(), any())(any(), any()))
     .thenReturn(retrievalResult)
@@ -127,7 +129,8 @@ class ManagePaperlessControllerSpec
       val result = controller._displayChangeEmailAddress(Some(Encrypted(EmailAddress(existingEmailAddress))))(
         request,
         TestFixtures.sampleHostContext,
-        hc)
+        hc
+      )
 
       status(result) mustBe 200
       val page = Jsoup.parse(contentAsString(result))
@@ -167,7 +170,8 @@ class ManagePaperlessControllerSpec
       val document = Jsoup.parse(contentAsString(page))
       document.getElementById("verification-mail-message") must not be null
       document.getElementById("return-to-dashboard-button").attr("href") must be(
-        "/paperless/check-settings?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D")
+        "/paperless/check-settings?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"
+      )
 
       verify(mockEntityResolverConnector).changeEmailAddress(is("test@test.com"))(any())
     }
@@ -212,14 +216,16 @@ class ManagePaperlessControllerSpec
             None,
             None,
             None,
-            None),
+            None
+          ),
           TestFixtures.sampleHostContext,
           hc
         )
 
       status(page) mustBe 303
       header("Location", page).get must include(
-        routes.ManagePaperlessController.displayChangeEmailAddressConfirmed(TestFixtures.sampleHostContext).toString())
+        routes.ManagePaperlessController.displayChangeEmailAddressConfirmed(TestFixtures.sampleHostContext).toString()
+      )
 
       verify(mockEntityResolverConnector).changeEmailAddress(is(emailAddress))(any())
       verify(mockEmailConnector).isValid(is(emailAddress))(any())
@@ -241,7 +247,8 @@ class ManagePaperlessControllerSpec
             None,
             None,
             None,
-            None),
+            None
+          ),
           TestFixtures.sampleHostContext,
           hc
         )
@@ -271,9 +278,11 @@ class ManagePaperlessControllerSpec
             None,
             None,
             None,
-            None),
+            None
+          ),
           TestFixtures.sampleHostContext,
-          hc)
+          hc
+        )
 
       status(page) mustBe 400
 
@@ -297,7 +306,8 @@ class ManagePaperlessControllerSpec
         controller._submitChangeEmailAddress(
           AuthenticatedRequest(FakeRequest().withFormUrlEncodedBody(("email.main", "")), None, None, None, None),
           TestFixtures.sampleHostContext,
-          hc)
+          hc
+        )
 
       status(page) mustBe 400
 
@@ -327,7 +337,8 @@ class ManagePaperlessControllerSpec
             None,
             None,
             None,
-            None),
+            None
+          ),
           TestFixtures.sampleHostContext,
           hc
         )
@@ -361,18 +372,21 @@ class ManagePaperlessControllerSpec
             FakeRequest().withFormUrlEncodedBody(
               ("email.main", emailAddress),
               ("email.confirm", emailAddress),
-              ("emailVerified", "true")),
+              ("emailVerified", "true")
+            ),
             None,
             None,
             None,
-            None),
+            None
+          ),
           TestFixtures.sampleHostContext,
           hc
         )
 
       status(page) mustBe 303
       header("Location", page).get must include(
-        routes.ManagePaperlessController.displayChangeEmailAddressConfirmed(TestFixtures.sampleHostContext).toString())
+        routes.ManagePaperlessController.displayChangeEmailAddressConfirmed(TestFixtures.sampleHostContext).toString()
+      )
 
       verify(mockEntityResolverConnector).changeEmailAddress(is(emailAddress))(any())
       verify(mockEntityResolverConnector).getPreferences()(any())
@@ -395,11 +409,13 @@ class ManagePaperlessControllerSpec
             FakeRequest().withFormUrlEncodedBody(
               ("email.main", emailAddress),
               ("email.confirm", emailAddress),
-              ("emailVerified", "false")),
+              ("emailVerified", "false")
+            ),
             None,
             None,
             None,
-            None),
+            None
+          ),
           TestFixtures.sampleHostContext,
           hc
         )
@@ -431,7 +447,8 @@ class ManagePaperlessControllerSpec
             FakeRequest().withFormUrlEncodedBody(
               ("email.main", emailAddress),
               ("email.confirm", emailAddress),
-              ("emailVerified", "hjgjhghjghjgj")),
+              ("emailVerified", "hjgjhghjghjgj")
+            ),
             None,
             None,
             None,
@@ -492,14 +509,15 @@ class ManagePaperlessControllerSpec
       when(mockEntityResolverConnector.getPreferences()(any())).thenReturn(Future.successful(Some(saPreferences)))
       when(
         mockEntityResolverConnector
-          .updateTermsAndConditions(any[TermsAndConditionsUpdate])(any(), any()))
-        .thenReturn(Future.successful(PreferencesExists))
+          .updateTermsAndConditions(any[TermsAndConditionsUpdate])(any(), any())
+      ).thenReturn(Future.successful(PreferencesExists))
 
       val result = controller._submitStopPaperless(lang = Some(Welsh))(request, TestFixtures.sampleHostContext, hc)
 
       status(result) mustBe 303
       header("Location", result).get must include(
-        routes.ManagePaperlessController.checkSettings(TestFixtures.sampleHostContext).url)
+        routes.ManagePaperlessController.checkSettings(TestFixtures.sampleHostContext).url
+      )
 
       verify(mockEntityResolverConnector)
         .updateTermsAndConditions(any[TermsAndConditionsUpdate])(any(), any())
@@ -522,7 +540,8 @@ class ManagePaperlessControllerSpec
 
       outcome must include("How to confirm your email address")
       outcome must include(
-        "To sign up and get your tax letters online, you first need to select the link in the email we sent you.")
+        "To sign up and get your tax letters online, you first need to select the link in the email we sent you."
+      )
       outcome must include("Search your emails for:")
       outcome must include("Verify your email address")
       outcome must include("request a new email.")
@@ -544,16 +563,19 @@ class ManagePaperlessControllerSpec
       val outcome = contentAsString(Future(result))
       outcome must include("Sut i gadarnhau’ch cyfeiriad e-bost")
       outcome must include(
-        "I gofrestru a chael eich llythyrau treth ar-lein, mae’n rhaid i chi ddilyn y cysylltiad yn yr e-bost a gawsoch oddi wrthym yn gyntaf")
+        "I gofrestru a chael eich llythyrau treth ar-lein, mae’n rhaid i chi ddilyn y cysylltiad yn yr e-bost a gawsoch oddi wrthym yn gyntaf"
+      )
       outcome must include(
-        "Chwiliwch drwy’ch e-byst am: ‘Dilyswch eich cyfeiriad e-bost’ neu ‘Verify your email address’")
+        "Chwiliwch drwy’ch e-byst am: ‘Dilyswch eich cyfeiriad e-bost’ neu ‘Verify your email address’"
+      )
       outcome must include("Os na allwch ddod o hyd i hyn,")
       outcome must include("gofynnwch am e-bost newydd.")
       outcome must include("Os ydych yn dymuno,")
       outcome must include("gallwch ddefnyddio cyfeiriad e-bost gwahanol.")
       outcome must include("Pam y mae angen i mi roi fy e-bost i CThEM?")
       outcome must include(
-        "Byddwn bob amser yn rhoi gwybod i chi drwy e-bost pan fydd gennych lythyr treth ar-lein yn aros amdanoch.")
+        "Byddwn bob amser yn rhoi gwybod i chi drwy e-bost pan fydd gennych lythyr treth ar-lein yn aros amdanoch."
+      )
     }
   }
 

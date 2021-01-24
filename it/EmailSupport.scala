@@ -32,7 +32,9 @@ trait EmailSupport extends TestCaseWithFrontEndAuthentication with IntegrationPa
   def clearEmails() = {
     eventually(
       wsClient.url(s"$emailBaseUrl/test-only/hmrc/email-admin/process-email-queue").post("").futureValue.status must be(
-        OK))
+        OK
+      )
+    )
     wsClient.url(s"$mailgunStubUrl/v2/reset").get().futureValue
   }
 
@@ -90,22 +92,26 @@ trait EmailSupport extends TestCaseWithFrontEndAuthentication with IntegrationPa
       have(bodyWith("It may have been sent to an old or alternative email address.")) and
       have(bodyWith("Please use the link in the latest verification email sent to your specified email address."))
 
-  def bodyWith(expected: String) = new HavePropertyMatcher[Future[WSResponse], String] {
-    def apply(response: Future[WSResponse]) = HavePropertyMatchResult(
-      matches = response.futureValue.body.contains(expected),
-      propertyName = "Response Body",
-      expectedValue = expected,
-      actualValue = response.futureValue.body
-    )
-  }
-  def statusWith(expected: Int) = new HavePropertyMatcher[Future[WSResponse], Int] {
-    def apply(response: Future[WSResponse]) = HavePropertyMatchResult(
-      matches = response.futureValue.status.equals(expected),
-      propertyName = "Response Status",
-      expectedValue = expected,
-      actualValue = response.futureValue.status
-    )
-  }
+  def bodyWith(expected: String) =
+    new HavePropertyMatcher[Future[WSResponse], String] {
+      def apply(response: Future[WSResponse]) =
+        HavePropertyMatchResult(
+          matches = response.futureValue.body.contains(expected),
+          propertyName = "Response Body",
+          expectedValue = expected,
+          actualValue = response.futureValue.body
+        )
+    }
+  def statusWith(expected: Int) =
+    new HavePropertyMatcher[Future[WSResponse], Int] {
+      def apply(response: Future[WSResponse]) =
+        HavePropertyMatchResult(
+          matches = response.futureValue.status.equals(expected),
+          propertyName = "Response Status",
+          expectedValue = expected,
+          actualValue = response.futureValue.status
+        )
+    }
 }
 
 object EmailSupport {
@@ -117,6 +123,7 @@ object EmailSupport {
     text: Option[String],
     html: Option[String],
     cc: Option[String],
-    bcc: Option[String])
+    bcc: Option[String]
+  )
   case class Token(token: String)
 }

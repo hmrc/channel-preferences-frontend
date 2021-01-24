@@ -211,7 +211,8 @@ class ChoosePaperlessControllerReOptInSpec
       val emailAddress = "invalid-email"
 
       val page = controller.submitForm(TestFixtures.reOptInHostContext())(
-        FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", "email.main" -> emailAddress))
+        FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", "email.main" -> emailAddress)
+      )
 
       status(page) mustBe 400
 
@@ -230,7 +231,8 @@ class ChoosePaperlessControllerReOptInSpec
 
       val emailAddress = "someone@email.com"
       val page = controller.submitForm(TestFixtures.reOptInHostContext())(
-        FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", "email.main" -> emailAddress, "accept-tc" -> "false"))
+        FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", "email.main" -> emailAddress, "accept-tc" -> "false")
+      )
 
       status(page) mustBe 400
 
@@ -258,7 +260,8 @@ class ChoosePaperlessControllerReOptInSpec
       val emailAddress = "someone@email.com"
       val page = controller.submitForm(TestFixtures.reOptInHostContext("foo@bar.com"))(
         FakeRequest()
-          .withFormUrlEncodedBody("opt-in" -> "true", "email.main" -> emailAddress, "email.confirm" -> emailAddress))
+          .withFormUrlEncodedBody("opt-in" -> "true", "email.main" -> emailAddress, "email.confirm" -> emailAddress)
+      )
 
       status(page) mustBe 400
 
@@ -275,7 +278,8 @@ class ChoosePaperlessControllerReOptInSpec
     "show an error when opting-in if the email is not set" in new ChoosePaperlessControllerReOptInSetup {
 
       val page = controller.submitForm(TestFixtures.reOptInHostContext())(
-        FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", "email.main" -> "", "accept-tc" -> "true"))
+        FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", "email.main" -> "", "accept-tc" -> "true")
+      )
 
       status(page) mustBe 400
 
@@ -296,11 +300,12 @@ class ChoosePaperlessControllerReOptInSpec
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(Future.successful(true))
       when(
         mockEntityResolverConnector
-          .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any()))
-        .thenReturn(Future.successful(PreferencesCreated))
+          .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any())
+      ).thenReturn(Future.successful(PreferencesCreated))
       val testHc = TestFixtures.reOptInHostContext("foo@bar.com")
       val page = controller.submitForm(testHc)(
-        FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), "accept-tc" -> "true"))
+        FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), "accept-tc" -> "true")
+      )
 
       val checkYourSettingsUrl =
         "/paperless/check-settings?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D&email=yCVwXTaKNqm1whFZ7gcFkQ%3D%3D&cohort=u%2Fn1h8qcsJrhpRofXkhmXg%3D%3D"
@@ -322,11 +327,12 @@ class ChoosePaperlessControllerReOptInSpec
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(Future.successful(true))
       when(
         mockEntityResolverConnector
-          .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any()))
-        .thenReturn(Future.successful(PreferencesCreated))
+          .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any())
+      ).thenReturn(Future.successful(PreferencesCreated))
 
       val page = controller.submitForm(TestFixtures.reOptInHostContext("foo@bar.com"))(
-        FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), "accept-tc" -> "true"))
+        FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), "accept-tc" -> "true")
+      )
 
       status(page) mustBe 303
 
@@ -355,11 +361,12 @@ class ChoosePaperlessControllerReOptInSpec
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(Future.successful(true))
       when(
         mockEntityResolverConnector
-          .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any()))
-        .thenReturn(Future.successful(PreferencesExists))
+          .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any())
+      ).thenReturn(Future.successful(PreferencesExists))
 
       val page = controller.submitForm(TestFixtures.reOptInHostContext("foo@bar.com"))(
-        FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), "accept-tc" -> "true"))
+        FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), "accept-tc" -> "true")
+      )
 
       status(page) mustBe 303
 
@@ -386,12 +393,13 @@ class ChoosePaperlessControllerReOptInSpec
 
       when(
         mockEntityResolverConnector
-          .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any()))
-        .thenReturn(Future.successful(PreferencesCreated))
+          .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any())
+      ).thenReturn(Future.successful(PreferencesCreated))
 
       val page =
         controller.submitForm(TestFixtures.reOptInHostContext("foo@bar.com"))(
-          FakeRequest().withFormUrlEncodedBody("opt-in" -> "false"))
+          FakeRequest().withFormUrlEncodedBody("opt-in" -> "false")
+        )
 
       status(page) mustBe 303
 

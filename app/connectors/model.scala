@@ -58,12 +58,13 @@ object SaEmailPreference {
     case object Verified extends Status
 
     val reads: Reads[Status] = new Reads[Status] {
-      override def reads(json: JsValue): JsResult[Status] = json match {
-        case JsString("pending")  => JsSuccess(Pending)
-        case JsString("bounced")  => JsSuccess(Bounced)
-        case JsString("verified") => JsSuccess(Verified)
-        case _                    => JsError()
-      }
+      override def reads(json: JsValue): JsResult[Status] =
+        json match {
+          case JsString("pending")  => JsSuccess(Pending)
+          case JsString("bounced")  => JsSuccess(Bounced)
+          case JsString("verified") => JsSuccess(Verified)
+          case _                    => JsError()
+        }
     }
 
     val writes: OWrites[Status] = new OWrites[Status] {
@@ -80,7 +81,8 @@ case class SaEmailPreference(
   status: SaEmailPreference.Status,
   mailboxFull: Boolean = false,
   message: Option[String] = None,
-  linkSent: Option[LocalDate] = None) {
+  linkSent: Option[LocalDate] = None
+) {
 
   implicit class emailPreferenceOps(saEmail: SaEmailPreference) {
     def toEmailPreference(): EmailPreference =
@@ -89,7 +91,8 @@ case class SaEmailPreference(
         saEmail.status == SaEmailPreference.Status.Verified,
         saEmail.status == SaEmailPreference.Status.Bounced,
         saEmail.mailboxFull,
-        saEmail.linkSent)
+        saEmail.linkSent
+      )
 
   }
 
@@ -126,7 +129,8 @@ object TermsAndConditonsAcceptance {
 
 case class PreferenceResponse(
   termsAndConditions: Map[String, TermsAndConditonsAcceptance],
-  email: Option[EmailPreference]) {
+  email: Option[EmailPreference]
+) {
   val genericTermsAccepted: Boolean = termsAndConditions.get("generic").fold(false)(_.accepted)
   val taxCreditsTermsAccepted: Boolean = termsAndConditions.get("taxCredits").fold(false)(_.accepted)
 }
@@ -153,12 +157,14 @@ object PreferenceResponse {
           saEmail.status == SaEmailPreference.Status.Verified,
           saEmail.status == SaEmailPreference.Status.Bounced,
           saEmail.mailboxFull,
-          saEmail.linkSent)
+          saEmail.linkSent
+        )
       }
 
       PreferenceResponse(
         termsAndConditions = Map("generic" -> TermsAndConditonsAcceptance(saPreference.digital)),
-        email = saPreference.email.map(toNewEmail))
+        email = saPreference.email.map(toNewEmail)
+      )
     }
   }
 

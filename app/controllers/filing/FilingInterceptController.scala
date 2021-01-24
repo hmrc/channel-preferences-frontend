@@ -38,7 +38,8 @@ class FilingInterceptController @Inject()(
   env: Environment,
   decryptAndValidate: DecryptAndValidate,
   tokenEncryption: TokenEncryption,
-  mcc: MessagesControllerComponents)(implicit ec: ExecutionContext)
+  mcc: MessagesControllerComponents
+)(implicit ec: ExecutionContext)
     extends FrontendController(mcc) {
 
   lazy val redirectDomainAllowlist = configuration
@@ -51,7 +52,8 @@ class FilingInterceptController @Inject()(
   def redirectWithEmailAddress(
     encryptedToken: String,
     encodedReturnUrl: String,
-    emailAddressToPrefill: Option[Encrypted[EmailAddress]]) =
+    emailAddressToPrefill: Option[Encrypted[EmailAddress]]
+  ) =
     DecodeAndAllowlist(encodedReturnUrl) { returnUrl =>
       decryptAndValidate(encryptedToken, returnUrl) { token =>
         Action.async { implicit request =>

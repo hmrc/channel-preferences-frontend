@@ -33,7 +33,8 @@ lazy val externalServices = List(
   ExternalService(
     name = "PREFERENCES",
     enableTestOnlyEndpoints = true,
-    extraConfig = Map("featureFlag.switchOn" -> "true")),
+    extraConfig = Map("featureFlag.switchOn" -> "true")
+  ),
   ExternalService("DATASTREAM"),
   ExternalService("ENTITY_RESOLVER"),
   ExternalService("MAILGUN_STUB"),

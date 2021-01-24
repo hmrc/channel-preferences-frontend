@@ -53,20 +53,22 @@ class ItAuthHelper @Inject()(ws: WSClient) extends ScalaFutures {
     "ttl"        -> JsNumber(1200)
   )
 
-  private def GG_BASE_PAYLOAD: JsObject = Json.obj(
-    "credId"             -> s"${UUID.randomUUID.toString}",
-    "affinityGroup"      -> "Individual",
-    "confidenceLevel"    -> 200,
-    "credentialStrength" -> "strong",
-    "enrolments"         -> JsArray(),
-    "usersName"          -> "Lisa Nicole Brennan",
-    "email"              -> "lisa.brennan@some.domain.com"
-  )
+  private def GG_BASE_PAYLOAD: JsObject =
+    Json.obj(
+      "credId"             -> s"${UUID.randomUUID.toString}",
+      "affinityGroup"      -> "Individual",
+      "confidenceLevel"    -> 200,
+      "credentialStrength" -> "strong",
+      "enrolments"         -> JsArray(),
+      "usersName"          -> "Lisa Nicole Brennan",
+      "email"              -> "lisa.brennan@some.domain.com"
+    )
 
-  private def taxIdKey(taxId: TaxIdentifier) = taxId match {
-    case _: SaUtr => "IR-SA"
-    case _CtUtr   => "IR-CT"
-  }
+  private def taxIdKey(taxId: TaxIdentifier) =
+    taxId match {
+      case _: SaUtr => "IR-SA"
+      case _CtUtr   => "IR-CT"
+    }
 
   private def enrolmentPayload(taxId: TaxIdentifier) =
     Json.obj(
@@ -108,17 +110,15 @@ class ItAuthHelper @Inject()(ws: WSClient) extends ScalaFutures {
   def authorisedTokenFor(ids: TaxIdentifier*): Future[(String, String)] =
     buildUserToken(
       ids
-        .foldLeft(GG_BASE_PAYLOAD)(
-          (payload, taxId) =>
-            taxId match {
-              case saUtr: SaUtr        => addUtrToPayload(payload, saUtr)
-              case nino: Nino          => addNinoToPayload(payload, nino)
-              case ctUtr: CtUtr        => addEnrolmentToPayload(payload, makeCtUtrEnrolement(ctUtr))
-              case fhdds: HmrcObtdsOrg => addEnrolmentToPayload(payload, makeFhddsEnrolment(fhdds))
-              case vat: HmrcMtdVat     => addEnrolmentToPayload(payload, makeVatEnrolement(vat))
-              case vrn: Vrn            => addEnrolmentToPayload(payload, makeVrnEnrolement(vrn))
-          }
-        )
+        .foldLeft(GG_BASE_PAYLOAD)((payload, taxId) =>
+          taxId match {
+            case saUtr: SaUtr        => addUtrToPayload(payload, saUtr)
+            case nino: Nino          => addNinoToPayload(payload, nino)
+            case ctUtr: CtUtr        => addEnrolmentToPayload(payload, makeCtUtrEnrolement(ctUtr))
+            case fhdds: HmrcObtdsOrg => addEnrolmentToPayload(payload, makeFhddsEnrolment(fhdds))
+            case vat: HmrcMtdVat     => addEnrolmentToPayload(payload, makeVatEnrolement(vat))
+            case vrn: Vrn            => addEnrolmentToPayload(payload, makeVrnEnrolement(vrn))
+        })
         .toString
     )
 

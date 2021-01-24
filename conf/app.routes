@@ -5,8 +5,11 @@
 ### NoDocs ###
 ->          /hmrc-frontend          hmrcfrontend.Routes
 
-->          /                                   preferences_frontend.Routes
+#->          /                                   preferences_frontend.Routes
 GET         /hello-world            uk.gov.hmrc.channelpreferencesfrontend.controllers.HelloWorldController.helloWorld
+
+#GET         /paperless/check-settings                                               controllers.internal.ManagePaperlessController.checkSettings(hostContext: model.HostContext)
 
 ### NoDocs ###
 GET         /assets/*file           controllers.Assets.versioned(path = "/public", file: Asset)
+GET         /paperless/assets/*file                                                 controllers.Assets.versioned(path="/public", file: Asset)

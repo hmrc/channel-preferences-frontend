@@ -36,13 +36,14 @@ class EmailValidationController @Inject()(
   saPrintingPreferenceVerifyEmailFailed: views.html.sa.prefs.sa_printing_preference_verify_email_failed,
   saPrintingPreferenceVerifyEmail: views.html.sa.prefs.sa_printing_preference_verify_email,
   saPrintingPreferenceWrongToken: views.html.sa.prefs.sa_printing_preference_wrong_token,
-  mcc: MessagesControllerComponents)(implicit ec: ExecutionContext)
+  mcc: MessagesControllerComponents
+)(implicit ec: ExecutionContext)
     extends FrontendController(mcc) {
 
   val regex = "([0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12})".r
 
-  def verify(token: String): Action[AnyContent] = Action.async { implicit request =>
-    {
+  def verify(token: String): Action[AnyContent] =
+    Action.async { implicit request =>
       implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
       implicit val nonAuthenticatedRequest = AuthenticatedRequest(request, None, None, None, None)
       token match {
@@ -62,5 +63,4 @@ class EmailValidationController @Inject()(
           Future.successful(BadRequest(saPrintingPreferenceVerifyEmailFailed(None, None)))
       }
     }
-  }
 }

@@ -43,7 +43,8 @@ object OptInCohort {
 
   implicit val pathBinder: PathBindable[Option[OptInCohort]] = PathBindable.bindableInt.transform(
     fromId,
-    _.map(_.id).getOrElse(throw new IllegalArgumentException("Cannot generate a URL for an unknown Cohort")))
+    _.map(_.id).getOrElse(throw new IllegalArgumentException("Cannot generate a URL for an unknown Cohort"))
+  )
 
   implicit val cohortNumWrites: Writes[OptInCohort] = Writes[OptInCohort] { optInCohort =>
     JsNumber(optInCohort.id)

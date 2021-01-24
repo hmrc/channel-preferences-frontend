@@ -24,7 +24,8 @@ class NewActivateGraceOutISpec extends EmailSupport with SessionCookieEncryption
       val utr = Generate.utr
       clearEmails()
       `/preferences/terms-and-conditions`(authHelper.authHeader(utr)).postGenericOptOut.futureValue.status must be(
-        CREATED)
+        CREATED
+      )
 
       val response = `/paperless/activate`(utr)().put().futureValue
       response.status must be(PRECONDITION_FAILED)

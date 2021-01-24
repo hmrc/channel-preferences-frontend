@@ -45,36 +45,41 @@ class SurveyController @Inject()(
 )(implicit ec: ExecutionContext)
     extends FrontendController(mcc) with I18nSupport with WithAuthRetrievals with LanguageHelper {
 
-  def displayReOptInDeclinedSurveyForm(implicit hostContext: HostContext): Action[AnyContent] = Action.async {
-    implicit request =>
+  def displayReOptInDeclinedSurveyForm(implicit hostContext: HostContext): Action[AnyContent] =
+    Action.async { implicit request =>
       withAuthenticatedRequest { implicit authRequest: AuthenticatedRequest[AnyContent] => implicit hc =>
-        if (ytaConfig.surveyReOptInPage10Enabled) {
+        if (ytaConfig.surveyReOptInPage10Enabled)
           Future.successful(
-            Ok(reOptinDeclinedSurvey(
-              surveyForm = SurveyReOptInDeclinedDetailsForm().fill(SurveyReOptInDeclinedDetailsForm.Data(
-                `choice-0305d33f-2e8d-4cb2-82d2-52132fc325fe` = None,
-                `choice-ce34aa17-df2a-44fb-9d5c-4d930396483a` = None,
-                `choice-d0edb491-6dcb-48a8-aeca-b16f01c541a5` = None,
-                `choice-1e825e7d-6fc8-453f-8c20-1a7ed4d84ea5` = None,
-                `choice-15d28c3f-9f33-4c44-aefa-165fc84b5e23` = None,
-                reason = None,
-                submissionType = None
-              )),
-              submitSurveyFormAction =
-                controllers.internal.routes.SurveyController.submitReOptInDeclinedSurveyForm(hostContext)
-            )))
-        } else Future.successful(Redirect(routes.ManagePaperlessController.checkSettings(hostContext)))
+            Ok(
+              reOptinDeclinedSurvey(
+                surveyForm = SurveyReOptInDeclinedDetailsForm().fill(
+                  SurveyReOptInDeclinedDetailsForm.Data(
+                    `choice-0305d33f-2e8d-4cb2-82d2-52132fc325fe` = None,
+                    `choice-ce34aa17-df2a-44fb-9d5c-4d930396483a` = None,
+                    `choice-d0edb491-6dcb-48a8-aeca-b16f01c541a5` = None,
+                    `choice-1e825e7d-6fc8-453f-8c20-1a7ed4d84ea5` = None,
+                    `choice-15d28c3f-9f33-4c44-aefa-165fc84b5e23` = None,
+                    reason = None,
+                    submissionType = None
+                  )
+                ),
+                submitSurveyFormAction =
+                  controllers.internal.routes.SurveyController.submitReOptInDeclinedSurveyForm(hostContext)
+              )
+            )
+          )
+        else Future.successful(Redirect(routes.ManagePaperlessController.checkSettings(hostContext)))
       }
-  }
+    }
 
-  def returnToFormWithErrors(submitSurveyFormAction: Call)(form: Form[SurveyReOptInDeclinedDetailsForm.Data])(
-    implicit hc: HeaderCarrier,
-    request: AuthenticatedRequest[_],
-    hostContext: HostContext): Future[Result] =
+  def returnToFormWithErrors(submitSurveyFormAction: Call)(
+    form: Form[SurveyReOptInDeclinedDetailsForm.Data]
+  )(implicit hc: HeaderCarrier, request: AuthenticatedRequest[_], hostContext: HostContext): Future[Result] =
     Future.successful(BadRequest(reOptinDeclinedSurvey(form, submitSurveyFormAction)))
 
   def auditSurvey(languagePreference: Some[Language], userData: SurveyReOptInDeclinedDetailsForm.Data)(
-    implicit request: AuthenticatedRequest[_]): Future[AuditResult] =
+    implicit
+    request: AuthenticatedRequest[_]): Future[AuditResult] =
     auditConnector.sendExtendedEvent(
       ExtendedDataEvent(
         auditSource = AppName.fromConfiguration(configuration),
@@ -89,42 +94,48 @@ class SurveyController @Inject()(
               "choice-0305d33f-2e8d-4cb2-82d2-52132fc325fe" -> QuestionAnswer(
                 question =
                   messagesApi("paperless.survey.reoptin_declined.choice.0305d33f-2e8d-4cb2-82d2-52132fc325fe", "N/A")(
-                    request.lang),
+                    request.lang
+                  ),
                 answer = userData.`choice-0305d33f-2e8d-4cb2-82d2-52132fc325fe`.getOrElse(false).toString
               ),
               "choice-ce34aa17-df2a-44fb-9d5c-4d930396483a" -> QuestionAnswer(
                 question =
                   messagesApi("paperless.survey.reoptin_declined.choice.ce34aa17-df2a-44fb-9d5c-4d930396483a", "N/A")(
-                    request.lang),
+                    request.lang
+                  ),
                 answer = userData.`choice-ce34aa17-df2a-44fb-9d5c-4d930396483a`.getOrElse(false).toString
               ),
               "choice-d0edb491-6dcb-48a8-aeca-b16f01c541a5" -> QuestionAnswer(
                 question =
                   messagesApi("paperless.survey.reoptin_declined.choice.d0edb491-6dcb-48a8-aeca-b16f01c541a5", "N/A")(
-                    request.lang),
+                    request.lang
+                  ),
                 answer = userData.`choice-d0edb491-6dcb-48a8-aeca-b16f01c541a5`.getOrElse(false).toString
               ),
               "choice-1e825e7d-6fc8-453f-8c20-1a7ed4d84ea5" -> QuestionAnswer(
                 question =
                   messagesApi("paperless.survey.reoptin_declined.choice.1e825e7d-6fc8-453f-8c20-1a7ed4d84ea5", "N/A")(
-                    request.lang),
+                    request.lang
+                  ),
                 answer = userData.`choice-1e825e7d-6fc8-453f-8c20-1a7ed4d84ea5`.getOrElse(false).toString
               ),
               "choice-15d28c3f-9f33-4c44-aefa-165fc84b5e23" -> QuestionAnswer(
                 question =
                   messagesApi("paperless.survey.reoptin_declined.choice.15d28c3f-9f33-4c44-aefa-165fc84b5e23", "N/A")(
-                    request.lang),
+                    request.lang
+                  ),
                 answer = userData.`choice-15d28c3f-9f33-4c44-aefa-165fc84b5e23`.getOrElse(false).toString
               )
             ),
             reason = userData.reason.getOrElse("N/A"),
             language = languagePreference.getOrElse("N/A").toString
-          ))
+          )
+        )
       )
     )
 
-  def submitReOptInDeclinedSurveyForm(implicit hostContext: HostContext): Action[AnyContent] = Action.async {
-    implicit request =>
+  def submitReOptInDeclinedSurveyForm(implicit hostContext: HostContext): Action[AnyContent] =
+    Action.async { implicit request =>
       withAuthenticatedRequest { implicit authRequest: AuthenticatedRequest[AnyContent] => implicit hc =>
         if (ytaConfig.surveyReOptInPage10Enabled) {
           val lang = languageType(request.lang.code)
@@ -134,13 +145,16 @@ class SurveyController @Inject()(
             .bindFromRequest()(request)
             .fold[Future[Result]](
               hasErrors = (formWithErrors: Form[SurveyReOptInDeclinedDetailsForm.Data]) =>
-                if (formWithErrors.data.getOrElse("submissionType", "submitted") == "submitted") {
+                if (formWithErrors.data.getOrElse("submissionType", "submitted") == "submitted")
                   Future.successful(
                     BadRequest(
                       reOptinDeclinedSurvey(
                         formWithErrors,
-                        controllers.internal.routes.SurveyController.submitReOptInDeclinedSurveyForm(hostContext))))
-                } else {
+                        controllers.internal.routes.SurveyController.submitReOptInDeclinedSurveyForm(hostContext)
+                      )
+                    )
+                  )
+                else {
                   val userData = SurveyReOptInDeclinedDetailsForm.Data(
                     `choice-0305d33f-2e8d-4cb2-82d2-52132fc325fe` =
                       formWithErrors.data.get("choice-0305d33f-2e8d-4cb2-82d2-52132fc325fe").map(_.toBoolean),
@@ -167,5 +181,5 @@ class SurveyController @Inject()(
             )
         } else Future.successful(Redirect(routes.ManagePaperlessController.checkSettings(hostContext)))
       }
-  }
+    }
 }

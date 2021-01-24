@@ -37,7 +37,9 @@ class ReadOnlyTcPage9Spec extends PlaySpec with GuiceOneAppPerSuite with Languag
       val document = Jsoup.parse(
         template(form, internal.routes.ChoosePaperlessController.submitForm(TestFixtures.sampleHostContext))(
           engRequest,
-          messagesInEnglish()).toString())
+          messagesInEnglish()
+        ).toString()
+      )
       document.getElementsByClass("govuk-header__link--service-name").get(0).text() mustBe "Tax credits service"
       document.getElementById("email-display").text() mustBe s"The email address we will store securely is $email"
       document
@@ -65,7 +67,9 @@ class ReadOnlyTcPage9Spec extends PlaySpec with GuiceOneAppPerSuite with Languag
       val document = Jsoup.parse(
         template(form, internal.routes.ChoosePaperlessController.submitForm(TestFixtures.sampleHostContext))(
           welshRequest,
-          messagesInWelsh()).toString())
+          messagesInWelsh()
+        ).toString()
+      )
       document
         .getElementsByTag("title")
         .text() mustBe "A hoffech gael hysbysiadau e-bost eraill ynghylch eich credydau treth?"

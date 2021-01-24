@@ -14,7 +14,10 @@ class CheckSettingsISpec extends EmailSupport with SessionCookieEncryptionSuppor
   "Check Settings" should {
 
     "return not authorised when no credentials supplied" in {
-      `/paperless/check-settings`(returnUrl = "http://some/other/url", returnLinkText = "Continue").get.futureValue.status must be(
+      `/paperless/check-settings`(
+        returnUrl = "http://some/other/url",
+        returnLinkText = "Continue"
+      ).get.futureValue.status must be(
         UNAUTHORIZED
       )
     }
@@ -106,7 +109,9 @@ class CheckSettingsISpec extends EmailSupport with SessionCookieEncryptionSuppor
       val utr = Generate.utr
       val header = authHelper.authHeader(utr)
       `/preferences/terms-and-conditions`(header).postGenericOptIn(email).futureValue.status must be(CREATED)
-      `/preferences-admin/sa/individual`.verifyEmailFor(`/entity-resolver/sa/:utr`(utr.value)).futureValue.status must be(
+      `/preferences-admin/sa/individual`.verifyEmailFor(
+        `/entity-resolver/sa/:utr`(utr.value)
+      ).futureValue.status must be(
         NO_CONTENT
       )
       val response = `/paperless/check-settings`(returnUrl = "http://some/other/url", returnLinkText = "Continue")
@@ -127,7 +132,9 @@ class CheckSettingsISpec extends EmailSupport with SessionCookieEncryptionSuppor
       val utr = Generate.utr
       val header = authHelper.authHeader(utr)
       `/preferences/terms-and-conditions`(header).postGenericOptIn(email).futureValue.status must be(CREATED)
-      `/preferences-admin/sa/individual`.verifyEmailFor(`/entity-resolver/sa/:utr`(utr.value)).futureValue.status must be(
+      `/preferences-admin/sa/individual`.verifyEmailFor(
+        `/entity-resolver/sa/:utr`(utr.value)
+      ).futureValue.status must be(
         NO_CONTENT
       )
       `/preferences`(header).putPendingEmail(newEmail).futureValue.status must be(OK)
@@ -147,7 +154,9 @@ class CheckSettingsISpec extends EmailSupport with SessionCookieEncryptionSuppor
       val nino = Generate.nino
       val header = authHelper.authHeader(nino)
       `/preferences/terms-and-conditions`(header).postGenericOptIn(email).futureValue.status must be(CREATED)
-      `/preferences-admin/sa/individual`.verifyEmailFor(`/entity-resolver/paye/:nino`(nino.value)).futureValue.status must be(
+      `/preferences-admin/sa/individual`.verifyEmailFor(
+        `/entity-resolver/paye/:nino`(nino.value)
+      ).futureValue.status must be(
         NO_CONTENT
       )
       `/preferences/terms-and-conditions`(header).postGenericOptOut().futureValue.status must be(OK)

@@ -29,7 +29,8 @@ class LanguageController @Inject()(
   configuration: Configuration,
   ytaConfig: YtaConfig,
   env: Environment,
-  mcc: MessagesControllerComponents)(implicit ec: ExecutionContext)
+  mcc: MessagesControllerComponents
+)(implicit ec: ExecutionContext)
     extends FrontendController(mcc) with LegacyI18nSupport {
 
   val english = Lang("en")
@@ -38,13 +39,14 @@ class LanguageController @Inject()(
   def switchToEnglish: Action[AnyContent] = switchToLang(english)
   def switchToWelsh: Action[AnyContent] = switchToLang(welsh)
 
-  private def switchToLang(newLang: Lang) = Action { implicit request =>
-    request.headers.get(REFERER) match {
-      case Some(referrer) => Redirect(referrer).withLang(newLang)
-      case None =>
-        Logger.warn(s"Unable to get the referrer, so sending them to ${ytaConfig.fallbackURLForLanguageSwitcher}")
-        Redirect(ytaConfig.fallbackURLForLanguageSwitcher).withLang(newLang)
+  private def switchToLang(newLang: Lang) =
+    Action { implicit request =>
+      request.headers.get(REFERER) match {
+        case Some(referrer) => Redirect(referrer).withLang(newLang)
+        case None =>
+          Logger.warn(s"Unable to get the referrer, so sending them to ${ytaConfig.fallbackURLForLanguageSwitcher}")
+          Redirect(ytaConfig.fallbackURLForLanguageSwitcher).withLang(newLang)
+      }
     }
-  }
 
 }
