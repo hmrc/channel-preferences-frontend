@@ -6,7 +6,7 @@
 import org.apache.commons.codec.CharEncoding
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{ Seconds, Span }
-import play.api.Play
+import play.api.{ Configuration, Play }
 import play.api.http.HeaderNames
 import play.api.libs.crypto.CookieSigner
 import play.api.libs.json.{ JsArray, JsNumber, JsObject, Json, _ }
@@ -67,7 +67,7 @@ class ItAuthHelper @Inject()(ws: WSClient) extends ScalaFutures {
   private def taxIdKey(taxId: TaxIdentifier) =
     taxId match {
       case _: SaUtr => "IR-SA"
-      case _CtUtr   => "IR-CT"
+      case _        => "IR-CT"
     }
 
   private def enrolmentPayload(taxId: TaxIdentifier) =
@@ -123,7 +123,7 @@ class ItAuthHelper @Inject()(ws: WSClient) extends ScalaFutures {
     )
 
   def authHeader(taxId: TaxIdentifier): (String, String) = {
-    val (bearerToken, userId) = authorisedTokenFor(taxId).futureValue
+    val (bearerToken, _) = authorisedTokenFor(taxId).futureValue
     ("Authorization", bearerToken)
   }
 
@@ -163,7 +163,8 @@ trait SessionCookieEncryptionSupport extends Injecting {
   val SignSeparator = "-"
   val mdtpSessionCookie = "mdtp"
 
-  lazy val cipher = new CryptoGCMWithKeysFromConfig("cookie.encryption", Play.current.configuration.underlying)
+  val configuration: Configuration = app.injector.instanceOf[Configuration]
+  lazy val cipher = new CryptoGCMWithKeysFromConfig("cookie.encryption", configuration.underlying)
 
   implicit class WSRequestWithSession(request: WSRequest) {
     def withSession(pair: (String, String)*)(language: Option[String] = None): WSRequest = {

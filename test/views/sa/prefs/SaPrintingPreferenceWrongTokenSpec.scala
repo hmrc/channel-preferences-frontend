@@ -31,13 +31,13 @@ class SaPrintingPreferenceWrongTokenSpec
 
   "sa printing preferences wrong token template" should {
     "render the correct content in english" in {
-      val document = Jsoup.parse(template()(engRequest, messagesInEnglish()).toString())
+      val document = Jsoup.parse(template()(engRequest, messagesInEnglish()).toString)
 
       document.getElementsByTag("title").first().text() mustBe "You've used a link that has now expired"
     }
 
     "render the correct content in welsh" in {
-      val document = Jsoup.parse(template()(welshRequest, messagesInWelsh()).toString())
+      val document = Jsoup.parse(template()(welshRequest, messagesInWelsh()).toString)
 
       document
         .getElementsByTag("title")

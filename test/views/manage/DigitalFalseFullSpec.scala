@@ -38,7 +38,7 @@ class DigitalFalseFullSpec extends PlaySpec with GuiceOneAppPerSuite with Langua
 
       val authRequest = AuthenticatedRequest(FakeRequest(), None, None, None, None)
       val document =
-        Jsoup.parse(template(email)(authRequest, messagesInEnglish(), TestFixtures.sampleHostContext).toString())
+        Jsoup.parse(template(email)(authRequest, messagesInEnglish(), TestFixtures.sampleHostContext).toString)
 
       document.getElementById("saCheckSettings").text() mustBe "Check your settings"
     }
@@ -47,7 +47,7 @@ class DigitalFalseFullSpec extends PlaySpec with GuiceOneAppPerSuite with Langua
       val emailAddress = "a@a.com"
       val email = EmailPreference(emailAddress, true, true, false, None)
       val document =
-        Jsoup.parse(template(email)(welshRequest, messagesInWelsh(), TestFixtures.sampleHostContext).toString())
+        Jsoup.parse(template(email)(welshRequest, messagesInWelsh(), TestFixtures.sampleHostContext).toString)
 
       document.getElementById("saCheckSettings").text() mustBe "Gwirio’ch gosodiadau"
     }

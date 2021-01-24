@@ -15,7 +15,7 @@ class VerificationEmailISpec extends EmailSupport with SessionCookieEncryptionSu
       val email = uniqueEmail
       clearEmails()
 
-      val (bearerToken, userId) = authHelper.authExchange(utr)
+      val (bearerToken, _) = authHelper.authExchange(utr)
 
       val result =
         `/preferences/terms-and-conditions`(("Authorization", bearerToken)).postGenericOptIn(email).futureValue
@@ -23,13 +23,12 @@ class VerificationEmailISpec extends EmailSupport with SessionCookieEncryptionSu
       val response =
         `/paperless/resend-verification-email`()
           .withSession(
-            (SessionKeys.authToken -> bearerToken)
+            SessionKeys.authToken -> bearerToken
           )()
           .post(emptyJsonValue)
           .futureValue
       response.status must be(OK)
 
-      val page = Jsoup.parse(response.body)
       val emailConfirmation = response.body
       emailConfirmation must include("Verification email sent")
       emailConfirmation must include(s"A new email has been sent to $email")
@@ -57,7 +56,7 @@ class VerificationEmailISpec extends EmailSupport with SessionCookieEncryptionSu
         have(bodyWith("You&#x27;ve now signed up for paperless notifications.")) and
         have(bodyWith("Continue to your HMRC online account")))
 
-      Jsoup.parse(response.futureValue.body).getElementById("link-to-home").toString() must include("/account")
+      Jsoup.parse(response.futureValue.body).getElementById("link-to-home").toString must include("/account")
     }
 
     "display expiry message if the link has expired" in {
@@ -82,7 +81,7 @@ class VerificationEmailISpec extends EmailSupport with SessionCookieEncryptionSu
         have(bodyWith("Continue to your HMRC online account")) and
         have(bodyWith("request a new verification link")))
 
-      Jsoup.parse(response.futureValue.body).getElementById("link-to-home").toString() must include("/account")
+      Jsoup.parse(response.futureValue.body).getElementById("link-to-home").toString must include("/account")
     }
 
     "display already verified message if the email has been verified already" in {
@@ -105,7 +104,7 @@ class VerificationEmailISpec extends EmailSupport with SessionCookieEncryptionSu
         have(bodyWith("Your email address has already been verified.")) and
         have(bodyWith("Continue to your HMRC online account")))
 
-      Jsoup.parse(response.futureValue.body).getElementById("link-to-home").toString() must include("/account")
+      Jsoup.parse(response.futureValue.body).getElementById("link-to-home").toString must include("/account")
     }
 
     "display expired old email address message if verification link is not valid due to opt out" in {
@@ -118,11 +117,12 @@ class VerificationEmailISpec extends EmailSupport with SessionCookieEncryptionSu
         .status must be(CREATED)
 
       withReceivedEmails(1) {
-        case List(mail) =>
-          mail must have('to (Some(email)), 'subject ("HMRC electronic communications: verify your email address"))
+        case List(mail) => {
+          mail must have('to (Some(email)), 'subject ("HMRC electronic communications: verify your email address")); ()
+        }
       }
 
-      `/preferences/terms-and-conditions`(authHelper.authHeader(utr)).postGenericOptOut.futureValue.status must be(OK)
+      `/preferences/terms-and-conditions`(authHelper.authHeader(utr)).postGenericOptOut().futureValue.status must be(OK)
 
       `/sa/print-preferences/verification`.verify(verificationTokenFromEmail()) must beForAnExpiredOldEmail
     }
@@ -153,6 +153,7 @@ class VerificationEmailISpec extends EmailSupport with SessionCookieEncryptionSu
 
       withReceivedEmails(2) { emails =>
         emails.flatMap(_.to) must contain(newEmail)
+        ()
       }
 
       `/sa/print-preferences/verification`.verify(
@@ -253,6 +254,7 @@ class VerificationEmailISpec extends EmailSupport with SessionCookieEncryptionSu
 
       withReceivedEmails(2) { emails =>
         emails.flatMap(_.to) must contain(newEmail)
+        ()
       }
 
       `/sa/print-preferences/verification`.verify(

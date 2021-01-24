@@ -36,7 +36,7 @@ class DigitalTrueLinksSpec extends PlaySpec with GuiceOneAppPerSuite with Langua
       val linkId = "test_id"
       val email = EmailPreference(emailAddress, true, true, false, None)
       val document = Jsoup.parse(
-        template(email, linkId)(FakeRequest(), messagesInEnglish(), TestFixtures.sampleHostContext).toString()
+        template(email, linkId)(FakeRequest(), messagesInEnglish(), TestFixtures.sampleHostContext).toString
       )
 
       document.getElementById(linkId).text() mustBe "Change your email address"
@@ -48,7 +48,7 @@ class DigitalTrueLinksSpec extends PlaySpec with GuiceOneAppPerSuite with Langua
       val linkId = "test_id"
       val email = EmailPreference(emailAddress, true, true, false, None)
       val document =
-        Jsoup.parse(template(email, linkId)(welshRequest, messagesInWelsh(), TestFixtures.sampleHostContext).toString())
+        Jsoup.parse(template(email, linkId)(welshRequest, messagesInWelsh(), TestFixtures.sampleHostContext).toString)
 
       document.getElementById(linkId).text() mustBe "Newid eich cyfeiriad e-bost"
       document.getElementById("opt-out-of-email-link").text() mustBe "Atal e-byst gan CThEM"

@@ -40,7 +40,7 @@ class SaPrintingPreferenceVerifyEmailSpec
           engRequest,
           messagesInEnglish(),
           TestFixtures.sampleHostContext
-        ).toString()
+        ).toString
       )
 
       document.getElementsByTag("title").get(0).text() mustBe "Check your email address"
@@ -55,7 +55,7 @@ class SaPrintingPreferenceVerifyEmailSpec
           welshRequest,
           messagesInWelsh(),
           TestFixtures.sampleHostContext
-        ).toString()
+        ).toString
       )
 
       document.getElementsByTag("title").get(0).text() mustBe "Gwirio'ch cyfeiriad e-bost"

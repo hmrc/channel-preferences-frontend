@@ -224,7 +224,7 @@ class ManagePaperlessControllerSpec
 
       status(page) mustBe 303
       header("Location", page).get must include(
-        routes.ManagePaperlessController.displayChangeEmailAddressConfirmed(TestFixtures.sampleHostContext).toString()
+        routes.ManagePaperlessController.displayChangeEmailAddressConfirmed(TestFixtures.sampleHostContext).toString
       )
 
       verify(mockEntityResolverConnector).changeEmailAddress(is(emailAddress))(any())
@@ -385,7 +385,7 @@ class ManagePaperlessControllerSpec
 
       status(page) mustBe 303
       header("Location", page).get must include(
-        routes.ManagePaperlessController.displayChangeEmailAddressConfirmed(TestFixtures.sampleHostContext).toString()
+        routes.ManagePaperlessController.displayChangeEmailAddressConfirmed(TestFixtures.sampleHostContext).toString
       )
 
       verify(mockEntityResolverConnector).changeEmailAddress(is(emailAddress))(any())

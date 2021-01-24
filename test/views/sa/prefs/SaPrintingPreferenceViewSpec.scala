@@ -37,7 +37,7 @@ class SaPrintingPreferenceViewSpec extends PlaySpec with GuiceOneAppPerSuite wit
           emailForm = EmailForm(),
           submitPrefsFormAction = Call("GET", "/"),
           cohort = CohortCurrent.ipage
-        )(engRequest, messagesInEnglish()).toString()
+        )(engRequest, messagesInEnglish()).toString
       )
 
       document.getElementById("opt-in").hasAttr("checked") mustBe false

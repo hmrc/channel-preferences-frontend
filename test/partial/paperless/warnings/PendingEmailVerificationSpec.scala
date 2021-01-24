@@ -40,15 +40,14 @@ class PendingEmailVerificationSpec extends PlaySpec with GuiceOneAppPerSuite wit
       val emailPreference = EmailPreference(emailAddress, true, true, false, Some(localDate))
       val errors = Seq((FormError("ErrorKey", Seq("Error Message"), Seq()), "Outer Error Message"))
       val document = Jsoup.parse(
-        pending_email_verification(emailPreference, TestFixtures.sampleHostContext)(FakeRequest(), messagesInEnglish())
-          .toString()
+        pending_email_verification(emailPreference, TestFixtures.sampleHostContext)(FakeRequest(), messagesInEnglish()).toString
       )
 
       document
         .getElementsByTag("summary")
         .first()
         .childNode(0)
-        .toString() mustBe "Verify your email address for paperless notifications"
+        .toString mustBe "Verify your email address for paperless notifications"
       document.getElementsByClass("flag--urgent").first().text() mustBe "Now"
       document
         .getElementsByTag("p")
@@ -58,7 +57,7 @@ class PendingEmailVerificationSpec extends PlaySpec with GuiceOneAppPerSuite wit
         .getElementsByTag("p")
         .get(1)
         .childNode(0)
-        .toString() mustBe "If you can't find it you can get a new email sent to you from "
+        .toString mustBe "If you can't find it you can get a new email sent to you from "
     }
 
     "render the correct content in welsh" in {
@@ -68,15 +67,14 @@ class PendingEmailVerificationSpec extends PlaySpec with GuiceOneAppPerSuite wit
       val emailPreference = EmailPreference(emailAddress, true, true, false, Some(localDate))
       val errors = Seq((FormError("ErrorKey", Seq("Error Message"), Seq()), "Outer Error Message"))
       val document = Jsoup.parse(
-        pending_email_verification(emailPreference, TestFixtures.sampleHostContext)(welshRequest, messagesInWelsh())
-          .toString()
+        pending_email_verification(emailPreference, TestFixtures.sampleHostContext)(welshRequest, messagesInWelsh()).toString
       )
 
       document
         .getElementsByTag("summary")
         .first()
         .childNode(0)
-        .toString() mustBe "Dilyswch eich cyfeiriad e-bost ar gyfer hysbysiadau di-bapur"
+        .toString mustBe "Dilyswch eich cyfeiriad e-bost ar gyfer hysbysiadau di-bapur"
       document.getElementsByClass("flag--urgent").first().text() mustBe "Nawr"
       document
         .getElementsByTag("p")
@@ -86,7 +84,7 @@ class PendingEmailVerificationSpec extends PlaySpec with GuiceOneAppPerSuite wit
         .getElementsByTag("p")
         .get(1)
         .childNode(0)
-        .toString() mustBe "Os na allwch ddod o hyd iddo, gallwch gael e-bost newydd wedi'i anfon atoch o "
+        .toString mustBe "Os na allwch ddod o hyd iddo, gallwch gael e-bost newydd wedi'i anfon atoch o "
     }
   }
 }

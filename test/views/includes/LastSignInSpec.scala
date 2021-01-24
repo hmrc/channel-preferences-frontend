@@ -30,7 +30,7 @@ class LastSignInSpec extends PlaySpec with GuiceOneAppPerSuite with LanguageHelp
 
   "Last sign in template" should {
     "render the correct content in english" in {
-      val document = Jsoup.parse(last_sign_in(new DateTime(), None)(engRequest, messagesInEnglish()).toString())
+      val document = Jsoup.parse(last_sign_in(new DateTime(), None)(engRequest, messagesInEnglish()).toString)
       document
         .getElementsByClass("last-login__more-details")
         .first()
@@ -44,7 +44,7 @@ class LastSignInSpec extends PlaySpec with GuiceOneAppPerSuite with LanguageHelp
     }
 
     "render the correct content in welsh" in {
-      val document = Jsoup.parse(last_sign_in(new DateTime(), None)(welshRequest, messagesInWelsh()).toString())
+      val document = Jsoup.parse(last_sign_in(new DateTime(), None)(welshRequest, messagesInWelsh()).toString)
       document
         .getElementsByClass("last-login__more-details")
         .first()

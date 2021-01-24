@@ -31,13 +31,13 @@ class SaPrintingPreferenceVerifyEmailSpec
 
   "printing preferences verify email template" should {
     "render the correct content in english" in {
-      val document = Jsoup.parse(template(None, None)(engRequest, messagesInEnglish()).toString())
+      val document = Jsoup.parse(template(None, None)(engRequest, messagesInEnglish()).toString)
 
       document.getElementsByTag("title").first().text() mustBe "Email address verified"
     }
 
     "render the correct content in welsh" in {
-      val document = Jsoup.parse(template(None, None)(welshRequest, messagesInWelsh()).toString())
+      val document = Jsoup.parse(template(None, None)(welshRequest, messagesInWelsh()).toString)
 
       document.getElementsByTag("title").first().text() mustBe "Cyfeiriad e-bost wedi'i ddilysu"
       document.getElementById("success-heading").text() mustBe "Cyfeiriad e-bost wedi'i ddilysu"

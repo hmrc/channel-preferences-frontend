@@ -33,7 +33,7 @@ class ConfirmOptBackIntoPaperSpec extends PlaySpec with GuiceOneAppPerSuite with
     "render the correct content in english" in {
       val email = ObfuscatedEmailAddress("a@a.com")
       val document =
-        Jsoup.parse(template(email)(engRequest, messagesInEnglish(), TestFixtures.sampleHostContext).toString())
+        Jsoup.parse(template(email)(engRequest, messagesInEnglish(), TestFixtures.sampleHostContext).toString)
 
       document.getElementsByTag("title").first().text() mustBe "Confirm how you want to get your tax letters"
       document.getElementsByTag("h1").get(0).text() mustBe "Confirm how you want to get your tax letters"
@@ -47,7 +47,7 @@ class ConfirmOptBackIntoPaperSpec extends PlaySpec with GuiceOneAppPerSuite with
     "render the correct content in welsh" in {
       val email = ObfuscatedEmailAddress("a@a.com")
       val document =
-        Jsoup.parse(template(email)(welshRequest, messagesInWelsh(), TestFixtures.sampleHostContext).toString())
+        Jsoup.parse(template(email)(welshRequest, messagesInWelsh(), TestFixtures.sampleHostContext).toString)
 
       document.getElementsByTag("title").first().text() mustBe "Cadarnhau sut hoffech gael eich llythyrau treth"
       document.getElementsByTag("h1").get(0).text() mustBe "Cadarnhau sut hoffech gael eich llythyrau treth"

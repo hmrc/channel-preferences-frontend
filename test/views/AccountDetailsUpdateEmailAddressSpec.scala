@@ -35,7 +35,7 @@ class AccountDetailsUpdateEmailAddressSpec
       val currentEmail = "a@a.com"
       val form = EmailForm()
       val document = Jsoup.parse(
-        template(currentEmail, form)(engRequest, messagesInEnglish(), TestFixtures.sampleHostContext).toString()
+        template(currentEmail, form)(engRequest, messagesInEnglish(), TestFixtures.sampleHostContext).toString
       )
 
       document.getElementsByTag("title").first().text() mustBe "Change your email address"
@@ -63,7 +63,7 @@ class AccountDetailsUpdateEmailAddressSpec
       val currentEmail = "a@a.com"
       val form = EmailForm()
       val document = Jsoup.parse(
-        template(currentEmail, form)(welshRequest, messagesInWelsh(), TestFixtures.sampleHostContext).toString()
+        template(currentEmail, form)(welshRequest, messagesInWelsh(), TestFixtures.sampleHostContext).toString
       )
 
       document.getElementsByTag("title").first().text() mustBe "Newid eich cyfeiriad e-bost"

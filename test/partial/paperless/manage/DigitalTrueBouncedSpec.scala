@@ -35,7 +35,7 @@ class DigitalTrueBouncedSpec extends PlaySpec with GuiceOneAppPerSuite with Lang
       val emailAddress = "a@a.com"
       val email = EmailPreference(emailAddress, true, true, false, None)
       val document =
-        Jsoup.parse(template(email)(FakeRequest(), messagesInEnglish(), TestFixtures.sampleHostContext).toString())
+        Jsoup.parse(template(email)(FakeRequest(), messagesInEnglish(), TestFixtures.sampleHostContext).toString)
 
       document.getElementById("bouncing-status-message").text() mustBe s"You need to verify $emailAddress"
       document.getElementById("bounce-reason").text() mustBe "The email telling you how to do this can't be delivered."
@@ -46,7 +46,7 @@ class DigitalTrueBouncedSpec extends PlaySpec with GuiceOneAppPerSuite with Lang
       val emailAddress = "b@b.com"
       val email = EmailPreference(emailAddress, true, true, true, None)
       val document =
-        Jsoup.parse(template(email)(FakeRequest(), messagesInEnglish(), TestFixtures.sampleHostContext).toString())
+        Jsoup.parse(template(email)(FakeRequest(), messagesInEnglish(), TestFixtures.sampleHostContext).toString)
 
       document
         .getElementById("bounce-reason")
@@ -58,7 +58,7 @@ class DigitalTrueBouncedSpec extends PlaySpec with GuiceOneAppPerSuite with Lang
       val emailAddress = "a@a.com"
       val email = EmailPreference(emailAddress, true, true, false, None)
       val document =
-        Jsoup.parse(template(email)(welshRequest, messagesInWelsh(), TestFixtures.sampleHostContext).toString())
+        Jsoup.parse(template(email)(welshRequest, messagesInWelsh(), TestFixtures.sampleHostContext).toString)
 
       document.getElementById("bouncing-status-message").text() mustBe s"Mae angen i chi ddilysu $emailAddress"
       document
@@ -71,7 +71,7 @@ class DigitalTrueBouncedSpec extends PlaySpec with GuiceOneAppPerSuite with Lang
       val emailAddress = "b@b.com"
       val email = EmailPreference(emailAddress, true, true, true, None)
       val document =
-        Jsoup.parse(template(email)(welshRequest, messagesInWelsh(), TestFixtures.sampleHostContext).toString())
+        Jsoup.parse(template(email)(welshRequest, messagesInWelsh(), TestFixtures.sampleHostContext).toString)
 
       document
         .getElementById("bounce-reason")

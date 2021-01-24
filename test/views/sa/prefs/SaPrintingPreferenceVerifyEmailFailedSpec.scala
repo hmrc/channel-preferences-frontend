@@ -37,7 +37,7 @@ class SaPrintingPreferenceVerifyEmailFailedSpec
         saPrintingPreferenceVerifyEmailFailed(None, None)(
           AuthenticatedRequest(FakeRequest("GET", "/"), None, None, None, None),
           messagesInEnglish()
-        ).toString()
+        ).toString
       )
 
       document.getElementsByTag("title").first().text() mustBe "Email address already verified"
@@ -45,7 +45,7 @@ class SaPrintingPreferenceVerifyEmailFailedSpec
 
     "render the correct content in welsh" in {
       val document =
-        Jsoup.parse(saPrintingPreferenceVerifyEmailFailed(None, None)(welshRequest, messagesInWelsh()).toString())
+        Jsoup.parse(saPrintingPreferenceVerifyEmailFailed(None, None)(welshRequest, messagesInWelsh()).toString)
 
       document.getElementsByTag("title").first().text() mustBe "Cyfeiriad e-bost wedi'i ddilysu eisoes"
       document.getElementById("failure-heading").text() mustBe "Cyfeiriad e-bost wedi'i ddilysu eisoes"

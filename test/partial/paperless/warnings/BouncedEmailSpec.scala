@@ -31,34 +31,34 @@ class BouncedEmailSpec extends PlaySpec with GuiceOneAppPerSuite with LanguageHe
   "bounced email partial" should {
     "render the correct content in english if the mailbox is full" in {
       val document =
-        Jsoup.parse(bounced_email(true, TestFixtures.sampleHostContext)(FakeRequest(), messagesInEnglish()).toString())
+        Jsoup.parse(bounced_email(true, TestFixtures.sampleHostContext)(FakeRequest(), messagesInEnglish()).toString)
 
       document
         .getElementsByAttributeValue("role", "alert")
         .first()
         .childNodes()
         .get(0)
-        .toString() mustBe "There's a problem with your paperless notification emails "
+        .toString mustBe "There's a problem with your paperless notification emails "
       document.getElementsByClass("flag--urgent").first().text() mustBe "Urgent"
       document.getElementsByTag("p").get(0).text() mustBe "Your inbox is full."
-      document.getElementsByTag("p").get(1).childNodes().get(0).toString() mustBe "Go to "
-      document.getElementsByTag("p").get(1).childNodes().get(2).toString() mustBe " for more information."
+      document.getElementsByTag("p").get(1).childNodes().get(0).toString mustBe "Go to "
+      document.getElementsByTag("p").get(1).childNodes().get(2).toString mustBe " for more information."
     }
 
     "render the correct content in welsh if the mailbox is full" in {
       val document =
-        Jsoup.parse(bounced_email(true, TestFixtures.sampleHostContext)(welshRequest, messagesInWelsh()).toString())
+        Jsoup.parse(bounced_email(true, TestFixtures.sampleHostContext)(welshRequest, messagesInWelsh()).toString)
 
       document
         .getElementsByAttributeValue("role", "alert")
         .first()
         .childNodes()
         .get(0)
-        .toString() mustBe "Mae yna broblem gyda'ch e-byst hysbysu di-bapur "
+        .toString mustBe "Mae yna broblem gyda'ch e-byst hysbysu di-bapur "
       document.getElementsByClass("flag--urgent").first().text() mustBe "Ar frys"
       document.getElementsByTag("p").get(0).text() mustBe "Mae'ch mewnflwch yn llawn."
-      document.getElementsByTag("p").get(1).childNodes().get(0).toString() mustBe "Am ragor o wybodaeth, ewch i "
-      document.getElementsByTag("p").get(1).childNodes().get(2).toString() mustBe " "
+      document.getElementsByTag("p").get(1).childNodes().get(0).toString mustBe "Am ragor o wybodaeth, ewch i "
+      document.getElementsByTag("p").get(1).childNodes().get(2).toString mustBe " "
     }
   }
 }

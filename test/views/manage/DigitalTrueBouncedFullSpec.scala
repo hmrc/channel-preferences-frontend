@@ -39,7 +39,7 @@ class DigitalTrueBouncedFullSpec extends PlaySpec with GuiceOneAppPerSuite with 
       val authRequest = AuthenticatedRequest(FakeRequest(), None, None, None, None)
 
       val document =
-        Jsoup.parse(template(email)(authRequest, messagesInEnglish(), TestFixtures.sampleHostContext).toString())
+        Jsoup.parse(template(email)(authRequest, messagesInEnglish(), TestFixtures.sampleHostContext).toString)
       document.getElementsByClass("govuk-link").get(2).attr("href") must be(
         "/paperless/email-address/delivery-failed?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"
       )
@@ -50,7 +50,7 @@ class DigitalTrueBouncedFullSpec extends PlaySpec with GuiceOneAppPerSuite with 
       val emailAddress = "a@a.com"
       val email = EmailPreference(emailAddress, true, true, false, None)
       val document =
-        Jsoup.parse(template(email)(welshRequest, messagesInWelsh(), TestFixtures.sampleHostContext).toString())
+        Jsoup.parse(template(email)(welshRequest, messagesInWelsh(), TestFixtures.sampleHostContext).toString)
 
       document.getElementById("saCheckSettings").text() mustBe "Gwirio’ch gosodiadau"
     }

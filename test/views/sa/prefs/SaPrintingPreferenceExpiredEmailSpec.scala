@@ -32,8 +32,8 @@ class SaPrintingPreferenceExpiredEmailSpec
 
   "printing preferences expired emai; template" should {
     "render the correct content in english" in {
-      val foo = saPrintingPreferenceExpiredEmail()(engRequest, messagesInEnglish()).toString()
-      val document = Jsoup.parse(saPrintingPreferenceExpiredEmail()(engRequest, messagesInEnglish()).toString())
+      val foo = saPrintingPreferenceExpiredEmail()(engRequest, messagesInEnglish()).toString
+      val document = Jsoup.parse(saPrintingPreferenceExpiredEmail()(engRequest, messagesInEnglish()).toString)
 
       document
         .getElementById("link-to-home")
@@ -44,7 +44,7 @@ class SaPrintingPreferenceExpiredEmailSpec
     }
 
     "render the correct content in welsh" in {
-      val document = Jsoup.parse(saPrintingPreferenceExpiredEmail()(welshRequest, messagesInWelsh()).toString())
+      val document = Jsoup.parse(saPrintingPreferenceExpiredEmail()(welshRequest, messagesInWelsh()).toString)
 
       document.getElementsByTag("title").first().text() mustBe "NID yw'ch cyfeiriad e-bost wedi'i ddilysu"
       document

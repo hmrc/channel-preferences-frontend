@@ -33,7 +33,7 @@ class AccountDetailsUpdateEmailAddressVerifyEmailSpec
     "render the correct content in english" in {
       val email = "a@a.com"
       val document =
-        Jsoup.parse(template(email)(engRequest, messagesInEnglish(), TestFixtures.sampleHostContext).toString())
+        Jsoup.parse(template(email)(engRequest, messagesInEnglish(), TestFixtures.sampleHostContext).toString)
 
       document.getElementsByTag("title").first().text() mustBe "Check your email address"
       document.getElementsByTag("h1").get(0).text() mustBe "Check your email address"
@@ -45,7 +45,7 @@ class AccountDetailsUpdateEmailAddressVerifyEmailSpec
     "render the correct content in welsh" in {
       val email = "a@a.com"
       val document =
-        Jsoup.parse(template(email)(welshRequest, messagesInWelsh(), TestFixtures.sampleHostContext).toString())
+        Jsoup.parse(template(email)(welshRequest, messagesInWelsh(), TestFixtures.sampleHostContext).toString)
 
       document.getElementsByTag("title").first().text() mustBe "Gwirio'ch cyfeiriad e-bost"
       document.getElementsByTag("h1").get(0).text() mustBe "Gwirio'ch cyfeiriad e-bost"

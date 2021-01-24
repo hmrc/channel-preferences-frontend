@@ -30,12 +30,12 @@ class HeaderNavLinksSpec extends PlaySpec with GuiceOneAppPerSuite with Language
 
   "Header Nav Links" should {
     "Display the sign out text from messages" in {
-      val document = Jsoup.parse(template()(engRequest, messagesInEnglish()).toString())
+      val document = Jsoup.parse(template()(engRequest, messagesInEnglish()).toString)
       document.getElementById("logOutNavHref").text() mustBe "Sign out"
     }
 
     "Display the sign out text from messages in welsh" in {
-      val document = Jsoup.parse(template()(welshRequest, messagesInWelsh()).toString())
+      val document = Jsoup.parse(template()(welshRequest, messagesInWelsh()).toString)
       document.getElementById("logOutNavHref").text() mustBe "Allgofnodi"
     }
   }

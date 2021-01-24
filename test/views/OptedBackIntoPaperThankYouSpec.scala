@@ -32,7 +32,7 @@ class OptedBackIntoPaperThankYouSpec extends PlaySpec with GuiceOneAppPerSuite w
   "opted back into paper template" should {
     "render the correct content in english" in {
       val email = ObfuscatedEmailAddress("a@a.com")
-      val document = Jsoup.parse(template()(engRequest, messagesInEnglish(), TestFixtures.sampleHostContext).toString())
+      val document = Jsoup.parse(template()(engRequest, messagesInEnglish(), TestFixtures.sampleHostContext).toString)
 
       document.getElementsByTag("title").get(0).text() mustBe "Paperless notifications have stopped"
       document.getElementsByTag("h1").get(0).text() mustBe "Paperless notifications have stopped"
@@ -43,7 +43,7 @@ class OptedBackIntoPaperThankYouSpec extends PlaySpec with GuiceOneAppPerSuite w
 
     "render the correct content in welsh" in {
       val email = ObfuscatedEmailAddress("a@a.com")
-      val document = Jsoup.parse(template()(welshRequest, messagesInWelsh(), TestFixtures.sampleHostContext).toString())
+      val document = Jsoup.parse(template()(welshRequest, messagesInWelsh(), TestFixtures.sampleHostContext).toString)
 
       document.getElementsByTag("title").get(0).text() mustBe "Mae hysbysiadau di-bapur wedi dod i ben"
       document.getElementsByTag("h1").get(0).text() mustBe "Mae hysbysiadau di-bapur wedi dod i ben"

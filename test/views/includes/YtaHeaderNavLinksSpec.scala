@@ -30,7 +30,7 @@ class YtaHeaderNavLinksSpec extends PlaySpec with GuiceOneAppPerSuite with Langu
 
   "Yta Header Nav Links" should {
     "render the correct content in english" in {
-      val document = Jsoup.parse(template()(engRequest, messagesInEnglish()).toString())
+      val document = Jsoup.parse(template()(engRequest, messagesInEnglish()).toString)
       document.getElementById("homeNavHref").text() mustBe "Home"
       document.getElementById("accountDetailsNavHref").text() mustBe "Manage account"
       document.getElementsByAttributeValue("href", "/contact/contact-hmrc").text() mustBe "Help and contact"
@@ -38,7 +38,7 @@ class YtaHeaderNavLinksSpec extends PlaySpec with GuiceOneAppPerSuite with Langu
     }
 
     "render the correct content in welsh" in {
-      val document = Jsoup.parse(template()(welshRequest, messagesInWelsh()).toString())
+      val document = Jsoup.parse(template()(welshRequest, messagesInWelsh()).toString)
       document.getElementById("homeNavHref").text() mustBe "Hafan"
       document.getElementById("accountDetailsNavHref").text() mustBe "Rheoli'r cyfrif"
       document.getElementsByAttributeValue("href", "/contact/contact-hmrc").text() mustBe "Help a chysylltu"

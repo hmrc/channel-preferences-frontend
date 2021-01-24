@@ -38,7 +38,7 @@ class ReadOnlyTcPage9Spec extends PlaySpec with GuiceOneAppPerSuite with Languag
         template(form, internal.routes.ChoosePaperlessController.submitForm(TestFixtures.sampleHostContext))(
           engRequest,
           messagesInEnglish()
-        ).toString()
+        ).toString
       )
       document.getElementsByClass("govuk-header__link--service-name").get(0).text() mustBe "Tax credits service"
       document.getElementById("email-display").text() mustBe s"The email address we will store securely is $email"
@@ -68,7 +68,7 @@ class ReadOnlyTcPage9Spec extends PlaySpec with GuiceOneAppPerSuite with Languag
         template(form, internal.routes.ChoosePaperlessController.submitForm(TestFixtures.sampleHostContext))(
           welshRequest,
           messagesInWelsh()
-        ).toString()
+        ).toString
       )
       document
         .getElementsByTag("title")
@@ -100,7 +100,7 @@ class ReadOnlyTcPage9Spec extends PlaySpec with GuiceOneAppPerSuite with Languag
         .get(3)
         .toString
         .contains("Rwy'n cytuno â'r")
-      document.getElementById("terms-and-conditions").childNodes().get(0).toString() mustBe "telerau ac amodau"
+      document.getElementById("terms-and-conditions").childNodes().get(0).toString mustBe "telerau ac amodau"
       document.getElementsByClass("govuk-radios__label").get(0).text() mustBe "Iawn, storiwch fy nghyfeiriad e-bost"
       document
         .getElementsByClass("govuk-radios__label")

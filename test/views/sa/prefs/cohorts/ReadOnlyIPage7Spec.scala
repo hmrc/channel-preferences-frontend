@@ -37,7 +37,7 @@ class ReadOnlyIPage7Spec extends PlaySpec with GuiceOneAppPerSuite with Language
         template(form, internal.routes.ChoosePaperlessController.submitForm(TestFixtures.sampleHostContext))(
           engRequest,
           messagesInEnglish()
-        ).toString()
+        ).toString
       )
 
       document
@@ -113,7 +113,7 @@ class ReadOnlyIPage7Spec extends PlaySpec with GuiceOneAppPerSuite with Language
         template(form, internal.routes.ChoosePaperlessController.submitForm(TestFixtures.sampleHostContext))(
           welshRequest,
           messagesInWelsh()
-        ).toString()
+        ).toString
       )
 
       document

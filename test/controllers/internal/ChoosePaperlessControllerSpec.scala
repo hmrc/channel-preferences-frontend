@@ -409,7 +409,7 @@ class ChoosePaperlessControllerSpec
       header("Location", page).get must include(
         routes.ChoosePaperlessController
           .displayNearlyDone(Some(Encrypted(EmailAddress(emailAddress))), TestFixtures.sampleHostContext)
-          .toString()
+          .toString
       )
 
       verify(mockEmailConnector).isValid(is(emailAddress))(any())
@@ -434,7 +434,7 @@ class ChoosePaperlessControllerSpec
       header("Location", page).get must include(
         routes.ChoosePaperlessController
           .displayNearlyDone(Some(Encrypted(EmailAddress(emailAddress))), TestFixtures.sampleHostContext)
-          .toString()
+          .toString
       )
 
       verify(mockEntityResolverConnector)
@@ -468,7 +468,7 @@ class ChoosePaperlessControllerSpec
       header("Location", page).get must include(
         routes.ChoosePaperlessController
           .displayNearlyDone(Some(Encrypted(EmailAddress(emailAddress))), TestFixtures.sampleHostContext)
-          .toString()
+          .toString
       )
 
       verify(mockEmailConnector).isValid(is(emailAddress))(any())
@@ -548,7 +548,7 @@ class ChoosePaperlessControllerSpec
       header("Location", page).get must include(
         routes.ChoosePaperlessController
           .displayNearlyDone(Some(Encrypted(EmailAddress(emailAddress))), TestFixtures.sampleHostContext)
-          .toString()
+          .toString
       )
 
       verify(mockEntityResolverConnector)
@@ -578,7 +578,7 @@ class ChoosePaperlessControllerSpec
       header("Location", page).get must include(
         routes.ChoosePaperlessController
           .displayNearlyDone(Some(Encrypted(EmailAddress(emailAddress))), TestFixtures.sampleHostContext)
-          .toString()
+          .toString
       )
 
       verify(mockEntityResolverConnector)
@@ -1155,7 +1155,7 @@ class ChoosePaperlessControllerSpecTC
       header("Location", page).get must include(
         routes.ChoosePaperlessController
           .displayNearlyDone(Some(Encrypted(EmailAddress(emailAddress))), TestFixtures.taxCreditsHostContext(""))
-          .toString()
+          .toString
       )
 
       verify(mockEmailConnector).isValid(is(emailAddress))(any())
@@ -1187,7 +1187,7 @@ class ChoosePaperlessControllerSpecTC
       header("Location", page).get must include(
         routes.ChoosePaperlessController
           .displayNearlyDone(Some(Encrypted(EmailAddress(emailAddress))), TestFixtures.taxCreditsHostContext(""))
-          .toString()
+          .toString
       )
 
       verify(mockEntityResolverConnector)
@@ -1221,7 +1221,7 @@ class ChoosePaperlessControllerSpecTC
       header("Location", page).get must include(
         routes.ChoosePaperlessController
           .displayNearlyDone(Some(Encrypted(EmailAddress(emailAddress))), TestFixtures.taxCreditsHostContext(""))
-          .toString()
+          .toString
       )
 
       verify(mockEmailConnector).isValid(is(emailAddress))(any())
@@ -1308,7 +1308,7 @@ class ChoosePaperlessControllerSpecTC
       header("Location", page).get must include(
         routes.ChoosePaperlessController
           .displayNearlyDone(Some(Encrypted(EmailAddress(emailAddress))), TestFixtures.taxCreditsHostContext(""))
-          .toString()
+          .toString
       )
 
       verify(mockEntityResolverConnector)

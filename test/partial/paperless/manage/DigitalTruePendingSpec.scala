@@ -39,24 +39,24 @@ class DigitalTruePendingSpec extends PlaySpec with GuiceOneAppPerSuite with Lang
       val formattedLocalDate = DateFormat.longDateFormat(Some(localDate))
       val email = EmailPreference(emailAddress, true, true, false, Some(localDate))
       val document =
-        Jsoup.parse(template(email)(FakeRequest(), messagesInEnglish(), TestFixtures.sampleHostContext).toString())
+        Jsoup.parse(template(email)(FakeRequest(), messagesInEnglish(), TestFixtures.sampleHostContext).toString)
 
       document.getElementById("saEmailRemindersHeader").text() mustBe "Email for paperless notifications"
       document.getElementsByTag("p").get(0).text() mustBe "You need to verify your email address."
-      document.getElementById("pending-status-message").childNodes().get(0).toString() mustBe "An email was sent to "
+      document.getElementById("pending-status-message").childNodes().get(0).toString mustBe "An email was sent to "
       document
         .getElementById("pending-status-message")
         .childNodes()
         .get(1)
         .childNodes()
         .get(0)
-        .toString() mustBe emailAddress
+        .toString mustBe emailAddress
       document
         .getElementById("pending-status-message")
         .childNodes()
         .get(2)
-        .toString() mustBe s" on ${formattedLocalDate.get}. Click on the link in the email to verify your email address."
-      document.getElementsByTag("p").get(2).childNodes().get(0).toString() mustBe " If you can't find it, we can "
+        .toString mustBe s" on ${formattedLocalDate.get}. Click on the link in the email to verify your email address."
+      document.getElementsByTag("p").get(2).childNodes().get(0).toString mustBe " If you can't find it, we can "
       document.getElementById("resend-email-button").text() mustBe "Send a new verification email"
     }
 
@@ -66,24 +66,24 @@ class DigitalTruePendingSpec extends PlaySpec with GuiceOneAppPerSuite with Lang
       val formattedLocalDate = DateFormat.longDateFormat(Some(localDate))
       val email = EmailPreference(emailAddress, true, true, false, Some(localDate))
       val document =
-        Jsoup.parse(template(email)(welshRequest, messagesInWelsh(), TestFixtures.sampleHostContext).toString())
+        Jsoup.parse(template(email)(welshRequest, messagesInWelsh(), TestFixtures.sampleHostContext).toString)
 
       document.getElementById("saEmailRemindersHeader").text() mustBe "E-bost ar gyfer hysbysiadau di-bapur"
       document.getElementsByTag("p").get(0).text() mustBe "Mae angen i chi ddilysuch cyfeiriad e-bost."
-      document.getElementById("pending-status-message").childNodes().get(0).toString() mustBe "Anfonwyd e-bost at "
+      document.getElementById("pending-status-message").childNodes().get(0).toString mustBe "Anfonwyd e-bost at "
       document
         .getElementById("pending-status-message")
         .childNodes()
         .get(1)
         .childNodes()
         .get(0)
-        .toString() mustBe emailAddress
+        .toString mustBe emailAddress
       document
         .getElementById("pending-status-message")
         .childNodes()
         .get(2)
-        .toString() mustBe s" ar ${formattedLocalDate.get}. Cliciwch ar y cysylltiad yn yr e-bost er mwyn dilysu'ch cyfeiriad e-bost."
-      document.getElementsByTag("p").get(2).childNodes().get(0).toString() mustBe " Os na allwch ddod o hyd iddo, "
+        .toString mustBe s" ar ${formattedLocalDate.get}. Cliciwch ar y cysylltiad yn yr e-bost er mwyn dilysu'ch cyfeiriad e-bost."
+      document.getElementsByTag("p").get(2).childNodes().get(0).toString mustBe " Os na allwch ddod o hyd iddo, "
       document.getElementById("resend-email-button").text() mustBe "Gallwch gael e-bost newydd wedi'i anfon atoch o"
     }
   }

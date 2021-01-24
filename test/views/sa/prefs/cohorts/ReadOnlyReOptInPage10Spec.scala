@@ -37,7 +37,7 @@ class ReadOnlyReOptInPage10Spec extends PlaySpec with GuiceOneAppPerSuite with L
         template(form, internal.routes.ChoosePaperlessController.submitForm(TestFixtures.sampleHostContext))(
           engRequest,
           messagesInEnglish()
-        ).toString()
+        ).toString
       )
 
       document
@@ -114,7 +114,7 @@ class ReadOnlyReOptInPage10Spec extends PlaySpec with GuiceOneAppPerSuite with L
         template(form, internal.routes.ChoosePaperlessController.submitForm(TestFixtures.sampleHostContext))(
           welshRequest,
           messagesInWelsh()
-        ).toString()
+        ).toString
       )
 
       document

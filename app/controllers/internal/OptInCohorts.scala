@@ -58,7 +58,7 @@ object OptInCohort {
       "majorVersion" -> optInCohort.majorVersion,
       "minorVersion" -> optInCohort.minorVersion,
       "description"  -> optInCohort.description,
-      "date"         -> optInCohort.date.toString()
+      "date"         -> optInCohort.date.toString
     )
   }
   val listCohortWrites: Writes[List[OptInCohort]] = Writes { seq =>

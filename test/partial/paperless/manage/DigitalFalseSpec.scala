@@ -30,7 +30,7 @@ class DigitalFalseSpec extends PlaySpec with GuiceOneAppPerSuite with LanguageHe
 
   "digital false partial" should {
     "render the correct content in english" in {
-      val document = Jsoup.parse(template(None)(TestFixtures.sampleHostContext, messagesInEnglish()).toString())
+      val document = Jsoup.parse(template(None)(TestFixtures.sampleHostContext, messagesInEnglish()).toString)
 
       document.getElementById("saEmailRemindersHeader").text() mustBe "Go paperless"
       document
@@ -40,7 +40,7 @@ class DigitalFalseSpec extends PlaySpec with GuiceOneAppPerSuite with LanguageHe
     }
 
     "render the correct content in welsh" in {
-      val document = Jsoup.parse(template(None)(TestFixtures.sampleHostContext, messagesInWelsh()).toString())
+      val document = Jsoup.parse(template(None)(TestFixtures.sampleHostContext, messagesInWelsh()).toString)
 
       document.getElementById("saEmailRemindersHeader").text() mustBe "Ewch yn ddi-bapur"
       document

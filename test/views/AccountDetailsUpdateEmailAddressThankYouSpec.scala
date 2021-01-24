@@ -34,7 +34,7 @@ class AccountDetailsUpdateEmailAddressThankYouSpec
     "render the correct content in english" in {
       val currentEmail = ObfuscatedEmailAddress("a@a.com")
       val document =
-        Jsoup.parse(template(currentEmail)(engRequest, messagesInEnglish(), TestFixtures.sampleHostContext).toString())
+        Jsoup.parse(template(currentEmail)(engRequest, messagesInEnglish(), TestFixtures.sampleHostContext).toString)
 
       document.getElementsByTag("title").first().text() mustBe "Verify your new email address"
       document.getElementsByTag("h1").get(0).text() mustBe "Verify your new email address"
@@ -59,7 +59,7 @@ class AccountDetailsUpdateEmailAddressThankYouSpec
     "render the correct content in welsh" in {
       val currentEmail = ObfuscatedEmailAddress("a@a.com")
       val document =
-        Jsoup.parse(template(currentEmail)(welshRequest, messagesInWelsh(), TestFixtures.sampleHostContext).toString())
+        Jsoup.parse(template(currentEmail)(welshRequest, messagesInWelsh(), TestFixtures.sampleHostContext).toString)
 
       document.getElementsByTag("title").first().text() mustBe "Dilysu'ch cyfeiriad e-bost newydd"
       document.getElementsByTag("h1").get(0).text() mustBe "Dilysu'ch cyfeiriad e-bost newydd"
