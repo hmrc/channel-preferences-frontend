@@ -31,7 +31,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.Result
 import play.api.test.Helpers._
 import play.api.test._
-import uk.gov.hmrc.channelpreferencesfrontend.controllers.ProxyController
+import uk.gov.hmrc.proxy.ProxyController
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
