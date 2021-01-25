@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.channelpreferencesfrontend.controllers
-
-import java.util.UUID.randomUUID
+package uk.gov.hmrc.proxy
 
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
-import javax.inject.Inject
 import org.slf4j.MDC
 import play.api.Logger
 import play.api.libs.streams.Accumulator
 import play.api.mvc._
 import uk.gov.hmrc.channelpreferencesfrontend.connectors.OutboundProxyConnector
-
-import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+
+import java.util.UUID.randomUUID
+import javax.inject.Inject
+import scala.concurrent.ExecutionContext
 // $COVERAGE-OFF$
 @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
 class ProxyController @Inject()(
