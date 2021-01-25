@@ -29,7 +29,7 @@ object AppDependencies {
     "com.netaporter"    %% "scala-uri"                  % "0.4.16",
     "com.typesafe.play" %% "play-json-joda"             % "2.6.13",
     "org.webjars.npm"    % "govuk-frontend"             % "3.10.2",
-    "uk.gov.hmrc"       %% "auth-client"                % "3.2.0-play-27",
+    "uk.gov.hmrc"       %% "auth-client"                % "3.3.0-play-27",
     "uk.gov.hmrc"       %% "bootstrap-frontend-play-27" % "3.3.0",
     "uk.gov.hmrc"       %% "domain"                     % "5.10.0-play-27",
     "uk.gov.hmrc"       %% "emailaddress"               % "3.5.0",

@@ -20,7 +20,7 @@ import com.lucidchart.sbt.scalafmt.ScalafmtCorePlugin.autoImport._
 import uk.gov.hmrc.ExternalService
 import uk.gov.hmrc.SbtBobbyPlugin.BobbyKeys.bobbyRulesURL
 import uk.gov.hmrc.ServiceManagerPlugin.Keys.itDependenciesList
-import play.twirl.sbt.Import.TwirlKeys
+import play.twirl.sbt.Import.TwirlKeys._
 
 val appName = "channel-preferences-frontend"
 
@@ -42,6 +42,18 @@ lazy val externalServices = List(
   ExternalService("IDENTITY_VERIFICATION", enableTestOnlyEndpoints = true),
   ExternalService("EMAIL")
 )
+
+ThisBuild / majorVersion := 0
+ThisBuild / scalaVersion := "2.12.12"
+
+//ThisBuild / libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test
+
+// ThisBuild / TwirlKeys.templateImports ++= Seq(
+//       "uk.gov.hmrc.channelpreferencesfrontend.config.AppConfig",
+//       "uk.gov.hmrc.govukfrontend.views.html.components._",
+//       "uk.gov.hmrc.govukfrontend.views.html.helpers._",
+//       "uk.gov.hmrc.hmrcfrontend.views.html.components._"
+//     )
 
 lazy val wartremoverSettings =
   Seq(
@@ -165,6 +177,8 @@ lazy val microservice = Project(appName, file("."))
     resolvers += Resolver.bintrayRepo("hmrc", "releases"),
     resolvers += "hmrc-releases" at "https://artefacts.tax.service.gov.uk/artifactory/hmrc-releases/"
   )
+  .dependsOn(legacyPreferencesFrontend)
+  .aggregate(legacyPreferencesFrontend)
 
 //lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
 //compileScalastyle := scalastyle.in(Compile).toTask("").value
@@ -207,3 +221,32 @@ val codeStyleIntegrationTest = taskKey[Unit]("enforce code style then integratio
 //     codeStyleIntegrationTest := scalastyle.in(IntegrationTest).toTask("").value,
 //     (test in IntegrationTest) := ((test in IntegrationTest) dependsOn codeStyleIntegrationTest).value
 //   )
+
+lazy val legacyPreferencesFrontend = project
+  .enablePlugins(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, BuildInfoPlugin)
+  .disablePlugins(JUnitXmlReportPlugin) // Required to prevent https://github.com/scalatest/scalatest/issues/1427
+  .settings(scalaSettings: _*)
+  .settings(defaultSettings(): _*)
+  .settings(publishingSettings: _*)
+  .configs(IntegrationTest)
+  .settings(integrationTestSettings(): _*)
+  .settings(
+    majorVersion := 0,
+    scalaVersion := "2.12.12",
+    TwirlKeys.templateImports ++= Seq(
+      "uk.gov.hmrc.channelpreferencesfrontend.config.AppConfig",
+      "uk.gov.hmrc.govukfrontend.views.html.components._",
+      "uk.gov.hmrc.govukfrontend.views.html.helpers._",
+      "uk.gov.hmrc.hmrcfrontend.views.html.components._"
+    )
+  )
+  .settings(
+    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
+    buildInfoPackage := "uk.gov.hmrc.channelpreferencesfrontend",
+    parallelExecution in IntegrationTest := false
+  )
+  .settings(
+    resolvers += Resolver.jcenterRepo,
+    resolvers += Resolver.bintrayRepo("hmrc", "releases"),
+    resolvers += "hmrc-releases" at "https://artefacts.tax.service.gov.uk/artifactory/hmrc-releases/"
+  )
