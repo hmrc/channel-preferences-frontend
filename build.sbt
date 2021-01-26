@@ -178,7 +178,7 @@ lazy val microservice = Project(appName, file("."))
     resolvers += "hmrc-releases" at "https://artefacts.tax.service.gov.uk/artifactory/hmrc-releases/"
   )
   .dependsOn(legacyPreferencesFrontend)
-  .aggregate(legacyPreferencesFrontend)
+//.aggregate(legacyPreferencesFrontend)
 
 //lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
 //compileScalastyle := scalastyle.in(Compile).toTask("").value
