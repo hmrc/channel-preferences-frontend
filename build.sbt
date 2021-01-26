@@ -264,3 +264,47 @@ lazy val legacyPreferencesFrontend = project
     resolvers += Resolver.bintrayRepo("hmrc", "releases"),
     resolvers += "hmrc-releases" at "https://artefacts.tax.service.gov.uk/artifactory/hmrc-releases/"
   )
+  .dependsOn(cpf)
+
+lazy val cpf = project
+  .enablePlugins(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, BuildInfoPlugin)
+  .disablePlugins(JUnitXmlReportPlugin) // Required to prevent https://github.com/scalatest/scalatest/issues/1427
+  .settings(scalaSettings: _*)
+  .settings(defaultSettings(): _*)
+  .settings(publishingSettings: _*)
+  .configs(IntegrationTest)
+  .settings(integrationTestSettings(): _*)
+  .settings(
+    majorVersion := 0,
+    scalaVersion := "2.12.12",
+    libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
+    TwirlKeys.templateImports ++= Seq(
+      "uk.gov.hmrc.channelpreferencesfrontend.config.AppConfig",
+      "uk.gov.hmrc.govukfrontend.views.html.components._",
+      "uk.gov.hmrc.govukfrontend.views.html.helpers._",
+      "uk.gov.hmrc.hmrcfrontend.views.html.components._"
+    )
+  )
+  .settings(
+    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
+    buildInfoPackage := "uk.gov.hmrc.channelpreferencesfrontend",
+    parallelExecution in IntegrationTest := false
+  )
+  .settings(
+    resolvers += Resolver.jcenterRepo,
+    inConfig(IntegrationTest)(
+      scalafmtCoreSettings ++
+        Seq(compileInputs in compile := Def.taskDyn {
+          val task = test in (resolvedScoped.value.scope in scalafmt.key)
+          val previousInputs = (compileInputs in compile).value
+          task.map(_ => previousInputs)
+        }.value)
+    )
+  )
+  .settings(ServiceManagerPlugin.serviceManagerSettings)
+  .settings(itDependenciesList := externalServices)
+  .settings(
+    resolvers += Resolver.jcenterRepo,
+    resolvers += Resolver.bintrayRepo("hmrc", "releases"),
+    resolvers += "hmrc-releases" at "https://artefacts.tax.service.gov.uk/artifactory/hmrc-releases/"
+  )
