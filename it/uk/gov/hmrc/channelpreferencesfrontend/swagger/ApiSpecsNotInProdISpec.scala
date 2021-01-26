@@ -27,7 +27,8 @@ class ApiSpecsNotInProdISpec extends PlaySpec with GuiceOneAppPerSuite {
 
   override lazy val app = new GuiceApplicationBuilder()
     .configure(
-      "play.filters.csrf.header.bypassHeaders.Csrf-Token" -> "nocheck"
+      "play.filters.csrf.header.bypassHeaders.Csrf-Token" -> "nocheck",
+      "play.http.router"                                  -> "prod.Routes"
     )
     .build()
 
@@ -35,12 +36,12 @@ class ApiSpecsNotInProdISpec extends PlaySpec with GuiceOneAppPerSuite {
 
   "calling the swagger route on production" must {
 
-    "return a NOT FOUND response" in {
+    "should not return an OK response" in {
 
       val fakeRequest = FakeRequest(GET, s"/channel-preferences-frontend/api/schema.json")
         .withHeaders("Csrf-Token" -> "nocheck")
 
-      route(app, fakeRequest).map(status(_) mustBe NOT_FOUND)
+      route(app, fakeRequest).map(status(_) must not be (OK))
     }
   }
 }

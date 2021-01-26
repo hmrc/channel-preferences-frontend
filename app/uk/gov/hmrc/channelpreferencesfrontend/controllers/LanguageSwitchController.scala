@@ -32,10 +32,10 @@ class LanguageSwitchController @Inject()(appConfig: AppConfig, languageUtils: La
   override def fallbackURL: String =
     "https://www.gov.uk/government/organisations/hm-revenue-customs"
 
-  def switchToLanguage(language: Language): Action[AnyContent] = super.switchToLanguage(language.lang.code)
+  def selectLanguage(language: Language): Action[AnyContent] = super.switchToLanguage(language.lang.code)
 
   override protected def languageMap: Map[String, Lang] =
-    if (appConfig.welshTranslationEnabled) {
+    if (appConfig.languageTranslationEnabled) {
       Map(en -> Lang(en), cy -> Lang(cy))
     } else {
       Map(en -> Lang(en))

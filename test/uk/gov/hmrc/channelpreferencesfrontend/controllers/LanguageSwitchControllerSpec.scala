@@ -30,7 +30,7 @@ class LanguageSwitchControllerSpec extends SpecBase with MustMatchers with Optio
     "set the language to Cymraeg" in {
       val application = applicationBuilder()
         .configure(
-          "features.welshTranslationEnabled" -> true
+          "features.languageTranslationEnabled" -> true
         )
         .build()
 
@@ -38,7 +38,7 @@ class LanguageSwitchControllerSpec extends SpecBase with MustMatchers with Optio
         val request = FakeRequest(
           GET,
           routes.LanguageSwitchController
-            .switchToLanguage(models.Language.Cymraeg)
+            .selectLanguage(models.Language.Cymraeg)
             .url)
 
         val result = route(application, request).value
@@ -51,7 +51,7 @@ class LanguageSwitchControllerSpec extends SpecBase with MustMatchers with Optio
     "set the language to English" in {
       val application = applicationBuilder()
         .configure(
-          "features.welshTranslationEnabled" -> true
+          "features.languageTranslationEnabled" -> true
         )
         .build()
 
@@ -59,7 +59,7 @@ class LanguageSwitchControllerSpec extends SpecBase with MustMatchers with Optio
         val request = FakeRequest(
           GET,
           routes.LanguageSwitchController
-            .switchToLanguage(models.Language.English)
+            .selectLanguage(models.Language.English)
             .url)
 
         val result = route(application, request).value
@@ -75,15 +75,15 @@ class LanguageSwitchControllerSpec extends SpecBase with MustMatchers with Optio
     "should set the language to English regardless of what is requested" in {
       val application = applicationBuilder()
         .configure(
-          "features.welshTranslationEnabled" -> false
+          "features.languageTranslationEnabled" -> false
         )
         .build()
 
       running(application) {
         val cymraegRequest =
-          FakeRequest(GET, routes.LanguageSwitchController.switchToLanguage(models.Language.Cymraeg).url)
+          FakeRequest(GET, routes.LanguageSwitchController.selectLanguage(models.Language.Cymraeg).url)
         val englishRequest =
-          FakeRequest(GET, routes.LanguageSwitchController.switchToLanguage(models.Language.English).url)
+          FakeRequest(GET, routes.LanguageSwitchController.selectLanguage(models.Language.English).url)
 
         val cymraegResult = route(application, cymraegRequest).value
         val englishResult = route(application, englishRequest).value

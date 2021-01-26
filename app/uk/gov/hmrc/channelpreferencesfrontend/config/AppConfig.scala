@@ -23,8 +23,8 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 @Singleton
 class AppConfig @Inject()(servicesConfig: ServicesConfig) {
 
-  lazy val welshTranslationEnabled: Boolean =
-    servicesConfig.getBoolean("features.welshTranslationEnabled")
+  lazy val languageTranslationEnabled: Boolean =
+    servicesConfig.getBoolean("features.languageTranslationEnabled")
 
   val en: String = "en"
   val cy: String = "cy"
