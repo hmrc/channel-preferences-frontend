@@ -233,6 +233,7 @@ lazy val legacyPreferencesFrontend = project
   .settings(
     majorVersion := 0,
     scalaVersion := "2.12.12",
+    libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
     TwirlKeys.templateImports ++= Seq(
       "uk.gov.hmrc.channelpreferencesfrontend.config.AppConfig",
       "uk.gov.hmrc.govukfrontend.views.html.components._",
