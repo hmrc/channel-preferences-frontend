@@ -23,7 +23,7 @@ import play.api.mvc._
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 @Singleton
-class ApiSpecs @Inject()(
+class ApiSpecsController @Inject()(
   mcc: MessagesControllerComponents
 ) extends FrontendController(mcc) {
 

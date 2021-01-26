@@ -14,17 +14,8 @@
  * limitations under the License.
  */
 
-import sbt.Keys.parallelExecution
-import scoverage.ScoverageKeys
-import sbt._
+package uk.gov.hmrc.channelpreferencesfrontend.models
 
-object ScoverageSettings {
-  def apply(): Seq[Def.Setting[_ >: String with Double with Boolean]] =
-    Seq( // Semicolon-separated list of regexes matching classes to exclude
-      ScoverageKeys.coverageExcludedPackages := "<empty>;.*Reverse.*;.*(config|testonly|views).*;.*(BuildInfo|Routes).*",
-      ScoverageKeys.coverageMinimum := 97.56,
-      ScoverageKeys.coverageFailOnMinimum := true,
-      ScoverageKeys.coverageHighlighting := true,
-      parallelExecution in ConfigKey.configurationToKey(Test) := false
-    )
+class WithName(string: String) {
+  override val toString: String = string
 }

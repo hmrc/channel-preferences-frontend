@@ -22,23 +22,25 @@ import play.api.http.Status
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.api.{ Configuration, Environment }
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.tools.Stubs.stubMessagesControllerComponents
 import uk.gov.hmrc.channelpreferencesfrontend.config.AppConfig
 import uk.gov.hmrc.channelpreferencesfrontend.views.html.HelloWorldPage
 
 @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
 class HelloWorldControllerSpec extends PlaySpec with GuiceOneAppPerSuite {
-  private val fakeRequest = FakeRequest("GET", "/")
+  private val fakeRequest = FakeRequest("GET", "/hello-world")
 
   private val env = Environment.simple()
   private val configuration = Configuration.load(env)
-  private val appConfig = new AppConfig(configuration)
+  private val serviceConfigs = new ServicesConfig(configuration)
+  private val appConfig = new AppConfig(serviceConfigs)
 
   val helloWorldPage: HelloWorldPage = app.injector.instanceOf[HelloWorldPage]
 
   private val controller = new HelloWorldController(appConfig, stubMessagesControllerComponents(), helloWorldPage)
 
-  "GET /" should {
+  "GET /hello-world" should {
     "return 200" in {
       val result = controller.helloWorld(fakeRequest)
       status(result) mustBe Status.OK
