@@ -143,7 +143,7 @@ lazy val microservice = Project(appName, file("."))
   // .dependsOn(cpf)
   // .aggregate(cpf)
   .dependsOn(legacyPreferencesFrontend)
-  .aggregate(legacyPreferencesFrontend)
+  //.aggregate(legacyPreferencesFrontend)
 
 lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
 compileScalastyle := scalastyle.in(Compile).toTask("").value
