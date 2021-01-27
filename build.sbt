@@ -119,7 +119,12 @@ lazy val commonSettings =
       resolvers += Resolver.jcenterRepo,
       resolvers += Resolver.bintrayRepo("hmrc", "releases"),
       resolvers += "hmrc-releases" at "https://artefacts.tax.service.gov.uk/artifactory/hmrc-releases/",
-      itDependenciesList := externalServices
+      itDependenciesList := externalServices,
+      TwirlKeys.templateImports ++= Seq(
+        "uk.gov.hmrc.govukfrontend.views.html.components._",
+        "uk.gov.hmrc.govukfrontend.views.html.helpers._",
+        "uk.gov.hmrc.hmrcfrontend.views.html.components._"
+      )
     )
 
 lazy val wartremoverSettings =
@@ -135,17 +140,6 @@ lazy val microservice = Project(appName, file("."))
   .disablePlugins(JUnitXmlReportPlugin) // Required to prevent https://github.com/scalatest/scalatest/issues/1427
   .configs(IntegrationTest)
   .settings(commonSettings)
-  // .settings(
-  //   inConfig(IntegrationTest)(
-  //     scalafmtCoreSettings ++
-  //       Seq(compileInputs in compile := Def.taskDyn {
-  //         val task = test in (resolvedScoped.value.scope in scalafmt.key)
-  //         val previousInputs = (compileInputs in compile).value
-  //         task.map(_ => previousInputs)
-  //       }.value)
-  //   )
-  // )
-  //.settings(wartremoverSettings: _*)
   .dependsOn(legacyPreferencesFrontend)
 //.aggregate(legacyPreferencesFrontend)
 
@@ -195,26 +189,7 @@ lazy val legacyPreferencesFrontend = project
   .enablePlugins(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, BuildInfoPlugin)
   .disablePlugins(JUnitXmlReportPlugin) // Required to prevent https://github.com/scalatest/scalatest/issues/1427
   .configs(IntegrationTest)
-  .settings(
-    commonSettings
-    // TwirlKeys.templateImports ++= Seq(
-    //   "uk.gov.hmrc.channelpreferencesfrontend.config.AppConfig",
-    //   "uk.gov.hmrc.govukfrontend.views.html.components._",
-    //   "uk.gov.hmrc.govukfrontend.views.html.helpers._",
-    //   "uk.gov.hmrc.hmrcfrontend.views.html.components._"
-    // )
-  )
-  // .settings(
-  //   resolvers += Resolver.jcenterRepo,
-  //   inConfig(IntegrationTest)(
-  //     scalafmtCoreSettings ++
-  //       Seq(compileInputs in compile := Def.taskDyn {
-  //         val task = test in (resolvedScoped.value.scope in scalafmt.key)
-  //         val previousInputs = (compileInputs in compile).value
-  //         task.map(_ => previousInputs)
-  //       }.value)
-  //   )
-  // )
+  .settings(commonSettings)
   .dependsOn(cpf)
 
 lazy val cpf = project
@@ -224,10 +199,7 @@ lazy val cpf = project
   .settings(
     commonSettings,
     TwirlKeys.templateImports ++= Seq(
-      "uk.gov.hmrc.channelpreferencesfrontend.config.AppConfig",
-      "uk.gov.hmrc.govukfrontend.views.html.components._",
-      "uk.gov.hmrc.govukfrontend.views.html.helpers._",
-      "uk.gov.hmrc.hmrcfrontend.views.html.components._"
+      "uk.gov.hmrc.channelpreferencesfrontend.config.AppConfig"
     ),
     inConfig(IntegrationTest)(
       scalafmtCoreSettings ++
