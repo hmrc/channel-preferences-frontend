@@ -135,17 +135,16 @@ lazy val microservice = Project(appName, file("."))
   .disablePlugins(JUnitXmlReportPlugin) // Required to prevent https://github.com/scalatest/scalatest/issues/1427
   .configs(IntegrationTest)
   .settings(commonSettings)
-  .settings(
-    resolvers += Resolver.jcenterRepo,
-    inConfig(IntegrationTest)(
-      scalafmtCoreSettings ++
-        Seq(compileInputs in compile := Def.taskDyn {
-          val task = test in (resolvedScoped.value.scope in scalafmt.key)
-          val previousInputs = (compileInputs in compile).value
-          task.map(_ => previousInputs)
-        }.value)
-    )
-  )
+  // .settings(
+  //   inConfig(IntegrationTest)(
+  //     scalafmtCoreSettings ++
+  //       Seq(compileInputs in compile := Def.taskDyn {
+  //         val task = test in (resolvedScoped.value.scope in scalafmt.key)
+  //         val previousInputs = (compileInputs in compile).value
+  //         task.map(_ => previousInputs)
+  //       }.value)
+  //   )
+  // )
   //.settings(wartremoverSettings: _*)
   .dependsOn(legacyPreferencesFrontend)
 //.aggregate(legacyPreferencesFrontend)
@@ -197,31 +196,24 @@ lazy val legacyPreferencesFrontend = project
   .disablePlugins(JUnitXmlReportPlugin) // Required to prevent https://github.com/scalatest/scalatest/issues/1427
   .configs(IntegrationTest)
   .settings(
-    commonSettings,
-    TwirlKeys.templateImports ++= Seq(
-      "uk.gov.hmrc.channelpreferencesfrontend.config.AppConfig",
-      "uk.gov.hmrc.govukfrontend.views.html.components._",
-      "uk.gov.hmrc.govukfrontend.views.html.helpers._",
-      "uk.gov.hmrc.hmrcfrontend.views.html.components._"
-    )
+    commonSettings
+    // TwirlKeys.templateImports ++= Seq(
+    //   "uk.gov.hmrc.channelpreferencesfrontend.config.AppConfig",
+    //   "uk.gov.hmrc.govukfrontend.views.html.components._",
+    //   "uk.gov.hmrc.govukfrontend.views.html.helpers._",
+    //   "uk.gov.hmrc.hmrcfrontend.views.html.components._"
+    // )
   )
-  .settings(
-    resolvers += Resolver.jcenterRepo,
-    inConfig(IntegrationTest)(
-      scalafmtCoreSettings ++
-        Seq(compileInputs in compile := Def.taskDyn {
-          val task = test in (resolvedScoped.value.scope in scalafmt.key)
-          val previousInputs = (compileInputs in compile).value
-          task.map(_ => previousInputs)
-        }.value)
-    )
-  )
-  //.settings(ServiceManagerPlugin.serviceManagerSettings)
-  //.settings(itDependenciesList := externalServices)
   // .settings(
   //   resolvers += Resolver.jcenterRepo,
-  //   resolvers += Resolver.bintrayRepo("hmrc", "releases"),
-  //   resolvers += "hmrc-releases" at "https://artefacts.tax.service.gov.uk/artifactory/hmrc-releases/"
+  //   inConfig(IntegrationTest)(
+  //     scalafmtCoreSettings ++
+  //       Seq(compileInputs in compile := Def.taskDyn {
+  //         val task = test in (resolvedScoped.value.scope in scalafmt.key)
+  //         val previousInputs = (compileInputs in compile).value
+  //         task.map(_ => previousInputs)
+  //       }.value)
+  //   )
   // )
   .dependsOn(cpf)
 
@@ -236,10 +228,7 @@ lazy val cpf = project
       "uk.gov.hmrc.govukfrontend.views.html.components._",
       "uk.gov.hmrc.govukfrontend.views.html.helpers._",
       "uk.gov.hmrc.hmrcfrontend.views.html.components._"
-    )
-  )
-  .settings(
-    resolvers += Resolver.jcenterRepo,
+    ),
     inConfig(IntegrationTest)(
       scalafmtCoreSettings ++
         Seq(compileInputs in compile := Def.taskDyn {
