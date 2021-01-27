@@ -139,6 +139,7 @@ lazy val microservice = Project(appName, file("."))
   .configs(IntegrationTest)
   .settings(itDependenciesList := externalServices)
   .settings(commonSettings)
+  .settings(scalastyleFailOnError := true)
   // .dependsOn(cpf)
   // .aggregate(cpf)
   .dependsOn(legacyPreferencesFrontend)
@@ -175,16 +176,16 @@ sources in (Compile, doc) := Seq.empty
 val codeStyleIntegrationTest = taskKey[Unit]("enforce code style then integration test")
 
 // and then in settings...
-Project.inConfig(IntegrationTest)(ScalastylePlugin.rawScalastyleSettings()) ++
-  Seq(
-    scalastyleConfig in IntegrationTest := (scalastyleConfig in scalastyle).value,
-    scalastyleTarget in IntegrationTest := target.value / "scalastyle-it-results.xml",
-    scalastyleFailOnError in IntegrationTest := (scalastyleFailOnError in scalastyle).value,
-    (scalastyleFailOnWarning in IntegrationTest) := (scalastyleFailOnWarning in scalastyle).value,
-    scalastyleSources in IntegrationTest := (unmanagedSourceDirectories in IntegrationTest).value,
-    codeStyleIntegrationTest := scalastyle.in(IntegrationTest).toTask("").value,
-    (test in IntegrationTest) := ((test in IntegrationTest) dependsOn codeStyleIntegrationTest).value
-  )
+// Project.inConfig(IntegrationTest)(ScalastylePlugin.rawScalastyleSettings()) ++
+//   Seq(
+//     scalastyleConfig in IntegrationTest := (scalastyleConfig in scalastyle).value,
+//     scalastyleTarget in IntegrationTest := target.value / "scalastyle-it-results.xml",
+//     scalastyleFailOnError in IntegrationTest := (scalastyleFailOnError in scalastyle).value,
+//     (scalastyleFailOnWarning in IntegrationTest) := (scalastyleFailOnWarning in scalastyle).value,
+//     scalastyleSources in IntegrationTest := (unmanagedSourceDirectories in IntegrationTest).value,
+//     codeStyleIntegrationTest := scalastyle.in(IntegrationTest).toTask("").value,
+//     (test in IntegrationTest) := ((test in IntegrationTest) dependsOn codeStyleIntegrationTest).value
+//   )
 
 lazy val legacyPreferencesFrontend = project
   .enablePlugins(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, BuildInfoPlugin)
@@ -192,6 +193,7 @@ lazy val legacyPreferencesFrontend = project
   .configs(IntegrationTest)
   .settings(commonSettings)
   .settings(ServiceManagerPlugin.serviceManagerSettings)
+  .settings(scalastyleFailOnError := false)
   .settings(itDependenciesList := externalServices)
   .dependsOn(cpf)
 
@@ -214,6 +216,7 @@ lazy val cpf = project
     //     }.value)
     // )
   )
+  .settings(scalastyleFailOnError := true)
   .settings(
     // scalacOptions ++= Seq(
     //   "-P:wartremover:excluded:/conf/app.routes",
