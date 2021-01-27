@@ -138,10 +138,10 @@ lazy val microservice = Project(appName, file("."))
   .disablePlugins(JUnitXmlReportPlugin) // Required to prevent https://github.com/scalatest/scalatest/issues/1427
   .configs(IntegrationTest)
   .settings(commonSettings)
-  .dependsOn(cpf)
-  .aggregate(cpf)
-// .dependsOn(legacyPreferencesFrontend)
-// .aggregate(legacyPreferencesFrontend)
+  // .dependsOn(cpf)
+  // .aggregate(cpf)
+  .dependsOn(legacyPreferencesFrontend)
+  .aggregate(legacyPreferencesFrontend)
 
 //lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
 //compileScalastyle := scalastyle.in(Compile).toTask("").value
