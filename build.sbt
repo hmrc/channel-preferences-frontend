@@ -115,7 +115,6 @@ lazy val commonSettings =
       buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
       buildInfoPackage := "uk.gov.hmrc.channelpreferencesfrontend",
       parallelExecution in IntegrationTest := false,
-      parallelExecution := false,
       resolvers += Resolver.jcenterRepo,
       resolvers += Resolver.bintrayRepo("hmrc", "releases"),
       resolvers += "hmrc-releases" at "https://artefacts.tax.service.gov.uk/artifactory/hmrc-releases/",
