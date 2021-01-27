@@ -43,17 +43,12 @@ lazy val externalServices = List(
   ExternalService("EMAIL")
 )
 
-ThisBuild / majorVersion := 0
-ThisBuild / scalaVersion := "2.12.12"
-
-//ThisBuild / libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test
-
-// ThisBuild / TwirlKeys.templateImports ++= Seq(
-//       "uk.gov.hmrc.channelpreferencesfrontend.config.AppConfig",
-//       "uk.gov.hmrc.govukfrontend.views.html.components._",
-//       "uk.gov.hmrc.govukfrontend.views.html.helpers._",
-//       "uk.gov.hmrc.hmrcfrontend.views.html.components._"
-//     )
+lazy val commonSettings =
+  scalaSettings ++ defaultSettings() ++ publishingSettings ++ integrationTestSettings() ++ Seq(
+    majorVersion := 0,
+    scalaVersion := "2.12.12",
+    libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test
+  )
 
 lazy val wartremoverSettings =
   Seq(
@@ -66,21 +61,9 @@ lazy val wartremoverSettings =
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, BuildInfoPlugin)
   .disablePlugins(JUnitXmlReportPlugin) // Required to prevent https://github.com/scalatest/scalatest/issues/1427
-  .settings(scalaSettings: _*)
-  .settings(defaultSettings(): _*)
-  .settings(publishingSettings: _*)
   .configs(IntegrationTest)
-  .settings(integrationTestSettings(): _*)
   .settings(
-    majorVersion := 0,
-    scalaVersion := "2.12.12",
-    libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
-    TwirlKeys.templateImports ++= Seq(
-      "uk.gov.hmrc.channelpreferencesfrontend.config.AppConfig",
-      "uk.gov.hmrc.govukfrontend.views.html.components._",
-      "uk.gov.hmrc.govukfrontend.views.html.helpers._",
-      "uk.gov.hmrc.hmrcfrontend.views.html.components._"
-    ),
+    commonSettings,
     PlayKeys.playDefaultPort := 9053,
     retrieveManaged := true,
     evictionWarningOptions in update :=
@@ -225,15 +208,15 @@ val codeStyleIntegrationTest = taskKey[Unit]("enforce code style then integratio
 lazy val legacyPreferencesFrontend = project
   .enablePlugins(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, BuildInfoPlugin)
   .disablePlugins(JUnitXmlReportPlugin) // Required to prevent https://github.com/scalatest/scalatest/issues/1427
-  .settings(scalaSettings: _*)
-  .settings(defaultSettings(): _*)
-  .settings(publishingSettings: _*)
+  // .settings(scalaSettings: _*)
+  // .settings(defaultSettings(): _*)
+  // .settings(publishingSettings: _*)
   .configs(IntegrationTest)
-  .settings(integrationTestSettings(): _*)
   .settings(
-    majorVersion := 0,
-    scalaVersion := "2.12.12",
-    libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
+    commonSettings,
+    // majorVersion := 0,
+    // scalaVersion := "2.12.12",
+    //libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
     TwirlKeys.templateImports ++= Seq(
       "uk.gov.hmrc.channelpreferencesfrontend.config.AppConfig",
       "uk.gov.hmrc.govukfrontend.views.html.components._",
@@ -269,15 +252,9 @@ lazy val legacyPreferencesFrontend = project
 lazy val cpf = project
   .enablePlugins(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, BuildInfoPlugin)
   .disablePlugins(JUnitXmlReportPlugin) // Required to prevent https://github.com/scalatest/scalatest/issues/1427
-  .settings(scalaSettings: _*)
-  .settings(defaultSettings(): _*)
-  .settings(publishingSettings: _*)
   .configs(IntegrationTest)
-  .settings(integrationTestSettings(): _*)
   .settings(
-    majorVersion := 0,
-    scalaVersion := "2.12.12",
-    libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
+    commonSettings,
     TwirlKeys.templateImports ++= Seq(
       "uk.gov.hmrc.channelpreferencesfrontend.config.AppConfig",
       "uk.gov.hmrc.govukfrontend.views.html.components._",
