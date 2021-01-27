@@ -137,15 +137,16 @@ lazy val microservice = Project(appName, file("."))
   .enablePlugins(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, BuildInfoPlugin)
   .disablePlugins(JUnitXmlReportPlugin) // Required to prevent https://github.com/scalatest/scalatest/issues/1427
   .configs(IntegrationTest)
+  .settings(itDependenciesList := externalServices)
   .settings(commonSettings)
   // .dependsOn(cpf)
   // .aggregate(cpf)
   .dependsOn(legacyPreferencesFrontend)
-  //.aggregate(legacyPreferencesFrontend)
+  .aggregate(legacyPreferencesFrontend)
 
-//lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
-//compileScalastyle := scalastyle.in(Compile).toTask("").value
-//(compile in Compile) := ((compile in Compile) dependsOn compileScalastyle).value
+lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
+compileScalastyle := scalastyle.in(Compile).toTask("").value
+(compile in Compile) := ((compile in Compile) dependsOn compileScalastyle).value
 wartremoverWarnings ++= Warts.all
 //wartremoverExcluded += baseDirectory.value
 
@@ -174,16 +175,16 @@ sources in (Compile, doc) := Seq.empty
 val codeStyleIntegrationTest = taskKey[Unit]("enforce code style then integration test")
 
 // and then in settings...
-// Project.inConfig(IntegrationTest)(ScalastylePlugin.rawScalastyleSettings()) ++
-//   Seq(
-//     scalastyleConfig in IntegrationTest := (scalastyleConfig in scalastyle).value,
-//     scalastyleTarget in IntegrationTest := target.value / "scalastyle-it-results.xml",
-//     scalastyleFailOnError in IntegrationTest := (scalastyleFailOnError in scalastyle).value,
-//     (scalastyleFailOnWarning in IntegrationTest) := (scalastyleFailOnWarning in scalastyle).value,
-//     scalastyleSources in IntegrationTest := (unmanagedSourceDirectories in IntegrationTest).value,
-//     codeStyleIntegrationTest := scalastyle.in(IntegrationTest).toTask("").value,
-//     (test in IntegrationTest) := ((test in IntegrationTest) dependsOn codeStyleIntegrationTest).value
-//   )
+Project.inConfig(IntegrationTest)(ScalastylePlugin.rawScalastyleSettings()) ++
+  Seq(
+    scalastyleConfig in IntegrationTest := (scalastyleConfig in scalastyle).value,
+    scalastyleTarget in IntegrationTest := target.value / "scalastyle-it-results.xml",
+    scalastyleFailOnError in IntegrationTest := (scalastyleFailOnError in scalastyle).value,
+    (scalastyleFailOnWarning in IntegrationTest) := (scalastyleFailOnWarning in scalastyle).value,
+    scalastyleSources in IntegrationTest := (unmanagedSourceDirectories in IntegrationTest).value,
+    codeStyleIntegrationTest := scalastyle.in(IntegrationTest).toTask("").value,
+    (test in IntegrationTest) := ((test in IntegrationTest) dependsOn codeStyleIntegrationTest).value
+  )
 
 lazy val legacyPreferencesFrontend = project
   .enablePlugins(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, BuildInfoPlugin)
@@ -204,14 +205,14 @@ lazy val cpf = project
       "uk.gov.hmrc.channelpreferencesfrontend.config.AppConfig"
     ),
     buildInfoPackage := "uk.gov.hmrc.channelpreferencesfrontend",
-    inConfig(IntegrationTest)(
-      scalafmtCoreSettings ++
-        Seq(compileInputs in compile := Def.taskDyn {
-          val task = test in (resolvedScoped.value.scope in scalafmt.key)
-          val previousInputs = (compileInputs in compile).value
-          task.map(_ => previousInputs)
-        }.value)
-    )
+    // inConfig(IntegrationTest)(
+    //   scalafmtCoreSettings ++
+    //     Seq(compileInputs in compile := Def.taskDyn {
+    //       val task = test in (resolvedScoped.value.scope in scalafmt.key)
+    //       val previousInputs = (compileInputs in compile).value
+    //       task.map(_ => previousInputs)
+    //     }.value)
+    // )
   )
   .settings(
     // scalacOptions ++= Seq(
@@ -221,7 +222,7 @@ lazy val cpf = project
     //   "-Xfatal-warnings", // Fail the compilation if there are any warnings.
     // )
   )
-  .settings(ServiceManagerPlugin.serviceManagerSettings)
-  .settings(itDependenciesList := externalServices)
+  //.settings(ServiceManagerPlugin.serviceManagerSettings)
+  //.settings(itDependenciesList := externalServices)
   .settings(wartremoverSettings: _*)
-  .settings(ScoverageSettings())
+  //.settings(ScoverageSettings())
