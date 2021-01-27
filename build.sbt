@@ -45,7 +45,6 @@ lazy val externalServices = List(
 
 lazy val commonSettings =
   scalaSettings ++ defaultSettings() ++ publishingSettings ++ integrationTestSettings() ++
-    ServiceManagerPlugin.serviceManagerSettings ++
     ScoverageSettings() ++
     Seq(
       majorVersion := 0,
@@ -119,7 +118,6 @@ lazy val commonSettings =
       resolvers += Resolver.jcenterRepo,
       resolvers += Resolver.bintrayRepo("hmrc", "releases"),
       resolvers += "hmrc-releases" at "https://artefacts.tax.service.gov.uk/artifactory/hmrc-releases/",
-      itDependenciesList := externalServices,
       TwirlKeys.templateImports ++= Seq(
         "uk.gov.hmrc.govukfrontend.views.html.components._",
         "uk.gov.hmrc.govukfrontend.views.html.helpers._",
@@ -129,10 +127,10 @@ lazy val commonSettings =
 
 lazy val wartremoverSettings =
   Seq(
-    //WartRemoverSettings.wartRemoverError,
-//    wartremoverErrors in (Test, compile) -= Wart.NonUnitStatements, // does not seem to work as intended
-    //wartremoverExcluded in (Compile, compile) ++= routes.in(Compile).value,
-    //wartremoverExcluded += (target in TwirlKeys.compileTemplates).value
+    WartRemoverSettings.wartRemoverError,
+    wartremoverErrors in (Test, compile) -= Wart.NonUnitStatements, // does not seem to work as intended
+    wartremoverExcluded in (Compile, compile) ++= routes.in(Compile).value,
+    wartremoverExcluded += (target in TwirlKeys.compileTemplates).value
   )
 
 lazy val microservice = Project(appName, file("."))
@@ -140,8 +138,10 @@ lazy val microservice = Project(appName, file("."))
   .disablePlugins(JUnitXmlReportPlugin) // Required to prevent https://github.com/scalatest/scalatest/issues/1427
   .configs(IntegrationTest)
   .settings(commonSettings)
-  .dependsOn(legacyPreferencesFrontend)
-//.aggregate(legacyPreferencesFrontend)
+  .dependsOn(cpf)
+  .aggregate(cpf)
+// .dependsOn(legacyPreferencesFrontend)
+// .aggregate(legacyPreferencesFrontend)
 
 //lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
 //compileScalastyle := scalastyle.in(Compile).toTask("").value
@@ -190,6 +190,8 @@ lazy val legacyPreferencesFrontend = project
   .disablePlugins(JUnitXmlReportPlugin) // Required to prevent https://github.com/scalatest/scalatest/issues/1427
   .configs(IntegrationTest)
   .settings(commonSettings)
+  .settings(ServiceManagerPlugin.serviceManagerSettings)
+  .settings(itDependenciesList := externalServices)
   .dependsOn(cpf)
 
 lazy val cpf = project
@@ -201,6 +203,7 @@ lazy val cpf = project
     TwirlKeys.templateImports ++= Seq(
       "uk.gov.hmrc.channelpreferencesfrontend.config.AppConfig"
     ),
+    buildInfoPackage := "uk.gov.hmrc.channelpreferencesfrontend",
     inConfig(IntegrationTest)(
       scalafmtCoreSettings ++
         Seq(compileInputs in compile := Def.taskDyn {
@@ -210,3 +213,15 @@ lazy val cpf = project
         }.value)
     )
   )
+  .settings(
+    // scalacOptions ++= Seq(
+    //   "-P:wartremover:excluded:/conf/app.routes",
+    //   "-P:wartremover:traverser:org.wartremover.warts.Unsafe",
+    //   "-Xcheckinit", // Wrap field accessors to throw an exception on uninitialized access.
+    //   "-Xfatal-warnings", // Fail the compilation if there are any warnings.
+    // )
+  )
+  .settings(ServiceManagerPlugin.serviceManagerSettings)
+  .settings(itDependenciesList := externalServices)
+  .settings(wartremoverSettings: _*)
+  .settings(ScoverageSettings())
