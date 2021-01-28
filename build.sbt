@@ -140,6 +140,7 @@ lazy val microservice = Project(appName, file("."))
   .settings(itDependenciesList := externalServices)
   .settings(commonSettings)
   .settings(scalastyleFailOnError := true)
+  .settings(wartremoverSettings: _*)
   // .dependsOn(cpf)
   // .aggregate(cpf)
   .dependsOn(legacyPreferencesFrontend)
@@ -195,6 +196,7 @@ lazy val legacyPreferencesFrontend = project
   .settings(ServiceManagerPlugin.serviceManagerSettings)
   .settings(scalastyleFailOnError := false)
   .settings(itDependenciesList := externalServices)
+
   .dependsOn(cpf)
 
 lazy val cpf = project

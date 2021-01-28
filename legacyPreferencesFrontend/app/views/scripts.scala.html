@@ -14,11 +14,11 @@
  * limitations under the License.
  *@
 
-@this()
+@this(assetsFinder: AssetsFinder)
 
 @()
 @*
- * TODO: fix controllers compilation error
 <script src='@controllers.routes.Assets.versioned("lib/govuk-frontend/govuk/all.js")'></script>
 *@
+<script src='@assetsFinder.path("lib/govuk-frontend/govuk/all.js")'></script>
 <script>window.GOVUKFrontend.initAll();</script>
