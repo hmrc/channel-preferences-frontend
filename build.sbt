@@ -34,7 +34,6 @@ lazy val externalServices = List(
 lazy val wartremoverSettings =
   Seq(
     WartRemoverSettings.wartRemoverError,
-//    wartremoverErrors in (Test, compile) -= Wart.NonUnitStatements, // does not seem to work as intended
     wartremoverExcluded in (Compile, compile) ++= routes.in(Compile).value,
     wartremoverExcluded += (target in TwirlKeys.compileTemplates).value
   )
