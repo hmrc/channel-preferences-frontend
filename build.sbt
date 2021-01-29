@@ -27,9 +27,9 @@ val appName = "channel-preferences-frontend"
 
 val silencerVersion = "1.7.0"
 
-lazy val externalServices = List(
-  ExternalService("DATASTREAM")
-)
+// lazy val externalServices = List(
+//   ExternalService("DATASTREAM")
+// )
 
 lazy val wartremoverSettings =
   Seq(
@@ -380,3 +380,28 @@ lazy val commonSettings =
         "uk.gov.hmrc.hmrcfrontend.views.html.components._"
       )
     )
+
+lazy val externalServices = List(
+  ExternalService("AUTH"),
+  ExternalService("AUTH_LOGIN_API"),
+  ExternalService("USER_DETAILS"),
+  ExternalService(
+    name = "PREFERENCES",
+    enableTestOnlyEndpoints = true,
+    extraConfig = Map("featureFlag.switchOn" -> "true")),
+  ExternalService("DATASTREAM"),
+  ExternalService("ENTITY_RESOLVER"),
+  ExternalService("MAILGUN_STUB"),
+  ExternalService("HMRC_EMAIL_RENDERER"),
+  ExternalService("IDENTITY_VERIFICATION", enableTestOnlyEndpoints = true),
+  ExternalService("EMAIL")
+)
+
+lazy val legacy = project
+  .enablePlugins(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, BuildInfoPlugin)
+  .disablePlugins(JUnitXmlReportPlugin) // Required to prevent https://github.com/scalatest/scalatest/issues/1427
+  .configs(IntegrationTest)
+  .settings(commonSettings)
+  .settings(ServiceManagerPlugin.serviceManagerSettings)
+  .settings(scalastyleFailOnError := false)
+  .settings(itDependenciesList := externalServices)

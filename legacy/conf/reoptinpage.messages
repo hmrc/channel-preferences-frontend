@@ -1,0 +1,48 @@
+reoptin_page10.fg_page.keep_receiving=By post only
+reoptin_page10.fg_page.list_1=Legal notices to file tax return
+reoptin_page10.fg_page.list_2=Late filing penalty notices
+reoptin_page10.fg_page.list_3=Late payment penalty notices
+reoptin_page10.fg_page.paperless=How do you want to get your legal notices, penalty notices and tax letters?
+reoptin_page10.fg_page_privacy_notice=For more information about how HMRC uses your data, {0}.
+reoptin_page10.fg_page.yes_send_email=Through my HMRC online account
+reoptin_page10.fg_page.yes_send_email_info_2=Because we cannot send all letters online yet, you will continue to get some by post.
+reoptin_page10.privacy_policy_linkText=read the privacy notice
+reoptin_page10.submitButton=Continue
+reoptin_page10.tc.linkText=terms and conditions
+reoptin_page10.tc.preLinkText=I agree to the {0}
+
+
+reoptin_page10.fg_page.title=Don''t lose access to your online tax documents
+reoptin_page10.fg_page.choose_1=You can choose to continue to get some of your tax documents and information sent through your HMRC online account instead of by post.
+reoptin_page10.fg_page.choose_2= Choose how to get your legal notices, penalty notices and tax letters
+reoptin_page10.fg_page.choose_3=We may also send you other messages, including information about your personal tax code, if you have one
+
+reoptin_page10.fg_page.yes_send_email_info_1=We’ll email to tell you when you have a new item in your online account.
+
+reoptin_page10.tc.email.label=Email address
+
+
+reoptin_page52.fg_page.keep_receiving=By post only
+reoptin_page52.fg_page.list_1=Legal notices to file tax return
+reoptin_page52.fg_page.list_2=Late filing penalty notices
+reoptin_page52.fg_page.list_3=Late payment penalty notices
+reoptin_page52.fg_page.paperless=How do you want to get your legal notices, penalty notices and tax letters?
+reoptin_page52.fg_page_privacy_notice=For more information about how HMRC uses your data, {0}.
+reoptin_page52.fg_page.yes_send_email=Through my HMRC online account
+reoptin_page52.privacy_policy_linkText=read the privacy notice
+reoptin_page52.submitButton=Continue
+reoptin_page52.tc.linkText=terms and conditions
+reoptin_page52.tc.preLinkText=I agree to the {0}
+
+
+reoptin_page52.fg_page.title=Don''t lose access to your online tax documents
+reoptin_page52.fg_page.choose_1=You can choose to continue to get some of your tax documents and information sent through your HMRC online account instead of by post.
+reoptin_page52.fg_page.choose_2=Choose how to get your legal notices, penalty notices and tax letters
+reoptin_page52.fg_page.choose_3=We may also send you other messages, including information about your personal tax code, if you have one
+
+reoptin_page52.fg_page.yes_send_email_info_1=We’ll email to tell you when you have a new item in your online account.
+reoptin_page52.fg_page.yes_send_email_info_2=This email cannot include personal information, so it is your responsibility to sign into your online account and read the full details.
+reoptin_page52.fg_page.yes_send_email_info_3=Because we cannot send all letters online yet, you will continue to get some by post.
+
+
+reoptin_page52.tc.email.label=Email address

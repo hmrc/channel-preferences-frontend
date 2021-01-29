@@ -1,0 +1,15 @@
+{
+    "digital": true,
+    "email": {
+        "status": "verified",
+        "mailboxFull": false,
+        "hasBounces": false,
+        "isVerified": true,
+        "email": "pihklyljtgoxeoh@mail.com"
+    },
+    "termsAndConditions": {
+        "generic": {
+            "accepted": true
+        }
+    }
+}

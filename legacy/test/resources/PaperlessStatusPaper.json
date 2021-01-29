@@ -1,0 +1,11 @@
+{
+  "status": {
+    "name": "PAPER",
+    "category": "ACTION_REQUIRED",
+    "text": "You have not yet chosen to get your Self Assessment tax letters online"
+  },
+  "url": {
+    "link": "http://localhost:9024/paperless/check-settings?returnUrl=VYBxyuFWQBQZAGpe5tSgmw%3D%3D&returnLinkText=VYBxyuFWQBQZAGpe5tSgmw%3D%3D",
+    "text": "Get tax letters online"
+  }
+}
