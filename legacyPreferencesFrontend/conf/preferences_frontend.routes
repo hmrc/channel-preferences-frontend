@@ -1,5 +1,5 @@
-->          /govuk-frontend                    govuk.Routes
-->          /hmrc-frontend                     hmrcfrontend.Routes
+#->          /govuk-frontend                    govuk.Routes
+#->          /hmrc-frontend                     hmrcfrontend.Routes
 
 # proxy routes
 # GET     /paperless/hello-world                                                  @controllers.ProxyController.proxy(path = "/paperless/hello-world")
@@ -63,3 +63,6 @@ GET         /paperless/check-settings                                           
 GET         /paperless/opt-in-cohort/display/:cohort                                controllers.internal.ChoosePaperlessController.displayCohort(cohort: Option[controllers.internal.OptInCohort])
 POST        /paperless/opt-in-cohort/nop                                            controllers.internal.ChoosePaperlessController.cohortNop()
 GET         /paperless/opt-in-cohort/list                                           controllers.internal.ChoosePaperlessController.cohortList()
+
+GET         /paperless/help/switch-to-welsh               controllers.LanguageController.switchToWelsh()
+GET         /paperless/help/switch-to-english             controllers.LanguageController.switchToEnglish()

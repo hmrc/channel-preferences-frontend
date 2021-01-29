@@ -21,6 +21,7 @@ import uk.gov.hmrc.ExternalService
 import uk.gov.hmrc.SbtBobbyPlugin.BobbyKeys.bobbyRulesURL
 import uk.gov.hmrc.ServiceManagerPlugin.Keys.itDependenciesList
 import play.twirl.sbt.Import.TwirlKeys._
+import org.irundaia.sbt.sass._
 
 val appName = "channel-preferences-frontend"
 
@@ -138,6 +139,7 @@ lazy val microservice = Project(appName, file("."))
   .disablePlugins(JUnitXmlReportPlugin) // Required to prevent https://github.com/scalatest/scalatest/issues/1427
   .configs(IntegrationTest)
   .settings(itDependenciesList := externalServices)
+  .settings(SassKeys.embedSources := true)
   .settings(commonSettings)
   .settings(scalastyleFailOnError := true)
   .settings(wartremoverSettings: _*)

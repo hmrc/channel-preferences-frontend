@@ -1,11 +1,21 @@
 # Add all the application routes to the app.routes file
-->         /channel-preferences-frontend    app.Routes
+### NoDocs ###
+->          /govuk-frontend         govuk.Routes
+### NoDocs ###
+->          /hmrc-frontend          hmrcfrontend.Routes
 ->         /                                health.Routes
-#->          /                                   preferences_frontend.Routes
+->         /                                preferences_frontend.Routes
+->         /channel-preferences-frontend    cpfapp.Routes
+
 
 
 ### NoDocs ###
 GET        /admin/metrics                   com.kenshoo.play.metrics.MetricsController.metrics
+
+#GET         /assets/*file           controllers.Assets.versioned(file)
+
+#GET         /paperless/assets/*file                                                 controllers.Assets.versioned(path="/public", file: Asset)
+GET         /paperless/assets/*file                                                 controllers.Assets.versioned(file)
 
 # GET        /*path             @uk.gov.hmrc.channelpreferencesfrontend.controllers.ProxyController.proxy(path: String)
 # POST       /*path             @uk.gov.hmrc.channelpreferencesfrontend.controllers.ProxyController.proxy(path: String)
