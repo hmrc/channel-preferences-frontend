@@ -34,11 +34,11 @@ class LanguageSpec extends PlaySpec {
     }
 
     """Language(en) must succefully serialized to JsString("en")""" in {
-      Json.toJson(English) must be(JsString("en"))
+      Json.toJson[Language](Language.English) must be(JsString("en"))
     }
 
     """Language(cy) must succefully serialized to JsString("cy")""" in {
-      Json.toJson(Welsh) must be(JsString("cy"))
+      Json.toJson[Language](Language.Welsh) must be(JsString("cy"))
     }
 
   }
