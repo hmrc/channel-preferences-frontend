@@ -140,7 +140,7 @@ class ItAuthHelper @Inject()(ws: WSClient) extends ScalaFutures {
       .futureValue(timeout(Span(10, Seconds)))
     val authUri = response.header("Location").getOrElse("")
     val authToken = response.header("Authorization").getOrElse("")
-    Future.successful(authToken, authUri)
+    Future.successful((authToken, authUri))
 
   }
 
