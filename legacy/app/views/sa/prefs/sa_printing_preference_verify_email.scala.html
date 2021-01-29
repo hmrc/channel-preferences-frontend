@@ -1,0 +1,34 @@
+@*
+ * Copyright 2021 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import controllers.auth.AuthenticatedRequest
+@import play.twirl.api.HtmlFormat
+@this(mainWithHeaders: views.html.main_with_headers, externalUrls: ExternalUrls)
+@(returnUrl: Option[String], returnLinkText: Option[String])(implicit request: AuthenticatedRequest[_], messages: Messages)
+@import uk.gov.hmrc.urls.Link
+
+@mainWithHeaders(title = Messages("sa_printing_preference.email.verified.title")) {
+    <header class="page-header">
+        <h1 id="success-heading" class="govuk-heading-xl">@Messages("sa_printing_preference.verification.heading")</h1>
+    </header>
+    <p id="success-message" class="govuk-body">@Messages("sa_printing_preference.verification.paragraph.1")</p>
+    <p id="link-to-home" class="govuk-body">
+        @Link.toInternalPage(
+            url = returnUrl.getOrElse(externalUrls.businessTaxHome),
+            value = Some(returnLinkText.getOrElse(Messages("sa_printing_preference.verification.action")))
+        ).toHtml
+    </p>
+}
