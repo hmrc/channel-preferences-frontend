@@ -5,7 +5,7 @@
 ->          /hmrc-frontend          hmrcfrontend.Routes
 ->         /                                health.Routes
 ->         /                                preferences_frontend.Routes
-->         /channel-preferences-frontend    cpfapp.Routes
+->         /                         cpfapp.Routes
 
 
 

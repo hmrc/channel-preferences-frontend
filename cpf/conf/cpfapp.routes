@@ -5,7 +5,7 @@
 ### NoDocs ###
 #->          /hmrc-frontend          hmrcfrontend.Routes
 
-GET         /hello-world            uk.gov.hmrc.channelpreferencesfrontend.controllers.HelloWorldController.helloWorld
+GET         /paperless/hello-world            uk.gov.hmrc.channelpreferencesfrontend.controllers.HelloWorldController.helloWorld
 
 
 ### NoDocs ###
