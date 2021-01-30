@@ -51,6 +51,7 @@ class FilingInterceptControllerSpec
         "sso.encryption.key"          -> "P5xsJ9Nt+quxGZzB4DeLfw==",
         "sso.encryption.previousKeys" -> Seq.empty
       )
+      .configure("metrics.enabled" -> false)
       .overrides(bind[EntityResolverConnector].toInstance(mockEntityResolverConnector))
       .build()
 

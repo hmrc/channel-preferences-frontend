@@ -96,6 +96,7 @@ class ChoosePaperlessControllerSpec
         bind[EntityResolverConnector].toInstance(mockEntityResolverConnector),
         bind[EmailConnector].toInstance(mockEmailConnector)
       )
+      .configure("metrics.enabled" -> false)
       .build()
 
   override def beforeEach(): Unit = {
@@ -177,7 +178,7 @@ class ChoosePaperlessControllerSpec
       verify(mockAuditConnector).sendMergedEvent(eventArg.capture())(any(), any())
 
       private val value: MergedDataEvent = eventArg.getValue
-      value.auditSource mustBe "preferences-frontend"
+      value.auditSource mustBe "channel-preferences-frontend"
       value.auditType mustBe EventTypes.Succeeded
       value.request.tags must contain("transactionName" -> "Show Print Preference Option")
       value.request.detail("cohort") mustBe assignedCohort.toString
@@ -195,7 +196,7 @@ class ChoosePaperlessControllerSpec
       verify(mockAuditConnector).sendMergedEvent(eventArg.capture())(any(), any())
 
       private val value: MergedDataEvent = eventArg.getValue
-      value.auditSource mustBe "preferences-frontend"
+      value.auditSource mustBe "channel-preferences-frontend"
       value.auditType mustBe EventTypes.Succeeded
       value.request.tags must contain("transactionName" -> "Show Print Preference Option")
       value.request.detail("cohort") mustBe assignedCohort.toString
@@ -649,7 +650,7 @@ class ChoosePaperlessControllerSpec
       verify(mockAuditConnector).sendMergedEvent(eventArg.capture())(any(), any())
 
       private val value: MergedDataEvent = eventArg.getValue
-      value.auditSource mustBe "preferences-frontend"
+      value.auditSource mustBe "channel-preferences-frontend"
       value.auditType mustBe EventTypes.Succeeded
       value.request.tags must contain("transactionName" -> "Set Print Preference")
       value.request.detail("cohort") mustBe "IPage8"
@@ -682,7 +683,7 @@ class ChoosePaperlessControllerSpec
       verify(mockAuditConnector).sendMergedEvent(eventArg.capture())(any(), any())
 
       private val value: MergedDataEvent = eventArg.getValue
-      value.auditSource mustBe "preferences-frontend"
+      value.auditSource mustBe "channel-preferences-frontend"
       value.auditType mustBe EventTypes.Succeeded
       value.request.tags must contain("transactionName" -> "Set Print Preference")
       value.request.detail("cohort") mustBe "IPage8"
@@ -713,7 +714,7 @@ class ChoosePaperlessControllerSpec
       verify(mockAuditConnector).sendMergedEvent(eventArg.capture())(any(), any())
 
       private val value: MergedDataEvent = eventArg.getValue
-      value.auditSource mustBe "preferences-frontend"
+      value.auditSource mustBe "channel-preferences-frontend"
       value.auditType mustBe EventTypes.Succeeded
       value.request.tags must contain("transactionName" -> "Set Print Preference")
       value.request.detail("cohort") mustBe "IPage8"
@@ -747,6 +748,7 @@ class ChoosePaperlessControllerSpecTC
         bind[EntityResolverConnector].toInstance(mockEntityResolverConnector),
         bind[EmailConnector].toInstance(mockEmailConnector)
       )
+      .configure("metrics.enabled" -> false)
       .build()
 
   override def beforeEach(): Unit = {
@@ -813,7 +815,7 @@ class ChoosePaperlessControllerSpecTC
       verify(mockAuditConnector).sendMergedEvent(eventArg.capture())(any(), any())
 
       private val value: MergedDataEvent = eventArg.getValue
-      value.auditSource mustBe "preferences-frontend"
+      value.auditSource mustBe "channel-preferences-frontend"
       value.auditType mustBe EventTypes.Succeeded
       value.request.tags must contain("transactionName" -> "Show Print Preference Option")
       value.request.detail("cohort") mustBe assignedCohort.toString
@@ -1329,7 +1331,7 @@ class ChoosePaperlessControllerSpecTC
       verify(mockAuditConnector).sendMergedEvent(eventArg.capture())(any(), any())
 
       private val value: MergedDataEvent = eventArg.getValue
-      value.auditSource mustBe "preferences-frontend"
+      value.auditSource mustBe "channel-preferences-frontend"
       value.auditType mustBe EventTypes.Succeeded
       value.request.tags must contain("transactionName" -> "Set Print Preference")
       value.request.detail("cohort") mustBe "TCPage9"
@@ -1366,7 +1368,7 @@ class ChoosePaperlessControllerSpecTC
       verify(mockAuditConnector).sendMergedEvent(eventArg.capture())(any(), any())
 
       private val value: MergedDataEvent = eventArg.getValue
-      value.auditSource mustBe "preferences-frontend"
+      value.auditSource mustBe "channel-preferences-frontend"
       value.auditType mustBe EventTypes.Succeeded
       value.request.tags must contain("transactionName" -> "Set Print Preference")
       value.request.detail("cohort") mustBe "TCPage9"
@@ -1397,7 +1399,7 @@ class ChoosePaperlessControllerSpecTC
       verify(mockAuditConnector).sendMergedEvent(eventArg.capture())(any(), any())
 
       private val value: MergedDataEvent = eventArg.getValue
-      value.auditSource mustBe "preferences-frontend"
+      value.auditSource mustBe "channel-preferences-frontend"
       value.auditType mustBe EventTypes.Succeeded
       value.request.tags must contain("transactionName" -> "Set Print Preference")
       value.request.detail("cohort") mustBe "TCPage9"
