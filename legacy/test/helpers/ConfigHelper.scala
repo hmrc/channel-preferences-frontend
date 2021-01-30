@@ -45,6 +45,7 @@ trait ConfigHelper extends MetricOrchestratorStub {
     .overrides(bind[AuditingConfig].toProvider[AuditingConfigProvider].eagerly())
     .overrides(bind[HttpAuditing].to[DefaultHttpAuditing].eagerly())
     .configure(additionalConfig)
+    .configure("metrics.enabled" -> false)
     .build()
 
 }

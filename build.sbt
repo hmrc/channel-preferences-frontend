@@ -147,7 +147,7 @@ lazy val microservice = Project(appName, file("."))
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage := "uk.gov.hmrc.channelpreferencesfrontend"
   )
-  .dependsOn(cpf)
+  .dependsOn(legacy)
 
 lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
 compileScalastyle := scalastyle.in(Compile).toTask("").value
@@ -405,3 +405,4 @@ lazy val legacy = project
   .settings(ServiceManagerPlugin.serviceManagerSettings)
   .settings(scalastyleFailOnError := false)
   .settings(itDependenciesList := externalServices)
+  .dependsOn(cpf)

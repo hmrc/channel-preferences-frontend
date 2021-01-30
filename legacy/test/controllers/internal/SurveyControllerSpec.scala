@@ -92,6 +92,7 @@ class SurveyControllerSpec
         "sso.encryption.previousKeys"  -> Seq.empty,
         "survey.ReOptInPage10.enabled" -> true
       )
+      .configure("metrics.enabled" -> false)
       .overrides(
         bind[AuditConnector].toInstance(mockAuditConnector),
         bind[AuthConnector].toInstance(mockAuthConnector),
@@ -156,7 +157,7 @@ class SurveyControllerSpec
       verify(mockAuditConnector).sendExtendedEvent(eventArg.capture())(any(), any())
 
       private val value: ExtendedDataEvent = eventArg.getValue
-      value.auditSource mustBe "preferences-frontend"
+      value.auditSource mustBe "channel-preferences-frontend"
       value.auditType mustBe EventTypes.Succeeded
       value.tags must contain("transactionName" -> "Re-OptIn Declined Survey Answered")
       val detail = Json.fromJson[EventDetail](value.detail).get
@@ -190,7 +191,7 @@ class SurveyControllerSpec
       verify(mockAuditConnector).sendExtendedEvent(eventArg.capture())(any(), any())
 
       private val value: ExtendedDataEvent = eventArg.getValue
-      value.auditSource mustBe "preferences-frontend"
+      value.auditSource mustBe "channel-preferences-frontend"
       value.auditType mustBe EventTypes.Succeeded
       value.tags must contain("transactionName" -> "Re-OptIn Declined Survey Answered")
       val detail = Json.fromJson[EventDetail](value.detail).get
@@ -247,7 +248,7 @@ class SurveyControllerSpec
       verify(mockAuditConnector).sendExtendedEvent(eventArg.capture())(any(), any())
 
       private val value: ExtendedDataEvent = eventArg.getValue
-      value.auditSource mustBe "preferences-frontend"
+      value.auditSource mustBe "channel-preferences-frontend"
       value.auditType mustBe EventTypes.Succeeded
       value.tags must contain("transactionName" -> "Re-OptIn Declined Survey Answered")
       val detail = Json.fromJson[EventDetail](value.detail).get

@@ -6,6 +6,7 @@
 import org.scalatest.concurrent.{ IntegrationPatience, ScalaFutures }
 import org.scalatest.time.{ Millis, Seconds, Span }
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.api.inject.guice.GuiceApplicationBuilder
 import org.scalatestplus.play.{ PlaySpec, WsScalaTestClient }
 import play.api.libs.json.Json
 import play.api.libs.ws.{ WSClient, WSRequest }
@@ -170,6 +171,13 @@ trait TestCaseWithFrontEndAuthentication extends TestCase with SessionCookieEncr
   val authHelper = app.injector.instanceOf[ItAuthHelper]
   def ggAuthHeaderWithUtr = authHelper.authHeader(utr)
   def ggAuthHeaderWithNino = authHelper.authHeader(nino)
+
+  override lazy val app = new GuiceApplicationBuilder()
+    .configure(
+      "play.filters.csrf.header.bypassHeaders.Csrf-Token" -> "nocheck",
+      "play.http.router"                                  -> "preferences_frontend.Routes"
+    )
+    .build()
 
   val returnUrl = "/test/return/url"
   val returnLinkText = "Continue"

@@ -64,3 +64,6 @@ GET         /paperless/check-settings                                           
 GET         /paperless/opt-in-cohort/display/:cohort                                controllers.internal.ChoosePaperlessController.displayCohort(cohort: Option[controllers.internal.OptInCohort])
 POST        /paperless/opt-in-cohort/nop                                            controllers.internal.ChoosePaperlessController.cohortNop()
 GET         /paperless/opt-in-cohort/list                                           controllers.internal.ChoosePaperlessController.cohortList()
+
+GET         /paperless/help/switch-to-welsh               controllers.LanguageController.switchToWelsh()
+GET         /paperlsess/help/switch-to-english             controllers.LanguageController.switchToEnglish()

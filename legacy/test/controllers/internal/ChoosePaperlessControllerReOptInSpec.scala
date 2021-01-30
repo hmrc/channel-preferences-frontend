@@ -102,6 +102,7 @@ class ChoosePaperlessControllerReOptInSpec
         bind[EmailConnector].toInstance(mockEmailConnector),
         bind[Metrics].toInstance(Mockito.mock(classOf[Metrics]))
       )
+      .configure("metrics.enabled" -> false)
       .build()
   val messageApi = fakeApplication.injector.instanceOf[DefaultMessagesApiProvider].get
   override def beforeEach(): Unit = {
@@ -182,7 +183,7 @@ class ChoosePaperlessControllerReOptInSpec
       verify(mockAuditConnector).sendMergedEvent(eventArg.capture())(any(), any())
 
       private val value: MergedDataEvent = eventArg.getValue
-      value.auditSource mustBe "preferences-frontend"
+      value.auditSource mustBe "channel-preferences-frontend"
       value.auditType mustBe EventTypes.Succeeded
       value.request.tags must contain("transactionName" -> "Show Print Preference Option")
       value.request.detail("cohort") mustBe assignedCohort.toString
@@ -334,7 +335,7 @@ class ChoosePaperlessControllerReOptInSpec
       verify(mockAuditConnector).sendMergedEvent(eventArg.capture())(any(), any())
 
       private val value: MergedDataEvent = eventArg.getValue
-      value.auditSource mustBe "preferences-frontend"
+      value.auditSource mustBe "channel-preferences-frontend"
       value.auditType mustBe EventTypes.Succeeded
       value.request.tags must contain("transactionName" -> "Set Print Preference")
       value.request.detail("cohort") mustBe "ReOptInPage10"
@@ -367,7 +368,7 @@ class ChoosePaperlessControllerReOptInSpec
       verify(mockAuditConnector).sendMergedEvent(eventArg.capture())(any(), any())
 
       private val value: MergedDataEvent = eventArg.getValue
-      value.auditSource mustBe "preferences-frontend"
+      value.auditSource mustBe "channel-preferences-frontend"
       value.auditType mustBe EventTypes.Succeeded
       value.request.tags must contain("transactionName" -> "Set Print Preference")
       value.request.detail("cohort") mustBe "ReOptInPage10"
@@ -399,7 +400,7 @@ class ChoosePaperlessControllerReOptInSpec
       verify(mockAuditConnector).sendMergedEvent(eventArg.capture())(any(), any())
 
       private val value: MergedDataEvent = eventArg.getValue
-      value.auditSource mustBe "preferences-frontend"
+      value.auditSource mustBe "channel-preferences-frontend"
       value.auditType mustBe EventTypes.Succeeded
       value.request.tags must contain("transactionName" -> "Set Print Preference")
       value.request.detail("cohort") mustBe "ReOptInPage10"
