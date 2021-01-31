@@ -1,0 +1,17 @@
+# Add all the application routes to the app.routes file
+### NoDocs ###
+->          /govuk-frontend         govuk.Routes
+### NoDocs ###
+->          /hmrc-frontend          hmrcfrontend.Routes
+->         /                        health.Routes
+->         /template                template.Routes
+->         /                        preferences_frontend.Routes
+->         /                        cpf.Routes
+
+
+### NoDocs ###
+GET        /admin/metrics                   com.kenshoo.play.metrics.MetricsController.metrics
+
+
+
+GET         /paperless/assets/*file                                                 controllers.Assets.versioned(file)

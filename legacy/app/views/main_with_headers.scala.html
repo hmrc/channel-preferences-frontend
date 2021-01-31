@@ -50,8 +50,8 @@
 @beforeContentBlock = {
     @hmrcLanguageSelect(LanguageSelect(
         if (messages.lang.code == "cy") Cy else En,
-        (En, "/help/switch-to-english"),
-        (Cy, "/help/switch-to-welsh")
+        (En, "/paperless/help/switch-to-english"),
+        (Cy, "/paperless/help/switch-to-welsh")
     ))
     <nav aria-label="back-link">
         @govukBackLink(BackLink(href = "javascript:history.back()", content = Text(Messages("app.common.back"))))
