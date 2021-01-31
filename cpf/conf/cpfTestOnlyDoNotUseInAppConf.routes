@@ -1,0 +1,1 @@
+GET         /channel-preferences-frontend/api/schema.json   uk.gov.hmrc.channelpreferencesfrontend.controllers.swagger.ApiSpecsController.specs

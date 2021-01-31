@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@this()
+@this(assetsFinder: AssetsFinder)
 @()
-<!--[if lte IE 8]><link href='@controllers.routes.Assets.versioned("stylesheets/application-ie-8.css")' rel="stylesheet" type="text/css" /><![endif]-->
-<!--[if gt IE 8]><!--><link href='@controllers.routes.Assets.versioned("stylesheets/application.css")' media="screen" rel="stylesheet" type="text/css" /><!--<![endif]-->
+<!--[if lte IE 8]><link href='@assetsFinder.path("/lib/legacy/stylesheets/application-ie-8.css")' rel="stylesheet" type="text/css" /><![endif]-->
+<!--[if gt IE 8]><!--><link href='@assetsFinder.path("/lib/legacy/stylesheets/application.css")' media="screen" rel="stylesheet" type="text/css" /><!--<![endif]-->
