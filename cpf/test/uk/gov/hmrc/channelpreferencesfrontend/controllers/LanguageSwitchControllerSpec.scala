@@ -31,7 +31,7 @@ class LanguageSwitchControllerSpec extends SpecBase with MustMatchers with Optio
       val application = applicationBuilder()
         .configure(
           "features.languageTranslationEnabled" -> true,
-           "play.http.router" -> "cpf.Routes"
+          "play.http.router"                    -> "cpf.Routes"
         )
         .build()
 
@@ -53,7 +53,7 @@ class LanguageSwitchControllerSpec extends SpecBase with MustMatchers with Optio
       val application = applicationBuilder()
         .configure(
           "features.languageTranslationEnabled" -> true,
-          "play.http.router" -> "cpf.Routes"
+          "play.http.router"                    -> "cpf.Routes"
         )
         .build()
 
@@ -78,8 +78,7 @@ class LanguageSwitchControllerSpec extends SpecBase with MustMatchers with Optio
       val application = applicationBuilder()
         .configure(
           "features.languageTranslationEnabled" -> false,
-          "play.http.router" -> "cpf.Routes"
-
+          "play.http.router"                    -> "cpf.Routes"
         )
         .build()
 

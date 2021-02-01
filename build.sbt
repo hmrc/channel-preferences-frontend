@@ -144,7 +144,7 @@ lazy val microservice = Project(appName, file("."))
     buildInfoPackage := "uk.gov.hmrc.channelpreferencesfrontend"
   )
   .dependsOn(legacy)
-  .aggregate(legacy, cpf)
+//.aggregate(legacy, cpf)
 
 lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
 compileScalastyle := scalastyle.in(Compile).toTask("").value
