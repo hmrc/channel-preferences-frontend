@@ -27,10 +27,6 @@ val appName = "channel-preferences-frontend"
 
 val silencerVersion = "1.7.0"
 
-// lazy val externalServices = List(
-//   ExternalService("DATASTREAM")
-// )
-
 lazy val wartremoverSettings =
   Seq(
     WartRemoverSettings.wartRemoverError,
