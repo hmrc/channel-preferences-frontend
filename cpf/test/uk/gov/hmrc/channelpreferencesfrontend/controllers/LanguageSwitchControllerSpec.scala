@@ -30,7 +30,8 @@ class LanguageSwitchControllerSpec extends SpecBase with MustMatchers with Optio
     "set the language to Cymraeg" in {
       val application = applicationBuilder()
         .configure(
-          "features.languageTranslationEnabled" -> true
+          "features.languageTranslationEnabled" -> true,
+           "play.http.router" -> "cpf.Routes"
         )
         .build()
 
@@ -51,7 +52,8 @@ class LanguageSwitchControllerSpec extends SpecBase with MustMatchers with Optio
     "set the language to English" in {
       val application = applicationBuilder()
         .configure(
-          "features.languageTranslationEnabled" -> true
+          "features.languageTranslationEnabled" -> true,
+          "play.http.router" -> "cpf.Routes"
         )
         .build()
 
@@ -75,7 +77,9 @@ class LanguageSwitchControllerSpec extends SpecBase with MustMatchers with Optio
     "should set the language to English regardless of what is requested" in {
       val application = applicationBuilder()
         .configure(
-          "features.languageTranslationEnabled" -> false
+          "features.languageTranslationEnabled" -> false,
+          "play.http.router" -> "cpf.Routes"
+
         )
         .build()
 
