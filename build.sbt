@@ -55,6 +55,7 @@ lazy val microservice = Project(appName, file("."))
       "uk.gov.hmrc.hmrcfrontend.views.html.components._",
       "uk.gov.hmrc.hmrcfrontend.views.html.helpers._"
     ),
+    scalacOptions ++= commonScalacOptions,
     PlayKeys.playDefaultPort := 9053,
     retrieveManaged := true,
     evictionWarningOptions in update :=
@@ -86,7 +87,7 @@ lazy val microservice = Project(appName, file("."))
     buildInfoPackage := "uk.gov.hmrc.channelpreferencesfrontend"
   )
   .dependsOn(legacy)
-  .aggregate(cpf)
+//.aggregate(cpf)
 
 lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
 compileScalastyle := scalastyle.in(Compile).toTask("").value
@@ -115,7 +116,6 @@ dependencyUpdatesFailBuild := true
 sources in (Compile, doc) := Seq.empty
 
 val codeStyleIntegrationTest = taskKey[Unit]("enforce code style then integration test")
-
 // and then in settings...
 Project.inConfig(IntegrationTest)(ScalastylePlugin.rawScalastyleSettings()) ++
   Seq(
