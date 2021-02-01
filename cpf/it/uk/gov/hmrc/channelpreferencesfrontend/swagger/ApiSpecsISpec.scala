@@ -28,7 +28,7 @@ class ApiSpecsISpec extends PlaySpec with GuiceOneAppPerSuite {
   override lazy val app = new GuiceApplicationBuilder()
     .configure(
       "play.filters.csrf.header.bypassHeaders.Csrf-Token" -> "nocheck",
-      "play.http.router"                                  -> "testOnlyDoNotUseInAppConf.Routes"
+      "play.http.router"                                  -> "cpfTestOnlyDoNotUseInAppConf.Routes"
     )
     .build()
 
