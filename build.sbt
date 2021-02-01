@@ -63,19 +63,10 @@ lazy val microservice = Project(appName, file("."))
       Resolver.bintrayRepo("hmrc", "releases"),
       Resolver.jcenterRepo
     ),
-    // ***************
-    // Use the silencer plugin to suppress warnings
-    // scalacOptions ++= commonScalacOptions ++ Seq(
-    //   "-P:wartremover:excluded:/",
-    //   "-P:wartremover:traverser:org.wartremover.warts.Unsafe",
-    //   "-Xcheckinit", // Wrap field accessors to throw an exception on uninitialized access.
-    //   "-Xfatal-warnings" // Fail the compilation if there are any warnings.
-    // ),
     libraryDependencies ++= Seq(
       compilerPlugin("com.github.ghik" % "silencer-plugin" % silencerVersion cross CrossVersion.full),
       "com.github.ghik" % "silencer-lib" % silencerVersion % Provided cross CrossVersion.full
     )
-    // ***************
   )
   .settings(
     resolvers += Resolver.jcenterRepo,
@@ -88,8 +79,6 @@ lazy val microservice = Project(appName, file("."))
         }.value)
     )
   )
-  //.settings(ServiceManagerPlugin.serviceManagerSettings)
-  //.settings(itDependenciesList := List())
   .settings(ScoverageSettings())
   .settings(wartremoverSettings: _*)
   .settings(
@@ -281,7 +270,8 @@ lazy val commonSettings =
         "uk.gov.hmrc.govukfrontend.views.html.components._",
         "uk.gov.hmrc.govukfrontend.views.html.helpers._",
         "uk.gov.hmrc.hmrcfrontend.views.html.components._"
-      )
+      ),
+      sources in (Compile, doc) := Seq.empty
     )
 
 lazy val externalServices = List(
