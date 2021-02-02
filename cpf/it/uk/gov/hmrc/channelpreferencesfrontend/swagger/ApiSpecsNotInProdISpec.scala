@@ -21,7 +21,6 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.http.HttpClient
 
 class ApiSpecsNotInProdISpec extends PlaySpec with GuiceOneAppPerSuite {
 
@@ -31,8 +30,6 @@ class ApiSpecsNotInProdISpec extends PlaySpec with GuiceOneAppPerSuite {
       "play.http.router"                                  -> "cpf.Routes"
     )
     .build()
-
-  val http = app.injector.instanceOf[HttpClient]
 
   "calling the swagger route on production" must {
 

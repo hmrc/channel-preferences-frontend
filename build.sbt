@@ -51,8 +51,6 @@ lazy val externalServices = List(
 
 lazy val commonScalacOptions = Seq(
   "-P:silencer:pathFilters=target/.*",
-  "-P:wartremover:excluded:/",
-  //"-P:wartremover:traverser:org.wartremover.warts.Unsafe",
   "-deprecation", // Emit warning and location for usages of deprecated APIs.
   "-encoding",
   "utf-8", // Specify character encoding used by source files.
@@ -130,39 +128,18 @@ lazy val commonSettings =
       )
     )
 
-lazy val wartremoverSettings =
-  Seq(
-    WartRemoverSettings.wartRemoverError,
-    wartremoverErrors in (Test, compile) -= Wart.NonUnitStatements, // does not seem to work as intended
-    wartremoverExcluded in (Compile, compile) ++= routes.in(Compile).value,
-    wartremoverExcluded += (target in TwirlKeys.compileTemplates).value
-  )
-
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, BuildInfoPlugin)
   .disablePlugins(JUnitXmlReportPlugin) // Required to prevent https://github.com/scalatest/scalatest/issues/1427
-  .configs(IntegrationTest)
-  .settings(itDependenciesList := externalServices)
   .settings(SassKeys.embedSources := true)
   .settings(commonSettings)
   .settings(scalastyleFailOnError := true)
-  .settings(wartremoverSettings: _*)
-  .settings(
-    scalacOptions ++= commonScalacOptions ++ Seq(
-      "-P:wartremover:excluded:/conf/app.routes",
-      "-P:wartremover:traverser:org.wartremover.warts.Unsafe",
-      "-Xcheckinit", // Wrap field accessors to throw an exception on uninitialized access.
-      "-Xfatal-warnings" // Fail the compilation if there are any warnings.
-    )
-  )
   .dependsOn(legacy)
   .aggregate(cpf, legacy)
 
 lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
 compileScalastyle := scalastyle.in(Compile).toTask("").value
 (compile in Compile) := ((compile in Compile) dependsOn compileScalastyle).value
-wartremoverWarnings ++= Warts.all
-//wartremoverExcluded += baseDirectory.value
 
 bobbyRulesURL := Some(new URL("https://webstore.tax.service.gov.uk/bobby-config/deprecated-dependencies.json"))
 scalafmtOnCompile := true
@@ -229,14 +206,11 @@ lazy val cpf = project
   .settings(scalastyleFailOnError := true)
   .settings(
     RoutesKeys.routesImport += "uk.gov.hmrc.channelpreferencesfrontend.models._"
-    // scalacOptions ++= Seq(
-    //   "-P:wartremover:excluded:/conf/app.routes",
-    //   "-P:wartremover:traverser:org.wartremover.warts.Unsafe",
-    //   "-Xcheckinit", // Wrap field accessors to throw an exception on uninitialized access.
-    //   "-Xfatal-warnings", // Fail the compilation if there are any warnings.
-    // )
   )
-  //.settings(ServiceManagerPlugin.serviceManagerSettings)
-  //.settings(itDependenciesList := externalServices)
-  .settings(wartremoverSettings: _*)
-  //.settings(ScoverageSettings())
+  .settings(
+    wartremoverErrors ++= Warts.allBut(Wart.ImplicitParameter),
+    wartremoverErrors in (Test, compile) -= Wart.NonUnitStatements, // does not seem to work as intended
+    wartremoverExcluded in (Compile, compile) ++= routes.in(Compile).value,
+    wartremoverExcluded += (target in TwirlKeys.compileTemplates).value
+  )
+//.settings(ScoverageSettings())
