@@ -176,6 +176,12 @@ lazy val cpf = project
   .configs(IntegrationTest)
   .settings(inConfig(IntegrationTest)(org.scalafmt.sbt.ScalafmtPlugin.scalafmtConfigSettings))
   .settings(
+    scalacOptions ++= Seq(
+      "-Xcheckinit", // Wrap field accessors to throw an exception on uninitialized access.
+      "-Xfatal-warnings" // Fail the compilation if there are any warnings.
+    )
+  )
+  .settings(
     commonSettings,
     TwirlKeys.templateImports ++= Seq(
       "uk.gov.hmrc.channelpreferencesfrontend.config.AppConfig"
