@@ -16,7 +16,6 @@
 
 import uk.gov.hmrc.DefaultBuildSettings.{ defaultSettings, integrationTestSettings, scalaSettings }
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
-import com.lucidchart.sbt.scalafmt.ScalafmtCorePlugin.autoImport._
 import uk.gov.hmrc.ExternalService
 import uk.gov.hmrc.SbtBobbyPlugin.BobbyKeys.bobbyRulesURL
 import uk.gov.hmrc.ServiceManagerPlugin.Keys.itDependenciesList
@@ -175,20 +174,13 @@ lazy val cpf = project
   .enablePlugins(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, BuildInfoPlugin)
   .disablePlugins(JUnitXmlReportPlugin) // Required to prevent https://github.com/scalatest/scalatest/issues/1427
   .configs(IntegrationTest)
+  .settings(inConfig(IntegrationTest)(org.scalafmt.sbt.ScalafmtPlugin.scalafmtConfigSettings))
   .settings(
     commonSettings,
     TwirlKeys.templateImports ++= Seq(
       "uk.gov.hmrc.channelpreferencesfrontend.config.AppConfig"
     ),
     buildInfoPackage := "uk.gov.hmrc.channelpreferencesfrontend"
-    // inConfig(IntegrationTest)(
-    //   scalafmtCoreSettings ++
-    //     Seq(compileInputs in compile := Def.taskDyn {
-    //       val task = test in (resolvedScoped.value.scope in scalafmt.key)
-    //       val previousInputs = (compileInputs in compile).value
-    //       task.map(_ => previousInputs)
-    //     }.value)
-    // )
   )
   .settings(scalastyleFailOnError := true)
   .settings(
