@@ -39,7 +39,8 @@ class ChangeLanguageSpec extends PlaySpec with GuiceOneAppPerSuite with Language
       val document =
         Jsoup.parse(
           template(form, Call("/myurl", "GET"))(authRequest, messagesInEnglish(), TestFixtures.sampleHostContext)
-            .toString())
+            .toString()
+        )
 
       document
         .getElementsByClass("govuk-fieldset__heading")
@@ -51,7 +52,8 @@ class ChangeLanguageSpec extends PlaySpec with GuiceOneAppPerSuite with Language
       val document =
         Jsoup.parse(
           template(form, Call("/myurl", "GET"))(authRequest, messagesInWelsh(), TestFixtures.sampleHostContext)
-            .toString())
+            .toString()
+        )
 
       document
         .getElementsByClass("govuk-fieldset__heading")

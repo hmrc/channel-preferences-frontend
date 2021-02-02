@@ -1,1 +1,1 @@
-alias fmt=;legacy/scalafmt;legacy/test:scalafmt;legacy/it:scalafmt;cpf/scalafmt;cpf/test:scalafmt;cpf/it:scalafmt
+alias fmt=;scalafmt;test:scalafmt;it:scalafmt

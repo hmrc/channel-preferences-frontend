@@ -31,7 +31,8 @@ class PreferenceResponseSpec extends PlaySpec {
 
       json.as[PreferenceResponse] mustBe PreferenceResponse(
         Map("generic" -> TermsAndConditonsAcceptance(true)),
-        Some(EmailPreference("pihklyljtgoxeoh@mail.com", true, false, false, None)))
+        Some(EmailPreference("pihklyljtgoxeoh@mail.com", true, false, false, None))
+      )
     }
 
     "work with a major version" in {
@@ -49,7 +50,8 @@ class PreferenceResponseSpec extends PlaySpec {
       val json: JsValue = Resources.readJson("PreferenceResponseWithPaperless.json")
       json.as[PreferenceResponse] mustBe PreferenceResponse(
         Map(
-          "generic" -> TermsAndConditonsAcceptance(accepted = true, majorVersion = Option(3), paperless = Some(true))),
+          "generic" -> TermsAndConditonsAcceptance(accepted = true, majorVersion = Option(3), paperless = Some(true))
+        ),
         Some(EmailPreference("pihklyljtgoxeoh@mail.com", true, false, false, None))
       )
     }

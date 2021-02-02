@@ -28,25 +28,25 @@ class ReadOnlyAndroidOptInPage23CohortSpec extends PlaySpec {
       val cohortUnderTest = AndroidOptInPage23
 
       withClue("id") {
-        cohortUnderTest.id mustBe (23)
+        cohortUnderTest.id mustBe 23
       }
       withClue("name") {
-        cohortUnderTest.name mustBe ("AndroidOptInPage23")
+        cohortUnderTest.name mustBe "AndroidOptInPage23"
       }
       withClue("terms") {
-        cohortUnderTest.terms mustBe (GenericTerms)
+        cohortUnderTest.terms mustBe GenericTerms
       }
       withClue("pageType") {
         cohortUnderTest.pageType mustBe (PageType.AndroidOptInPage)
       }
       withClue("majorVersion") {
-        cohortUnderTest.majorVersion mustBe (1)
+        cohortUnderTest.majorVersion mustBe 1
       }
       withClue("minorVersion") {
-        cohortUnderTest.minorVersion mustBe (2)
+        cohortUnderTest.minorVersion mustBe 2
       }
       withClue("description") {
-        cohortUnderTest.description mustBe ("")
+        cohortUnderTest.description mustBe ""
       }
       withClue("date") {
         cohortUnderTest.date mustBe new LocalDate("2020-07-09")

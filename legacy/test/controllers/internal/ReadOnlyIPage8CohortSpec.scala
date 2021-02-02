@@ -28,25 +28,25 @@ class ReadOnlyIPage8CohortSpec extends PlaySpec {
       val cohortUnderTest = IPage8
 
       withClue("id") {
-        cohortUnderTest.id mustBe (8)
+        cohortUnderTest.id mustBe 8
       }
       withClue("name") {
-        cohortUnderTest.name mustBe ("IPage8")
+        cohortUnderTest.name mustBe "IPage8"
       }
       withClue("terms") {
-        cohortUnderTest.terms mustBe (GenericTerms)
+        cohortUnderTest.terms mustBe GenericTerms
       }
       withClue("pageType") {
         cohortUnderTest.pageType mustBe (PageType.IPage)
       }
       withClue("majorVersion") {
-        cohortUnderTest.majorVersion mustBe (1)
+        cohortUnderTest.majorVersion mustBe 1
       }
       withClue("minorVersion") {
-        cohortUnderTest.minorVersion mustBe (0)
+        cohortUnderTest.minorVersion mustBe 0
       }
       withClue("description") {
-        cohortUnderTest.description mustBe ("SOL changes to wording to improve litigation cases")
+        cohortUnderTest.description mustBe "SOL changes to wording to improve litigation cases"
       }
       withClue("date") {
         cohortUnderTest.date mustBe new LocalDate("2020-05-12")

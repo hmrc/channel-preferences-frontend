@@ -41,7 +41,8 @@ class PendingEmailVerificationSpec extends PlaySpec with GuiceOneAppPerSuite wit
       val errors = Seq((FormError("ErrorKey", Seq("Error Message"), Seq()), "Outer Error Message"))
       val document = Jsoup.parse(
         pending_email_verification(emailPreference, TestFixtures.sampleHostContext)(FakeRequest(), messagesInEnglish())
-          .toString())
+          .toString()
+      )
 
       document
         .getElementsByTag("summary")
@@ -68,7 +69,8 @@ class PendingEmailVerificationSpec extends PlaySpec with GuiceOneAppPerSuite wit
       val errors = Seq((FormError("ErrorKey", Seq("Error Message"), Seq()), "Outer Error Message"))
       val document = Jsoup.parse(
         pending_email_verification(emailPreference, TestFixtures.sampleHostContext)(welshRequest, messagesInWelsh())
-          .toString())
+          .toString()
+      )
 
       document
         .getElementsByTag("summary")

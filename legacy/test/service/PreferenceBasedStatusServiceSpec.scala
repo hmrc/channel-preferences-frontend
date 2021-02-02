@@ -54,7 +54,8 @@ class PreferenceBasedStatusServiceSpec extends WordSpec with MustMatchers {
     isVerified: Boolean = true,
     hasBounces: Boolean = false,
     termsAccepted: Boolean = true,
-    containsEmail: Boolean = true) =
+    containsEmail: Boolean = true
+  ) =
     Some(
       PreferenceResponse(
         Map("generic" -> TermsAndConditonsAcceptance(termsAccepted)),
@@ -67,6 +68,9 @@ class PreferenceBasedStatusServiceSpec extends WordSpec with MustMatchers {
               isVerified = isVerified,
               hasBounces = hasBounces,
               mailboxFull = false,
-              linkSent = None))
-      ))
+              linkSent = None
+            )
+          )
+      )
+    )
 }

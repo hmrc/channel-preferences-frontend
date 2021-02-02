@@ -69,7 +69,8 @@ class EntityResolverConnectorSpec
     when(http.GET[Option[PreferenceResponse]](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any()))
       .thenReturn(Future.successful(None))
     eventually(timeout(2 seconds), interval(100 milliseconds))(
-      connector.getPreferencesStatus().futureValue mustBe Right(PreferenceNotFound(None)))
+      connector.getPreferencesStatus().futureValue mustBe Right(PreferenceNotFound(None))
+    )
   }
   "getPreferencesStatusByToken" should {
     val GOOD_SERVICE = "mtdfbit"
@@ -112,7 +113,8 @@ class EntityResolverConnectorSpec
 
       val expectedResult = new SaPreference(
         digital = true,
-        email = Some(new SaEmailPreference("test@mail.com", SaEmailPreference.Status.Verified)))
+        email = Some(new SaEmailPreference("test@mail.com", SaEmailPreference.Status.Verified))
+      )
 
       val preferenceResponse = connector.getPreferencesStatus().futureValue
       preferenceResponse mustBe Right(PreferenceFound(true, expectedResult.toNewPreference().email, paperless = None))
@@ -133,7 +135,9 @@ class EntityResolverConnectorSpec
         PreferenceFound(
           expectedResult.toNewPreference().termsAndConditions.get("generic").get.accepted,
           None,
-          paperless = None))
+          paperless = None
+        )
+      )
     }
 
     "map an auth failure to UNAUTHORIZED" in {
@@ -175,7 +179,8 @@ class EntityResolverConnectorSpec
         SaPreference(
           digital = true,
           email = Some(SaEmailPreference(email = "test@mail.com", status = SaEmailPreference.Status.Verified))
-        ).toNewPreference())
+        ).toNewPreference()
+      )
     }
 
     "return None for a 404" in {
@@ -249,7 +254,8 @@ class EntityResolverConnectorSpec
                                       |     "returnUrl": "ReturnUrl"
                                       |}""".stripMargin)
       val result = connector.responseToEmailVerificationLinkStatus(
-        Future.successful(HttpResponse(201, responseJson = Some(responseJson))))
+        Future.successful(HttpResponse(201, responseJson = Some(responseJson)))
+      )
       result.futureValue mustBe ValidatedWithReturn("Return Link Text", "ReturnUrl")
     }
 
@@ -265,7 +271,10 @@ class EntityResolverConnectorSpec
             """PUT of something Response body: '{"returnLinkText":"a message", "returnUrl": "https://some/place"}'""",
             PRECONDITION_FAILED,
             0,
-            Map())))
+            Map()
+          )
+        )
+      )
       result.futureValue mustBe ValidationErrorWithReturn("a message", "https://some/place")
     }
 
@@ -302,13 +311,16 @@ class EntityResolverConnectorSpec
             Matchers.any(),
             Matchers.any(),
             Matchers.any(),
-            Matchers.any())).thenReturn(Future.successful(HttpResponse(status)))
+            Matchers.any()
+          )
+        ).thenReturn(Future.successful(HttpResponse(status)))
       def checkPayload(url: String, payload: TermsAndConditionsUpdate) =
         verify(http).POST(Matchers.endsWith(s"$url"), Matchers.eq(payload), Matchers.any())(
           Matchers.any(),
           Matchers.any(),
           Matchers.any(),
-          Matchers.any())
+          Matchers.any()
+        )
     }
 
     "send generic accepted true and return preferences created if terms and conditions are accepted and updated and preferences created" in new PayloadCheck {
@@ -337,7 +349,8 @@ class EntityResolverConnectorSpec
             TaxCreditsTerms -> TermsAccepted(true),
             email = None,
             includeLinkDetails = false,
-            language = Some(Welsh))
+            language = Some(Welsh)
+          )
       connector.updateTermsAndConditions(payload).futureValue must be(PreferencesExists)
       checkPayload("/preferences/terms-and-conditions", payload)
     }
@@ -350,7 +363,8 @@ class EntityResolverConnectorSpec
             TaxCreditsTerms -> TermsAccepted(false),
             email = None,
             includeLinkDetails = false,
-            language = Some(Welsh))
+            language = Some(Welsh)
+          )
       connector.updateTermsAndConditions(payload).futureValue must be(PreferencesExists)
       checkPayload("/preferences/terms-and-conditions", payload)
     }
@@ -372,7 +386,9 @@ class EntityResolverConnectorSpec
           Matchers.any(),
           Matchers.any(),
           Matchers.any(),
-          Matchers.any())).thenReturn(Future.failed(Upstream4xxResponse("", 401, 401)))
+          Matchers.any()
+        )
+      ).thenReturn(Future.failed(Upstream4xxResponse("", 401, 401)))
 
       val payload = TermsAndConditionsUpdate
         .from(GenericTerms -> TermsAccepted(true), email = None, includeLinkDetails = true, language = Some(Welsh))
@@ -392,12 +408,15 @@ class EntityResolverConnectorSpec
             Matchers.any(),
             Matchers.any(),
             Matchers.any(),
-            Matchers.any())).thenReturn(Future.successful(HttpResponse(status)))
+            Matchers.any()
+          )
+        ).thenReturn(Future.successful(HttpResponse(status)))
       def checkPayload(url: String, payload: TermsAndConditionsUpdate): Future[HttpResponse] =
         verify(http, times(1)).POST[TermsAndConditionsUpdate, HttpResponse](
           Matchers.endsWith(s"$url"),
           Matchers.eq(payload),
-          Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())
+          Matchers.any()
+        )(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())
       val email = "test@test.com"
 
     }
@@ -409,7 +428,8 @@ class EntityResolverConnectorSpec
           GenericTerms -> TermsAccepted(true),
           email = Some("test@test.com"),
           includeLinkDetails = true,
-          language = Some(Welsh))
+          language = Some(Welsh)
+        )
 
       connector.updateTermsAndConditions(termsAndConditionsUpdate).futureValue must be(PreferencesCreated)
 
@@ -433,7 +453,8 @@ class EntityResolverConnectorSpec
           TaxCreditsTerms -> TermsAccepted(true),
           email = Some("test@test.com"),
           includeLinkDetails = true,
-          language = Some(Welsh))
+          language = Some(Welsh)
+        )
 
       connector.updateTermsAndConditions(expectedPayload).futureValue must be(PreferencesCreated)
     }
@@ -446,7 +467,8 @@ class EntityResolverConnectorSpec
             TaxCreditsTerms -> TermsAccepted(false),
             email = None,
             includeLinkDetails = true,
-            language = Some(Welsh))
+            language = Some(Welsh)
+          )
 
       connector.updateTermsAndConditions(expectedPayload).futureValue must be(PreferencesCreated)
     }
@@ -461,7 +483,9 @@ class EntityResolverConnectorSpec
           Matchers.any(),
           Matchers.any(),
           Matchers.any(),
-          Matchers.any())).thenReturn(Future.failed(Upstream4xxResponse("", 401, 401)))
+          Matchers.any()
+        )
+      ).thenReturn(Future.failed(Upstream4xxResponse("", 401, 401)))
 
       connector
         .updateTermsAndConditions(expectedPayload)

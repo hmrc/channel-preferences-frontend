@@ -101,7 +101,8 @@ class ReOptInActivationWithFeatureFlagOffSpec
             Some(affinityGroup)
           ),
           confidenceLevel
-        ))
+        )
+      )
     val email = EmailPreference("test@test.com", false, false, false, None, Some(English), pendingEmail)
     def initMocks() = {
       reset(mockAuthConnector)
@@ -109,7 +110,9 @@ class ReOptInActivationWithFeatureFlagOffSpec
       when(mockEntityResolverConnector.getPreferencesStatus(any())(any()))
         .thenReturn(
           Future.successful(
-            Right(PreferenceFound(true, Some(email), majorVersion = Some(prefMajor), paperless = paperless))))
+            Right(PreferenceFound(true, Some(email), majorVersion = Some(prefMajor), paperless = paperless))
+          )
+        )
 
       when(mockAuthConnector.authorise[AuthRetrievals](any(), any())(any(), any()))
         .thenReturn(retrievalResult())
@@ -119,7 +122,8 @@ class ReOptInActivationWithFeatureFlagOffSpec
       .displayForm(
         Some(CohortCurrent.reoptinpage),
         email = None,
-        TestFixtures.reOptInHostContext(email.email).copy(cohort = Some(ReOptInPage52)))
+        TestFixtures.reOptInHostContext(email.email).copy(cohort = Some(ReOptInPage52))
+      )
     initMocks()
   }
 }

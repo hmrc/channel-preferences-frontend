@@ -43,7 +43,8 @@ class PaperlessWarningPartialSpec
       PaperlessWarningPartial
         .apply(SaPreference(digital = false).toNewPreference(), TestFixtures.sampleHostContext)(
           FakeRequest(),
-          appMessages)
+          appMessages
+        )
         .body must be("")
     }
 
@@ -52,7 +53,8 @@ class PaperlessWarningPartialSpec
         .apply(
           SaPreference(
             digital = true,
-            email = Some(SaEmailPreference(email = "test@test.com", status = SaEmailPreference.Status.Verified))).toNewPreference,
+            email = Some(SaEmailPreference(email = "test@test.com", status = SaEmailPreference.Status.Verified))
+          ).toNewPreference,
           TestFixtures.sampleHostContext
         )(FakeRequest(), appMessages)
         .body must be("")
@@ -67,7 +69,9 @@ class PaperlessWarningPartialSpec
               SaEmailPreference(
                 email = "test@test.com",
                 status = SaEmailPreference.Status.Pending,
-                linkSent = Some(LocalDate.parse("2014-12-05"))))
+                linkSent = Some(LocalDate.parse("2014-12-05"))
+              )
+            )
           ).toNewPreference(),
           TestFixtures.sampleHostContext
         )(FakeRequest(), appMessages)
@@ -79,7 +83,9 @@ class PaperlessWarningPartialSpec
       document.getElementById("remindersProblem").text() mustBe "Continue"
       document
         .getElementById("remindersProblem")
-        .attr("href") mustBe "/paperless/check-settings?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"
+        .attr(
+          "href"
+        ) mustBe "/paperless/check-settings?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"
     }
 
     "have mail box full warning in english if email bounces due to mail box being full" in {
@@ -90,7 +96,9 @@ class PaperlessWarningPartialSpec
             email = "test@test.com",
             status = SaEmailPreference.Status.Bounced,
             linkSent = Some(LocalDate.parse("2014-12-05")),
-            mailboxFull = true))
+            mailboxFull = true
+          )
+        )
       ).toNewPreference()
       val result =
         PaperlessWarningPartial.apply(saPref, TestFixtures.sampleHostContext)(FakeRequest(), appMessages).body
@@ -107,7 +115,9 @@ class PaperlessWarningPartialSpec
                 email = "test@test.com",
                 status = SaEmailPreference.Status.Bounced,
                 linkSent = Some(LocalDate.parse("2014-12-05")),
-                mailboxFull = false))
+                mailboxFull = false
+              )
+            )
           ).toNewPreference(),
           TestFixtures.sampleHostContext
         )(FakeRequest(), appMessages)
@@ -117,37 +127,47 @@ class PaperlessWarningPartialSpec
       document.getElementById("remindersProblem").text() mustBe "Continue"
       document
         .getElementById("remindersProblem")
-        .attr("href") mustBe "/paperless/check-settings?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"
+        .attr(
+          "href"
+        ) mustBe "/paperless/check-settings?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"
     }
 
     "be ignored if the preferences is not opted in for generic for not verified emails" in new TestCase {
       PaperlessWarningPartial.apply(
         genericOnlyPreferenceResponse(accepted = true, isVerified = false, hasBounces = false),
-        TestFixtures.sampleHostContext)(FakeRequest(), appMessages) must not be HtmlFormat.empty
+        TestFixtures.sampleHostContext
+      )(FakeRequest(), appMessages) must not be HtmlFormat.empty
       PaperlessWarningPartial.apply(
         genericOnlyPreferenceResponse(accepted = false, isVerified = false, hasBounces = false),
-        TestFixtures.sampleHostContext)(FakeRequest(), appMessages) mustBe HtmlFormat.empty
+        TestFixtures.sampleHostContext
+      )(FakeRequest(), appMessages) mustBe HtmlFormat.empty
       PaperlessWarningPartial.apply(
         taxCreditOnlyPreferenceResponse(accepted = true, isVerified = false, hasBounces = false),
-        TestFixtures.sampleHostContext)(FakeRequest(), appMessages) mustBe HtmlFormat.empty
+        TestFixtures.sampleHostContext
+      )(FakeRequest(), appMessages) mustBe HtmlFormat.empty
       PaperlessWarningPartial.apply(
         taxCreditOnlyPreferenceResponse(accepted = true, isVerified = false, hasBounces = false),
-        TestFixtures.sampleHostContext)(FakeRequest(), appMessages) mustBe HtmlFormat.empty
+        TestFixtures.sampleHostContext
+      )(FakeRequest(), appMessages) mustBe HtmlFormat.empty
     }
 
     "be ignored if the preferences is not opted in for generic for bounced emails" in new TestCase {
       PaperlessWarningPartial.apply(
         genericOnlyPreferenceResponse(accepted = true, isVerified = false, hasBounces = true),
-        TestFixtures.sampleHostContext)(FakeRequest(), appMessages) must not be HtmlFormat.empty
+        TestFixtures.sampleHostContext
+      )(FakeRequest(), appMessages) must not be HtmlFormat.empty
       PaperlessWarningPartial.apply(
         genericOnlyPreferenceResponse(accepted = false, isVerified = false, hasBounces = true),
-        TestFixtures.sampleHostContext)(FakeRequest(), appMessages) mustBe HtmlFormat.empty
+        TestFixtures.sampleHostContext
+      )(FakeRequest(), appMessages) mustBe HtmlFormat.empty
       PaperlessWarningPartial.apply(
         taxCreditOnlyPreferenceResponse(accepted = true, isVerified = false, hasBounces = true),
-        TestFixtures.sampleHostContext)(FakeRequest(), appMessages) mustBe HtmlFormat.empty
+        TestFixtures.sampleHostContext
+      )(FakeRequest(), appMessages) mustBe HtmlFormat.empty
       PaperlessWarningPartial.apply(
         taxCreditOnlyPreferenceResponse(accepted = true, isVerified = false, hasBounces = true),
-        TestFixtures.sampleHostContext)(FakeRequest(), appMessages) mustBe HtmlFormat.empty
+        TestFixtures.sampleHostContext
+      )(FakeRequest(), appMessages) mustBe HtmlFormat.empty
     }
 
     "have pending verification warning in welsh if email not verified" in {
@@ -160,7 +180,9 @@ class PaperlessWarningPartialSpec
               SaEmailPreference(
                 email = "test@test.com",
                 status = SaEmailPreference.Status.Pending,
-                linkSent = Some(LocalDate.parse("2014-12-05"))))
+                linkSent = Some(LocalDate.parse("2014-12-05"))
+              )
+            )
           ).toNewPreference(),
           TestFixtures.sampleHostContext
         )(welshRequest, messagesInWelsh())
@@ -172,7 +194,9 @@ class PaperlessWarningPartialSpec
       document.getElementById("remindersProblem").text() mustBe "Yn eich blaen"
       document
         .getElementById("remindersProblem")
-        .attr("href") mustBe "/paperless/check-settings?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"
+        .attr(
+          "href"
+        ) mustBe "/paperless/check-settings?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"
 
     }
 
@@ -184,7 +208,9 @@ class PaperlessWarningPartialSpec
             email = "test@test.com",
             status = SaEmailPreference.Status.Bounced,
             linkSent = Some(LocalDate.parse("2014-12-05")),
-            mailboxFull = true))
+            mailboxFull = true
+          )
+        )
       ).toNewPreference()
       val result = PaperlessWarningPartial
         .apply(saPref, TestFixtures.sampleHostContext)(welshRequest, messagesInWelsh())
@@ -202,7 +228,9 @@ class PaperlessWarningPartialSpec
                 email = "test@test.com",
                 status = SaEmailPreference.Status.Bounced,
                 linkSent = Some(LocalDate.parse("2014-12-05")),
-                mailboxFull = false))
+                mailboxFull = false
+              )
+            )
           ).toNewPreference(),
           TestFixtures.sampleHostContext
         )(welshRequest, messagesInWelsh())
@@ -212,7 +240,9 @@ class PaperlessWarningPartialSpec
       document.getElementById("remindersProblem").text() mustBe "Yn eich blaen"
       document
         .getElementById("remindersProblem")
-        .attr("href") mustBe "/paperless/check-settings?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"
+        .attr(
+          "href"
+        ) mustBe "/paperless/check-settings?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"
 
     }
 
