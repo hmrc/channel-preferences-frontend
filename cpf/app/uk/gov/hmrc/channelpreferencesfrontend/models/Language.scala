@@ -22,6 +22,7 @@ import play.api.mvc.PathBindable
 
 sealed trait Language {
   val lang: Lang
+  val string: String
 }
 
 object Language {
@@ -38,12 +39,12 @@ object Language {
     new PathBindable[Language] {
       override def bind(key: String, value: String): Either[String, Language] =
         value match {
-          case Cymraeg.toString => Cymraeg.asRight[String]
-          case English.toString => English.asRight[String]
-          case _                => "Invalid language".asLeft[Language]
+          case Cymraeg.string => Cymraeg.asRight[String]
+          case English.string => English.asRight[String]
+          case _              => "Invalid language".asLeft[Language]
         }
 
       override def unbind(key: String, value: Language): String =
-        value.lang.language
+        value.string
     }
 }
