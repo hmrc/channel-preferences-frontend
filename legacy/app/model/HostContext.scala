@@ -33,8 +33,9 @@ case class HostContext(
 
 object HostContext {
 
-  implicit def hostContextBinder(
-    implicit stringBinder: QueryStringBindable[Encrypted[String]]): QueryStringBindable[HostContext] =
+  implicit def hostContextBinder(implicit
+    stringBinder: QueryStringBindable[Encrypted[String]]
+  ): QueryStringBindable[HostContext] =
     new QueryStringBindable[HostContext] {
       override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, HostContext]] = {
         val returnUrlResult = stringBinder.bind("returnUrl", params)
@@ -52,7 +53,8 @@ object HostContext {
           termsAndConditionsOptionResult,
           emailOptionResult,
           languageResult,
-          cohortResult) match {
+          cohortResult
+        ) match {
           case (Some(Right(returnUrl)), Some(Right(returnLinkText)), Some("taxCredits"), None, _, _) =>
             Some(Left("TaxCredits must provide email"))
           case (Some(Right(returnUrl)), Some(Right(returnLinkText)), terms, email, lang, pageType) =>
@@ -65,7 +67,9 @@ object HostContext {
                   email = email,
                   alreadyOptedInUrl = alreadyOptedInUrl,
                   pageType
-                )))
+                )
+              )
+            )
           case (maybeReturnUrlError, maybeReturnLinkTextError, _, _, _, _) =>
             val errorMessage = Seq(
               extractError(maybeReturnUrlError, Some("No returnUrl query parameter")),
@@ -103,9 +107,10 @@ object HostContext {
     }
 
   implicit class OptionOps(binderResult: Option[Either[String, Encrypted[String]]]) {
-    def liftDecryptedOption: Option[String] = binderResult match {
-      case Some(Right(encryptedValue)) => Some(encryptedValue.decryptedValue)
-      case _                           => None
-    }
+    def liftDecryptedOption: Option[String] =
+      binderResult match {
+        case Some(Right(encryptedValue)) => Some(encryptedValue.decryptedValue)
+        case _                           => None
+      }
   }
 }

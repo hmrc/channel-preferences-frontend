@@ -34,7 +34,8 @@ object EmailForm {
           "confirm" -> optional(text)
         ).verifying("email.confirmation.emails.unequal", email => email._1 == email._2.getOrElse("")),
         "emailVerified" -> optional(text)
-      )(Data.apply)(Data.unapply))
+      )(Data.apply)(Data.unapply)
+    )
 
   import uk.gov.hmrc.emailaddress.EmailAddress
 
@@ -44,9 +45,10 @@ object EmailForm {
     def mainEmail = email._1
   }
   object Data {
-    def apply(emailAddress: Option[EmailAddress]): Data = Data(
-      email = emailAddress.map(e => (e.value, Some(e.value))).getOrElse(("", None)),
-      emailVerified = None
-    )
+    def apply(emailAddress: Option[EmailAddress]): Data =
+      Data(
+        email = emailAddress.map(e => (e.value, Some(e.value))).getOrElse(("", None)),
+        emailVerified = None
+      )
   }
 }

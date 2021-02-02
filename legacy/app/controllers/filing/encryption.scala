@@ -33,7 +33,7 @@ private[filing] case class TokenExpiredException(token: String, time: Long)
 
 private[filing] case class Token(utr: SaUtr, timestamp: Long, encryptedToken: String)
 @Singleton
-private[filing] class TokenEncryption @Inject()(config: Configuration)
+private[filing] class TokenEncryption @Inject() (config: Configuration)
     extends Decrypter with CompositeSymmetricCrypto with KeysFromConfig {
   override def configuration = config
 
@@ -55,16 +55,16 @@ private[filing] class TokenEncryption @Inject()(config: Configuration)
 }
 
 @Singleton
-private[filing] class DecryptAndValidate @Inject()(
+private[filing] class DecryptAndValidate @Inject() (
   configuration: Configuration,
   env: Environment,
-  tokenEncryption: TokenEncryption)
-    extends Results {
+  tokenEncryption: TokenEncryption
+) extends Results {
   private lazy val tokenTimeout =
     configuration.getOptional[Int](s"govuk-tax.${env.mode}.portal.tokenTimeout").getOrElse(240)
 
-  def apply(encryptedToken: String, returnUrl: Uri)(action: Token => (Action[AnyContent])) = Action.async {
-    request: Request[AnyContent] =>
+  def apply(encryptedToken: String, returnUrl: Uri)(action: Token => (Action[AnyContent])) =
+    Action.async { request: Request[AnyContent] =>
       try {
         implicit val token = tokenEncryption.decryptToken(encryptedToken, tokenTimeout)
         action(token)(request)
@@ -76,7 +76,7 @@ private[filing] class DecryptAndValidate @Inject()(
           Logger.error("Exception happened while decrypting the token", e)
           Future.successful(Redirect(returnUrl))
       }
-  }
+    }
 }
 
 trait KeysFromConfig {

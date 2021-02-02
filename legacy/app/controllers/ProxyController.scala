@@ -30,7 +30,7 @@ import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
-class ProxyController @Inject()(
+class ProxyController @Inject() (
   outboundConnector: OutboundProxyConnector,
   mcc: MessagesControllerComponents
 )(implicit ec: ExecutionContext)

@@ -26,7 +26,7 @@ import uk.gov.hmrc.channelpreferencesfrontend.views.html.HelloWorldPage
 import scala.concurrent.Future
 
 @Singleton
-class HelloWorldController @Inject()(
+class HelloWorldController @Inject() (
   appConfig: AppConfig,
   mcc: MessagesControllerComponents,
   helloWorldPage: HelloWorldPage

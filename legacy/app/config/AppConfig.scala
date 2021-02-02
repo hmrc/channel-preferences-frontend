@@ -33,7 +33,7 @@ trait AppConfig {
   val signOutUrl: String
 }
 
-class YtaConfig @Inject()(configuration: Configuration, env: Environment, externalUrls: ExternalUrls)
+class YtaConfig @Inject() (configuration: Configuration, env: Environment, externalUrls: ExternalUrls)
     extends AppConfig {
 
   private def loadConfig(key: String) =

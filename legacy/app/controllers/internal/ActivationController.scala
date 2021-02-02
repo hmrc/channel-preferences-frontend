@@ -33,7 +33,7 @@ import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import javax.inject.Inject
 import scala.concurrent.{ ExecutionContext, Future }
 
-class ActivationController @Inject()(
+class ActivationController @Inject() (
   entityResolverConnector: EntityResolverConnector,
   val authConnector: AuthConnector,
   externalUrlPrefixes: ExternalUrlPrefixes,
@@ -55,18 +55,19 @@ class ActivationController @Inject()(
       .getOptional[Boolean](s"reoptIn.switchOn")
       .getOrElse(throw new RuntimeException(s"missing reoptIn.switchOn flag"))
 
-  def preferences(): Action[AnyContent] = Action.async { implicit request =>
-    withAuthenticatedRequest { implicit authenticatedRequest: AuthenticatedRequest[_] => implicit hc: HeaderCarrier =>
-      entityResolverConnector.getPreferences().map {
-        case Some(preference) => Ok(Json.toJson(preference))
-        case _                => NotFound
+  def preferences(): Action[AnyContent] =
+    Action.async { implicit request =>
+      withAuthenticatedRequest { implicit authenticatedRequest: AuthenticatedRequest[_] => implicit hc: HeaderCarrier =>
+        entityResolverConnector.getPreferences().map {
+          case Some(preference) => Ok(Json.toJson(preference))
+          case _                => NotFound
+        }
       }
     }
-  }
 
-  def activate(hostContext: HostContext): Action[AnyContent] = Action.async { implicit request =>
-    withAuthenticatedRequest { implicit authenticatedRequest: AuthenticatedRequest[_] => implicit hc: HeaderCarrier =>
-      {
+  def activate(hostContext: HostContext): Action[AnyContent] =
+    Action.async { implicit request =>
+      withAuthenticatedRequest { implicit authenticatedRequest: AuthenticatedRequest[_] => implicit hc: HeaderCarrier =>
         val terms = hostContext.termsAndConditions.getOrElse("generic")
         for {
           preferenceStatus <- entityResolverConnector.getPreferencesStatus(terms)
@@ -75,36 +76,34 @@ class ActivationController @Inject()(
         } yield _preferencesStatusResult(hostContext, preferenceStatus)
       }
     }
-  }
 
-  def activateFromToken(svc: String, token: String, hostContext: HostContext): Action[AnyContent] = Action.async {
-    implicit request =>
+  def activateFromToken(svc: String, token: String, hostContext: HostContext): Action[AnyContent] =
+    Action.async { implicit request =>
       withAuthenticatedRequest { implicit authenticatedRequest: AuthenticatedRequest[_] => implicit hc: HeaderCarrier =>
-        {
-          for {
-            preferenceStatus <- entityResolverConnector.getPreferencesStatusByToken(svc, token)
-            lang = languageType(request.lang.code)
-            _ <- _storeLanguagePreference(hostContext, lang, preferenceStatus)
-          } yield _preferencesStatusResultMtd(svc, token, hostContext, preferenceStatus)
-        }
+        for {
+          preferenceStatus <- entityResolverConnector.getPreferencesStatusByToken(svc, token)
+          lang = languageType(request.lang.code)
+          _ <- _storeLanguagePreference(hostContext, lang, preferenceStatus)
+        } yield _preferencesStatusResultMtd(svc, token, hostContext, preferenceStatus)
       }
-  }
+    }
 
   def activateLegacyFromTaxIdentifier(
     formType: FormType,
     taxIdentifier: String,
-    hostContext: HostContext): Action[AnyContent] = activate(hostContext)
+    hostContext: HostContext
+  ): Action[AnyContent] = activate(hostContext)
 
   private def _storeLanguagePreference(
     hostContext: HostContext,
     lang: Language,
-    preferenceStatus: Either[Int, PreferenceStatus])(implicit hc: HeaderCarrier): Future[Unit] =
+    preferenceStatus: Either[Int, PreferenceStatus]
+  )(implicit hc: HeaderCarrier): Future[Unit] =
     preferenceStatus match {
-      case Right(PreferenceFound(true, emailPreference, _, _, _)) if emailPreference.exists(_.language.isEmpty) => {
+      case Right(PreferenceFound(true, emailPreference, _, _, _)) if emailPreference.exists(_.language.isEmpty) =>
         entityResolverConnector
           .updateTermsAndConditions(TermsAndConditionsUpdate.fromLanguage(Some(lang)))(hc, hostContext)
           .map(_ => ())
-      }
       case _ => Future.successful(())
     }
 
@@ -112,7 +111,8 @@ class ActivationController @Inject()(
     svc: String,
     token: String,
     hostContext: HostContext,
-    preferenceStatus: Either[Int, PreferenceStatus])(implicit hc: HeaderCarrier): Result =
+    preferenceStatus: Either[Int, PreferenceStatus]
+  )(implicit hc: HeaderCarrier): Result =
     preferenceStatus match {
       case Right(PreferenceNotFound(email)) =>
         val encryptedEmail = email.map(e => Encrypted(EmailAddress(e.email)))
@@ -125,7 +125,8 @@ class ActivationController @Inject()(
           Json.obj(
             "optedIn"       -> true,
             "verifiedEmail" -> emailPreference.fold(false)(_.isVerified)
-          ))
+          )
+        )
 
       case Right(PreferenceFound(false, email, _, _, _)) =>
         val encryptedEmail = email.map(e => Encrypted(EmailAddress(e.email)))
@@ -136,24 +137,25 @@ class ActivationController @Inject()(
           Json.obj(
             "optedIn"        -> false,
             "redirectUserTo" -> redirectUrl
-          ))
+          )
+        )
       case _ => NotFound
     }
 
-  private def _preferencesStatusResult(hostContext: HostContext, preferenceStatus: Either[Int, PreferenceStatus])(
-    implicit hc: HeaderCarrier,
-    authenticatedRequest: AuthenticatedRequest[_]): Result =
+  private def _preferencesStatusResult(
+    hostContext: HostContext,
+    preferenceStatus: Either[Int, PreferenceStatus]
+  )(implicit hc: HeaderCarrier, authenticatedRequest: AuthenticatedRequest[_]): Result =
     preferenceStatus match {
-      case Right(PreferenceFound(true, emailPreference, updatedAt, _, _))
-          if hostContext.alreadyOptedInUrl.isDefined => {
+      case Right(PreferenceFound(true, emailPreference, updatedAt, _, _)) if hostContext.alreadyOptedInUrl.isDefined =>
         Redirect(hostContext.alreadyOptedInUrl.get)
-      }
       case Right(PreferenceFound(true, emailPreference, _, None, _)) =>
         Ok(
           Json.obj(
             "optedIn"       -> true,
             "verifiedEmail" -> emailPreference.fold(false)(_.isVerified)
-          ))
+          )
+        )
 
       case Right(PreferenceFound(true, emailPreference, _, Some(majorVersion), paperless)) =>
         if (triggerReOptIn(authenticatedRequest, emailPreference, majorVersion, paperless)) {
@@ -162,27 +164,31 @@ class ActivationController @Inject()(
             .displayForm(
               Some(CohortCurrent.reoptinpage),
               encryptedEmail,
-              hostContext.copy(cohort = Some(CohortCurrent.reoptinpage), email = emailPreference.map(_.email)))
+              hostContext.copy(cohort = Some(CohortCurrent.reoptinpage), email = emailPreference.map(_.email))
+            )
             .url
           PreconditionFailed(Json.obj("redirectUserTo" -> redirectUrl))
-        } else {
+        } else
           Ok(
             Json.obj(
               "optedIn"       -> true,
               "verifiedEmail" -> emailPreference.fold(false)(_.isVerified)
-            ))
+            )
+          )
 
-        }
       case Right(PreferenceFound(false, None, updatedAt, _, _)) =>
         updatedAt
           .flatMap(u =>
-            if (u.plusMinutes(gracePeriod).isAfter(DateTime.now)) {
+            if (u.plusMinutes(gracePeriod).isAfter(DateTime.now))
               Some(
                 Ok(
                   Json.obj(
                     "optedIn" -> false
-                  )))
-            } else None)
+                  )
+                )
+              )
+            else None
+          )
           .getOrElse {
 
             val encryptedEmail = None
@@ -193,7 +199,7 @@ class ActivationController @Inject()(
           }
       case Right(PreferenceFound(false, email, updatedAt, _, _)) =>
         Ok(Json.obj("optedIn" -> false))
-      case Right(PreferenceNotFound(Some(email))) if (hostContext.email.exists(_ != email.email)) =>
+      case Right(PreferenceNotFound(Some(email))) if hostContext.email.exists(_ != email.email) =>
         Conflict
       case Right(PreferenceNotFound(email)) =>
         val encryptedEmail = email.map(e => Encrypted(EmailAddress(e.email)))
@@ -208,7 +214,8 @@ class ActivationController @Inject()(
     authenticatedRequest: AuthenticatedRequest[_],
     emailPreference: Option[EmailPreference],
     majorVersion: Int,
-    paperless: Option[Boolean]) =
+    paperless: Option[Boolean]
+  ) =
     if (!reoptInEnabled)
       false
     else {

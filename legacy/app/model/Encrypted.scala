@@ -25,34 +25,38 @@ import scala.language.implicitConversions
 
 case class Encrypted[T](decryptedValue: T)
 object Encrypted {
-  implicit def encryptedStringToDecryptedEmail(
-    implicit stringBinder: QueryStringBindable[String]): QueryStringBindable[Encrypted[EmailAddress]] =
+  implicit def encryptedStringToDecryptedEmail(implicit
+    stringBinder: QueryStringBindable[String]
+  ): QueryStringBindable[Encrypted[EmailAddress]] =
     new EncryptedQueryBinder[EmailAddress](
       new ApplicationCrypto(Play.current.configuration.underlying).QueryParameterCrypto,
       EmailAddress.apply,
-      _.value)
+      _.value
+    )
 
-  implicit def encryptedStringToDecryptedString(
-    implicit stringBinder: QueryStringBindable[String]): QueryStringBindable[Encrypted[String]] =
+  implicit def encryptedStringToDecryptedString(implicit
+    stringBinder: QueryStringBindable[String]
+  ): QueryStringBindable[Encrypted[String]] =
     new EncryptedQueryBinder[String](
       new ApplicationCrypto(Play.current.configuration.underlying).QueryParameterCrypto,
       s => s,
-      s => s)
+      s => s
+    )
 }
 
 private[model] class EncryptedQueryBinder[T](
   crypto: Encrypter with Decrypter,
   fromString: String => T,
-  toString: T => String)(implicit stringBinder: QueryStringBindable[String])
+  toString: T => String
+)(implicit stringBinder: QueryStringBindable[String])
     extends QueryStringBindable[Encrypted[T]] {
   override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, Encrypted[T]]] =
     stringBinder.bind(key, params).map {
       case Right(encryptedString) =>
         try {
           val decrypted = crypto.decrypt(Crypted(encryptedString))
-          try {
-            Right(Encrypted(fromString(decrypted.value)))
-          } catch {
+          try Right(Encrypted(fromString(decrypted.value)))
+          catch {
             case e: IllegalArgumentException =>
               Left(s"$key is not valid")
           }
