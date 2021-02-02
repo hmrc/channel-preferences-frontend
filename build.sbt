@@ -32,6 +32,21 @@ ThisBuild / libraryDependencies ++= Seq(
   "com.github.ghik" % "silencer-lib" % silencerVersion % Provided cross CrossVersion.full
 )
 
+bobbyRulesURL := Some(new URL("https://webstore.tax.service.gov.uk/bobby-config/deprecated-dependencies.json"))
+
+(compile in Compile) := ((compile in Compile) dependsOn dependencyUpdates).value
+dependencyUpdatesFilter -= moduleFilter(name = "flexmark-all")
+dependencyUpdatesFilter -= moduleFilter(organization = "org.scala-lang")
+dependencyUpdatesFilter -= moduleFilter(organization = "com.github.ghik")
+dependencyUpdatesFilter -= moduleFilter(organization = "com.typesafe.play")
+dependencyUpdatesFilter -= moduleFilter(organization = "org.scalatest")
+dependencyUpdatesFilter -= moduleFilter(organization = "org.scalatestplus.play")
+dependencyUpdatesFailBuild := true
+
+sources in (Compile, doc) := Seq.empty
+
+scalafmtOnCompile := true
+
 lazy val externalServices = List(
   ExternalService("AUTH"),
   ExternalService("AUTH_LOGIN_API"),
@@ -133,40 +148,10 @@ lazy val microservice = Project(appName, file("."))
   .disablePlugins(JUnitXmlReportPlugin) // Required to prevent https://github.com/scalatest/scalatest/issues/1427
   .settings(SassKeys.embedSources := true)
   .settings(commonSettings)
-  .settings(scalastyleFailOnError := true)
+  .configs(IntegrationTest)
+  .settings(itDependenciesList := externalServices)
   .dependsOn(legacy)
   .aggregate(cpf, legacy)
-
-lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
-compileScalastyle := scalastyle.in(Compile).toTask("").value
-(compile in Compile) := ((compile in Compile) dependsOn compileScalastyle).value
-
-bobbyRulesURL := Some(new URL("https://webstore.tax.service.gov.uk/bobby-config/deprecated-dependencies.json"))
-scalafmtOnCompile := true
-
-(compile in Compile) := ((compile in Compile) dependsOn dependencyUpdates).value
-dependencyUpdatesFilter -= moduleFilter(name = "flexmark-all")
-dependencyUpdatesFilter -= moduleFilter(organization = "org.scala-lang")
-dependencyUpdatesFilter -= moduleFilter(organization = "com.github.ghik")
-dependencyUpdatesFilter -= moduleFilter(organization = "com.typesafe.play")
-dependencyUpdatesFilter -= moduleFilter(organization = "org.scalatest")
-dependencyUpdatesFilter -= moduleFilter(organization = "org.scalatestplus.play")
-dependencyUpdatesFailBuild := true
-sources in (Compile, doc) := Seq.empty
-
-val codeStyleIntegrationTest = taskKey[Unit]("enforce code style then integration test")
-
-// and then in settings...
-// Project.inConfig(IntegrationTest)(ScalastylePlugin.rawScalastyleSettings()) ++
-//   Seq(
-//     scalastyleConfig in IntegrationTest := (scalastyleConfig in scalastyle).value,
-//     scalastyleTarget in IntegrationTest := target.value / "scalastyle-it-results.xml",
-//     scalastyleFailOnError in IntegrationTest := (scalastyleFailOnError in scalastyle).value,
-//     (scalastyleFailOnWarning in IntegrationTest) := (scalastyleFailOnWarning in scalastyle).value,
-//     scalastyleSources in IntegrationTest := (unmanagedSourceDirectories in IntegrationTest).value,
-//     codeStyleIntegrationTest := scalastyle.in(IntegrationTest).toTask("").value,
-//     (test in IntegrationTest) := ((test in IntegrationTest) dependsOn codeStyleIntegrationTest).value
-//   )
 
 lazy val legacy = project
   .enablePlugins(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, BuildInfoPlugin)
@@ -175,12 +160,14 @@ lazy val legacy = project
   .settings(commonSettings)
   .settings(
     scalacOptions ++= commonScalacOptions ++ Seq(
-      "-P:silencer:pathFilters=target/.*",
       "-P:silencer:globalFilters=.*"
     )
   )
   .settings(ServiceManagerPlugin.serviceManagerSettings)
-  .settings(scalastyleFailOnError := false)
+  .settings(
+    scalastyleFailOnError := false,
+    scalastyleFailOnWarning := false
+  )
   .settings(itDependenciesList := externalServices)
   .dependsOn(cpf)
 
@@ -213,4 +200,3 @@ lazy val cpf = project
     wartremoverExcluded in (Compile, compile) ++= routes.in(Compile).value,
     wartremoverExcluded += (target in TwirlKeys.compileTemplates).value
   )
-//.settings(ScoverageSettings())
