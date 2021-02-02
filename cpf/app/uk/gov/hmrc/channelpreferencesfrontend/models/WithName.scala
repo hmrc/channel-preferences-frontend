@@ -16,6 +16,6 @@
 
 package uk.gov.hmrc.channelpreferencesfrontend.models
 
-class WithName(string: String) {
+class WithName(val string: String) {
   override val toString: String = string
 }
