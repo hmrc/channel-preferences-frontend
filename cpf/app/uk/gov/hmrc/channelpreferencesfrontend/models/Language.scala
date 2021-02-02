@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.channelpreferencesfrontend.models
 
+import cats.implicits.catsSyntaxEitherId
 import play.api.i18n.Lang
 import play.api.mvc.PathBindable
 
@@ -36,12 +37,12 @@ object Language {
   implicit def pathBindable: PathBindable[Language] = new PathBindable[Language] {
     override def bind(key: String, value: String): Either[String, Language] =
       value match {
-        case Cymraeg.toString => Right(Cymraeg)
-        case English.toString => Right(English)
-        case _                => Left("Invalid language")
+        case Cymraeg.toString => Cymraeg.asRight[String]
+        case English.toString => English.asRight[String]
+        case _                => "Invalid language".asLeft[Language]
       }
 
     override def unbind(key: String, value: Language): String =
-      value.toString
+      value.lang.language
   }
 }
