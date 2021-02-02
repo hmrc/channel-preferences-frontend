@@ -28,25 +28,25 @@ class ReadOnlyIosReOptOutPage30CohortSpec extends PlaySpec {
       val cohortUnderTest = IosReOptOutPage30
 
       withClue("id") {
-        cohortUnderTest.id mustBe (30)
+        cohortUnderTest.id mustBe 30
       }
       withClue("name") {
-        cohortUnderTest.name mustBe ("IosReOptOutPage30")
+        cohortUnderTest.name mustBe "IosReOptOutPage30"
       }
       withClue("terms") {
-        cohortUnderTest.terms mustBe (GenericTerms)
+        cohortUnderTest.terms mustBe GenericTerms
       }
       withClue("pageType") {
         cohortUnderTest.pageType mustBe (PageType.IosReOptOutPage)
       }
       withClue("majorVersion") {
-        cohortUnderTest.majorVersion mustBe (0)
+        cohortUnderTest.majorVersion mustBe 0
       }
       withClue("minorVersion") {
-        cohortUnderTest.minorVersion mustBe (0)
+        cohortUnderTest.minorVersion mustBe 0
       }
       withClue("description") {
-        cohortUnderTest.description mustBe ("")
+        cohortUnderTest.description mustBe ""
       }
       withClue("date") {
         cohortUnderTest.date mustBe new LocalDate("2020-01-01")

@@ -36,7 +36,9 @@ class ReadOnlyReOptInPage10Spec extends PlaySpec with GuiceOneAppPerSuite with L
       val document = Jsoup.parse(
         template(form, internal.routes.ChoosePaperlessController.submitForm(TestFixtures.sampleHostContext))(
           engRequest,
-          messagesInEnglish()).toString())
+          messagesInEnglish()
+        ).toString()
+      )
 
       document
         .getElementsByTag("title")
@@ -111,7 +113,9 @@ class ReadOnlyReOptInPage10Spec extends PlaySpec with GuiceOneAppPerSuite with L
       val document = Jsoup.parse(
         template(form, internal.routes.ChoosePaperlessController.submitForm(TestFixtures.sampleHostContext))(
           welshRequest,
-          messagesInWelsh()).toString())
+          messagesInWelsh()
+        ).toString()
+      )
 
       document
         .getElementsByTag("title")

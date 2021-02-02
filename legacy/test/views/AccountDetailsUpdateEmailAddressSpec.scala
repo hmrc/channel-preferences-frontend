@@ -35,7 +35,8 @@ class AccountDetailsUpdateEmailAddressSpec
       val currentEmail = "a@a.com"
       val form = EmailForm()
       val document = Jsoup.parse(
-        template(currentEmail, form)(engRequest, messagesInEnglish(), TestFixtures.sampleHostContext).toString())
+        template(currentEmail, form)(engRequest, messagesInEnglish(), TestFixtures.sampleHostContext).toString()
+      )
 
       document.getElementsByTag("title").first().text() mustBe "Change your email address"
       document.getElementsByTag("h1").get(0).text() mustBe "Change your email address"
@@ -49,7 +50,9 @@ class AccountDetailsUpdateEmailAddressSpec
         .text() mustBe "Confirm new email address"
       document
         .getElementById("cancel-link")
-        .attr("href") mustBe "/paperless/check-settings?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"
+        .attr(
+          "href"
+        ) mustBe "/paperless/check-settings?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"
       document
         .getElementById("cancel-link")
         .text() mustBe "Cancel"
@@ -60,7 +63,8 @@ class AccountDetailsUpdateEmailAddressSpec
       val currentEmail = "a@a.com"
       val form = EmailForm()
       val document = Jsoup.parse(
-        template(currentEmail, form)(welshRequest, messagesInWelsh(), TestFixtures.sampleHostContext).toString())
+        template(currentEmail, form)(welshRequest, messagesInWelsh(), TestFixtures.sampleHostContext).toString()
+      )
 
       document.getElementsByTag("title").first().text() mustBe "Newid eich cyfeiriad e-bost"
       document.getElementsByTag("h1").get(0).text() mustBe "Newid eich cyfeiriad e-bost"
@@ -75,7 +79,9 @@ class AccountDetailsUpdateEmailAddressSpec
 
       document
         .getElementById("cancel-link")
-        .attr("href") mustBe "/paperless/check-settings?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"
+        .attr(
+          "href"
+        ) mustBe "/paperless/check-settings?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"
       document
         .getElementById("cancel-link")
         .text() mustBe "Canslo"

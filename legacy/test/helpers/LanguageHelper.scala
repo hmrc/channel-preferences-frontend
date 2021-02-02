@@ -28,9 +28,9 @@ trait LanguageHelper {
   val langCy = Lang("cy")
   val langEn = Lang("en")
   val fakeRequest = FakeRequest("GET", "/")
-  val headers = fakeRequest.headers.add((HeaderNames.ACCEPT_LANGUAGE, ("cy")))
+  val headers = fakeRequest.headers.add((HeaderNames.ACCEPT_LANGUAGE, "cy"))
   val welshRequest = AuthenticatedRequest(fakeRequest.withHeaders(headers), None, None, None, None)
-  val headersEn = fakeRequest.headers.add((HeaderNames.ACCEPT_LANGUAGE, ("en")))
+  val headersEn = fakeRequest.headers.add((HeaderNames.ACCEPT_LANGUAGE, "en"))
   val engRequest = AuthenticatedRequest(fakeRequest.withHeaders(headers), None, None, None, None)
 
   def messagesInWelsh(): Messages = MessagesImpl(langCy, messageApi)

@@ -28,23 +28,23 @@ class ReadOnlyTCPage9CohortSpec extends PlaySpec {
       val cohortUnderTest = TCPage9
 
       withClue("id") {
-        cohortUnderTest.id mustBe (9)
+        cohortUnderTest.id mustBe 9
       }
       withClue("name") {
-        cohortUnderTest.name mustBe ("TCPage9")
+        cohortUnderTest.name mustBe "TCPage9"
       }
       withClue("terms") {
-        cohortUnderTest.terms mustBe (TaxCreditsTerms)
+        cohortUnderTest.terms mustBe TaxCreditsTerms
       }
       withClue("pageType") {
         cohortUnderTest.pageType mustBe (PageType.TCPage)
       }
       withClue("majorVersion") {
-        cohortUnderTest.majorVersion mustBe (0)
+        cohortUnderTest.majorVersion mustBe 0
       }
 
       withClue("description") {
-        cohortUnderTest.description mustBe ("")
+        cohortUnderTest.description mustBe ""
       }
       withClue("date") {
         cohortUnderTest.date mustBe new LocalDate("2020-05-12")

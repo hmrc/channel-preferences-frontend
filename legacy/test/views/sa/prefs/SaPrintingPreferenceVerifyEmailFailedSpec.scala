@@ -36,7 +36,9 @@ class SaPrintingPreferenceVerifyEmailFailedSpec
       val document = Jsoup.parse(
         saPrintingPreferenceVerifyEmailFailed(None, None)(
           AuthenticatedRequest(FakeRequest("GET", "/"), None, None, None, None),
-          messagesInEnglish()).toString())
+          messagesInEnglish()
+        ).toString()
+      )
 
       document.getElementsByTag("title").first().text() mustBe "Email address already verified"
     }

@@ -36,7 +36,8 @@ class DigitalTrueLinksSpec extends PlaySpec with GuiceOneAppPerSuite with Langua
       val linkId = "test_id"
       val email = EmailPreference(emailAddress, true, true, false, None)
       val document = Jsoup.parse(
-        template(email, linkId)(FakeRequest(), messagesInEnglish(), TestFixtures.sampleHostContext).toString())
+        template(email, linkId)(FakeRequest(), messagesInEnglish(), TestFixtures.sampleHostContext).toString()
+      )
 
       document.getElementById(linkId).text() mustBe "Change your email address"
       document.getElementById("opt-out-of-email-link").text() mustBe "Stop emails from HMRC"

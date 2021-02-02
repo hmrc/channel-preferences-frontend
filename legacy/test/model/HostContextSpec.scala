@@ -60,13 +60,16 @@ class HostContextSpec extends WordSpec with Matchers with GuiceOneAppPerSuite wi
     "read the returnURL and returnLinkText if both present for taxCredits with emailAddress" in {
       model.HostContext.hostContextBinder.bind(
         "anyValName",
-        Map(validReturnUrl, validReturnLinkText, validTaxCreditsTermsAndConditions, validEmailAddress)) should contain(
+        Map(validReturnUrl, validReturnLinkText, validTaxCreditsTermsAndConditions, validEmailAddress)
+      ) should contain(
         Right(
           HostContext(
             returnUrl = "foo",
             returnLinkText = "bar",
             termsAndConditions = Some("taxCredits"),
-            Some("test@test.com")))
+            Some("test@test.com")
+          )
+        )
       )
     }
 
@@ -79,12 +82,14 @@ class HostContextSpec extends WordSpec with Matchers with GuiceOneAppPerSuite wi
 
     "fail if the returnURL is not present" in {
       model.HostContext.hostContextBinder.bind("anyValName", Map(validReturnLinkText)) should be(
-        Some(Left("No returnUrl query parameter")))
+        Some(Left("No returnUrl query parameter"))
+      )
     }
 
     "fail if the returnLinkText is not present" in {
       model.HostContext.hostContextBinder.bind("anyValName", Map(validReturnUrl)) should be(
-        Some(Left("No returnLinkText query parameter")))
+        Some(Left("No returnLinkText query parameter"))
+      )
     }
 
     "read the language if present" in {
@@ -116,7 +121,9 @@ class HostContextSpec extends WordSpec with Matchers with GuiceOneAppPerSuite wi
             returnUrl = "foo&value",
             returnLinkText = "bar",
             cohort = Some(ReOptInPage10),
-            email = Some("foo@bar.com"))) should be(
+            email = Some("foo@bar.com")
+          )
+        ) should be(
         "returnUrl=Wa6yuBSzGvUaibkXblJ8aQ%3D%3D&returnLinkText=w%2FPwaxV%2BKgqutfsU0cyrJQ%3D%3D&email=yCVwXTaKNqm1whFZ7gcFkQ%3D%3D&cohort=u%2Fn1h8qcsJrhpRofXkhmXg%3D%3D"
       )
     }
