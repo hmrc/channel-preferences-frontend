@@ -149,7 +149,7 @@ lazy val microservice = Project(appName, file("."))
   .settings(wartremoverSettings: _*)
   // .dependsOn(cpf)
   .dependsOn(legacy)
-  .aggregate(legacy)
+  .aggregate(cpf,legacy)
   //.aggregate(legacy)
 
 lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
@@ -203,7 +203,6 @@ lazy val legacy = project
   .settings(scalastyleFailOnError := false)
   .settings(itDependenciesList := externalServices)
   .dependsOn(cpf)
-  .aggregate(cpf)
 
 lazy val cpf = project
   .enablePlugins(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, BuildInfoPlugin)
