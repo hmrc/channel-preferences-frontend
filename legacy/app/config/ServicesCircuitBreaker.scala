@@ -25,21 +25,23 @@ trait ServicesCircuitBreaker extends UsingCircuitBreaker {
 
   protected val externalServiceName: String
 
-  override protected def circuitBreakerConfig = CircuitBreakerConfig(
-    serviceName = externalServiceName,
-    numberOfCallsToTriggerStateChange =
-      config(externalServiceName).getOptional[Int]("circuitBreaker.numberOfCallsToTriggerStateChange"),
-    unavailablePeriodDuration = config(externalServiceName)
-      .getOptional[Int]("circuitBreaker.unavailablePeriodDurationInSeconds") map (_ * 1000),
-    unstablePeriodDuration = config(externalServiceName)
-      .getOptional[Int]("circuitBreaker.unstablePeriodDurationInSeconds") map (_ * 1000)
-  )
+  override protected def circuitBreakerConfig =
+    CircuitBreakerConfig(
+      serviceName = externalServiceName,
+      numberOfCallsToTriggerStateChange =
+        config(externalServiceName).getOptional[Int]("circuitBreaker.numberOfCallsToTriggerStateChange"),
+      unavailablePeriodDuration = config(externalServiceName)
+        .getOptional[Int]("circuitBreaker.unavailablePeriodDurationInSeconds") map (_ * 1000),
+      unstablePeriodDuration = config(externalServiceName)
+        .getOptional[Int]("circuitBreaker.unstablePeriodDurationInSeconds") map (_ * 1000)
+    )
 
-  override protected def breakOnException(t: Throwable): Boolean = t match {
-    case t: BadRequestException => false
-    case t: NotFoundException   => false
-    case t: Upstream4xxResponse => false
-    case _: Upstream5xxResponse => true
-    case _                      => true
-  }
+  override protected def breakOnException(t: Throwable): Boolean =
+    t match {
+      case t: BadRequestException => false
+      case t: NotFoundException   => false
+      case t: Upstream4xxResponse => false
+      case _: Upstream5xxResponse => true
+      case _                      => true
+    }
 }

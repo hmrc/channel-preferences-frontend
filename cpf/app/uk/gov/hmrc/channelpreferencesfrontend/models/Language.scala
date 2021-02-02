@@ -34,15 +34,16 @@ object Language {
     override val lang: Lang = Lang("en")
   }
 
-  implicit def pathBindable: PathBindable[Language] = new PathBindable[Language] {
-    override def bind(key: String, value: String): Either[String, Language] =
-      value match {
-        case Cymraeg.toString => Cymraeg.asRight[String]
-        case English.toString => English.asRight[String]
-        case _                => "Invalid language".asLeft[Language]
-      }
+  implicit def pathBindable: PathBindable[Language] =
+    new PathBindable[Language] {
+      override def bind(key: String, value: String): Either[String, Language] =
+        value match {
+          case Cymraeg.toString => Cymraeg.asRight[String]
+          case English.toString => English.asRight[String]
+          case _                => "Invalid language".asLeft[Language]
+        }
 
-    override def unbind(key: String, value: Language): String =
-      value.lang.language
-  }
+      override def unbind(key: String, value: Language): String =
+        value.lang.language
+    }
 }

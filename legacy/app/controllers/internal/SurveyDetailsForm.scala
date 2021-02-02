@@ -59,7 +59,8 @@ case class EventDetail(
   nino: String,
   language: String,
   choices: Map[String, QuestionAnswer],
-  reason: String)
+  reason: String
+)
 object EventDetail {
   implicit val formats = Json.format[EventDetail]
 }

@@ -23,10 +23,10 @@ import uk.gov.hmrc.play.bootstrap.filters.FrontendFilters
 import javax.inject.{ Inject, Singleton }
 
 @Singleton
-class PreferencesFrontendFilters @Inject()(
+class PreferencesFrontendFilters @Inject() (
   frontendFilters: FrontendFilters,
-  exceptionHandlingFilter: ExceptionHandlingFilter)
-    extends HttpFilters {
+  exceptionHandlingFilter: ExceptionHandlingFilter
+) extends HttpFilters {
 
   override val filters: Seq[EssentialFilter] = frontendFilters.filters :+ exceptionHandlingFilter
 }

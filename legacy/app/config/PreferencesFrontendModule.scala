@@ -37,17 +37,18 @@ class PreferencesFrontendModule(environment: Environment, configuration: Configu
     bindString(s"CPFUrl", "CPFUrl")
   }
 
-  private def resolveAnnotationName(path: String, name: String): String = name match {
-    case "" => path
-    case _  => name
-  }
+  private def resolveAnnotationName(path: String, name: String): String =
+    name match {
+      case "" => path
+      case _  => name
+    }
 
   @SuppressWarnings(Array("org.wartremover.warts.Nothing", "org.wartremover.warts.Throw"))
   private def configException(path: String) = throw new ConfigException.Missing(path)
 }
 
 @Singleton
-class CohortMessagesApiProvider @Inject()(
+class CohortMessagesApiProvider @Inject() (
   environment: Environment,
   config: Configuration,
   langs: Langs,

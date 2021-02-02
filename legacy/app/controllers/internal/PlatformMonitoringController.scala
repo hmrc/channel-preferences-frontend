@@ -25,7 +25,7 @@ import scala.concurrent.ExecutionContext
 
 // DC-679: Moving monitoring to new controller because we require to disable auditing.
 
-class PlatformHealthCheckController @Inject()(mcc: MessagesControllerComponents)(implicit ec: ExecutionContext)
+class PlatformHealthCheckController @Inject() (mcc: MessagesControllerComponents)(implicit ec: ExecutionContext)
     extends FrontendController(mcc) {
   def getAsset(fileName: String) = Assets.at(path = "/public", file = fileName)
 }

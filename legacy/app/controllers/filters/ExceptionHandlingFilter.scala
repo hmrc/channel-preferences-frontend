@@ -28,7 +28,7 @@ import javax.inject.{ Inject, Singleton }
 import scala.concurrent.{ ExecutionContext, Future }
 
 @Singleton
-class ExceptionHandlingFilter @Inject()(
+class ExceptionHandlingFilter @Inject() (
   val mat: Materializer
 ) extends Filter with Results {
 

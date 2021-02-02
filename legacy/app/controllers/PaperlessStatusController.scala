@@ -32,25 +32,27 @@ import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class PaperlessStatusController @Inject()(
+class PaperlessStatusController @Inject() (
   entityResolverConnector: EntityResolverConnector,
   val authConnector: AuthConnector,
   mcc: MessagesControllerComponents,
   statusService: PaperlessStatusService,
-  externalUrlPrefixes: ExternalUrlPrefixes)(implicit ec: ExecutionContext)
+  externalUrlPrefixes: ExternalUrlPrefixes
+)(implicit ec: ExecutionContext)
     extends FrontendController(mcc) with I18nSupport with WithAuthRetrievals {
 
-  def getPaperlessStatus(implicit hostContext: HostContext): Action[AnyContent] = Action.async { implicit request =>
-    withAuthenticatedRequest { implicit authenticatedRequest: AuthenticatedRequest[_] => implicit hc: HeaderCarrier =>
-      entityResolverConnector
-        .getPreferences()
-        .map(pref => Ok(Json.toJson(determinePaperlessStatus(pref)(request.lang, hostContext))))
-    }(request, ec)
-  }
+  def getPaperlessStatus(implicit hostContext: HostContext): Action[AnyContent] =
+    Action.async { implicit request =>
+      withAuthenticatedRequest { implicit authenticatedRequest: AuthenticatedRequest[_] => implicit hc: HeaderCarrier =>
+        entityResolverConnector
+          .getPreferences()
+          .map(pref => Ok(Json.toJson(determinePaperlessStatus(pref)(request.lang, hostContext))))
+      }(request, ec)
+    }
 
-  private def determinePaperlessStatus(preferenceResponse: Option[PreferenceResponse])(
-    implicit language: Lang,
-    hostContext: HostContext): StatusWithUrl = {
+  private def determinePaperlessStatus(
+    preferenceResponse: Option[PreferenceResponse]
+  )(implicit language: Lang, hostContext: HostContext): StatusWithUrl = {
 
     val checkSettingsUrl = externalUrlPrefixes.pfUrlPrefix + controllers.internal.routes.ManagePaperlessController
       .checkSettings(hostContext)
@@ -74,7 +76,8 @@ class PaperlessStatusController @Inject()(
           PaperlessStatus(
             EmailNotVerified,
             Category(EmailNotVerified),
-            messagesApi("paperless.status.text.email_not_verified")),
+            messagesApi("paperless.status.text.email_not_verified")
+          ),
           Url(checkSettingsUrl, messagesApi("paperless.status.url.text.email_not_verified"))
         )
       case BouncedEmail =>

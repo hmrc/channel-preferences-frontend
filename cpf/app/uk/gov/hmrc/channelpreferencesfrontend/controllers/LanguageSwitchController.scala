@@ -25,7 +25,7 @@ import uk.gov.hmrc.channelpreferencesfrontend.models.Language
 import uk.gov.hmrc.play.language.{ LanguageController, LanguageUtils }
 
 @Singleton
-class LanguageSwitchController @Inject()(appConfig: AppConfig, languageUtils: LanguageUtils, cc: ControllerComponents)
+class LanguageSwitchController @Inject() (appConfig: AppConfig, languageUtils: LanguageUtils, cc: ControllerComponents)
     extends LanguageController(languageUtils, cc) {
   import appConfig._
 
@@ -35,9 +35,8 @@ class LanguageSwitchController @Inject()(appConfig: AppConfig, languageUtils: La
   def selectLanguage(language: Language): Action[AnyContent] = super.switchToLanguage(language.lang.code)
 
   override protected def languageMap: Map[String, Lang] =
-    if (appConfig.languageTranslationEnabled) {
+    if (appConfig.languageTranslationEnabled)
       Map(en -> Lang(en), cy -> Lang(cy))
-    } else {
+    else
       Map(en -> Lang(en))
-    }
 }

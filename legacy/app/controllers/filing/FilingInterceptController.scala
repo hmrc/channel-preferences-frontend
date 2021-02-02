@@ -32,13 +32,14 @@ import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class FilingInterceptController @Inject()(
+class FilingInterceptController @Inject() (
   entityResolverConnector: EntityResolverConnector,
   configuration: Configuration,
   env: Environment,
   decryptAndValidate: DecryptAndValidate,
   tokenEncryption: TokenEncryption,
-  mcc: MessagesControllerComponents)(implicit ec: ExecutionContext)
+  mcc: MessagesControllerComponents
+)(implicit ec: ExecutionContext)
     extends FrontendController(mcc) {
 
   lazy val redirectDomainAllowlist = configuration
@@ -51,7 +52,8 @@ class FilingInterceptController @Inject()(
   def redirectWithEmailAddress(
     encryptedToken: String,
     encodedReturnUrl: String,
-    emailAddressToPrefill: Option[Encrypted[EmailAddress]]) =
+    emailAddressToPrefill: Option[Encrypted[EmailAddress]]
+  ) =
     DecodeAndAllowlist(encodedReturnUrl) { returnUrl =>
       decryptAndValidate(encryptedToken, returnUrl) { token =>
         Action.async { implicit request =>

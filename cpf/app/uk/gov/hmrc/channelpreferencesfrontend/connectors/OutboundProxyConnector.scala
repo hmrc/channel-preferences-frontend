@@ -35,7 +35,7 @@ import scala.concurrent.{ ExecutionContext, Future }
 
 @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
 @Singleton
-class OutboundProxyConnector @Inject()(
+class OutboundProxyConnector @Inject() (
   @Named("preferencesFrontendUrl") preferencesFrontendHost: String
 )(implicit system: ActorSystem, executionContext: ExecutionContext) {
 
