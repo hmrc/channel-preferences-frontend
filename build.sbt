@@ -120,7 +120,6 @@ lazy val commonSettings =
     Seq(
       majorVersion := 0,
       scalaVersion := "2.12.12",
-      RoutesKeys.routesImport += "uk.gov.hmrc.channelpreferencesfrontend.models._",
       libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
       PlayKeys.playDefaultPort := 9053,
       retrieveManaged := true,
@@ -128,13 +127,11 @@ lazy val commonSettings =
         EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
       scalacOptions ++= commonScalacOptions,
       buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
-      buildInfoPackage := "uk.gov.hmrc.channelpreferencesfrontend",
       parallelExecution in IntegrationTest := false,
       resolvers += Resolver.jcenterRepo,
       resolvers += Resolver.bintrayRepo("hmrc", "releases"),
       resolvers += "hmrc-releases" at "https://artefacts.tax.service.gov.uk/artifactory/hmrc-releases/",
       TwirlKeys.templateImports ++= Seq(
-        "uk.gov.hmrc.channelpreferencesfrontend.config.AppConfig",
         "uk.gov.hmrc.govukfrontend.views.html.components._",
         "uk.gov.hmrc.govukfrontend.views.html.helpers._",
         "uk.gov.hmrc.hmrcfrontend.views.html.components._",
@@ -149,7 +146,7 @@ lazy val microservice = Project(appName, file("."))
   .settings(commonSettings)
   .configs(IntegrationTest)
   .settings(itDependenciesList := externalServices)
-  .dependsOn(legacy)
+  .dependsOn(cpf,legacy)
   .aggregate(cpf, legacy)
 
 lazy val legacy = project
@@ -168,7 +165,6 @@ lazy val legacy = project
     scalastyleFailOnWarning := false
   )
   .settings(itDependenciesList := externalServices)
-  .dependsOn(cpf)
 
 lazy val cpf = project
   .enablePlugins(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, BuildInfoPlugin)
@@ -183,6 +179,7 @@ lazy val cpf = project
   )
   .settings(
     commonSettings,
+    RoutesKeys.routesImport += "uk.gov.hmrc.channelpreferencesfrontend.models._",
     TwirlKeys.templateImports ++= Seq(
       "uk.gov.hmrc.channelpreferencesfrontend.config.AppConfig"
     ),
