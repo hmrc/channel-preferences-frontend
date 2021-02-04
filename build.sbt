@@ -23,7 +23,7 @@ import play.twirl.sbt.Import.TwirlKeys._
 import org.irundaia.sbt.sass._
 import play.sbt.routes.RoutesKeys
 
-val appName = "channel-preferences-frontend"
+val appName = "preferences-frontend"
 
 val silencerVersion = "1.7.0"
 ThisBuild / libraryDependencies ++= Seq(

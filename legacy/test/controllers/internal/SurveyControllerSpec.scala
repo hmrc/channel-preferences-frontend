@@ -158,7 +158,7 @@ class SurveyControllerSpec
       verify(mockAuditConnector).sendExtendedEvent(eventArg.capture())(any(), any())
 
       private val value: ExtendedDataEvent = eventArg.getValue
-      value.auditSource mustBe "channel-preferences-frontend"
+      value.auditSource mustBe "preferences-frontend"
       value.auditType mustBe EventTypes.Succeeded
       value.tags must contain("transactionName" -> "Re-OptIn Declined Survey Answered")
       val detail = Json.fromJson[EventDetail](value.detail).get
@@ -193,7 +193,7 @@ class SurveyControllerSpec
       verify(mockAuditConnector).sendExtendedEvent(eventArg.capture())(any(), any())
 
       private val value: ExtendedDataEvent = eventArg.getValue
-      value.auditSource mustBe "channel-preferences-frontend"
+      value.auditSource mustBe "preferences-frontend"
       value.auditType mustBe EventTypes.Succeeded
       value.tags must contain("transactionName" -> "Re-OptIn Declined Survey Answered")
       val detail = Json.fromJson[EventDetail](value.detail).get
@@ -252,7 +252,7 @@ class SurveyControllerSpec
       verify(mockAuditConnector).sendExtendedEvent(eventArg.capture())(any(), any())
 
       private val value: ExtendedDataEvent = eventArg.getValue
-      value.auditSource mustBe "channel-preferences-frontend"
+      value.auditSource mustBe "preferences-frontend"
       value.auditType mustBe EventTypes.Succeeded
       value.tags must contain("transactionName" -> "Re-OptIn Declined Survey Answered")
       val detail = Json.fromJson[EventDetail](value.detail).get

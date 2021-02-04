@@ -35,7 +35,7 @@ class ApiSpecsNotInProdISpec extends PlaySpec with GuiceOneAppPerSuite {
 
     "return an internal server error response" ignore {
 
-      val fakeRequest = FakeRequest(GET, s"/channel-preferences-frontend/api/schema.json")
+      val fakeRequest = FakeRequest(GET, s"/preferences-frontend/api/schema.json")
         .withHeaders("Csrf-Token" -> "nocheck")
 
       route(app, fakeRequest).map(status(_) mustBe INTERNAL_SERVER_ERROR)

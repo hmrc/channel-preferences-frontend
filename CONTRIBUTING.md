@@ -1,6 +1,6 @@
 # Channel Preferences Frontend Contributor Guidelines
 
-Hello! Thank you for taking the time to contribute to [channel-preferences-frontend](https://github.com/hmrc/channel-preferences-frontend).
+Hello! Thank you for taking the time to contribute to [preferences-frontend](https://github.com/hmrc/preferences-frontend).
 
 ## General Contributor Guidelines
 

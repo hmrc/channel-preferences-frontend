@@ -1,5 +1,5 @@
 
-# channel-preferences-frontend
+# preferences-frontend
 
 ## Run the project locally 
 
@@ -27,7 +27,7 @@ Then run the integration tests:
 
 ## Swagger endpoint
 
-Available locally here: http://localhost:9053/channel-preferences-frontend/api/schema.json
+Available locally here: http://localhost:9053/preferences-frontend/api/schema.json
 
 ### License
 

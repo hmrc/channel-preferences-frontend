@@ -254,6 +254,6 @@ paperless.status.url.text.no_email=Sefydlu’ch cyfeiriad e-bost
 manage.paperless.check.settings.linkText=Yn eich blaen
 
 service.name =
-service.homePageUrl = /channel-preferences-frontend
+service.homePageUrl = /preferences-frontend
 service.text = Dyma'ch gwasanaeth newydd
 back.button.text==Yn ôl
