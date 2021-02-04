@@ -125,7 +125,7 @@ lazy val commonSettings =
   scalaSettings ++ defaultSettings() ++ publishingSettings ++ integrationTestSettings() ++
     ScoverageSettings() ++
     Seq(
-      majorVersion := 9,
+      majorVersion := 8,
       scalaVersion := "2.12.12",
       libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
       PlayKeys.playDefaultPort := 9053,
