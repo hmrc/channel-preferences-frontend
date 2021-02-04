@@ -42,6 +42,13 @@ dependencyUpdatesFilter -= moduleFilter(organization = "org.scalatest")
 dependencyUpdatesFilter -= moduleFilter(organization = "org.scalatestplus.play")
 dependencyUpdatesFailBuild := true
 
+swaggerDomainNameSpaces := Seq("uk.gov.hmrc.securemessage.controllers.models.generic")
+swaggerTarget := baseDirectory.value / "public"
+swaggerFileName := "schema.json"
+swaggerPrettyJson := true
+swaggerRoutesFile := "prod.routes"
+swaggerV3 := true
+
 sources in (Compile, doc) := Seq.empty
 
 scalafmtOnCompile := true
@@ -140,7 +147,7 @@ lazy val commonSettings =
     )
 
 lazy val microservice = Project(appName, file("."))
-  .enablePlugins(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, BuildInfoPlugin)
+  .enablePlugins(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, BuildInfoPlugin, SwaggerPlugin)
   .disablePlugins(JUnitXmlReportPlugin) // Required to prevent https://github.com/scalatest/scalatest/issues/1427
   .settings(SassKeys.embedSources := true)
   .settings(commonSettings)

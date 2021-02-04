@@ -5,7 +5,7 @@
 ->          /hmrc-frontend          hmrcfrontend.Routes
 ->         /                        health.Routes
 ->         /template                template.Routes
-->         /                        preferences_frontend.Routes
+->         /                        legacy.Routes
 ->         /                        cpf.Routes
 
 

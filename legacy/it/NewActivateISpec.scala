@@ -11,7 +11,7 @@ class NewActivateGraceOutISpec extends EmailSupport with SessionCookieEncryption
     Map(
       "controllers.controllers.internal.ActivationController.needsAuth" -> false,
       "Test.activation.gracePeriodInMin"                                -> 0,
-      "play.http.router"                                                -> "preferences_frontend.Routes"
+      "play.http.router"                                                -> "legacy.Routes"
     )
 
   override lazy val app = new GuiceApplicationBuilder()
@@ -177,7 +177,7 @@ class NewActivateGraceInISpec extends EmailSupport with SessionCookieEncryptionS
   private def additionalConfig =
     Map(
       "controllers.controllers.internal.ActivationController.needsAuth" -> false,
-      "play.http.router"                                                -> "preferences_frontend.Routes",
+      "play.http.router"                                                -> "legacy.Routes",
       "Test.activation.gracePeriodInMin"                                -> 10
     )
 

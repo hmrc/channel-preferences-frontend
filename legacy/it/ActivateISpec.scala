@@ -12,7 +12,7 @@ class ActivateISpec extends EmailSupport with SessionCookieEncryptionSupport {
   private def additionalConfig =
     Map(
       "controllers.controllers.internal.ActivationController.needsAuth" -> false,
-      "play.http.router"                                                -> "preferences_frontend.Routes"
+      "play.http.router"                                                -> "legacy.Routes"
     )
 
   override lazy val app = new GuiceApplicationBuilder()

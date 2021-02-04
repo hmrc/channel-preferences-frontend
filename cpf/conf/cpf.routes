@@ -1,4 +1,4 @@
 # microservice specific routes
 ### NoDocs ###
-GET        /paperless/language/:lang          uk.gov.hmrc.channelpreferencesfrontend.controllers.LanguageSwitchController.selectLanguage(lang: Language)
-GET        /paperless/hello-world                          uk.gov.hmrc.channelpreferencesfrontend.controllers.HelloWorldController.helloWorld
+GET        /paperless/language/:lang       uk.gov.hmrc.channelpreferencesfrontend.controllers.LanguageSwitchController.selectLanguage(lang: Language)
+GET        /paperless/hello-world          uk.gov.hmrc.channelpreferencesfrontend.controllers.HelloWorldController.helloWorld

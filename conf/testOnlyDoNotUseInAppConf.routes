@@ -13,9 +13,7 @@
 
 
 
-# GET         /paperless/hello-world                          uk.gov.hmrc.channelpreferencesfrontend.controllers.HelloWorldController.helloWorld
-
-# GET         /channel-preferences-frontend/api/schema.json   uk.gov.hmrc.channelpreferencesfrontend.controllers.swagger.ApiSpecsController.specs
-
-->          /                                               cpfTestOnlyDoNotUseInAppConf.Routes
-->          /                                               prod.Routes
+GET         /paperless/hello-world       uk.gov.hmrc.channelpreferencesfrontend.controllers.HelloWorldController.helloWorld
+GET         /paperless/api/schema.json   uk.gov.hmrc.channelpreferencesfrontend.controllers.swagger.ApiSpecsController.specs
+->          /                            cpfTestOnlyDoNotUseInAppConf.Routes
+->          /                            prod.Routes
