@@ -40,7 +40,7 @@ dependencyUpdatesFilter -= moduleFilter(organization = "com.github.ghik")
 dependencyUpdatesFilter -= moduleFilter(organization = "com.typesafe.play")
 dependencyUpdatesFilter -= moduleFilter(organization = "org.scalatest")
 dependencyUpdatesFilter -= moduleFilter(organization = "org.scalatestplus.play")
-dependencyUpdatesFailBuild := true
+dependencyUpdatesFailBuild := false
 
 swaggerDomainNameSpaces := Seq("uk.gov.hmrc.securemessage.controllers.models.generic")
 swaggerTarget := baseDirectory.value / "public"
