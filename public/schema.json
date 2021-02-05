@@ -664,7 +664,7 @@
   "produces" : [ "application/json" ],
   "info" : {
     "title" : "Channel Preferences Frontend API",
-    "version" : "0.15.0-SNAPSHOT"
+    "version" : "8.99.0-SNAPSHOT"
   },
   "consumes" : [ "application/json" ],
   "tags" : [ {
