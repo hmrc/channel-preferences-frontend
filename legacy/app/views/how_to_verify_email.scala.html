@@ -1,0 +1,67 @@
+@*
+ * Copyright 2021 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import controllers.auth.AuthenticatedRequest
+@import uk.gov.hmrc.play.views.html.helpers._
+@import uk.gov.hmrc.urls.Link
+@import views.sa.prefs.helpers.DateFormat.longDateFormat
+
+@this(externalUrlPrefixes: ExternalUrlPrefixes,
+    digitalTrueLinks: digital_true_links,
+    mainWithHeaders: views.html.main_with_headers,
+    govukButton: GovukButton)
+
+@(emailPref: connectors.EmailPreference)(implicit request: AuthenticatedRequest[_], messages: Messages, hostContext: model.HostContext)
+
+@resendVerificationEmailLink = @{externalUrlPrefixes.pfUrlPrefix + controllers.internal.routes.ManagePaperlessController.resendVerificationEmail(hostContext).url}
+@changeEmailAddressLink = @{externalUrlPrefixes.pfUrlPrefix + controllers.internal.routes.ManagePaperlessController.displayChangeEmailAddress(None, hostContext).url}
+
+@mainWithHeaders(title = Messages("manage.paperless.email.notification.header")) {
+
+ <h1 class="govuk-heading-xl">@Messages("manage.paperless.email.notification.verify.header")</h1>
+
+ <p class="govuk-body">@Html(Messages("manage.paperless.email.para.below.header"))</p>
+
+ <p class="govuk-body">@Messages("manage.paperless.email.search.email.for")</p>
+
+ @form(action = play.api.mvc.Call("POST", resendVerificationEmailLink)) {
+   <p class="govuk-body">@Messages("message.paperless.email.request.new.email.text")
+        @govukButton(Button(
+            name = Some("submitButton"),
+            inputType = Some("submit"),
+            content = Text(Messages("message.paperless.email.request.new.email.link")),
+            classes = "button-as-link",
+            attributes = Map(
+                "id" -> "resend-email-button",
+                "data-journey-click" -> "self-assessment-preferences-page:Click:Send a new verification email"
+            )
+        ))
+   </p>
+ }
+<p class="govuk-body">@Messages("message.paperless.email.request.if.you.want.text") <a class="govuk-link" href=@changeEmailAddressLink>@Messages("message.paperless.email.request.if.you.want.link")</a></p>
+
+<p class="govuk-body"><strong>@Messages("manage.paperless.email.use.header")</strong></p>
+
+<p class="govuk-body">@Messages("manage.paperless.email.use.explanation")</p>
+
+<p id="link-to-home" class="govuk-body">
+ @Link.toInternalPage(id = Some("go-to-cys"),
+    cssClasses = Some("govuk-button"),
+    url = controllers.internal.routes.ManagePaperlessController.checkSettings(hostContext).url,
+    value = Some(Messages("manage.paperless.email.button"))).toHtml
+</p>
+}
+

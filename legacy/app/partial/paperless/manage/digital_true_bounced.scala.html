@@ -1,0 +1,39 @@
+@*
+ * Copyright 2021 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import controllers.ExternalUrlPrefixes
+@this(externalUrlPrefixes: ExternalUrlPrefixes, digitalTrueLinks: digital_true_links)
+@(email: connectors.EmailPreference)(implicit request: Request[_], messages: Messages, hostContext: model.HostContext)
+@import connectors.EmailPreference
+@import uk.gov.hmrc.urls.Link
+@import uk.gov.hmrc.emailaddress.EmailAddress
+@import uk.gov.hmrc.play.views.html.helpers._
+@import views.sa.prefs.helpers.DateFormat._
+
+<section>
+    <p id="bouncing-status-message">@Messages("manage.paperless.bounce_status") <span id="email-address">@{email.email}</span></p>
+
+    @if(email.mailboxFull) {
+        <p id="bounce-reason">@Messages("manage.paperless.bounce.reason.full")</p>
+        <p id="bounce-reason-more">@Messages("manage.paperless.bounce.reason.full.more")</p>
+    } else {
+        <p id="bounce-reason">@Messages("manage.paperless.bounce.reason.not_full")</p>
+        <p>@Messages("manage.paperless.bounce.reason.not_full.more")</p>
+    }
+
+    @digitalTrueLinks(email, "revalidate-email-link")
+</section>
+

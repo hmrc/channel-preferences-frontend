@@ -10,7 +10,8 @@
 # Failing to follow this rule may result in test routes deployed in production.
 
 # Add all the application routes to the prod.routes file
-->          /                       app.Routes
 
-GET     /paperless/hello-world                                                  @controllers.ProxyController.proxy(path = "/paperless/hello-world")
-GET     /$pred<channel-preferences-frontend>/*path                       @controllers.ProxyController.proxy2(pred, path)
+
+
+->          /                            cpfTestOnlyDoNotUseInAppConf.Routes
+->          /                            prod.Routes
