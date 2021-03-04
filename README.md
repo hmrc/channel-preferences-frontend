@@ -3,7 +3,7 @@
 
 ## Run the project locally 
 
-`sbt run "9053 -Dplay.http.router=testOnlyDoNotUseInAppConf.Routes"`
+`sbt "run 9053 -Dplay.http.router=testOnlyDoNotUseInAppConf.Routes"`
 
 ## Run the tests and sbt fmt before raising a PR
 
