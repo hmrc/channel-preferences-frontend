@@ -32,7 +32,13 @@ class ActivationController @Inject() (
 )(implicit ec: ExecutionContext)
     extends FrontendController(mcc) with WithAuthRetrievals with I18nSupport with LanguageHelper {
 
-  val hostUrl = externalUrlPrefixes.pfUrlPrefix
+  //val hostUrl = externalUrlPrefixes.pfUrlPrefix
+
+  val hostUrl = {
+    val a = externalUrlPrefixes.pfUrlPrefix
+    println(s"HostUrl: $a")
+    a
+  }
 
   private lazy val gracePeriod =
     config
