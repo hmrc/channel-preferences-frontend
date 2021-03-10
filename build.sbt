@@ -151,54 +151,16 @@ lazy val microservice = Project(appName, file("."))
   .disablePlugins(JUnitXmlReportPlugin) // Required to prevent https://github.com/scalatest/scalatest/issues/1427
   .settings(SassKeys.embedSources := true)
   .settings(commonSettings)
+  .settings(ServiceManagerPlugin.serviceManagerSettings)
   .configs(IntegrationTest)
   .settings(itDependenciesList := externalServices)
-  .dependsOn(cpf,legacy)
-  .aggregate(cpf, legacy)
-
-lazy val legacy = project
-  .enablePlugins(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, BuildInfoPlugin)
-  .disablePlugins(JUnitXmlReportPlugin) // Required to prevent https://github.com/scalatest/scalatest/issues/1427
-  .configs(IntegrationTest)
-  .settings(commonSettings)
   .settings(
     scalacOptions ++= commonScalacOptions ++ Seq(
       "-P:silencer:globalFilters=.*"
     )
   )
-  .settings(ServiceManagerPlugin.serviceManagerSettings)
   .settings(
     scalastyleFailOnError := false,
     scalastyleFailOnWarning := false
   )
-  .settings(itDependenciesList := externalServices)
 
-lazy val cpf = project
-  .enablePlugins(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, BuildInfoPlugin)
-  .disablePlugins(JUnitXmlReportPlugin) // Required to prevent https://github.com/scalatest/scalatest/issues/1427
-  .configs(IntegrationTest)
-  .settings(inConfig(IntegrationTest)(org.scalafmt.sbt.ScalafmtPlugin.scalafmtConfigSettings))
-  .settings(
-    scalacOptions ++= Seq(
-      "-Xcheckinit", // Wrap field accessors to throw an exception on uninitialized access.
-      "-Xfatal-warnings" // Fail the compilation if there are any warnings.
-    )
-  )
-  .settings(
-    commonSettings,
-    RoutesKeys.routesImport += "uk.gov.hmrc.channelpreferencesfrontend.models._",
-    TwirlKeys.templateImports ++= Seq(
-      "uk.gov.hmrc.channelpreferencesfrontend.config.AppConfig"
-    ),
-    buildInfoPackage := "uk.gov.hmrc.channelpreferencesfrontend"
-  )
-  .settings(scalastyleFailOnError := true)
-  .settings(
-    RoutesKeys.routesImport += "uk.gov.hmrc.channelpreferencesfrontend.models._"
-  )
-  .settings(
-    wartremoverErrors ++= Warts.allBut(Wart.ImplicitParameter),
-    wartremoverErrors in (Test, compile) -= Wart.NonUnitStatements, // does not seem to work as intended
-    wartremoverExcluded in (Compile, compile) ++= routes.in(Compile).value,
-    wartremoverExcluded += (target in TwirlKeys.compileTemplates).value
-  )

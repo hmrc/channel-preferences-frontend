@@ -640,12 +640,6 @@
         "tags" : [ "legacy" ]
       }
     },
-    "/paperless/hello-world" : {
-      "get" : {
-        "operationId" : "helloWorld",
-        "tags" : [ "cpf" ]
-      }
-    },
     "/paperless/assets/{file}" : {
       "get" : {
         "operationId" : "versioned",
@@ -664,12 +658,10 @@
   "produces" : [ "application/json" ],
   "info" : {
     "title" : "Channel Preferences Frontend API",
-    "version" : "8.99.0-SNAPSHOT"
+    "version" : "8.103.0-SNAPSHOT"
   },
   "consumes" : [ "application/json" ],
   "tags" : [ {
-    "name" : "cpf"
-  }, {
     "name" : "prod"
   }, {
     "name" : "legacy"

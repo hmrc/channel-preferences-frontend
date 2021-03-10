@@ -6,7 +6,6 @@
 ->         /                        health.Routes
 ->         /template                template.Routes
 ->         /                        legacy.Routes
-->         /                        cpf.Routes
 
 
 ### NoDocs ###

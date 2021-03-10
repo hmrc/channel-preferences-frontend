@@ -1,2 +1,0 @@
-#GET         /paperless/hello-world       uk.gov.hmrc.channelpreferencesfrontend.controllers.HelloWorldController.helloWorld
-#GET         /paperless/api/schema.json   uk.gov.hmrc.channelpreferencesfrontend.controllers.swagger.ApiSpecsController.specs
