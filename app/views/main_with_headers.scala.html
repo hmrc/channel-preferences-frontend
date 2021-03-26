@@ -7,6 +7,7 @@
 @import uk.gov.hmrc.govukfrontend.views.html.layouts.govukLayout
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import uk.gov.hmrc.hmrcfrontend.views.html.components.{Header, HmrcHeader}
+@import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcStandardFooter
 @import controllers.auth.AuthenticatedRequest
 @import play.twirl.api.HtmlFormat
 @import play.api.i18n.Messages.Implicits._
@@ -19,7 +20,7 @@
     govukLayout: govukLayout,
     govukBackLink: GovukBackLink,
     hmrcHeader: HmrcHeader,
-    hmrcFooter: HmrcFooter,
+    hmrcFooter: HmrcStandardFooter,
     head: head,
     scripts: scripts,
     hmrcLanguageSelect: HmrcLanguageSelect,
