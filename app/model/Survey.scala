@@ -25,5 +25,5 @@ final case class Survey(surveyType: SurveyType, completedAt: DateTime)
 object Survey {
   implicit val dateReads: Reads[DateTime] = ReactiveMongoFormats.dateTimeRead
   implicit val dateWrites: Writes[DateTime] = ReactiveMongoFormats.dateTimeWrite
-  implicit val suveyFormat: Format[Survey] = Json.format
+  implicit val surveyFormat: Format[Survey] = Json.format
 }

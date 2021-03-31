@@ -62,12 +62,12 @@ class HostContextSpec extends WordSpec with Matchers with GuiceOneAppPerSuite wi
         )
       )
     }
-    "read the survery to false if not present " in {
+    "read the survey to false if not present " in {
       model.HostContext.hostContextBinder.bind("anyValName", Map(validReturnUrl, validReturnLinkText)) should contain(
         Right(HostContext(returnUrl = "foo", returnLinkText = "bar", survey = false))
       )
     }
-    "read the survery to true if present " in {
+    "read the survey to true if present " in {
       model.HostContext.hostContextBinder
         .bind("anyValName", Map(validReturnUrl, validReturnLinkText, surveyYes)) should contain(
         Right(HostContext(returnUrl = "foo", returnLinkText = "bar", survey = true))
