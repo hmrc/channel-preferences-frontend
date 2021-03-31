@@ -52,6 +52,7 @@ class ActivateISpec extends EmailSupport with SessionCookieEncryptionSupport {
       response.status must be(PRECONDITION_FAILED)
       (response.json \ "redirectUserTo").as[String] must be(
         s"http://localhost:9024/paperless/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
+
       (response.json \ "optedIn").asOpt[Boolean] mustBe empty
       (response.json \ "verifiedEmail").asOpt[Boolean] mustBe empty
     }

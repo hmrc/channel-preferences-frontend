@@ -35,6 +35,9 @@ POST        /paperless/choose                                                   
 GET         /paperless/survey/reoptin-declined                                      controllers.internal.SurveyController.displayReOptInDeclinedSurveyForm(hostContext: model.HostContext)
 POST        /paperless/survey/reoptin-declined                                      controllers.internal.SurveyController.submitReOptInDeclinedSurveyForm(hostContext: model.HostContext)
 
+GET         /paperless/survey/optin-declined                                      controllers.internal.OptInSurveyController.displayOptinDeclinedSurveyForm(hostContext: model.HostContext)
+POST        /paperless/survey/optin-declined                                      controllers.internal.OptInSurveyController.submitOptinDeclinedSurveyForm(hostContext: model.HostContext)
+
 
 GET         /paperless/language-choose                                              controllers.internal.ChoosePaperlessController.displayLanguageForm(hostContext: model.HostContext)
 POST        /paperless/language-choose                                              controllers.internal.ChoosePaperlessController.submitLanguageForm(hostContext: model.HostContext)

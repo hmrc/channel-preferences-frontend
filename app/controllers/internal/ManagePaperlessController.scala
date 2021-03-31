@@ -100,7 +100,7 @@ class ManagePaperlessController @Inject() (
     func: (EmailAddress) => Future[Result]
   )(implicit request: AuthenticatedRequest[_], hc: HeaderCarrier): Future[Result] =
     entityResolverConnector.getPreferences().flatMap {
-      case p @ Some(PreferenceResponse(_, Some(email))) if p.exists(_.genericTermsAccepted) =>
+      case p @ Some(PreferenceResponse(_, Some(email), _)) if p.exists(_.genericTermsAccepted) =>
         func(EmailAddress(email.email))
       case _ =>
         Future.successful(BadRequest("Could not find existing preferences."))
@@ -210,13 +210,13 @@ class ManagePaperlessController @Inject() (
       withAuthenticatedRequest { implicit withAuthenticatedRequest: AuthenticatedRequest[_] => implicit hc =>
         entityResolverConnector.getPreferences() map { pref =>
           Ok(pref match {
-            case p @ Some(PreferenceResponse(map, Some(email))) if p.exists(_.genericTermsAccepted) =>
+            case p @ Some(PreferenceResponse(map, Some(email), _)) if p.exists(_.genericTermsAccepted) =>
               (email.hasBounces, email.isVerified) match {
                 case (true, _) => digitalTrueBouncedFull(email)
                 case (_, true) => digitalTrueVerifiedFull(email)
                 case _         => digitalTruePendingFull(email)
               }
-            case p @ Some(PreferenceResponse(_, email)) =>
+            case p @ Some(PreferenceResponse(_, email, _)) =>
               val encryptedEmail = email map (emailPreference => Encrypted(EmailAddress(emailPreference.email)))
               digitalFalseFull()
             case _ => digitalFalseFull()

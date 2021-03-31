@@ -10,7 +10,7 @@ import helpers.TestFixtures
 import model.Language
 import org.joda.time.{ DateTime, DateTimeZone }
 import org.jsoup.Jsoup
-import org.mockito.Matchers.{ any, eq => is }
+import org.mockito.Matchers.{ any, contains, eq => is }
 import org.mockito.Mockito.{ when, _ }
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.ScalaFutures
@@ -28,6 +28,8 @@ import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.{ LoginTimes, Name, ~ }
 
 import scala.concurrent.Future
+import model.SurveyType
+import model.Survey
 
 class ActivationControllerSpec
     extends PlaySpec with GuiceOneAppPerSuite with BeforeAndAfterEach with MockitoSugar with ScalaFutures {
@@ -92,8 +94,7 @@ class ActivationControllerSpec
               any(),
               is(TestFixtures.sampleHostContext)
             )
-        )
-          .thenReturn(Future.successful(PreferencesCreated))
+        ).thenReturn(Future.successful(PreferencesCreated))
         val cookies = Cookie("PLAY_LANG", "en")
         val res: Future[Result] = controller.activate(TestFixtures.sampleHostContext)(request.withCookies(cookies))
         status(res) mustBe Ok.header.status
@@ -116,8 +117,7 @@ class ActivationControllerSpec
               any(),
               is(TestFixtures.alreadyOptedInUrlHostContext)
             )
-        )
-          .thenReturn(Future.successful(PreferencesCreated))
+        ).thenReturn(Future.successful(PreferencesCreated))
         val cookies = Cookie("PLAY_LANG", "cy")
         val res: Future[Result] =
           controller.activate(TestFixtures.alreadyOptedInUrlHostContext)(request.withCookies(cookies))
@@ -191,6 +191,7 @@ class ActivationControllerSpec
 
           status(res) mustBe Ok.header.status
           verify(mockEntityResolverConnector, never()).updateTermsAndConditions(any())(any(), any())
+
         }
 
         "return OK if customer is opted-out but with existing email" in {
@@ -379,8 +380,7 @@ class ActivationControllerSpec
                 any(),
                 is(TestFixtures.sampleHostContext)
               )
-          )
-            .thenReturn(Future.successful(PreferencesCreated))
+          ).thenReturn(Future.successful(PreferencesCreated))
           val cookies = Cookie("PLAY_LANG", "en")
           val res: Future[Result] =
             controller.activateFromToken("mtdfbit", "token", TestFixtures.sampleHostContext)(
@@ -409,8 +409,7 @@ class ActivationControllerSpec
                 any(),
                 is(TestFixtures.alreadyOptedInUrlHostContext)
               )
-          )
-            .thenReturn(Future.successful(PreferencesCreated))
+          ).thenReturn(Future.successful(PreferencesCreated))
           val cookies = Cookie("PLAY_LANG", "cy")
           val res: Future[Result] =
             controller.activateFromToken("mtdfbit", "token", TestFixtures.alreadyOptedInUrlHostContext)(
@@ -460,6 +459,72 @@ class ActivationControllerSpec
         document.getElementsByTag("body").first().html() must startWith("""{"redirectUserTo":""")
         verify(mockEntityResolverConnector, never()).updateTermsAndConditions(any())(any(), any())
       }
+    }
+
+    "returns redirectUserTo with no survey for new user" in {
+      val email =
+        EmailPreference("test@test.com", isVerified = false, hasBounces = false, mailboxFull = false, None)
+      reset(mockEntityResolverConnector)
+      when(mockEntityResolverConnector.getPreferencesStatus(any())(any()))
+        .thenReturn(Future.successful(Right(PreferenceNotFound(None))))
+      val res = controller.activate(TestFixtures.sampleHostContext)(request)
+
+      status(res) mustBe PRECONDITION_FAILED
+      val document = Jsoup.parse(contentAsString(res))
+      document.getElementsByTag("body").first().html() must be(
+        """{"redirectUserTo":"/paperless/choose?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&amp;returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"}"""
+      )
+    }
+
+    "returns redirectUserTo with no survey for an opted out user that hasn't seen the survey yet" in {
+      val now = DateTime.now
+      val lastUpdated = now.minusMinutes(gracePeriod * 2)
+      val email =
+        EmailPreference("test@test.com", isVerified = false, hasBounces = false, mailboxFull = false, None)
+
+      reset(mockEntityResolverConnector)
+      when(mockEntityResolverConnector.getPreferencesStatus(any())(any()))
+        .thenReturn(
+          Future.successful(
+            Right(PreferenceFound(accepted = false, None, Some(lastUpdated), paperless = None))
+          )
+        )
+      val res: Future[Result] = controller.activate(TestFixtures.sampleHostContext)(request)
+
+      status(res) mustBe PRECONDITION_FAILED
+      val document = Jsoup.parse(contentAsString(res))
+      document.getElementsByTag("body").first().html() must be(
+        """{"redirectUserTo":"/paperless/choose?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&amp;returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"}"""
+      )
+    }
+
+    "returns redirectUserTo with survey for an opted out user that has seen the survey" in {
+      val now = DateTime.now
+      //val lastUpdated = now.minusMinutes(gracePeriod * 2)
+      val email =
+        EmailPreference("test@test.com", isVerified = false, hasBounces = false, mailboxFull = false, None)
+
+      reset(mockEntityResolverConnector)
+      when(mockEntityResolverConnector.getPreferencesStatus(any())(any()))
+        .thenReturn(
+          Future.successful(
+            Right(
+              PreferenceFound(
+                accepted = false,
+                None,
+                paperless = None,
+                surveys = Some(List(Survey(SurveyType.StandardInterruptOptOut, now)))
+              )
+            )
+          )
+        )
+      val res: Future[Result] = controller.activate(TestFixtures.sampleHostContext)(request)
+
+      status(res) mustBe PRECONDITION_FAILED
+      val document = Jsoup.parse(contentAsString(res))
+      document.getElementsByTag("body").first().html() must be(
+        """{"redirectUserTo":"/paperless/choose?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&amp;returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D&amp;survey=hrcOMaf19lUfbNYcQ9B7mA%3D%3D"}"""
+      )
     }
   }
 }

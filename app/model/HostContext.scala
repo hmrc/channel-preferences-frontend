@@ -15,7 +15,8 @@ case class HostContext(
   termsAndConditions: Option[String] = None,
   email: Option[String] = None,
   alreadyOptedInUrl: Option[String] = None,
-  cohort: Option[OptInCohort] = None
+  cohort: Option[OptInCohort] = None,
+  survey: Boolean = false
 ) {
   val isTaxCredits = termsAndConditions.fold(false)(_ == "taxCredits")
 }
@@ -35,18 +36,24 @@ object HostContext {
         val languageResult = stringBinder.bind("language", params).liftDecryptedOption
         val cohortResult =
           stringBinder.bind("cohort", params).liftDecryptedOption.flatMap(x => OptInCohort.fromId(x.toInt))
-
+        val survey = stringBinder
+          .bind("survey", params)
+          .collect {
+            case Right(v) => if (v.decryptedValue == "yes") true else false
+          }
+          .getOrElse(false)
         (
           returnUrlResult,
           returnLinkTextResult,
           termsAndConditionsOptionResult,
           emailOptionResult,
           languageResult,
-          cohortResult
+          cohortResult,
+          survey
         ) match {
-          case (Some(Right(returnUrl)), Some(Right(returnLinkText)), Some("taxCredits"), None, _, _) =>
+          case (Some(Right(returnUrl)), Some(Right(returnLinkText)), Some("taxCredits"), None, _, _, _) =>
             Some(Left("TaxCredits must provide email"))
-          case (Some(Right(returnUrl)), Some(Right(returnLinkText)), terms, email, lang, pageType) =>
+          case (Some(Right(returnUrl)), Some(Right(returnLinkText)), terms, email, lang, pageType, survey) =>
             Some(
               Right(
                 HostContext(
@@ -55,11 +62,12 @@ object HostContext {
                   termsAndConditions = terms,
                   email = email,
                   alreadyOptedInUrl = alreadyOptedInUrl,
-                  pageType
+                  pageType,
+                  survey
                 )
               )
             )
-          case (maybeReturnUrlError, maybeReturnLinkTextError, _, _, _, _) =>
+          case (maybeReturnUrlError, maybeReturnLinkTextError, _, _, _, _, _) =>
             val errorMessage = Seq(
               extractError(maybeReturnUrlError, Some("No returnUrl query parameter")),
               extractError(maybeReturnLinkTextError, Some("No returnLinkText query parameter"))
@@ -91,7 +99,7 @@ object HostContext {
           termsAndEmailString +
           value.cohort.fold("") { c =>
             "&" + stringBinder.unbind("cohort", Encrypted(s"${c.id}"))
-          }
+          } + (if (value.survey) "&" + stringBinder.unbind("survey", Encrypted("yes")) else "")
       }
     }
 

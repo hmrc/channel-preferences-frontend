@@ -26,13 +26,13 @@ class ManagePaperlessPartial @Inject() (
     prefs: Option[PreferenceResponse]
   )(implicit request: Request[_], hostContext: HostContext, messages: Messages): HtmlFormat.Appendable =
     prefs match {
-      case p @ Some(PreferenceResponse(map, Some(email))) if p.exists(_.genericTermsAccepted) =>
+      case p @ Some(PreferenceResponse(map, Some(email), _)) if p.exists(_.genericTermsAccepted) =>
         (email.hasBounces, email.isVerified) match {
           case (true, _) => digitalTrueBounced(email)
           case (_, true) => digitalTrueVerified(email)
           case _         => digitalTruePending(email)
         }
-      case p @ Some(PreferenceResponse(_, email)) =>
+      case p @ Some(PreferenceResponse(_, email, _)) =>
         val encryptedEmail = email map (emailPreference => Encrypted(EmailAddress(emailPreference.email)))
         digitalFalse(encryptedEmail)
       case _ => digitalFalse(None)

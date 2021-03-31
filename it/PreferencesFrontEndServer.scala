@@ -117,6 +117,20 @@ class TestCase
                             |  },
                             |  "language": "en"
                             |}""".stripMargin))
+
+    def postGenericOptOutWithSurvey() =
+      wsClient
+        .url(s"http://localhost:8015/preferences/terms-and-conditions")
+        .withHttpHeaders(header)
+        .post(Json.parse(s"""{
+                            |  "generic": {
+                            |    "accepted": false,
+                            |    "optInPage":{
+                            |      "version": {"major":2,"minor":1}, "cohort":1, "pageType":"IPage"},
+                            |    "surveyType": "StandardInterruptOptOut"
+                            |  },
+                            |  "language": "en"
+                            |}""".stripMargin))
   }
 
   def `/entity-resolver/sa/:utr`(utr: String) = {

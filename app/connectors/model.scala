@@ -5,6 +5,7 @@
 
 package connectors
 
+import model.Survey
 import org.joda.time.{ DateTime, LocalDate }
 import play.api.libs.json._
 
@@ -118,7 +119,8 @@ object TermsAndConditonsAcceptance {
 
 case class PreferenceResponse(
   termsAndConditions: Map[String, TermsAndConditonsAcceptance],
-  email: Option[EmailPreference]
+  email: Option[EmailPreference],
+  surveys: Option[List[Survey]] = None
 ) {
   val genericTermsAccepted: Boolean = termsAndConditions.get("generic").fold(false)(_.accepted)
   val taxCreditsTermsAccepted: Boolean = termsAndConditions.get("taxCredits").fold(false)(_.accepted)
@@ -152,7 +154,8 @@ object PreferenceResponse {
 
       PreferenceResponse(
         termsAndConditions = Map("generic" -> TermsAndConditonsAcceptance(saPreference.digital)),
-        email = saPreference.email.map(toNewEmail)
+        email = saPreference.email.map(toNewEmail),
+        surveys = saPreference.surveys
       )
     }
   }
@@ -162,7 +165,7 @@ object PreferenceResponse {
   }
 }
 
-case class SaPreference(digital: Boolean, email: Option[SaEmailPreference] = None)
+case class SaPreference(digital: Boolean, email: Option[SaEmailPreference] = None, surveys: Option[List[Survey]] = None)
 
 object SaPreference {
   implicit val formats = Json.format[SaPreference]

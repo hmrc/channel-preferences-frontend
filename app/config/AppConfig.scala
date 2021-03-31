@@ -43,4 +43,6 @@ class YtaConfig @Inject() (configuration: Configuration, env: Environment, exter
     configuration.getOptional[Boolean](s"enableLanguageSwitching").getOrElse(false)
   def surveyReOptInPage10Enabled: Boolean =
     configuration.getOptional[Boolean](s"survey.ReOptInPage10.enabled").getOrElse(false)
+  def surveyOptinPageEnabled: Boolean =
+    configuration.getOptional[Boolean](s"survey.optInPage.enabled").getOrElse(false)
 }

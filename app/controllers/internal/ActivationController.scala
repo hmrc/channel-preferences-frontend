@@ -8,6 +8,7 @@ package controllers.internal
 import connectors.{ EntityResolverConnector, _ }
 import controllers.ExternalUrlPrefixes
 import controllers.auth.{ AuthenticatedRequest, WithAuthRetrievals }
+import model.SurveyType.StandardInterruptOptOut
 import model.{ Encrypted, FormType, HostContext, Language }
 import org.joda.time.DateTime
 import play.api.i18n.I18nSupport
@@ -89,7 +90,7 @@ class ActivationController @Inject() (
     preferenceStatus: Either[Int, PreferenceStatus]
   )(implicit hc: HeaderCarrier): Future[Unit] =
     preferenceStatus match {
-      case Right(PreferenceFound(true, emailPreference, _, _, _)) if emailPreference.exists(_.language.isEmpty) =>
+      case Right(PreferenceFound(true, emailPreference, _, _, _, _)) if emailPreference.exists(_.language.isEmpty) =>
         entityResolverConnector
           .updateTermsAndConditions(TermsAndConditionsUpdate.fromLanguage(Some(lang)))(hc, hostContext)
           .map(_ => ())
@@ -109,7 +110,7 @@ class ActivationController @Inject() (
           .redirectToDisplayFormWithCohortBySvc(svc, token, encryptedEmail, hostContext)
           .url
         PreconditionFailed(Json.obj("redirectUserTo" -> redirectUrl))
-      case Right(PreferenceFound(true, emailPreference, _, _, _)) =>
+      case Right(PreferenceFound(true, emailPreference, _, _, _, _)) =>
         Ok(
           Json.obj(
             "optedIn"       -> true,
@@ -117,7 +118,7 @@ class ActivationController @Inject() (
           )
         )
 
-      case Right(PreferenceFound(false, email, _, _, _)) =>
+      case Right(PreferenceFound(false, email, _, _, _, _)) =>
         val encryptedEmail = email.map(e => Encrypted(EmailAddress(e.email)))
         val redirectUrl = hostUrl + routes.ChoosePaperlessController
           .redirectToDisplayFormWithCohortBySvc(svc, token, encryptedEmail, hostContext)
@@ -136,9 +137,10 @@ class ActivationController @Inject() (
     preferenceStatus: Either[Int, PreferenceStatus]
   )(implicit hc: HeaderCarrier, authenticatedRequest: AuthenticatedRequest[_]): Result =
     preferenceStatus match {
-      case Right(PreferenceFound(true, emailPreference, updatedAt, _, _)) if hostContext.alreadyOptedInUrl.isDefined =>
+      case Right(PreferenceFound(true, emailPreference, updatedAt, _, _, _))
+          if hostContext.alreadyOptedInUrl.isDefined =>
         Redirect(hostContext.alreadyOptedInUrl.get)
-      case Right(PreferenceFound(true, emailPreference, _, None, _)) =>
+      case Right(PreferenceFound(true, emailPreference, _, None, _, _)) =>
         Ok(
           Json.obj(
             "optedIn"       -> true,
@@ -146,7 +148,7 @@ class ActivationController @Inject() (
           )
         )
 
-      case Right(PreferenceFound(true, emailPreference, _, Some(majorVersion), paperless)) =>
+      case Right(PreferenceFound(true, emailPreference, _, Some(majorVersion), paperless, _)) =>
         if (triggerReOptIn(authenticatedRequest, emailPreference, majorVersion, paperless)) {
           val encryptedEmail = None
           val redirectUrl = hostUrl + routes.ChoosePaperlessController
@@ -165,7 +167,8 @@ class ActivationController @Inject() (
             )
           )
 
-      case Right(PreferenceFound(false, None, updatedAt, _, _)) =>
+      // [TODO] [DC-3013] for PreferencesFound  add to hostcontext whether survey has to be presented
+      case Right(PreferenceFound(false, None, updatedAt, _, _, surveys)) =>
         updatedAt
           .flatMap(u =>
             if (u.plusMinutes(gracePeriod).isAfter(DateTime.now))
@@ -181,12 +184,14 @@ class ActivationController @Inject() (
           .getOrElse {
 
             val encryptedEmail = None
+            val needSurvey =
+              surveys.collect { case ls => ls.exists(_.surveyType == StandardInterruptOptOut) }.getOrElse(false)
             val redirectUrl = hostUrl + routes.ChoosePaperlessController
-              .redirectToDisplayFormWithCohort(encryptedEmail, hostContext)
+              .redirectToDisplayFormWithCohort(encryptedEmail, hostContext.copy(survey = needSurvey))
               .url
             PreconditionFailed(Json.obj("redirectUserTo" -> redirectUrl))
           }
-      case Right(PreferenceFound(false, email, updatedAt, _, _)) =>
+      case Right(PreferenceFound(false, email, updatedAt, _, _, _)) =>
         Ok(Json.obj("optedIn" -> false))
       case Right(PreferenceNotFound(Some(email))) if hostContext.email.exists(_ != email.email) =>
         Conflict

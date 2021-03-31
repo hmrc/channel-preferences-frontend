@@ -3,7 +3,9 @@
  *
  */
 
+import org.jsoup.Jsoup
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.libs.json.Json
 import play.api.test.Helpers._
 
 class NewActivateGraceOutISpec extends EmailSupport with SessionCookieEncryptionSupport {
@@ -29,7 +31,30 @@ class NewActivateGraceOutISpec extends EmailSupport with SessionCookieEncryption
 
       val response = `/paperless/activate`(utr)().put().futureValue
       response.status must be(PRECONDITION_FAILED)
+      withClue("no survey in the redirectUserTo") {
+        (response.json \ "redirectUserTo").as[String] must be(
+          s"http://localhost:9024/paperless/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText"
+        )
+      }
 
+    }
+
+    "return PRECONDITION_FAILED for existing PTA Customer who had previously opted out and has no email held in preferences with survey" in {
+
+      val utr = Generate.utr
+      clearEmails()
+      `/preferences/terms-and-conditions`(
+        authHelper.authHeader(utr)
+      ).postGenericOptOutWithSurvey.futureValue.status must be(CREATED)
+
+      val response = `/paperless/activate`(utr)().put().futureValue
+      response.status must be(PRECONDITION_FAILED)
+      withClue("survey in the redirectUserTo") {
+        (response.json \ "redirectUserTo").as[String] must be(
+          s"http://localhost:9024/paperless/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText" +
+            "&survey=hrcOMaf19lUfbNYcQ9B7mA%3D%3D"
+        )
+      }
     }
 
     "return OK for existing Opted-in customer with unverified email" in {
@@ -221,7 +246,33 @@ class NewActivateGraceInISpec extends EmailSupport with SessionCookieEncryptionS
       val response = `/paperless/activate`(utr)().put().futureValue
       response.status must be(OK)
     }
-
   }
+}
 
+class NewActivateNewUserISpec extends EmailSupport with SessionCookieEncryptionSupport {
+  private def additionalConfig =
+    Map(
+      "controllers.controllers.internal.ActivationController.needsAuth" -> false,
+      "activation.gracePeriodInMin"                                     -> 0,
+      "play.http.router"                                                -> "legacy.Routes"
+    )
+
+  override lazy val app = new GuiceApplicationBuilder()
+    .configure(additionalConfig)
+    .build()
+
+  "activate new customer" should {
+    "survey should not be in the redirectUserTo" in {
+      val utr = Generate.utr
+      clearEmails()
+
+      val response = `/paperless/activate`(utr)().put().futureValue
+      response.status must be(PRECONDITION_FAILED)
+      withClue("new user survey in the redirectUserTo") {
+        (response.json \ "redirectUserTo").as[String] must be(
+          s"http://localhost:9024/paperless/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText"
+        )
+      }
+    }
+  }
 }

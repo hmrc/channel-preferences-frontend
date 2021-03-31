@@ -10,3 +10,16 @@ paperless.survey.reoptin_declined.reason.label=Another reason
 paperless.survey.reoptin_declined.reason.label.error.maxlength=Reason must be 3000 characters or fewer
 paperless.survey.reoptin_declined.submitButton=Continue
 paperless.survey.reoptin_declined.check.settings.linkText=Skip
+
+paperless.survey.optin_declined.title=Why did you choose to go back to paper letters?
+paperless.survey.optin_declined.paragraph.1=We only use this information to improve the service. We will not reply to you.
+paperless.survey.optin_declined.hint=You can select more than one choice.
+paperless.survey.optin_declined.reason.label.error.maxlength=Reason must be 3000 characters or fewer
+paperless.survey.optin_declined.submitButton=Continue
+paperless.survey.optin_declined.check.settings.linkText=Skip
+paperless.survey.optin_declined.choice.0305d33f-2e8d-4cb2-82d2-52132fc325fe=I need a better reminder than email to act on new tax letters
+paperless.survey.optin_declined.choice.ce34aa17-df2a-44fb-9d5c-4d930396483a=I will lose access to my online tax letters
+paperless.survey.optin_declined.choice.d0edb491-6dcb-48a8-aeca-b16f01c541a5=I worry people will not accept online tax letters as proof
+paperless.survey.optin_declined.choice.1e825e7d-6fc8-453f-8c20-1a7ed4d84ea5=Signing in to HMRC online is too difficult
+paperless.survey.optin_declined.choice.15d28c3f-9f33-4c44-aefa-165fc84b5e23=I do not want a mix of paper letters and online letters
+paperless.survey.optin_declined.reason.label=Another reason

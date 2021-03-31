@@ -25,6 +25,7 @@ class HostContextSpec extends WordSpec with Matchers with GuiceOneAppPerSuite wi
     val validWelshLanguage = "language"                          -> Seq("5W0FAIi6JRZBSf4/hwE00w==") // cy
     val validCohortType10 = "cohort"                             -> Seq("u/n1h8qcsJrhpRofXkhmXg==") // ReOptInPage10
     val validCohortType52 = "cohort"                             -> Seq("dPFnTTu7gdct/zMj/owK2Q==") // ReOptInPage52
+    val surveyYes = "survey"                                     -> Seq("hrcOMaf19lUfbNYcQ9B7mA==") // yes
 
     "read the returnURL and returnLinkText if both present" in {
       model.HostContext.hostContextBinder.bind("anyValName", Map(validReturnUrl, validReturnLinkText)) should contain(
@@ -59,6 +60,17 @@ class HostContextSpec extends WordSpec with Matchers with GuiceOneAppPerSuite wi
             Some("test@test.com")
           )
         )
+      )
+    }
+    "read the survery to false if not present " in {
+      model.HostContext.hostContextBinder.bind("anyValName", Map(validReturnUrl, validReturnLinkText)) should contain(
+        Right(HostContext(returnUrl = "foo", returnLinkText = "bar", survey = false))
+      )
+    }
+    "read the survery to true if present " in {
+      model.HostContext.hostContextBinder
+        .bind("anyValName", Map(validReturnUrl, validReturnLinkText, surveyYes)) should contain(
+        Right(HostContext(returnUrl = "foo", returnLinkText = "bar", survey = true))
       )
     }
 
@@ -114,6 +126,12 @@ class HostContextSpec extends WordSpec with Matchers with GuiceOneAppPerSuite wi
           )
         ) should be(
         "returnUrl=Wa6yuBSzGvUaibkXblJ8aQ%3D%3D&returnLinkText=w%2FPwaxV%2BKgqutfsU0cyrJQ%3D%3D&email=yCVwXTaKNqm1whFZ7gcFkQ%3D%3D&cohort=u%2Fn1h8qcsJrhpRofXkhmXg%3D%3D"
+      )
+    }
+    "write out all parameters when survey is present " in {
+      model.HostContext.hostContextBinder
+        .unbind("anyValName", HostContext(returnUrl = "foo&value", returnLinkText = "bar", survey = true)) should be(
+        "returnUrl=Wa6yuBSzGvUaibkXblJ8aQ%3D%3D&returnLinkText=w%2FPwaxV%2BKgqutfsU0cyrJQ%3D%3D&survey=hrcOMaf19lUfbNYcQ9B7mA%3D%3D"
       )
     }
 

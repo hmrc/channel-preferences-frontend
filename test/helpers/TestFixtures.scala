@@ -6,12 +6,19 @@
 package helpers
 
 import controllers.internal.ReOptInPage10
+import controllers.internal.IPage8
 import model.HostContext
 
 object TestFixtures {
   val sampleHostContext = HostContext(
     returnUrl = "someReturnUrl",
     returnLinkText = "someReturnLinkText"
+  )
+
+  val sampleHostContextWithSurvey = HostContext(
+    returnUrl = "someReturnUrl",
+    returnLinkText = "someReturnLinkText",
+    survey = true
   )
 
   def alreadyOptedInUrlHostContext =
@@ -42,6 +49,21 @@ object TestFixtures {
       returnUrl = "someReturnUrl",
       returnLinkText = "someReturnLinkText",
       cohort = Some(ReOptInPage10)
+    )
+
+  def optinHostContext(email: String) =
+    HostContext(
+      returnUrl = "someReturnUrl",
+      returnLinkText = "someReturnLinkText",
+      email = Some(email),
+      cohort = Some(IPage8)
+    )
+
+  def optinHostContext() =
+    HostContext(
+      returnUrl = "someReturnUrl",
+      returnLinkText = "someReturnLinkText",
+      cohort = Some(IPage8)
     )
 
 }

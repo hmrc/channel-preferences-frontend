@@ -37,6 +37,34 @@ object SurveyReOptInDeclinedDetailsForm {
   )
 }
 
+object SurveyOptinDeclinedDetailsForm {
+
+  val reasonMaxLength = 3000
+
+  def apply(): Form[Data] =
+    Form(
+      mapping(
+        "choice-d210eccd-9ea1-48fd-a28e-25abbb7508fe" -> optional(boolean),
+        "choice-717c2da0-4411-41ad-9a78-b335786e7107" -> optional(boolean),
+        "choice-a6f84da8-9fd7-440d-915e-2a2f8a543c9b" -> optional(boolean),
+        "choice-bf74f47f-e9ce-4c15-a9aa-1af80a594861" -> optional(boolean),
+        "choice-ca31965c-dd40-4a2c-a606-fe961da485c0" -> optional(boolean),
+        "reason"                                      -> optional(text(maxLength = reasonMaxLength)),
+        "submissionType"                              -> optional(text)
+      )(Data.apply)(Data.unapply)
+    )
+
+  case class Data(
+    `choice-d210eccd-9ea1-48fd-a28e-25abbb7508fe`: Option[Boolean],
+    `choice-717c2da0-4411-41ad-9a78-b335786e7107`: Option[Boolean],
+    `choice-a6f84da8-9fd7-440d-915e-2a2f8a543c9b`: Option[Boolean],
+    `choice-bf74f47f-e9ce-4c15-a9aa-1af80a594861`: Option[Boolean],
+    `choice-ca31965c-dd40-4a2c-a606-fe961da485c0`: Option[Boolean],
+    reason: Option[String],
+    submissionType: Option[String]
+  )
+}
+
 case class QuestionAnswer(question: String, answer: String)
 object QuestionAnswer {
   implicit val formats = Json.format[QuestionAnswer]

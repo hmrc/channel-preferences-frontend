@@ -7,7 +7,7 @@ package connectors
 
 import _root_.controllers.internal.OptInCohort
 import config.ServicesCircuitBreaker
-import model.{ HostContext, Language, PageType, ReturnLink }
+import model.{ HostContext, Language, PageType, ReturnLink, Survey }
 import org.joda.time.DateTime
 import play.api.http.Status._
 import play.api.libs.functional.syntax._
@@ -20,6 +20,7 @@ import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
 import javax.inject.{ Inject, Singleton }
 import scala.concurrent.Future
+import _root_.model.SurveyType
 
 case class Email(email: String)
 
@@ -82,7 +83,7 @@ object OptInPage {
   implicit val optInPageFormat: Format[OptInPage] = Format(optInPageReads, optInPageWrites)
 }
 
-case class TermsAccepted(accepted: Boolean, optInPage: Option[OptInPage] = None)
+case class TermsAccepted(accepted: Boolean, optInPage: Option[OptInPage] = None, surveyType: Option[SurveyType] = None)
 
 object TermsAccepted {
   implicit val format = Json.format[TermsAccepted]
@@ -94,7 +95,8 @@ case class PreferenceFound(
   email: Option[EmailPreference],
   updatedAt: Option[DateTime] = None,
   majorVersion: Option[Int] = None,
-  paperless: Option[Boolean]
+  paperless: Option[Boolean],
+  surveys: Option[List[Survey]] = None
 ) extends PreferenceStatus
 case class PreferenceNotFound(email: Option[EmailPreference]) extends PreferenceStatus
 
@@ -192,7 +194,8 @@ class EntityResolverConnector @Inject() (config: Configuration, env: Environment
                   preference.email,
                   acceptance.updatedAt,
                   acceptance.majorVersion,
-                  paperless = acceptance.paperless
+                  paperless = acceptance.paperless,
+                  surveys = preference.surveys
                 )
               )
             }

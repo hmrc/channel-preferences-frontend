@@ -28,6 +28,7 @@ import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
 import javax.inject.Inject
 import scala.concurrent.{ ExecutionContext, Future }
+import model.SurveyType
 
 class ChoosePaperlessController @Inject() (
   ytaConfig: YtaConfig,
@@ -290,7 +291,9 @@ class ChoosePaperlessController @Inject() (
                   false,
                   None,
                   None,
-                  languagePreference = Some(lang)
+                  languagePreference = Some(lang),
+                  if (!hostContext.survey && ytaConfig.surveyOptinPageEnabled) Some(SurveyType.StandardInterruptOptOut)
+                  else None
                 )
               else
                 OptInDetailsForm().bindFromRequest.fold[Future[Result]](
@@ -369,9 +372,10 @@ class ChoosePaperlessController @Inject() (
     emailAlreadyStored: Boolean,
     svc: Option[String],
     token: Option[String],
-    languagePreference: Some[Language]
+    languagePreference: Some[Language],
+    surveyType: Option[SurveyType] = None
   )(implicit request: AuthenticatedRequest[_], hostContext: HostContext, hc: HeaderCarrier): Future[Result] = {
-    val terms = cohort.terms -> TermsAccepted(digital, Some(OptInPage.from(cohort)))
+    val terms = cohort.terms -> TermsAccepted(digital, Some(OptInPage.from(cohort)), surveyType)
 
     entityResolverConnector
       .updateTermsAndConditionsForSvc(
@@ -386,6 +390,8 @@ class ChoosePaperlessController @Inject() (
             Redirect(routes.SurveyController.displayReOptInDeclinedSurveyForm(hostContext))
           else
             Redirect(routes.ManagePaperlessController.checkSettings(hostContext))
+        else if (surveyType.isDefined)
+          Redirect(routes.OptInSurveyController.displayOptinDeclinedSurveyForm(hostContext))
         else if (digital && !emailAlreadyStored) {
           val encryptedEmail = email map (emailAddress => Encrypted(EmailAddress(emailAddress)))
           Redirect(routes.ChoosePaperlessController.displayNearlyDone(encryptedEmail, hostContext))
@@ -539,8 +545,8 @@ class ChoosePaperlessController @Inject() (
     val terms = hostContext.termsAndConditions.getOrElse("generic")
     val f: Any => Boolean = (v: Any) =>
       v match {
-        case Right(PreferenceNotFound(Some(_))) | Right(PreferenceFound(false, Some(_), _, _, _)) => true
-        case _                                                                                    => false
+        case Right(PreferenceNotFound(Some(_))) | Right(PreferenceFound(false, Some(_), _, _, _, _)) => true
+        case _                                                                                       => false
       }
 
     if (svc.isDefined && token.isDefined)

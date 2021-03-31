@@ -1,0 +1,85 @@
+@*
+ * Copyright 2021 HM Revenue & Customs
+ *
+ *@
+
+@import controllers.auth.AuthenticatedRequest
+@import play.api.i18n.Messages.Implicits._
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+@import controllers.internal.SurveyOptinDeclinedDetailsForm._
+@import scala.util.Random
+@this(mainWithHeaders: views.html.main_with_headers,
+    govukButton: GovukButton,
+    govukCheckboxes: GovukCheckboxes,
+    govukTextarea: GovukTextarea,
+    govukCharacterCount : GovukCharacterCount)
+@(surveyForm: Form[Data], submitSurveyFormAction: Call)(implicit request: AuthenticatedRequest[_], messages: Messages, hostContext: model.HostContext)
+@import uk.gov.hmrc.urls.Link
+@import uk.gov.hmrc.play.views.html.helpers._
+
+@mainWithHeaders(title = Messages("paperless.survey.optin_declined.title")) {
+
+    <header class="page-header">
+        <h1 class="govuk-heading-xl">@Messages("paperless.survey.optin_declined.title")</h1>
+    </header>
+
+    <p class="govuk-body">@Messages("paperless.survey.optin_declined.paragraph.1")</p>
+
+    @form(action = submitSurveyFormAction, 'id -> "form-submit-survey", 'novalidate -> "novalidate") {
+
+        @govukCheckboxes(Checkboxes(
+            fieldset = None,
+            hint = Some(Hint(content = Text(Messages("paperless.survey.optin_declined.hint")))),
+            idPrefix = Some("optin-declined-answers"),
+            name = "optin-declined-answers",
+            items = Random.shuffle(List("0305d33f-2e8d-4cb2-82d2-52132fc325fe", "ce34aa17-df2a-44fb-9d5c-4d930396483a", "d0edb491-6dcb-48a8-aeca-b16f01c541a5", "1e825e7d-6fc8-453f-8c20-1a7ed4d84ea5", "15d28c3f-9f33-4c44-aefa-165fc84b5e23")).map(num =>
+                CheckboxItem(
+                    content = Text(Messages(s"paperless.survey.optin_declined.choice.$num")),
+                    id = Some(s"choice-$num"),
+                    name = Some(s"choice-$num"),
+                    value = "true",
+                    checked = surveyForm(s"choice-$num").value.contains("true")
+                )
+            )
+        ))
+
+        @govukCharacterCount(CharacterCount(
+            id = "reason",
+            name = "reason",
+            maxLength = Some(reasonMaxLength),
+            threshold = Some(50),
+            label = Label(
+                isPageHeading = false,
+                classes = "govuk-label--s",
+                content = Text(Messages("paperless.survey.optin_declined.reason.label"))
+            ),
+            errorMessage = surveyForm("reason").error.map(err => ErrorMessage(content = Text(messages("paperless.survey.optin_declined.reason.label.error.maxlength")))),
+            value = surveyForm("reason").value
+        ))
+
+        <p class="govuk-body">
+            @govukButton(Button(
+                name = Some("submissionType"),
+                inputType = Some("submit"),
+                content = Text(Messages("paperless.survey.optin_declined.submitButton")),
+                attributes = Map(
+                    "id" -> "submitSurveyButton",
+                    "data-prevent-double-click" -> "true",
+                    "value" -> "submitted"
+                )
+            ))
+            @govukButton(Button(
+                name = Some("submissionType"),
+                inputType = Some("submit"),
+                classes = "button-as-link skip-link-button",
+                content = Text(Messages("paperless.survey.optin_declined.check.settings.linkText")),
+                attributes = Map(
+                    "id" -> "skipSurveyButton",
+                    "data-prevent-double-click" -> "true",
+                    "value" -> "skipped"
+                )
+            ))
+        </p>
+    }
+
+}

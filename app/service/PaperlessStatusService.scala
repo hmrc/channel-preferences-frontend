@@ -20,9 +20,9 @@ class PreferencesBasedStatusService extends PaperlessStatusService {
 
   def determineStatus(preference: Option[PreferenceResponse]): StatusName =
     preference match {
-      case Some(p @ PreferenceResponse(_, Some(email))) if p.genericTermsAccepted =>
+      case Some(p @ PreferenceResponse(_, Some(email), _)) if p.genericTermsAccepted =>
         determinePaperlessStatus(email)
-      case Some(p @ PreferenceResponse(_, None)) if p.genericTermsAccepted =>
+      case Some(p @ PreferenceResponse(_, None, _)) if p.genericTermsAccepted =>
         NoEmail
       case Some(p: PreferenceResponse) if !p.genericTermsAccepted =>
         Paper

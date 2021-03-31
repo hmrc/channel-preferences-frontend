@@ -87,6 +87,7 @@ class ChoosePaperlessControllerSpec
         bind[EmailConnector].toInstance(mockEmailConnector)
       )
       .configure("metrics.enabled" -> false)
+      .configure("survey.optInPage.enabled" -> true)
       .build()
 
   override def beforeEach(): Unit = {
@@ -496,7 +497,7 @@ class ChoosePaperlessControllerSpec
       verifyNoMoreInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
 
-    "when opting-out, save the preference and redirect to the thank you page" in new ChoosePaperlessControllerSetup {
+    "when opting-out, save the preference and redirect to the thank you page if survey was already presented" in new ChoosePaperlessControllerSetup {
       when(
         mockEntityResolverConnector
           .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any())
@@ -504,10 +505,35 @@ class ChoosePaperlessControllerSpec
         .thenReturn(Future.successful(PreferencesCreated))
 
       val page =
-        controller.submitForm(TestFixtures.sampleHostContext)(FakeRequest().withFormUrlEncodedBody("opt-in" -> "false"))
+        controller.submitForm(TestFixtures.sampleHostContextWithSurvey)(
+          FakeRequest().withFormUrlEncodedBody("opt-in" -> "false")
+        )
 
       status(page) mustBe 303
       header("Location", page).get must be(TestFixtures.sampleHostContext.returnUrl)
+
+      verify(mockEntityResolverConnector)
+        .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any())
+
+      verifyNoMoreInteractions(mockEntityResolverConnector, mockEmailConnector)
+    }
+
+    "when opting-out, save the preference and redirect to the survey page" in new ChoosePaperlessControllerSetup {
+      when(
+        mockEntityResolverConnector
+          .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any())
+      )
+        .thenReturn(Future.successful(PreferencesCreated))
+
+      val page =
+        controller.submitForm(TestFixtures.sampleHostContext)(
+          FakeRequest().withFormUrlEncodedBody("opt-in" -> "false")
+        )
+
+      status(page) mustBe 303
+      header("Location", page).get must be(
+        "/paperless/survey/optin-declined?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"
+      )
 
       verify(mockEntityResolverConnector)
         .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any())
