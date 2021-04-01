@@ -178,6 +178,26 @@ object OptInTaxCreditsDetailsForm {
   }
 }
 
+object OptInStartForm {
+  def apply() =
+    Form[Data](
+      mapping(
+        "sps-opt-in" -> optional(boolean)
+          .verifying("sa_printing_preference.sps_opt_in_choice_required", _.isDefined)
+          .transform(
+            _.map(PaperlessChoice.fromBoolean),
+            (p: Option[PaperlessChoice]) => p.map(_.toBoolean)
+          ),
+        "emailAlreadyStored" -> optional(boolean)
+      )(Data.apply)(Data.unapply)
+    )
+
+  case class Data(choice: Option[PaperlessChoice], emailAlreadyStored: Option[Boolean]) {
+    lazy val isEmailAlreadyStored = emailAlreadyStored.contains(true)
+  }
+
+}
+
 sealed trait PaperlessChoice {
   def toBoolean =
     this match {

@@ -8,5 +8,5 @@ package controllers.internal
 import uk.gov.hmrc.abtest.ConfiguredCohortValues
 
 object OptInCohortConfigurationValues extends ConfiguredCohortValues[OptInCohort] {
-  val availableValues = List(IPage7, IPage8, TCPage9, ReOptInPage10, ReOptInPage52)
+  val availableValues = List(IPage7, IPage8, IPage53, TCPage9, ReOptInPage10, ReOptInPage52)
 }

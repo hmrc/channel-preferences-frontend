@@ -6,21 +6,22 @@
 package controllers.internal
 
 import connectors.GenericTerms
+import model.JourneyType.MultiPage1
 import model.PageType
 import org.joda.time.LocalDate
 import org.scalatestplus.play.PlaySpec
 
-class ReadOnlyIPage8CohortSpec extends PlaySpec {
+class ReadOnlyIPage53CohortSpec extends PlaySpec {
 
-  "IPage8 OptInCohort" should {
+  "IPage53 OptInCohort" should {
     "never change fields values " in {
-      val cohortUnderTest = IPage8
+      val cohortUnderTest = IPage53
 
       withClue("id") {
-        cohortUnderTest.id mustBe 8
+        cohortUnderTest.id mustBe 53
       }
       withClue("name") {
-        cohortUnderTest.name mustBe "IPage8"
+        cohortUnderTest.name mustBe "IPage53"
       }
       withClue("terms") {
         cohortUnderTest.terms mustBe GenericTerms
@@ -32,16 +33,16 @@ class ReadOnlyIPage8CohortSpec extends PlaySpec {
         cohortUnderTest.majorVersion mustBe 1
       }
       withClue("minorVersion") {
-        cohortUnderTest.minorVersion mustBe 0
+        cohortUnderTest.minorVersion mustBe 1
       }
       withClue("description") {
         cohortUnderTest.description mustBe "SOL changes to wording to improve litigation cases"
       }
       withClue("date") {
-        cohortUnderTest.date mustBe new LocalDate("2020-05-12")
+        cohortUnderTest.date mustBe new LocalDate("2021-03-31")
       }
       withClue("journeyType") {
-        cohortUnderTest.journeyType mustBe None
+        cohortUnderTest.journeyType mustBe Some(MultiPage1)
       }
     }
   }

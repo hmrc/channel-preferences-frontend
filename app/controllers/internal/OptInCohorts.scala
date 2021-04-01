@@ -6,7 +6,8 @@
 package controllers.internal
 
 import connectors.{ GenericTerms, TaxCreditsTerms, TermsType }
-import model.PageType
+import model.JourneyType.{ MultiPage1, SinglePage }
+import model.{ JourneyType, PageType }
 import org.joda.time.LocalDate
 import play.api.libs.json.JodaWrites.{ JodaDateTimeWrites => _ }
 import play.api.libs.json._
@@ -22,6 +23,7 @@ sealed trait OptInCohort extends Cohort {
   val minorVersion: Int
   val description: String
   val date: LocalDate // new LocalDate("2019-02-27"),
+  val journeyType: Option[JourneyType] = None
 
   override def toString: String = name
 }
@@ -47,7 +49,8 @@ object OptInCohort {
       "majorVersion" -> optInCohort.majorVersion,
       "minorVersion" -> optInCohort.minorVersion,
       "description"  -> optInCohort.description,
-      "date"         -> optInCohort.date.toString()
+      "date"         -> optInCohort.date.toString(),
+      "journeyType"  -> optInCohort.journeyType
     )
   }
   val listCohortWrites: Writes[List[OptInCohort]] = Writes { seq =>
@@ -548,6 +551,17 @@ object IosReOptOutPage51 extends OptInCohort {
   override val date: LocalDate = new LocalDate("2020-08-01")
 }
 // end of Ios 1.3 ///////////////////////////////////////////////////////
+object IPage53 extends OptInCohort {
+  override val id: Int = 53
+  override val name: String = "IPage53"
+  override val terms: TermsType = GenericTerms
+  override val pageType: PageType = PageType.IPage
+  override val majorVersion: Int = 1
+  override val minorVersion: Int = 1
+  override val description: String = "SOL changes to wording to improve litigation cases"
+  override val date: LocalDate = new LocalDate("2021-03-31")
+  override val journeyType: Option[JourneyType] = Some(MultiPage1)
+}
 
 object CohortCurrent {
   val ipage: OptInCohort = IPage8

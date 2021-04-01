@@ -14,7 +14,7 @@ import org.jsoup.nodes.Document
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{ any, eq => is }
 import org.mockito.Mockito._
-import org.scalatest.BeforeAndAfterEach
+import org.scalatest.{ BeforeAndAfterEach }
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -36,6 +36,7 @@ import org.mockito.Matchers.{ eq => meq }
 
 trait ChoosePaperlessControllerSetup {
   def assignedCohort: OptInCohort = CohortCurrent.ipage
+  def cohort53 = IPage53
   val validUtr = SaUtr("1234567890")
   val request = FakeRequest()
 
@@ -112,8 +113,8 @@ class ChoosePaperlessControllerSpec
     document.getElementById("email.confirm") mustNot be(null)
     document.getElementById("email.confirm").attr("value") mustBe ""
 
-    document.getElementById("opt-in") mustNot be(null)
-    document.getElementById("opt-in").attr("checked") mustBe "checked"
+    document.getElementById("sps-opt-in") mustNot be(null)
+    document.getElementById("sps-opt-in").attr("checked") mustBe "checked"
 
     document.getElementById("opt-in-out") mustNot be(null)
     document.getElementById("opt-in-out").attr("checked") mustBe ""
@@ -212,23 +213,23 @@ class ChoosePaperlessControllerSpec
 
   "The preferences form" should {
 
-    "render an email input field with no value if no email address is supplied, and no option selected" in new ChoosePaperlessControllerSetup {
-      val page = controller.displayForm(Some(assignedCohort), None, TestFixtures.sampleHostContext)(request)
+    "render NO! email input field no email address is supplied, and no option selected" in new ChoosePaperlessControllerSetup {
+      val page = controller.displayForm(Some(cohort53), None, TestFixtures.sampleHostContext)(request)
 
       status(page) mustBe 200
 
       val document = Jsoup.parse(contentAsString(page))
 
-      document.getElementById("email.main").attr("value") mustBe ""
-      document.getElementById("opt-in").attr("checked") must be(empty)
-      document.getElementById("opt-in-2").attr("checked") must be(empty)
+      document.getElementById("email.main") must be(null)
+      document.getElementById("sps-opt-in").attr("checked") must be(empty)
+      document.getElementById("sps-opt-in-2").attr("checked") must be(empty)
     }
 
     "render an email input field populated with the supplied email address, and the Opt-in option selected" in new ChoosePaperlessControllerSetup {
       val emailAddress = "bob@bob.com"
 
       val page = controller.displayForm(
-        Some(assignedCohort),
+        Some(cohort53),
         Some(Encrypted(EmailAddress(emailAddress))),
         TestFixtures.sampleHostContext
       )(request)
@@ -237,12 +238,9 @@ class ChoosePaperlessControllerSpec
 
       val document = Jsoup.parse(contentAsString(page))
 
-      document.getElementById("email.main") mustNot be(null)
-      document.getElementById("email.main").attr("value") mustBe emailAddress
-      document.getElementById("email.main").hasAttr("readonly") mustBe false
-      document.getElementById("email.main").hasAttr("readonly") mustBe false
-      document.getElementById("opt-in").attr("checked") must be(empty)
-      document.getElementById("opt-in-2").attr("checked") must be(empty)
+      document.getElementById("email.main") must be(null)
+      document.getElementById("sps-opt-in").attr("checked") must be(empty)
+      document.getElementById("sps-opt-in-2").attr("checked") must be(empty)
     }
   }
 
@@ -254,12 +252,14 @@ class ChoosePaperlessControllerSpec
       val page = controller.submitForm(TestFixtures.sampleHostContext)(FakeRequest().withFormUrlEncodedBody())
 
       status(page) mustBe 400
-
       val document = Jsoup.parse(contentAsString(page))
-      document.select(".error-notification").text mustBe "Confirm if you want paperless notifications"
+      document
+        .select(".error-notification")
+        .text mustBe "Confirm if you want paperless notifications"
       verifyZeroInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
 
+    //As part of the new opt in journey there is no email or T&Cs on the first page the user only chooses how they want to get tax letters
     "show an error when opting-in if the email is incorrectly formatted" in new ChoosePaperlessControllerSetup {
       val emailAddress = "invalid-email"
 
@@ -287,6 +287,7 @@ class ChoosePaperlessControllerSpec
       verifyZeroInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
 
+    //There are no T&Cs in this part of the journey
     "show an error when opting-in if the T&C's are not accepted" in new ChoosePaperlessControllerSetup {
       override def assignedCohort = CohortCurrent.ipage
 
@@ -315,6 +316,7 @@ class ChoosePaperlessControllerSpec
       verifyZeroInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
 
+    //There are no T&Cs in this part of the journey
     "show an error when opting-in if the T&C's accepted flag is not present" in new ChoosePaperlessControllerSetup {
       override def assignedCohort = CohortCurrent.ipage
 
@@ -344,6 +346,7 @@ class ChoosePaperlessControllerSpec
       verifyZeroInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
 
+    //There is not email in this part of the journey
     "show an error when opting-in if the email is not set" in new ChoosePaperlessControllerSetup {
 
       val page = controller.submitForm(TestFixtures.sampleHostContext)(

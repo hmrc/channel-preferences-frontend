@@ -1,0 +1,93 @@
+@*
+ * Copyright 2021 HM Revenue & Customs
+ *
+ *@
+
+@import controllers.auth.AuthenticatedRequest
+@import play.api.i18n.Messages.Implicits._
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+@this(mainWithHeaders: views.html.main_with_headers,
+        govukRadios: GovukRadios,
+        govukButton: GovukButton,
+        govukCheckboxes: GovukCheckboxes,
+        govukInput: GovukInput)
+@(emailForm: Form[_], submitPrefsFormAction: Call)(implicit request: AuthenticatedRequest[_], messages: Messages)
+@import uk.gov.hmrc.urls.Link
+@import uk.gov.hmrc.play.views.html.helpers._
+@import views.html.helpers.govukErrorSummary
+@import uk.gov.hmrc.govukfrontend.views.html.components.implicits._
+@onlineHtml = {
+
+
+ <p id="online-para-1" class="govuk-body">@Messages("i_page53.fg_page.yes_send_email_info_1")</p>
+
+ <p id="online-para-2" class="govuk-body"><strong>@Messages("i_page53.fg_page.yes_send_email_info_2")</strong></p>
+ <p id="online-para-3" class="govuk-body"><strong>@Messages("i_page53.fg_page.yes_send_email_info_3")</strong>
+  <br>@Messages("i_page53.fg_page.yes_send_email_info_4")
+ </p>
+ <p  id="online-para-4"class="govuk-body"><strong>@Messages("i_page53.fg_page.yes_send_email_info_5")</strong>
+  <br>@Messages("i_page53.fg_page.yes_send_email_info_6")
+ </p>
+
+
+
+}
+
+
+@mainWithHeaders(title = Messages("i_page53.fg_page.title")) {
+ @govukErrorSummary(emailForm, Messages("sa_printing_preference.sps_opt_in_choice.problem"))
+
+  <header class="page-header">
+   <h1 class="govuk-heading-xl">@Messages("i_page53.fg_page.title")</h1>
+  </header>
+ <p class="govuk-body">@Messages("i_page53.fg_page.choose_1")</p>
+ <p class="govuk-body">@Messages("i_page53.fg_page.choose_2")</p>
+ <ul class="govuk-list govuk-list--bullet">
+  <li>@Messages("i_page53.fg_page.list_1")</li>
+  <li>@Messages("i_page53.fg_page.list_2")</li>
+  <li>@Messages("i_page53.fg_page.list_3")</li>
+  <li>@Messages("i_page53.fg_page.list_4")</li>
+  <li>@Messages("i_page53.fg_page.list_5")</li>
+ </ul>
+ <br>
+ @form(action = submitPrefsFormAction, 'id -> "form-submit-email-address", 'novalidate -> "novalidate") {
+
+
+  @govukRadios(Radios(
+   fieldset = Some(Fieldset(
+    legend = Some(Legend(
+     content = Text(Messages("i_page53.fg_page.paperless")),
+     classes = "govuk-fieldset__legend--m",
+     isPageHeading = true
+    ))
+   )),
+   errorMessage = emailForm.errors.asTextErrorMessageForField(fieldKey = "sps-opt-in"),
+   idPrefix = Some("sps-opt-in"),
+   name = "sps-opt-in",
+   items = Seq(
+    RadioItem(
+     content = Text(Messages("i_page53.fg_page.yes_send_email")),
+     value = Some("true"),
+     checked = emailForm("sps-opt-in").value.contains("true"),
+     conditionalHtml = Some(onlineHtml)
+    ),
+    RadioItem(
+     content = Text(Messages("i_page53.fg_page.keep_receiving")),
+     value = Some("false"),
+     checked = emailForm("sps-opt-in").value.contains("false")
+    )
+   )
+  ))
+
+
+  @govukButton(Button(
+   name = Some("submitButton"),
+   inputType = Some("submit"),
+   content = Text(Messages("i_page53.submitButton")),
+   attributes = Map(
+    "id" -> "submitEmailButton",
+    "data-prevent-double-click" -> "true"
+   )
+  ))
+ }
+}

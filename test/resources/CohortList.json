@@ -6,7 +6,8 @@
     "majorVersion":0,
     "minorVersion":0,
     "description":"",
-    "date":"2020-05-12"
+    "date":"2020-05-12",
+    "journeyType":null
   },
   {
     "id":8,
@@ -15,7 +16,18 @@
     "majorVersion":1,
     "minorVersion":0,
     "description":"SOL changes to wording to improve litigation cases",
-    "date":"2020-05-12"
+    "date":"2020-05-12",
+    "journeyType":null
+  },
+  {
+    "id":53,
+    "name":"IPage53",
+    "pageType":"IPage",
+    "majorVersion":1,
+    "minorVersion":1,
+    "description":"SOL changes to wording to improve litigation cases",
+    "date":"2021-03-31",
+    "journeyType":"MultiPage1"
   },
   {
     "id":9,
@@ -24,7 +36,8 @@
     "majorVersion":0,
     "minorVersion":0,
     "description":"",
-    "date":"2020-05-12"
+    "date":"2020-05-12",
+    "journeyType":null
   },
   {
     "id":10,
@@ -33,7 +46,8 @@
     "majorVersion":1,
     "minorVersion":0,
     "description":"",
-    "date":"2020-07-02"
+    "date":"2020-07-02",
+    "journeyType":null
   },
   {
     "id":52,
@@ -42,6 +56,7 @@
     "majorVersion":1,
     "minorVersion":1,
     "description":"",
-    "date":"2020-10-21"
+    "date":"2020-10-21",
+    "journeyType":null
   }
 ]

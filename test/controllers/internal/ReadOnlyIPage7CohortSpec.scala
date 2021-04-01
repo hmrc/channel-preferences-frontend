@@ -40,6 +40,9 @@ class ReadOnlyIPage7CohortSpec extends PlaySpec {
       withClue("date") {
         cohortUnderTest.date mustBe new LocalDate("2020-05-12")
       }
+      withClue("journeyType") {
+        cohortUnderTest.journeyType mustBe None
+      }
     }
   }
 

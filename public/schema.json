@@ -436,6 +436,48 @@
         } ]
       }
     },
+    "/paperless/optin" : {
+      "post" : {
+        "operationId" : "submitOptIn",
+        "tags" : [ "legacy" ],
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "hostContext",
+          "schema" : {
+            "type" : "model.hostcontext"
+          },
+          "required" : true
+        } ]
+      }
+    },
+    "/paperless/optin/{svc}/{token}" : {
+      "post" : {
+        "operationId" : "submitOptInBySvc",
+        "tags" : [ "legacy" ],
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "svc",
+          "schema" : {
+            "type" : "string"
+          },
+          "required" : true
+        }, {
+          "in" : "path",
+          "name" : "token",
+          "schema" : {
+            "type" : "string"
+          },
+          "required" : true
+        }, {
+          "in" : "query",
+          "name" : "hostContext",
+          "schema" : {
+            "type" : "model.hostcontext"
+          },
+          "required" : true
+        } ]
+      }
+    },
     "/paperless/survey/reoptin-declined" : {
       "post" : {
         "operationId" : "submitReOptInDeclinedSurveyForm",
@@ -451,6 +493,32 @@
       },
       "get" : {
         "operationId" : "displayReOptInDeclinedSurveyForm",
+        "tags" : [ "legacy" ],
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "hostContext",
+          "schema" : {
+            "type" : "model.hostcontext"
+          },
+          "required" : true
+        } ]
+      }
+    },
+    "/paperless/survey/optin-declined" : {
+      "post" : {
+        "operationId" : "submitOptinDeclinedSurveyForm",
+        "tags" : [ "legacy" ],
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "hostContext",
+          "schema" : {
+            "type" : "model.hostcontext"
+          },
+          "required" : true
+        } ]
+      },
+      "get" : {
+        "operationId" : "displayOptinDeclinedSurveyForm",
         "tags" : [ "legacy" ],
         "parameters" : [ {
           "in" : "query",
@@ -658,7 +726,7 @@
   "produces" : [ "application/json" ],
   "info" : {
     "title" : "Channel Preferences Frontend API",
-    "version" : "8.103.0-SNAPSHOT"
+    "version" : "8.106.0-SNAPSHOT"
   },
   "consumes" : [ "application/json" ],
   "tags" : [ {
