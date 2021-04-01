@@ -33,7 +33,7 @@ class NewActivateGraceOutISpec extends EmailSupport with SessionCookieEncryption
       response.status must be(PRECONDITION_FAILED)
       withClue("no survey in the redirectUserTo") {
         (response.json \ "redirectUserTo").as[String] must be(
-          s"http://localhost:9024/paperless/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText"
+          s"http://localhost:9024/paperless/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText&survey=hrcOMaf19lUfbNYcQ9B7mA%3D%3D"
         )
       }
 
@@ -49,10 +49,9 @@ class NewActivateGraceOutISpec extends EmailSupport with SessionCookieEncryption
 
       val response = `/paperless/activate`(utr)().put().futureValue
       response.status must be(PRECONDITION_FAILED)
-      withClue("survey in the redirectUserTo") {
+      withClue("survey should not be requested in the redirectUserTo") {
         (response.json \ "redirectUserTo").as[String] must be(
-          s"http://localhost:9024/paperless/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText" +
-            "&survey=hrcOMaf19lUfbNYcQ9B7mA%3D%3D"
+          s"http://localhost:9024/paperless/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText"
         )
       }
     }

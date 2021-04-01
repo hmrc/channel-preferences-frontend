@@ -508,7 +508,7 @@ class ChoosePaperlessControllerSpec
         .thenReturn(Future.successful(PreferencesCreated))
 
       val page =
-        controller.submitForm(TestFixtures.sampleHostContextWithSurvey)(
+        controller.submitForm(TestFixtures.sampleHostContextWithNoSurveyRequest)(
           FakeRequest().withFormUrlEncodedBody("opt-in" -> "false")
         )
 
@@ -529,13 +529,13 @@ class ChoosePaperlessControllerSpec
         .thenReturn(Future.successful(PreferencesCreated))
 
       val page =
-        controller.submitForm(TestFixtures.sampleHostContext)(
+        controller.submitForm(TestFixtures.sampleHostContextWithSurveyRequest)(
           FakeRequest().withFormUrlEncodedBody("opt-in" -> "false")
         )
 
       status(page) mustBe 303
       header("Location", page).get must be(
-        "/paperless/survey/optin-declined?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"
+        "/paperless/survey/optin-declined?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D&survey=hrcOMaf19lUfbNYcQ9B7mA%3D%3D"
       )
 
       verify(mockEntityResolverConnector)

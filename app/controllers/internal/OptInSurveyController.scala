@@ -73,7 +73,7 @@ class OptInSurveyController @Inject() (
       ExtendedDataEvent(
         auditSource = AppName.fromConfiguration(configuration),
         auditType = EventTypes.Succeeded,
-        tags = Map(EventKeys.TransactionName -> "Re-OptIn Declined Survey Answered"),
+        tags = Map(EventKeys.TransactionName -> "OptOut Declined Survey Answered"),
         detail = Json.toJson(
           EventDetail(
             submissionType = userData.submissionType.getOrElse("N/A"),

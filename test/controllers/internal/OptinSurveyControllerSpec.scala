@@ -150,7 +150,7 @@ class OptinSurveyControllerSpec
       private val value: ExtendedDataEvent = eventArg.getValue
       value.auditSource mustBe "preferences-frontend"
       value.auditType mustBe EventTypes.Succeeded
-      value.tags must contain("transactionName" -> "Re-OptIn Declined Survey Answered")
+      value.tags must contain("transactionName" -> "OptOut Declined Survey Answered")
       val detail = Json.fromJson[EventDetail](value.detail).get
       detail.utr mustBe validUtr.value
       detail.nino mustBe "N/A"
@@ -185,7 +185,7 @@ class OptinSurveyControllerSpec
       private val value: ExtendedDataEvent = eventArg.getValue
       value.auditSource mustBe "preferences-frontend"
       value.auditType mustBe EventTypes.Succeeded
-      value.tags must contain("transactionName" -> "Re-OptIn Declined Survey Answered")
+      value.tags must contain("transactionName" -> "OptOut Declined Survey Answered")
       val detail = Json.fromJson[EventDetail](value.detail).get
       detail.utr mustBe validUtr.value
       detail.nino mustBe "N/A"
@@ -244,7 +244,7 @@ class OptinSurveyControllerSpec
       private val value: ExtendedDataEvent = eventArg.getValue
       value.auditSource mustBe "preferences-frontend"
       value.auditType mustBe EventTypes.Succeeded
-      value.tags must contain("transactionName" -> "Re-OptIn Declined Survey Answered")
+      value.tags must contain("transactionName" -> "OptOut Declined Survey Answered")
       val detail = Json.fromJson[EventDetail](value.detail).get
       detail.utr mustBe validUtr.value
       detail.nino mustBe "N/A"

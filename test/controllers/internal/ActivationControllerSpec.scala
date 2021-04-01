@@ -476,7 +476,7 @@ class ActivationControllerSpec
       )
     }
 
-    "returns redirectUserTo with no survey for an opted out user that hasn't seen the survey yet" in {
+    "returns redirectUserTo with survey request for an opted out user that hasn't seen the survey yet" in {
       val now = DateTime.now
       val lastUpdated = now.minusMinutes(gracePeriod * 2)
       val email =
@@ -494,11 +494,11 @@ class ActivationControllerSpec
       status(res) mustBe PRECONDITION_FAILED
       val document = Jsoup.parse(contentAsString(res))
       document.getElementsByTag("body").first().html() must be(
-        """{"redirectUserTo":"/paperless/choose?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&amp;returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"}"""
+        """{"redirectUserTo":"/paperless/choose?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&amp;returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D&amp;survey=hrcOMaf19lUfbNYcQ9B7mA%3D%3D"}"""
       )
     }
 
-    "returns redirectUserTo with survey for an opted out user that has seen the survey" in {
+    "returns redirectUserTo with no request survey for an opted out user that has seen the survey" in {
       val now = DateTime.now
       //val lastUpdated = now.minusMinutes(gracePeriod * 2)
       val email =
@@ -523,7 +523,7 @@ class ActivationControllerSpec
       status(res) mustBe PRECONDITION_FAILED
       val document = Jsoup.parse(contentAsString(res))
       document.getElementsByTag("body").first().html() must be(
-        """{"redirectUserTo":"/paperless/choose?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&amp;returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D&amp;survey=hrcOMaf19lUfbNYcQ9B7mA%3D%3D"}"""
+        """{"redirectUserTo":"/paperless/choose?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&amp;returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"}"""
       )
     }
   }

@@ -11,15 +11,18 @@ paperless.survey.reoptin_declined.reason.label.error.maxlength=Reason must be 30
 paperless.survey.reoptin_declined.submitButton=Continue
 paperless.survey.reoptin_declined.check.settings.linkText=Skip
 
-paperless.survey.optin_declined.title=Why did you choose to go back to paper letters?
+paperless.survey.optin_declined.title=Why did you choose paper tax letters?
 paperless.survey.optin_declined.paragraph.1=We only use this information to improve the service. We will not reply to you.
 paperless.survey.optin_declined.hint=You can select more than one choice.
 paperless.survey.optin_declined.reason.label.error.maxlength=Reason must be 3000 characters or fewer
 paperless.survey.optin_declined.submitButton=Continue
 paperless.survey.optin_declined.check.settings.linkText=Skip
-paperless.survey.optin_declined.choice.d210eccd-9ea1-48fd-a28e-25abbb7508fe=I need a better reminder than email to act on new tax letters
-paperless.survey.optin_declined.choice.717c2da0-4411-41ad-9a78-b335786e7107=I will lose access to my online tax letters
-paperless.survey.optin_declined.choice.a6f84da8-9fd7-440d-915e-2a2f8a543c9b=I worry people will not accept online tax letters as proof
+paperless.survey.optin_declined.choice.d210eccd-9ea1-48fd-a28e-25abbb7508fe=I want a paper reminder, not an email
+paperless.survey.optin_declined.choice.717c2da0-4411-41ad-9a78-b335786e7107=I’m worried I may eventually lose access to online tax letters
+paperless.survey.optin_declined.choice.a6f84da8-9fd7-440d-915e-2a2f8a543c9b=I’m worried people will not accept online tax letters as proof
 paperless.survey.optin_declined.choice.bf74f47f-e9ce-4c15-a9aa-1af80a594861=Signing in to HMRC online is too difficult
-paperless.survey.optin_declined.choice.ca31965c-dd40-4a2c-a606-fe961da485c0=I do not want a mix of paper letters and online letters
+paperless.survey.optin_declined.choice.ca31965c-dd40-4a2c-a606-fe961da485c0=I do not want a mix of paper letters and online letters"
 paperless.survey.optin_declined.reason.label=Another reason
+
+
+

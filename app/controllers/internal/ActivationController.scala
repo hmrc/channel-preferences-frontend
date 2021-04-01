@@ -185,7 +185,7 @@ class ActivationController @Inject() (
 
             val encryptedEmail = None
             val needSurvey =
-              surveys.collect { case ls => ls.exists(_.surveyType == StandardInterruptOptOut) }.getOrElse(false)
+              surveys.collect { case ls => !ls.exists(_.surveyType == StandardInterruptOptOut) }.getOrElse(true)
             val redirectUrl = hostUrl + routes.ChoosePaperlessController
               .redirectToDisplayFormWithCohort(encryptedEmail, hostContext.copy(survey = needSurvey))
               .url

@@ -381,7 +381,7 @@ class ChoosePaperlessController @Inject() (
                   None,
                   None,
                   languagePreference = Some(lang),
-                  if (!hostContext.survey && ytaConfig.surveyOptinPageEnabled) Some(SurveyType.StandardInterruptOptOut)
+                  if (hostContext.survey && ytaConfig.surveyOptinPageEnabled) Some(SurveyType.StandardInterruptOptOut)
                   else None
                 )
               else

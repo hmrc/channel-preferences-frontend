@@ -15,10 +15,16 @@ object TestFixtures {
     returnLinkText = "someReturnLinkText"
   )
 
-  val sampleHostContextWithSurvey = HostContext(
+  val sampleHostContextWithSurveyRequest = HostContext(
     returnUrl = "someReturnUrl",
     returnLinkText = "someReturnLinkText",
     survey = true
+  )
+
+  val sampleHostContextWithNoSurveyRequest = HostContext(
+    returnUrl = "someReturnUrl",
+    returnLinkText = "someReturnLinkText",
+    survey = false
   )
 
   def alreadyOptedInUrlHostContext =
