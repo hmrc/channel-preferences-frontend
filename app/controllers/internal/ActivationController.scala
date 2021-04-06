@@ -198,7 +198,7 @@ class ActivationController @Inject() (
       case Right(PreferenceNotFound(email)) =>
         val encryptedEmail = email.map(e => Encrypted(EmailAddress(e.email)))
         val redirectUrl = hostUrl + routes.ChoosePaperlessController
-          .redirectToDisplayFormWithCohort(encryptedEmail, hostContext)
+          .redirectToDisplayFormWithCohort(encryptedEmail, hostContext.copy(survey = true))
           .url
         PreconditionFailed(Json.obj("redirectUserTo" -> redirectUrl))
       case Left(status) => Status(status)

@@ -269,7 +269,7 @@ class NewActivateNewUserISpec extends EmailSupport with SessionCookieEncryptionS
       response.status must be(PRECONDITION_FAILED)
       withClue("new user survey in the redirectUserTo") {
         (response.json \ "redirectUserTo").as[String] must be(
-          s"http://localhost:9024/paperless/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText"
+          s"http://localhost:9024/paperless/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText&survey=hrcOMaf19lUfbNYcQ9B7mA%3D%3D"
         )
       }
     }

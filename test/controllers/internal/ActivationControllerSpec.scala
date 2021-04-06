@@ -472,7 +472,7 @@ class ActivationControllerSpec
       status(res) mustBe PRECONDITION_FAILED
       val document = Jsoup.parse(contentAsString(res))
       document.getElementsByTag("body").first().html() must be(
-        """{"redirectUserTo":"/paperless/choose?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&amp;returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D"}"""
+        """{"redirectUserTo":"/paperless/choose?returnUrl=kvXgJfoJJ%2FbmaHgdHhhRpg%3D%3D&amp;returnLinkText=huhgy5odc6KaXfFIMZXkeZjs11wvNGxKPz2CtY8L8GM%3D&amp;survey=hrcOMaf19lUfbNYcQ9B7mA%3D%3D"}"""
       )
     }
 

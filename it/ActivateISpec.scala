@@ -24,7 +24,7 @@ class ActivateISpec extends EmailSupport with SessionCookieEncryptionSupport {
       val response = `/paperless/activate`(utr)().put().futureValue
       response.status must be(PRECONDITION_FAILED)
       (response.json \ "redirectUserTo").as[String] must be(
-        s"http://localhost:9024/paperless/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
+        s"http://localhost:9024/paperless/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText&survey=hrcOMaf19lUfbNYcQ9B7mA%3D%3D")
       (response.json \ "optedIn").asOpt[Boolean] mustBe empty
       (response.json \ "verifiedEmail").asOpt[Boolean] mustBe empty
     }
@@ -36,7 +36,7 @@ class ActivateISpec extends EmailSupport with SessionCookieEncryptionSupport {
       response.status must be(PRECONDITION_FAILED)
       (response.json \ "redirectUserTo").as[String] must be(
         s"http://localhost:9024/paperless/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText&termsAndConditions=${encryptAndEncode(
-          termsAndConditions)}&email=${encryptAndEncode(emailAddress)}")
+            termsAndConditions)}&email=${encryptAndEncode(emailAddress)}&survey=hrcOMaf19lUfbNYcQ9B7mA%3D%3D")
       (response.json \ "optedIn").asOpt[Boolean] mustBe empty
       (response.json \ "verifiedEmail").asOpt[Boolean] mustBe empty
     }
@@ -51,8 +51,7 @@ class ActivateISpec extends EmailSupport with SessionCookieEncryptionSupport {
       val response = `/paperless/activate`(nino, utr)().put().futureValue
       response.status must be(PRECONDITION_FAILED)
       (response.json \ "redirectUserTo").as[String] must be(
-        s"http://localhost:9024/paperless/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
-
+        s"http://localhost:9024/paperless/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText&survey=hrcOMaf19lUfbNYcQ9B7mA%3D%3D")
       (response.json \ "optedIn").asOpt[Boolean] mustBe empty
       (response.json \ "verifiedEmail").asOpt[Boolean] mustBe empty
     }
@@ -66,7 +65,7 @@ class ActivateISpec extends EmailSupport with SessionCookieEncryptionSupport {
       val response = `/paperless/activate`(nino)().put().futureValue
       response.status must be(PRECONDITION_FAILED)
       (response.json \ "redirectUserTo").as[String] must be(
-        s"http://localhost:9024/paperless/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText")
+        s"http://localhost:9024/paperless/choose?returnUrl=$encryptedReturnUrl&returnLinkText=$encryptedReturnText&survey=hrcOMaf19lUfbNYcQ9B7mA%3D%3D")
       (response.json \ "optedIn").asOpt[Boolean] mustBe empty
       (response.json \ "verifiedEmail").asOpt[Boolean] mustBe empty
     }
