@@ -22,6 +22,6 @@ paperless.survey.optin_declined.choice.d210eccd-9ea1-48fd-a28e-25abbb7508fe=Rwyf
 paperless.survey.optin_declined.choice.717c2da0-4411-41ad-9a78-b335786e7107=Rwy’n poeni na fydd gennyf fynediad at lythyrau treth ar-lein yn y pen draw
 paperless.survey.optin_declined.choice.a6f84da8-9fd7-440d-915e-2a2f8a543c9b=Rwy’n poeni na fydd pobl yn derbyn llythyrau treth ar-lein fel tystiolaeth
 paperless.survey.optin_declined.choice.bf74f47f-e9ce-4c15-a9aa-1af80a594861=Mae mewngofnodi i CThEM ar-lein yn rhy anodd
-paperless.survey.optin_declined.choice.ca31965c-dd40-4a2c-a606-fe961da485c0=Dydw i ddim eisiau cael cymysgedd o lythyrau ar bapur a llythyrau ar-lein"
+paperless.survey.optin_declined.choice.ca31965c-dd40-4a2c-a606-fe961da485c0=Dydw i ddim eisiau cael cymysgedd o lythyrau ar bapur a llythyrau ar-lein
 
 
