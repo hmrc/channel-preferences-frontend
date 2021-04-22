@@ -212,3 +212,12 @@ object PaperlessChoice {
 
   def fromBoolean(b: Boolean): PaperlessChoice = if (b) PaperlessChoice.OptedIn else PaperlessChoice.OptedOut
 }
+
+object OptInEmailForm {
+  def apply() =
+    Form(
+      single(
+        "sps-opt-in-email" -> EmailForm.emailWithLimitedLength
+      )
+    )
+}

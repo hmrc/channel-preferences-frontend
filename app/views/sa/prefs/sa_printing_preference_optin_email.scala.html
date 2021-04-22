@@ -1,0 +1,70 @@
+@*
+ * Copyright 2021 HM Revenue & Customs
+ *
+ *@
+
+@import controllers.auth.AuthenticatedRequest
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+
+@this(mainWithHeaders: views.html.main_with_headers,
+        govukErrorSummary : GovukErrorSummary,
+        govukButton: GovukButton,
+        govukInput : GovukInput,
+        govukFieldset : GovukFieldset)
+
+@(emailForm: Form[_], submitEmailFormAction: Call)(implicit request: AuthenticatedRequest[_], messages: Messages)
+@import uk.gov.hmrc.play.views.html.helpers._
+
+@email = {
+@govukInput(Input(
+ id = "sps-opt-in-email",
+ name = "sps-opt-in-email",
+ hint = Some(Hint(
+  content = Text(Messages("sa_printing_preference.sps_opt_in_email_hint"))
+ )),
+ errorMessage = emailForm("sps-opt-in-email").error.map(err => ErrorMessage(content = Text(messages(err.message, err.args:_*)))),
+ classes = "govuk-!-width-two-thirds"
+))
+}
+
+
+@emailBlock = {
+@govukFieldset(Fieldset(
+ legend = Some(Legend(
+  content = Text(Messages("sa_printing_preference.sps_opt_in_email")),
+  classes = "govuk-fieldset__legend--xl",
+  isPageHeading = true
+ )),
+ html = email
+))
+
+}
+
+@mainWithHeaders(title = Messages("sa_printing_preference.sps_opt_in_email")) {
+ @if(emailForm.hasErrors) {
+  @govukErrorSummary(ErrorSummary(
+   errorList = emailForm.errors.map( error =>
+    ErrorLink(
+     href = Some(s"#${error.key}"),
+     content = Text(messages(error.message))
+    )
+   ),
+   title = Text(Messages("sa_printing_preference.sps_opt_in_choice.problem"))
+  ))
+ }
+
+ @form(action = submitEmailFormAction, 'id -> "form-submit-email-address", 'novalidate -> "novalidate") {
+  @emailBlock
+
+  @govukButton(Button(
+   name = Some("submitButton"),
+   inputType = Some("submit"),
+   content = Text(Messages("sa_printing_preference.submitButton")),
+   attributes = Map(
+    "id" -> "submitEmailButton",
+    "data-prevent-double-click" -> "true"
+   )
+  ))
+ }
+
+}

@@ -1,0 +1,48 @@
+@*
+ * Copyright 2021 HM Revenue & Customs
+ *
+ *@
+
+@import controllers.auth.AuthenticatedRequest
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+
+@this(mainWithHeaders: views.html.main_with_headers,
+        govukPanel : GovukPanel)
+
+@(svc: Option[String], token: Option[String], email: String,
+        hostContext: model.HostContext)(implicit request: AuthenticatedRequest[_], messages: Messages)
+@import uk.gov.hmrc.play.views.html.helpers._
+@import uk.gov.hmrc.urls.Link
+
+
+
+
+
+@mainWithHeaders(title = Messages("sa_printing_preference.sps_opt_in_confirm")) {
+
+    @govukPanel(Panel(
+        title = Text(Messages("sa_printing_preference.sps_opt_in_confirm"))
+    ))
+
+    <p class="govuk-body">@Messages("sa_printing_preference.sps_opt_in_confirm.1") @email. </p>
+
+    <h2 class="govuk-heading-m">@Messages("sa_printing_preference.sps_opt_in_confirm.2")</h2>
+    <p class="govuk-body">@Messages("sa_printing_preference.sps_opt_in_confirm.3")</p>
+
+
+    <p class="govuk-body">
+    @Link.toInternalPage(
+        cssClasses=Some("govuk-button"),
+        id = Some("sa-home-link"),
+        url = controllers.internal.routes.ManagePaperlessController.checkSettings(hostContext).url,
+        value = Some(Messages("sa_printing_preference.submitButton"))).toHtml
+    </p>
+
+    <p class="govuk-body">
+        @Link.toInternalPage(
+            url = controllers.internal.routes.ChoosePaperlessController.displayOptInEmail(svc, token, email, Some(true), hostContext).url,
+            value = Some(Messages("sa_printing_preference.sps_opt_in_confirm.link"))
+        ).toHtml
+    </p>
+
+}

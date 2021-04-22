@@ -7,14 +7,14 @@
 @import play.api.i18n.Messages.Implicits._
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @this(mainWithHeaders: views.html.main_with_headers,
+        govukErrorSummary : GovukErrorSummary,
         govukRadios: GovukRadios,
         govukButton: GovukButton,
         govukCheckboxes: GovukCheckboxes,
         govukInput: GovukInput)
-@(emailForm: Form[_], submitPrefsFormAction: Call)(implicit request: AuthenticatedRequest[_], messages: Messages)
+@(optinForm: Form[_], submitPrefsFormAction: Call)(implicit request: AuthenticatedRequest[_], messages: Messages)
 @import uk.gov.hmrc.urls.Link
 @import uk.gov.hmrc.play.views.html.helpers._
-@import views.html.helpers.govukErrorSummary
 @import uk.gov.hmrc.govukfrontend.views.html.components.implicits._
 @onlineHtml = {
 
@@ -35,7 +35,19 @@
 
 
 @mainWithHeaders(title = Messages("i_page53.fg_page.title")) {
- @govukErrorSummary(emailForm, Messages("sa_printing_preference.sps_opt_in_choice.problem"))
+ @if(optinForm.hasErrors) {
+  @govukErrorSummary(ErrorSummary(
+   errorList = optinForm.errors.map( error =>
+    ErrorLink(
+     href = Some(s"#${error.key}"),
+     content = Text(messages(error.message))
+    )
+   ),
+   title = Text(Messages("sa_printing_preference.sps_opt_in_choice.problem"))
+  ))
+ }
+
+
 
   <header class="page-header">
    <h1 class="govuk-heading-xl">@Messages("i_page53.fg_page.title")</h1>
@@ -61,20 +73,23 @@
      isPageHeading = true
     ))
    )),
-   errorMessage = emailForm.errors.asTextErrorMessageForField(fieldKey = "sps-opt-in"),
+   errorMessage = optinForm.errors.asTextErrorMessageForField(fieldKey = "sps-opt-in"),
    idPrefix = Some("sps-opt-in"),
    name = "sps-opt-in",
    items = Seq(
     RadioItem(
      content = Text(Messages("i_page53.fg_page.yes_send_email")),
      value = Some("true"),
-     checked = emailForm("sps-opt-in").value.contains("true"),
+     checked = optinForm("sps-opt-in").value.contains("true"),
+     hint = Some(Hint(
+      content = Text(Messages("i_page53.fg_page.yes_send_email_hint"))
+     )),
      conditionalHtml = Some(onlineHtml)
     ),
     RadioItem(
      content = Text(Messages("i_page53.fg_page.keep_receiving")),
      value = Some("false"),
-     checked = emailForm("sps-opt-in").value.contains("false")
+     checked = optinForm("sps-opt-in").value.contains("false")
     )
    )
   ))

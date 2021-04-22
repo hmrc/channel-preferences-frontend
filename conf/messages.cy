@@ -58,6 +58,14 @@ sa_printing_preference.opt_in_choice_required=Cadarnhau a ydych am gael hysbysia
 sa_printing_preference.sps_opt_in_choice.problem=Mae problem wedi codi
 sa_printing_preference.sps_opt_in_choice_required.error=Dewiswch sut hoffech gael eich llythyrau treth
 sa_printing_preference.sps_opt_in_choice_required=Dewiswch sut hoffech gael eich llythyrau treth
+sa_printing_preference.sps_opt_in_email=Nodwch eich cyfeiriad e-bost
+sa_printing_preference.sps_opt_in_email_hint=Byddwn yn defnyddio hwn i roi gwybod i chi pan fydd llythyr treth ar-lein newydd wedi’ch cyrraedd.
+sa_printing_preference.sps_opt_in_confirm=Gorffen cofrestru ar gyfer llythyrau treth ar-lein
+sa_printing_preference.sps_opt_in_confirm.1=Rydym wedi anfon e-bost at
+sa_printing_preference.sps_opt_in_confirm.2=Yr hyn sy’n digwydd nesaf
+sa_printing_preference.sps_opt_in_confirm.3=Cliciwch ar y cysylltiad yn yr e-bost er mwyn dilysu’ch cyfeiriad e-bost gyda ni.
+sa_printing_preference.sps_opt_in_confirm.link=Cofrestru gyda chyfeiriad e-bost gwahanol
+
 tc_printing_preference.opt_in_choice_required=Dewiswch iawn os ydych yn fodlon i ni storio''ch cyfeiriad e-bost
 sa_printing_preference.accept_tc_required=Mae’n rhaid i chi gytuno i’r telerau a’r amodau i ddefnyddio’r gwasanaeth hwn
 tc_printing_preference.accept_tc_required=Mae''n rhaid i chi gytuno â''r telerau ac amodau os ydych yn fodlon i ni storio''ch cyfeiriad e-bost

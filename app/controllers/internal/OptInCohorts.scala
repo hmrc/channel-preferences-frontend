@@ -564,7 +564,7 @@ object IPage53 extends OptInCohort {
 }
 
 object CohortCurrent {
-  val ipage: OptInCohort = IPage8
+  val ipage: OptInCohort = IPage53
   val tcpage: OptInCohort = TCPage9
   val reoptinpage: OptInCohort = ReOptInPage52
   val cysConfirmPage: OptInCohort = CYSConfirmPage47

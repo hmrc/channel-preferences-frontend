@@ -72,10 +72,13 @@ class ReadOnlyIPage53Spec extends PlaySpec with GuiceOneAppPerSuite with Languag
         .getElementsByTag("h1")
         .get(1)
         .text() mustBe "How do you want to get your tax letters?"
+      document
+        .getElementById("sps-opt-in-item-hint")
+        .text() mustBe "Whenever you have a new online letter, we will let you know by email."
       document.getElementsByClass("govuk-radios__label").first().text() mustBe "Online"
       document
         .getElementById("online-para-1")
-        .text() mustBe "Whenever you have a new online letter, we will let you know by email. Because we cannot send all letters online yet, you will still get some by post."
+        .text() mustBe "Because we cannot send all letters online yet, you will still get some by post."
       document
         .getElementById("online-para-2")
         .text() mustBe "Your responsibilities"
@@ -141,10 +144,13 @@ class ReadOnlyIPage53Spec extends PlaySpec with GuiceOneAppPerSuite with Languag
         .getElementsByTag("h1")
         .get(1)
         .text() mustBe "Sut hoffech gael eich llythyrau treth?"
+      document
+        .getElementById("sps-opt-in-item-hint")
+        .text() mustBe "Pryd bynnag y bydd gennych lythyr ar-lein newydd, byddwn yn anfon e-bost i roi gwybod i chi."
       document.getElementsByClass("govuk-radios__label").first().text() mustBe "Ar-lein"
       document
         .getElementById("online-para-1")
-        .text() mustBe "Pryd bynnag y bydd gennych lythyr ar-lein newydd, byddwn yn anfon e-bost i roi gwybod i chi. Oherwydd na allwn anfon pob llythyr ar-lein eto, byddwch yn dal i gael rhai llythyrau drwy’r post."
+        .text() mustBe "Oherwydd na allwn anfon pob llythyr ar-lein eto, byddwch yn dal i gael rhai llythyrau drwy’r post."
       document
         .getElementById("online-para-2")
         .text() mustBe "Eich cyfrifoldebau"

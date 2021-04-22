@@ -128,36 +128,44 @@ class ChoosePaperlessControllerSpec
 
     "show main banner" in new ChoosePaperlessControllerSetup {
       val page = controller.displayForm(Some(assignedCohort), None, TestFixtures.sampleHostContext)(request)
-      status(page) mustBe 200
-      val document = Jsoup.parse(contentAsString(page))
+      status(page) mustBe 303
+      redirectLocation(page).get must startWith("/paperless/optin")
+      val page2 = controller.displayOptIn(None, None, TestFixtures.sampleHostContext)(request)
+      val document = Jsoup.parse(contentAsString(page2))
       document.getElementsByTag("nav").attr("class") mustBe "hmrc-sign-out-nav"
     }
 
     "show main banner for svc" in new ChoosePaperlessControllerSetup {
       val page = controller.displayFormBySvc("mtdfbit", "token", None, TestFixtures.sampleHostContext)(request)
-      status(page) mustBe 200
-      val document = Jsoup.parse(contentAsString(page))
+      status(page) mustBe 303
+      redirectLocation(page).get must startWith("/paperless/optin?svc=mtdfbit&token=token")
+      val page2 = controller.displayOptIn(Some("mtdfbit"), Some("token"), TestFixtures.sampleHostContext)(request)
+      val document = Jsoup.parse(contentAsString(page2))
       document.getElementsByTag("nav").attr("class") mustBe "hmrc-sign-out-nav"
     }
 
     "have correct form action to save preferences" in new ChoosePaperlessControllerSetup {
       val page = controller.displayForm(Some(assignedCohort), None, TestFixtures.sampleHostContext)(request)
-      status(page) mustBe 200
-      val document = Jsoup.parse(contentAsString(page))
+      status(page) mustBe 303
+      redirectLocation(page).get must startWith("/paperless/optin")
+      val page2 = controller.displayOptIn(None, None, TestFixtures.sampleHostContext)(request)
+      val document = Jsoup.parse(contentAsString(page2))
       val url =
         routes.ChoosePaperlessController
-          .submitForm(TestFixtures.sampleHostContext)
+          .submitOptIn(TestFixtures.sampleHostContext)
           .url
       document.getElementById("form-submit-email-address").attr("action") must endWith(url)
     }
 
     "have correct form action to save preferences for svc" in new ChoosePaperlessControllerSetup {
       val page = controller.displayFormBySvc("mtdfbit", "token", None, TestFixtures.sampleHostContext)(request)
-      status(page) mustBe 200
-      val document = Jsoup.parse(contentAsString(page))
+      status(page) mustBe 303
+      redirectLocation(page).get must startWith("/paperless/optin?svc=mtdfbit&token=token")
+      val page2 = controller.displayOptIn(Some("mtdfbit"), Some("token"), TestFixtures.sampleHostContext)(request)
+      val document = Jsoup.parse(contentAsString(page2))
       val url =
         routes.ChoosePaperlessController
-          .submitFormBySvc("mtdfbit", "token", TestFixtures.sampleHostContext)
+          .submitOptInBySvc("mtdfbit", "token", TestFixtures.sampleHostContext)
           .url
       document.getElementById("form-submit-email-address").attr("action") must endWith(url)
     }
@@ -165,8 +173,9 @@ class ChoosePaperlessControllerSpec
     "audit the cohort information for the account details page" in new ChoosePaperlessControllerSetup {
       reset(mockAuditConnector)
       val page = controller.displayForm(Some(assignedCohort), None, TestFixtures.sampleHostContext)(request)
-      status(page) mustBe 200
-
+      status(page) mustBe 303
+      redirectLocation(page).get must startWith("/paperless/optin")
+      val page2 = controller.displayOptIn(None, None, TestFixtures.sampleHostContext)(request)
       val eventArg: ArgumentCaptor[MergedDataEvent] = ArgumentCaptor.forClass(classOf[MergedDataEvent])
       verify(mockAuditConnector).sendMergedEvent(eventArg.capture())(any(), any())
 
@@ -183,7 +192,9 @@ class ChoosePaperlessControllerSpec
     "audit the cohort information for the account details page for svc" in new ChoosePaperlessControllerSetup {
       reset(mockAuditConnector)
       val page = controller.displayFormBySvc("mtdfbit", "token", None, TestFixtures.sampleHostContext)(request)
-      status(page) mustBe 200
+      status(page) mustBe 303
+      redirectLocation(page).get must startWith("/paperless/optin?svc=mtdfbit&token=token")
+      val page2 = controller.displayOptIn(Some("mtdfbit"), Some("token"), TestFixtures.sampleHostContext)(request)
 
       val eventArg: ArgumentCaptor[MergedDataEvent] = ArgumentCaptor.forClass(classOf[MergedDataEvent])
       verify(mockAuditConnector).sendMergedEvent(eventArg.capture())(any(), any())
@@ -214,7 +225,7 @@ class ChoosePaperlessControllerSpec
   "The preferences form" should {
 
     "render NO! email input field no email address is supplied, and no option selected" in new ChoosePaperlessControllerSetup {
-      val page = controller.displayForm(Some(cohort53), None, TestFixtures.sampleHostContext)(request)
+      val page = controller.displayOptIn(None, None, TestFixtures.sampleHostContext)(request)
 
       status(page) mustBe 200
 
@@ -228,9 +239,9 @@ class ChoosePaperlessControllerSpec
     "render an email input field populated with the supplied email address, and the Opt-in option selected" in new ChoosePaperlessControllerSetup {
       val emailAddress = "bob@bob.com"
 
-      val page = controller.displayForm(
-        Some(cohort53),
-        Some(Encrypted(EmailAddress(emailAddress))),
+      val page = controller.displayOptIn(
+        None,
+        None,
         TestFixtures.sampleHostContext
       )(request)
 
@@ -249,37 +260,28 @@ class ChoosePaperlessControllerSpec
     "show an error if no opt-in preference has been chosen" in new ChoosePaperlessControllerSetup {
       reset(mockEntityResolverConnector)
       reset(mockEmailConnector)
-      val page = controller.submitForm(TestFixtures.sampleHostContext)(FakeRequest().withFormUrlEncodedBody())
+      val page = controller.submitOptIn(TestFixtures.sampleHostContext)(FakeRequest().withFormUrlEncodedBody())
 
       status(page) mustBe 400
       val document = Jsoup.parse(contentAsString(page))
       document
-        .select(".error-notification")
-        .text mustBe "Confirm if you want paperless notifications"
+        .select(".govuk-error-summary__title")
+        .text mustBe "There is a problem"
       verifyZeroInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
 
-    //As part of the new opt in journey there is no email or T&Cs on the first page the user only chooses how they want to get tax letters
     "show an error when opting-in if the email is incorrectly formatted" in new ChoosePaperlessControllerSetup {
       val emailAddress = "invalid-email"
 
-      val page = controller.submitForm(TestFixtures.sampleHostContext)(
-        FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", "email.main" -> emailAddress)
+      val page = controller.submitOptInEmail(None, None, None, TestFixtures.sampleHostContext)(
+        FakeRequest().withFormUrlEncodedBody("sps-opt-in-email" -> emailAddress)
       )
 
       status(page) mustBe 400
 
       val document = Jsoup.parse(contentAsString(page))
-
       document
-        .getElementById("terms-and-conditions")
-        .childNodes()
-        .get(0)
-        .toString
-        .trim mustBe "terms and conditions"
-
-      document
-        .getElementById("email.main-error")
+        .getElementById("sps-opt-in-email-error")
         .childNodes()
         .get(2)
         .toString
@@ -287,98 +289,21 @@ class ChoosePaperlessControllerSpec
       verifyZeroInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
 
-    //There are no T&Cs in this part of the journey
-    "show an error when opting-in if the T&C's are not accepted" in new ChoosePaperlessControllerSetup {
-      override def assignedCohort = CohortCurrent.ipage
-
-      val emailAddress = "someone@email.com"
-      val page = controller.submitForm(TestFixtures.sampleHostContext)(
-        FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", "email.main" -> emailAddress, "accept-tc" -> "false")
-      )
-
-      status(page) mustBe 400
-
-      val document = Jsoup.parse(contentAsString(page))
-
-      document
-        .getElementById("terms-and-conditions")
-        .childNodes()
-        .get(0)
-        .toString
-        .trim mustBe "terms and conditions"
-
-      document
-        .getElementById("accept-tc-error")
-        .childNodes()
-        .get(2)
-        .toString
-        .trim mustBe "You must agree to the terms and conditions to use this service"
-      verifyZeroInteractions(mockEntityResolverConnector, mockEmailConnector)
-    }
-
-    //There are no T&Cs in this part of the journey
-    "show an error when opting-in if the T&C's accepted flag is not present" in new ChoosePaperlessControllerSetup {
-      override def assignedCohort = CohortCurrent.ipage
-
-      val emailAddress = "someone@email.com"
-      val page = controller.submitForm(TestFixtures.sampleHostContext)(
-        FakeRequest()
-          .withFormUrlEncodedBody("opt-in" -> "true", "email.main" -> emailAddress, "email.confirm" -> emailAddress)
-      )
-
-      status(page) mustBe 400
-
-      val document = Jsoup.parse(contentAsString(page))
-
-      document
-        .getElementById("terms-and-conditions")
-        .childNodes()
-        .get(0)
-        .toString
-        .trim mustBe "terms and conditions"
-
-      document
-        .getElementById("accept-tc-error")
-        .childNodes()
-        .get(2)
-        .toString
-        .trim mustBe "You must agree to the terms and conditions to use this service"
-      verifyZeroInteractions(mockEntityResolverConnector, mockEmailConnector)
-    }
-
-    //There is not email in this part of the journey
     "show an error when opting-in if the email is not set" in new ChoosePaperlessControllerSetup {
-
-      val page = controller.submitForm(TestFixtures.sampleHostContext)(
-        FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", "email.main" -> "", "accept-tc" -> "true")
+      val page = controller.submitOptInEmail(None, None, None, TestFixtures.sampleHostContext)(
+        FakeRequest().withFormUrlEncodedBody("sps-opt-in-email" -> "")
       )
 
       status(page) mustBe 400
 
       val document = Jsoup.parse(contentAsString(page))
       document
-        .getElementById("email.main-error")
+        .getElementById("sps-opt-in-email-error")
         .childNodes()
         .get(2)
         .toString
         .trim mustBe "Enter an email address in the correct format, like name@example.com"
       verifyZeroInteractions(mockEntityResolverConnector, mockEmailConnector)
-    }
-
-    "show a warning page when opting-in if the email has a valid structure but does not pass validation by the email micro service" in new ChoosePaperlessControllerSetup {
-
-      val emailAddress = "someone@dodgy.domain"
-      when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(Future.successful(false))
-
-      val page = controller.submitForm(TestFixtures.sampleHostContext)(
-        FakeRequest().withFormUrlEncodedBody("opt-in" -> "true", ("email.main", emailAddress), "accept-tc" -> "true")
-      )
-
-      status(page) mustBe 200
-
-      val document = Jsoup.parse(contentAsString(page))
-      document.select("#emailIsNotCorrectLink") mustNot be(null)
-      document.select("#emailIsCorrectLink") mustNot be(null)
     }
 
     "when opting-in, validate the email address, save the preference and redirect to the thank you page with the email address encrpyted" in new ChoosePaperlessControllerSetup {
@@ -409,6 +334,7 @@ class ChoosePaperlessControllerSpec
 
       verifyNoMoreInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
+
     "when opting-in, validate the email address, failed to save the preference and so not activate user and redirect to the thank you page with the email address encrpyted" in new ChoosePaperlessControllerSetup {
       val emailAddress = "someone@email.com"
       when(mockEmailConnector.isValid(is(emailAddress))(any())).thenReturn(Future.successful(true))
@@ -521,6 +447,27 @@ class ChoosePaperlessControllerSpec
       verifyNoMoreInteractions(mockEntityResolverConnector, mockEmailConnector)
     }
 
+    "when opting-out multipage, save the preference and redirect to the thank you page if survey was already presented" in new ChoosePaperlessControllerSetup {
+      when(
+        mockEntityResolverConnector
+          .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any())
+      )
+        .thenReturn(Future.successful(PreferencesCreated))
+
+      val page =
+        controller.submitOptIn(TestFixtures.sampleHostContextWithNoSurveyRequest)(
+          FakeRequest().withFormUrlEncodedBody("sps-opt-in" -> "false")
+        )
+
+      status(page) mustBe 303
+      header("Location", page).get must be(TestFixtures.sampleHostContext.returnUrl)
+
+      verify(mockEntityResolverConnector)
+        .updateTermsAndConditionsForSvc(any[TermsAndConditionsUpdate], any(), any())(any(), any())
+
+      verifyNoMoreInteractions(mockEntityResolverConnector, mockEmailConnector)
+    }
+
     "when opting-out, save the preference and redirect to the survey page" in new ChoosePaperlessControllerSetup {
       when(
         mockEntityResolverConnector
@@ -529,8 +476,8 @@ class ChoosePaperlessControllerSpec
         .thenReturn(Future.successful(PreferencesCreated))
 
       val page =
-        controller.submitForm(TestFixtures.sampleHostContextWithSurveyRequest)(
-          FakeRequest().withFormUrlEncodedBody("opt-in" -> "false")
+        controller.submitOptIn(TestFixtures.sampleHostContextWithSurveyRequest)(
+          FakeRequest().withFormUrlEncodedBody("sps-opt-in" -> "false")
         )
 
       status(page) mustBe 303
@@ -710,7 +657,7 @@ class ChoosePaperlessControllerSpec
       value.auditSource mustBe "preferences-frontend"
       value.auditType mustBe EventTypes.Succeeded
       value.request.tags must contain("transactionName" -> "Set Print Preference")
-      value.request.detail("cohort") mustBe "IPage8"
+      value.request.detail("cohort") mustBe "IPage53"
       value.request.detail("journey") mustBe "AccountDetails"
       value.request.detail("utr") mustBe validUtr.value
       value.request.detail("nino") mustBe "N/A"
@@ -745,7 +692,7 @@ class ChoosePaperlessControllerSpec
       value.auditSource mustBe "preferences-frontend"
       value.auditType mustBe EventTypes.Succeeded
       value.request.tags must contain("transactionName" -> "Set Print Preference")
-      value.request.detail("cohort") mustBe "IPage8"
+      value.request.detail("cohort") mustBe "IPage53"
       value.request.detail("journey") mustBe "AccountDetails"
       value.request.detail("utr") mustBe validUtr.value
       value.request.detail("nino") mustBe "N/A"
@@ -777,7 +724,7 @@ class ChoosePaperlessControllerSpec
       value.auditSource mustBe "preferences-frontend"
       value.auditType mustBe EventTypes.Succeeded
       value.request.tags must contain("transactionName" -> "Set Print Preference")
-      value.request.detail("cohort") mustBe "IPage8"
+      value.request.detail("cohort") mustBe "IPage53"
       value.request.detail("journey") mustBe "AccountDetails"
       value.request.detail("utr") mustBe validUtr.value
       value.request.detail("nino") mustBe "N/A"

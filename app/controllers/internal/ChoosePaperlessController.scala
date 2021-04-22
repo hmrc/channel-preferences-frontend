@@ -9,9 +9,9 @@ import config.YtaConfig
 import connectors._
 import controllers.auth.{ AuthenticatedRequest, WithAuthRetrievals }
 import controllers.internal.EmailOptInJourney._
-import controllers.internal.PaperlessChoice.OptedIn
+import controllers.internal.PaperlessChoice.{ OptedIn, OptedOut }
 import controllers.{ ExternalUrlPrefixes, internal }
-import model.JourneyType.{ MultiPage1 }
+import model.JourneyType.MultiPage1
 import model.{ Encrypted, HostContext, Language, PageType }
 import org.joda.time.DateTime
 import play.api.Configuration
@@ -41,6 +41,8 @@ class ChoosePaperlessController @Inject() (
   configuration: Configuration,
   saPrintingPreference: views.html.sa.prefs.sa_printing_preference,
   saPrintingPreferenceVerifyEmail: views.html.sa_printing_preference_verify_email,
+  saPrintingPreferenceOptinEmail: views.html.sa.prefs.sa_printing_preference_optin_email,
+  saPrintingPreferenceOptinConfirmation: views.html.sa.prefs.sa_printing_preference_optin_confirmation,
   accountDetailsPrintingPreferenceConfirm: views.html.account_details_printing_preference_confirm,
   changeLanguage: views.html.change_language,
   mcc: MessagesControllerComponents
@@ -102,18 +104,8 @@ class ChoosePaperlessController @Inject() (
                 )
               )
             case Some(MultiPage1) =>
-              Ok(
-                saPrintingPreference(
-                  emailForm = OptInStartForm().fill(
-                    OptInStartForm.Data(
-                      choice = None,
-                      emailAlreadyStored = Some(emailAlreadyStored)
-                    )
-                  ),
-                  submitPrefsFormAction =
-                    internal.routes.ChoosePaperlessController.submitOptInBySvc(svc, token, hostContext),
-                  cohort = CohortCurrent.ipage
-                )
+              Redirect(
+                routes.ChoosePaperlessController.displayOptIn(Some(svc), Some(token), hostContext)
               )
             case _ => BadRequest("Invalid Cohort")
           }
@@ -141,78 +133,53 @@ class ChoosePaperlessController @Inject() (
             auditPageShown(AccountDetails, cohort)
             val email: Option[EmailAddress] = emailAddress.map(_.decryptedValue)
 
-            def formAndCall(emailAlreadyStored: Boolean): Either[String, (Form[_], Call)] =
+            def form(emailAlreadyStored: Boolean): Form[_] =
               if (hostContext.termsAndConditions.contains("taxCredits"))
-                Right(
-                  (
-                    OptInTaxCreditsDetailsForm().fill(
-                      OptInTaxCreditsDetailsForm.Data(
-                        emailAddress = email,
-                        termsAndConditions = (None, None),
-                        emailAlreadyStored = Some(emailAlreadyStored)
-                      )
-                    ),
-                    internal.routes.ChoosePaperlessController.submitForm(hostContext)
+                OptInTaxCreditsDetailsForm().fill(
+                  OptInTaxCreditsDetailsForm.Data(
+                    emailAddress = email,
+                    termsAndConditions = (None, None),
+                    emailAlreadyStored = Some(emailAlreadyStored)
                   )
                 )
               else if (cohort.pageType == PageType.ReOptInPage)
-                Right(
-                  (
-                    ReOptInDetailsForm().fill(
-                      ReOptInDetailsForm.Data(
-                        emailAddress = hostContext.email.map(EmailAddress(_)),
-                        preference = None,
-                        acceptedTcs = None,
-                        emailAlreadyStored = Some(emailAlreadyStored)
-                      )
-                    ),
-                    internal.routes.ChoosePaperlessController.submitForm(hostContext)
+                ReOptInDetailsForm().fill(
+                  ReOptInDetailsForm.Data(
+                    emailAddress = hostContext.email.map(EmailAddress(_)),
+                    preference = None,
+                    acceptedTcs = None,
+                    emailAlreadyStored = Some(emailAlreadyStored)
                   )
                 )
               else
-                cohort.journeyType match {
-                  case None =>
-                    Right(
-                      (
-                        OptInDetailsForm().fill(
-                          OptInDetailsForm.Data(
-                            emailAddress = email,
-                            preference = None,
-                            acceptedTcs = None,
-                            emailAlreadyStored = Some(emailAlreadyStored)
-                          )
-                        ),
-                        internal.routes.ChoosePaperlessController.submitForm(hostContext)
-                      )
-                    )
-                  case Some(MultiPage1) =>
-                    Right(
-                      (
-                        OptInStartForm().fill(
-                          OptInStartForm.Data(
-                            choice = None,
-                            emailAlreadyStored = Some(emailAlreadyStored)
-                          )
-                        ),
-                        internal.routes.ChoosePaperlessController.submitOptIn(hostContext)
-                      )
-                    )
-                  case _ => Left("Invalid Cohort")
-                }
+                OptInDetailsForm().fill(
+                  OptInDetailsForm.Data(
+                    emailAddress = email,
+                    preference = None,
+                    acceptedTcs = None,
+                    emailAlreadyStored = Some(emailAlreadyStored)
+                  )
+                )
 
-            hasStoredEmail(hostContext, None, None).map { emailAlreadyStored =>
-              formAndCall(emailAlreadyStored) match {
-                case Right((frm, call)) =>
+            cohort.journeyType match {
+              case Some(MultiPage1) =>
+                Future.successful(
+                  Redirect(
+                    routes.ChoosePaperlessController.displayOptIn(None, None, hostContext)
+                  )
+                )
+              case _ =>
+                hasStoredEmail(hostContext, None, None).map { emailAlreadyStored =>
                   Ok(
                     saPrintingPreference(
-                      emailForm = frm,
-                      submitPrefsFormAction = call,
+                      emailForm = form(emailAlreadyStored),
+                      submitPrefsFormAction = internal.routes.ChoosePaperlessController.submitForm(hostContext),
                       cohort = cohort
                     )
                   )
-                case Left(err) => BadRequest(err)
-              }
+                }
             }
+
         }
       }
     }
@@ -292,36 +259,176 @@ class ChoosePaperlessController @Inject() (
       }
     }
 
-  def submitOptIn(hostContext: HostContext) =
-    Action.async { implicit request =>
-      withAuthenticatedRequest { authRequest: AuthenticatedRequest[_] => implicit hc =>
-        val cohort = calculateCohort(hostContext)
-        val call = routes.ChoosePaperlessController.submitOptIn(hostContext)
-        val formwithErrors = returnToFormWithErrors(call, cohort, authRequest) _
-        OptInStartForm()
-          .bindFromRequest()
-          .fold(
-            formwithErrors,
-            _ => Future.successful(createRedirectToDisplayFormWithCohort(None, hostContext)(authRequest, hc))
+  def displayOptIn(svc: Option[String], token: Option[String], hostContext: HostContext) =
+    Action.async { implicit request: MessagesRequest[AnyContent] =>
+      withAuthenticatedRequest { implicit authRequest: AuthenticatedRequest[_] => implicit hc =>
+        val call = (svc, token) match {
+          case (Some(s), Some(t)) => internal.routes.ChoosePaperlessController.submitOptInBySvc(s, t, hostContext)
+          case _                  => internal.routes.ChoosePaperlessController.submitOptIn(hostContext)
+        }
+        hasStoredEmail(hostContext, None, None).map { emailAlreadyStored =>
+          Ok(
+            saPrintingPreference(
+              emailForm = OptInStartForm().fill(
+                OptInStartForm.Data(
+                  choice = None,
+                  emailAlreadyStored = Some(emailAlreadyStored)
+                )
+              ),
+              submitPrefsFormAction = call,
+              cohort = CohortCurrent.ipage
+            )
           )
+        }
+      }
+    }
+
+  def submitOptIn(hostContext: HostContext) =
+    Action.async { implicit request: MessagesRequest[AnyContent] =>
+      withAuthenticatedRequest { implicit authRequest: AuthenticatedRequest[_] => implicit hc =>
+        handleOptInChoice(None, None, hostContext)
       }
     }
 
   def submitOptInBySvc(implicit svc: String, token: String, hostContext: HostContext) =
+    Action.async { implicit request: MessagesRequest[AnyContent] =>
+      withAuthenticatedRequest { implicit authRequest: AuthenticatedRequest[_] => implicit hc =>
+        handleOptInChoice(Some(svc), Some(token), hostContext)
+      }
+    }
+
+  private def handleOptInChoice(svc: Option[String], token: Option[String], hostContext: HostContext)(implicit
+    request: AuthenticatedRequest[_],
+    hc: HeaderCarrier
+  ) = {
+    val call = (svc, token) match {
+      case (Some(s), Some(t)) => routes.ChoosePaperlessController.submitOptInBySvc(s, t, hostContext)
+      case _                  => routes.ChoosePaperlessController.submitOptIn(hostContext)
+    }
+    val lang = languageType(request.lang.code)
+    val formwithErrors = returnToFormWithErrors(call, CohortCurrent.ipage, request) _
+
+    OptInStartForm()
+      .bindFromRequest()
+      .fold(
+        formwithErrors,
+        happyForm =>
+          if (happyForm.choice.contains(OptedOut))
+            saveAndAuditPreferences(
+              digital = false,
+              email = None,
+              CohortCurrent.ipage,
+              false,
+              svc,
+              token,
+              languagePreference = Some(lang),
+              if (hostContext.survey && ytaConfig.surveyOptinPageEnabled && svc.isEmpty)
+                Some(SurveyType.StandardInterruptOptOut)
+              else None
+            )(request, hostContext, hc)
+          else
+            Future.successful(
+              Redirect(
+                routes.ChoosePaperlessController.displayOptInEmail(svc, token, "", Some(false), hostContext)
+              )
+            )
+      )
+  }
+
+  def saveOptinPreference(
+    changeEmail: Boolean,
+    emailAddress: String,
+    svc: Option[String],
+    token: Option[String],
+    languagePreference: Some[Language],
+    hostContext: HostContext
+  )(implicit request: AuthenticatedRequest[_], hc: HeaderCarrier): Future[Result] = {
+    val terms = CohortCurrent.ipage.terms -> TermsAccepted(true, Some(OptInPage.from(CohortCurrent.ipage)), None)
+    val updtTandCRes =
+      if (changeEmail) entityResolverConnector.changeEmailAddress(emailAddress)
+      else
+        entityResolverConnector
+          .updateTermsAndConditionsForSvc(
+            TermsAndConditionsUpdate
+              .from(terms, Some(emailAddress), svc.isDefined && token.isDefined, languagePreference)(hostContext),
+            svc,
+            token
+          )(hc, hostContext = hostContext)
+          .map(prefStatus => auditChoice(AccountDetails, CohortCurrent.ipage, terms, Some(emailAddress), prefStatus))
+
+    updtTandCRes.map(_ =>
+      Redirect(
+        routes.ChoosePaperlessController.displayOptInConfirmation(svc, token, emailAddress, hostContext)
+      )
+    )
+  }
+
+  def submitOptInEmail(
+    svc: Option[String],
+    token: Option[String],
+    changeEmail: Option[Boolean],
+    hostContext: HostContext
+  ) =
     Action.async { implicit request =>
-      withAuthenticatedRequest { authRequest: AuthenticatedRequest[_] => implicit hc =>
-        val call = routes.ChoosePaperlessController.submitOptInBySvc(svc, token, hostContext)
-        val lang = languageType(request.lang.code)
-        val formwithErrors = returnToFormWithErrors(call, CohortCurrent.ipage, authRequest) _
-        OptInStartForm()
-          .bindFromRequest()
+      withAuthenticatedRequest { implicit authRequest: AuthenticatedRequest[_] => implicit hc =>
+        OptInEmailForm()
+          .bindFromRequest()(request)
           .fold(
-            formwithErrors,
-            _ =>
+            formwithErrors =>
               Future.successful(
-                Redirect(routes.ChoosePaperlessController.displayFormBySvc(svc, token, None, hostContext))
+                BadRequest(
+                  saPrintingPreferenceOptinEmail(
+                    formwithErrors,
+                    internal.routes.ChoosePaperlessController.submitOptInEmail(svc, token, changeEmail, hostContext)
+                  )
+                )
+              ),
+            happyForm =>
+              saveOptinPreference(
+                changeEmail.getOrElse(false),
+                happyForm,
+                svc,
+                token,
+                Some(languageType(request.lang.code)),
+                hostContext
               )
           )
+      }
+    }
+
+  def displayOptInEmail(
+    svc: Option[String],
+    token: Option[String],
+    email: String,
+    changeEmail: Option[Boolean],
+    hostContext: model.HostContext
+  ) =
+    Action.async { implicit request =>
+      withAuthenticatedRequest { implicit authRequest: AuthenticatedRequest[_] => implicit hc =>
+        Future.successful(
+          Ok(
+            saPrintingPreferenceOptinEmail(
+              OptInEmailForm().fill(email),
+              internal.routes.ChoosePaperlessController.submitOptInEmail(svc, token, changeEmail, hostContext)
+            )
+          )
+        )
+      }
+    }
+
+  def displayOptInConfirmation(
+    svc: Option[String],
+    token: Option[String],
+    email: String,
+    hostContext: model.HostContext
+  ) =
+    Action.async { implicit request =>
+      withAuthenticatedRequest { implicit authRequest: AuthenticatedRequest[_] => implicit hc =>
+        Future.successful(
+          Ok(
+            saPrintingPreferenceOptinConfirmation(svc, token, email, hostContext)
+          )
+        )
       }
     }
 

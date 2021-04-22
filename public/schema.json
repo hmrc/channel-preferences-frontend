@@ -448,6 +448,18 @@
           },
           "required" : true
         } ]
+      },
+      "get" : {
+        "operationId" : "displayOptIn",
+        "tags" : [ "legacy" ],
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "hostContext",
+          "schema" : {
+            "type" : "model.hostcontext"
+          },
+          "required" : true
+        } ]
       }
     },
     "/paperless/optin/{svc}/{token}" : {
@@ -464,6 +476,81 @@
         }, {
           "in" : "path",
           "name" : "token",
+          "schema" : {
+            "type" : "string"
+          },
+          "required" : true
+        }, {
+          "in" : "query",
+          "name" : "hostContext",
+          "schema" : {
+            "type" : "model.hostcontext"
+          },
+          "required" : true
+        } ]
+      }
+    },
+    "/paperless/optin-email" : {
+      "post" : {
+        "operationId" : "submitOptInEmail",
+        "tags" : [ "legacy" ],
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "svc",
+          "schema" : {
+            "nullable" : true,
+            "type" : "string"
+          },
+          "required" : false
+        }, {
+          "in" : "query",
+          "name" : "token",
+          "schema" : {
+            "nullable" : true,
+            "type" : "string"
+          },
+          "required" : false
+        }, {
+          "in" : "query",
+          "name" : "changeEmail",
+          "schema" : {
+            "nullable" : true,
+            "type" : "boolean"
+          },
+          "required" : false
+        }, {
+          "in" : "query",
+          "name" : "hostContext",
+          "schema" : {
+            "type" : "model.hostcontext"
+          },
+          "required" : true
+        } ]
+      }
+    },
+    "/paperless/display-optin-email" : {
+      "get" : {
+        "operationId" : "displayOptInEmail",
+        "tags" : [ "legacy" ],
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "svc",
+          "schema" : {
+            "nullable" : true,
+            "type" : "string"
+          },
+          "required" : false
+        }, {
+          "in" : "query",
+          "name" : "token",
+          "schema" : {
+            "nullable" : true,
+            "type" : "string"
+          },
+          "required" : false
+        }, {
+          "in" : "query",
+          "name" : "email",
           "schema" : {
             "type" : "string"
           },
@@ -726,7 +813,7 @@
   "produces" : [ "application/json" ],
   "info" : {
     "title" : "Channel Preferences Frontend API",
-    "version" : "8.106.0-SNAPSHOT"
+    "version" : "8.112.0-SNAPSHOT"
   },
   "consumes" : [ "application/json" ],
   "tags" : [ {

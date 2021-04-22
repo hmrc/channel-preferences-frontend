@@ -29,7 +29,7 @@ class SaPrintingPreferenceViewSpec extends PlaySpec with GuiceOneAppPerSuite wit
         )(engRequest, messagesInEnglish()).toString()
       )
 
-      document.getElementById("opt-in").hasAttr("checked") mustBe false
+      document.getElementById("sps-opt-in").hasAttr("checked") mustBe false
     }
   }
 }

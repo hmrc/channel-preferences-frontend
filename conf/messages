@@ -38,6 +38,15 @@ sa_printing_preference.opt_in_choice_required=Confirm if you want paperless noti
 sa_printing_preference.sps_opt_in_choice.problem=There is a problem
 sa_printing_preference.sps_opt_in_choice_required.error=Select how you want to get your tax letters
 sa_printing_preference.sps_opt_in_choice_required=Select how you want to get your tax letters
+sa_printing_preference.sps_opt_in_email=Enter your email address
+sa_printing_preference.sps_opt_in_email_hint=We will use this to let you know when you have a new online tax letter.
+sa_printing_preference.sps_opt_in_confirm=Finish signing up to online tax letters
+sa_printing_preference.sps_opt_in_confirm.1=We sent an email to
+sa_printing_preference.sps_opt_in_confirm.2=What happens next
+sa_printing_preference.sps_opt_in_confirm.3=Click on the link in the email to verify your email address with us.
+sa_printing_preference.sps_opt_in_confirm.link=Sign up with a different email address
+
+
 tc_printing_preference.opt_in_choice_required=Select yes if you are happy for us to store your email address
 sa_printing_preference.accept_tc_required=You must agree to the terms and conditions to use this service
 tc_printing_preference.accept_tc_required=You must agree to the terms and conditions if you are happy for us to store your email address
