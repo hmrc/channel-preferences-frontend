@@ -8,6 +8,7 @@ package controllers.external
 import connectors._
 import controllers.ExternalUrlPrefixes
 import controllers.auth.AuthenticatedRequest
+import model.HostContext
 import play.api.mvc.{ Action, AnyContent, MessagesControllerComponents }
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.HeaderCarrier
@@ -35,6 +36,7 @@ class EmailValidationController @Inject() (
     Action.async { implicit request =>
       implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
       implicit val nonAuthenticatedRequest = AuthenticatedRequest(request, None, None, None, None)
+      implicit val hostContext: HostContext = new HostContext(returnUrl = "", returnLinkText = "")
       token match {
         case regex(_) =>
           entityResolverConnector.updateEmailValidationStatusUnsecured(token) map {

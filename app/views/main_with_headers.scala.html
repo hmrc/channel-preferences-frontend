@@ -27,13 +27,13 @@
     externalUrls: controllers.ExternalUrls
 )
 
-@(title: String, serviceName: Option[String] = None)(mainContent: Html)(implicit request: AuthenticatedRequest[_], messages: Messages)
+@(title: String, serviceName: Option[String] = None)(mainContent: Html)(implicit request: AuthenticatedRequest[_], messages: Messages, hostContext: model.HostContext)
 
 @headerBlock = {
     @hmrcHeader(Header(
         serviceName = serviceName,
         containerClasses = "govuk-width-container",
-        signOutHref = Some(externalUrls.survey)
+        signOutHref = Some(externalUrls.survey(Some(hostContext.returnUrl)))
     ))
 }
 

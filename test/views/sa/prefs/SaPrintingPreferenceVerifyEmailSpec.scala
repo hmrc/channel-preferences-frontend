@@ -6,6 +6,7 @@
 package views.sa.prefs
 
 import _root_.helpers.{ ConfigHelper, LanguageHelper }
+import model.HostContext
 import org.jsoup.Jsoup
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -16,17 +17,18 @@ class SaPrintingPreferenceVerifyEmailSpec
     extends PlaySpec with GuiceOneAppPerSuite with LanguageHelper with ConfigHelper {
 
   override implicit lazy val app: Application = fakeApp
+  implicit lazy val hostContext: HostContext = new HostContext(returnUrl = "", returnLinkText = "")
   val template = app.injector.instanceOf[sa_printing_preference_verify_email]
 
   "printing preferences verify email template" should {
     "render the correct content in english" in {
-      val document = Jsoup.parse(template(None, None)(engRequest, messagesInEnglish()).toString())
+      val document = Jsoup.parse(template(None, None)(engRequest, messagesInEnglish(), hostContext).toString())
 
       document.getElementsByTag("title").first().text() mustBe "Email address verified"
     }
 
     "render the correct content in welsh" in {
-      val document = Jsoup.parse(template(None, None)(welshRequest, messagesInWelsh()).toString())
+      val document = Jsoup.parse(template(None, None)(welshRequest, messagesInWelsh(), hostContext).toString())
 
       document.getElementsByTag("title").first().text() mustBe "Cyfeiriad e-bost wedi'i ddilysu"
       document.getElementById("success-heading").text() mustBe "Cyfeiriad e-bost wedi'i ddilysu"

@@ -8,6 +8,7 @@ package views.sa.prefs.cohorts
 import controllers.internal
 import controllers.internal.EmailForm
 import helpers.{ ConfigHelper, LanguageHelper, TestFixtures }
+import model.HostContext
 import org.jsoup.Jsoup
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -17,6 +18,8 @@ import views.html.sa.prefs.cohorts.tc_page9
 class ReadOnlyTcPage9Spec extends PlaySpec with GuiceOneAppPerSuite with LanguageHelper with ConfigHelper {
 
   override implicit lazy val app: Application = fakeApp
+  implicit lazy val hostContext: HostContext = new HostContext(returnUrl = "", returnLinkText = "")
+
   val template = app.injector.instanceOf[tc_page9]
 
   "Tax Credit Template" should {
@@ -26,7 +29,8 @@ class ReadOnlyTcPage9Spec extends PlaySpec with GuiceOneAppPerSuite with Languag
       val document = Jsoup.parse(
         template(form, internal.routes.ChoosePaperlessController.submitForm(TestFixtures.sampleHostContext))(
           engRequest,
-          messagesInEnglish()
+          messagesInEnglish(),
+          hostContext
         ).toString()
       )
       document.getElementsByClass("govuk-header__link--service-name").get(0).text() mustBe "Tax credits service"
@@ -56,7 +60,8 @@ class ReadOnlyTcPage9Spec extends PlaySpec with GuiceOneAppPerSuite with Languag
       val document = Jsoup.parse(
         template(form, internal.routes.ChoosePaperlessController.submitForm(TestFixtures.sampleHostContext))(
           welshRequest,
-          messagesInWelsh()
+          messagesInWelsh(),
+          hostContext
         ).toString()
       )
       document

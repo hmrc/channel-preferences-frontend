@@ -9,10 +9,7 @@
 @import uk.gov.hmrc.urls.Link
 
 <p class="govuk-body">
-    @Link.toInternalPage(
-        id = Some(changeEmailAddressLinkId),
-        url = externalUrlPrefixes.pfUrlPrefix + controllers.internal.routes.ManagePaperlessController.displayChangeEmailAddress(None, hostContext),
-        value = Some(Messages("manage.paperless.change.email")),
-        dataAttributes = Some(Map("journey-click" -> "self-assessment-preferences:Click:Change your email address"))
-    ).toHtml
+<header class="page-heading">
+    <h1 class="heading-xlarge">@messages("signout.youve_been_signed_out")</h1>
+</header>
 </p>

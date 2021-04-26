@@ -8,15 +8,17 @@ package views.sa.prefs.cohorts
 import controllers.internal
 import controllers.internal.EmailForm
 import helpers.{ ConfigHelper, LanguageHelper, TestFixtures }
+import model.HostContext
 import org.jsoup.Jsoup
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
-import views.html.sa.prefs.cohorts.{ i_page53 }
+import views.html.sa.prefs.cohorts.i_page53
 
 class ReadOnlyIPage53Spec extends PlaySpec with GuiceOneAppPerSuite with LanguageHelper with ConfigHelper {
 
   override implicit lazy val app: Application = fakeApp
+  implicit lazy val hostContext: HostContext = new HostContext(returnUrl = "", returnLinkText = "")
 
   val template = app.injector.instanceOf[i_page53]
   "I Page Template" should {
@@ -25,7 +27,8 @@ class ReadOnlyIPage53Spec extends PlaySpec with GuiceOneAppPerSuite with Languag
       val document = Jsoup.parse(
         template(form, internal.routes.ChoosePaperlessController.submitForm(TestFixtures.sampleHostContext))(
           engRequest,
-          messagesInEnglish()
+          messagesInEnglish(),
+          hostContext
         ).toString()
       )
 
@@ -98,7 +101,8 @@ class ReadOnlyIPage53Spec extends PlaySpec with GuiceOneAppPerSuite with Languag
       val document = Jsoup.parse(
         template(form, internal.routes.ChoosePaperlessController.submitForm(TestFixtures.sampleHostContext))(
           welshRequest,
-          messagesInWelsh()
+          messagesInWelsh(),
+          hostContext
         ).toString()
       )
       document

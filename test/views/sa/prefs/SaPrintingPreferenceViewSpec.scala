@@ -7,6 +7,7 @@ package views.sa.prefs
 
 import _root_.helpers.{ ConfigHelper, LanguageHelper }
 import controllers.internal._
+import model.HostContext
 import org.jsoup.Jsoup
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -17,6 +18,8 @@ import views.html.sa.prefs.sa_printing_preference
 class SaPrintingPreferenceViewSpec extends PlaySpec with GuiceOneAppPerSuite with LanguageHelper with ConfigHelper {
 
   override implicit lazy val app: Application = fakeApp
+  implicit lazy val hostContext: HostContext = new HostContext(returnUrl = "", returnLinkText = "")
+
   val template = app.injector.instanceOf[sa_printing_preference]
 
   "preference print template" should {
@@ -26,7 +29,7 @@ class SaPrintingPreferenceViewSpec extends PlaySpec with GuiceOneAppPerSuite wit
           emailForm = EmailForm(),
           submitPrefsFormAction = Call("GET", "/"),
           cohort = CohortCurrent.ipage
-        )(engRequest, messagesInEnglish()).toString()
+        )(engRequest, messagesInEnglish(), hostContext).toString()
       )
 
       document.getElementById("sps-opt-in").hasAttr("checked") mustBe false

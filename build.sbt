@@ -67,7 +67,8 @@ lazy val externalServices = List(
   ExternalService("MAILGUN_STUB"),
   ExternalService("HMRC_EMAIL_RENDERER"),
   ExternalService("IDENTITY_VERIFICATION", enableTestOnlyEndpoints = true),
-  ExternalService("EMAIL")
+  ExternalService("EMAIL"),
+  ExternalService("BAS_GATEWAY_FRONTEND")
 )
 
 lazy val commonScalacOptions = Seq(

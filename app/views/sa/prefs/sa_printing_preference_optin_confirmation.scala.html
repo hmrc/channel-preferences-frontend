@@ -9,8 +9,7 @@
 @this(mainWithHeaders: views.html.main_with_headers,
         govukPanel : GovukPanel)
 
-@(svc: Option[String], token: Option[String], email: String,
-        hostContext: model.HostContext)(implicit request: AuthenticatedRequest[_], messages: Messages)
+@(svc: Option[String], token: Option[String], email: String)(implicit request: AuthenticatedRequest[_], messages: Messages, hostContext: model.HostContext)
 @import uk.gov.hmrc.play.views.html.helpers._
 @import uk.gov.hmrc.urls.Link
 

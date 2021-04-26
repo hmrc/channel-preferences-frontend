@@ -5,4 +5,4 @@
 
 @this(externalUrls: controllers.ExternalUrls)
 @()(implicit request: Request[_], messages: Messages)
-<li><a id="logOutNavHref" href="@{externalUrls.survey}" data-journey-click="primary-navigation:Click:Sign out">@Messages("header_nav_links.sign_out")</a></li>
+<li><a id="logOutNavHref" href="@{externalUrls.survey()}" data-journey-click="primary-navigation:Click:Sign out">@Messages("header_nav_links.sign_out")</a></li>

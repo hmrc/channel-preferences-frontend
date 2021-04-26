@@ -36,7 +36,7 @@ class YtaConfig @Inject() (configuration: Configuration, env: Environment, exter
   override lazy val homeUrl = externalUrls.businessTaxHome
   override lazy val accountDetailsUrl = externalUrls.accountDetails
   override lazy val helpUrl = externalUrls.helpUrl
-  override lazy val signOutUrl = externalUrls.survey
+  override lazy val signOutUrl = externalUrls.survey()
 
   def fallbackURLForLanguageSwitcher: String = loadConfig(s"languageSwitcher.fallback.url")
   def enableLanguageSwitching: Boolean =

@@ -6,7 +6,7 @@
 @import controllers.auth.AuthenticatedRequest
 
 @this(mainWithHeaders: views.html.main_with_headers)
-@()(implicit request: AuthenticatedRequest[_], messages: Messages)
+@()(implicit request: AuthenticatedRequest[_], messages: Messages, hostContext: model.HostContext)
 
 @mainWithHeaders(title = Messages("sa_printing_preference.token.wrong.title")) {
     <header class="page-header">

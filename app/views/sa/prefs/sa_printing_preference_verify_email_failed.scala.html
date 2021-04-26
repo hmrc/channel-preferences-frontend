@@ -6,7 +6,7 @@
 @import controllers.auth.AuthenticatedRequest
 @import play.twirl.api.HtmlFormat
 @this(mainWithHeaders: views.html.main_with_headers, externalUrls: ExternalUrls)
-@(returnUrl: Option[String], returnLinkText: Option[String])(implicit request: AuthenticatedRequest[_], messages: Messages)
+@(returnUrl: Option[String], returnLinkText: Option[String])(implicit request: AuthenticatedRequest[_], messages: Messages, hostContext: model.HostContext)
 @import uk.gov.hmrc.urls.Link
 
 @mainWithHeaders(title = Messages("sa_printing_preference.email.failed.verified.title")) {

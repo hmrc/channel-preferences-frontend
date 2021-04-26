@@ -86,6 +86,7 @@ class ChoosePaperlessController @Inject() (
         val email = emailAddress.map(_.decryptedValue)
         hasStoredEmail(hostContext, Some(svc), Some(token)).map { (emailAlreadyStored: Boolean) =>
           val cohort = CohortCurrent.ipage
+          implicit val hostContextImpl: HostContext = hostContext
           cohort.journeyType match {
             case None =>
               Ok(
@@ -169,6 +170,7 @@ class ChoosePaperlessController @Inject() (
                   )
                 )
               case _ =>
+                implicit val hostContextImpl: HostContext = hostContext
                 hasStoredEmail(hostContext, None, None).map { emailAlreadyStored =>
                   Ok(
                     saPrintingPreference(
@@ -195,6 +197,7 @@ class ChoosePaperlessController @Inject() (
             case _                    => throw (new Exception("Invalid cohort"))
           }
         implicit val authRequest = AuthenticatedRequest[AnyContent](request, None, None, None, None)
+        implicit val hostContext: HostContext = new HostContext(returnUrl = "", returnLinkText = "")
         Future.successful(
           Ok(
             saPrintingPreference(
@@ -217,9 +220,10 @@ class ChoosePaperlessController @Inject() (
       Future.successful(Ok(OptInCohort.listCohortWrites.writes((OptInCohortConfigurationValues.availableValues))))
     }
 
-  def submitFormBySvc(implicit svc: String, token: String, hostContext: HostContext) =
+  def submitFormBySvc(svc: String, token: String, hostContext: HostContext) =
     Action.async { implicit request =>
       withAuthenticatedRequest { authRequest: AuthenticatedRequest[_] => implicit hc =>
+        implicit val hostContextImpl: HostContext = hostContext
         val call = routes.ChoosePaperlessController.submitFormBySvc(svc, token, hostContext)
         val lang = languageType(request.lang.code)
         val formwithErrors = returnToFormWithErrors(call, CohortCurrent.ipage, authRequest) _
@@ -266,6 +270,7 @@ class ChoosePaperlessController @Inject() (
           case (Some(s), Some(t)) => internal.routes.ChoosePaperlessController.submitOptInBySvc(s, t, hostContext)
           case _                  => internal.routes.ChoosePaperlessController.submitOptIn(hostContext)
         }
+        implicit val hostContextImpl: HostContext = hostContext
         hasStoredEmail(hostContext, None, None).map { emailAlreadyStored =>
           Ok(
             saPrintingPreference(
@@ -283,23 +288,25 @@ class ChoosePaperlessController @Inject() (
       }
     }
 
-  def submitOptIn(hostContext: HostContext) =
+  def submitOptIn(implicit hostContext: HostContext) =
     Action.async { implicit request: MessagesRequest[AnyContent] =>
       withAuthenticatedRequest { implicit authRequest: AuthenticatedRequest[_] => implicit hc =>
-        handleOptInChoice(None, None, hostContext)
+        handleOptInChoice(None, None)
       }
     }
 
-  def submitOptInBySvc(implicit svc: String, token: String, hostContext: HostContext) =
+  def submitOptInBySvc(svc: String, token: String, hostContext: HostContext) =
     Action.async { implicit request: MessagesRequest[AnyContent] =>
       withAuthenticatedRequest { implicit authRequest: AuthenticatedRequest[_] => implicit hc =>
-        handleOptInChoice(Some(svc), Some(token), hostContext)
+        implicit val hostContextImpl: HostContext = hostContext
+        handleOptInChoice(Some(svc), Some(token))
       }
     }
 
-  private def handleOptInChoice(svc: Option[String], token: Option[String], hostContext: HostContext)(implicit
+  private def handleOptInChoice(svc: Option[String], token: Option[String])(implicit
     request: AuthenticatedRequest[_],
-    hc: HeaderCarrier
+    hc: HeaderCarrier,
+    hostContext: HostContext
   ) = {
     val call = (svc, token) match {
       case (Some(s), Some(t)) => routes.ChoosePaperlessController.submitOptInBySvc(s, t, hostContext)
@@ -371,6 +378,7 @@ class ChoosePaperlessController @Inject() (
   ) =
     Action.async { implicit request =>
       withAuthenticatedRequest { implicit authRequest: AuthenticatedRequest[_] => implicit hc =>
+        implicit val hostContextImpl: HostContext = hostContext
         OptInEmailForm()
           .bindFromRequest()(request)
           .fold(
@@ -405,6 +413,7 @@ class ChoosePaperlessController @Inject() (
   ) =
     Action.async { implicit request =>
       withAuthenticatedRequest { implicit authRequest: AuthenticatedRequest[_] => implicit hc =>
+        implicit val hostContextImpl: HostContext = hostContext
         Future.successful(
           Ok(
             saPrintingPreferenceOptinEmail(
@@ -424,9 +433,10 @@ class ChoosePaperlessController @Inject() (
   ) =
     Action.async { implicit request =>
       withAuthenticatedRequest { implicit authRequest: AuthenticatedRequest[_] => implicit hc =>
+        implicit val hostContextImpl: HostContext = hostContext
         Future.successful(
           Ok(
-            saPrintingPreferenceOptinConfirmation(svc, token, email, hostContext)
+            saPrintingPreferenceOptinConfirmation(svc, token, email)
           )
         )
       }
@@ -557,7 +567,7 @@ class ChoosePaperlessController @Inject() (
 
   def returnToFormWithErrors(submitPrefsFormAction: Call, cohort: OptInCohort, request: AuthenticatedRequest[_])(
     form: Form[_]
-  )(implicit hc: HeaderCarrier): Future[Result] = {
+  )(implicit hc: HeaderCarrier, hostContext: HostContext): Future[Result] = {
     implicit val req = request
     Future.successful(BadRequest(saPrintingPreference(form, submitPrefsFormAction, cohort)))
   }

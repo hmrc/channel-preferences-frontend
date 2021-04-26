@@ -6,6 +6,7 @@
 package views.sa.prefs
 
 import _root_.helpers.{ ConfigHelper, LanguageHelper }
+import model.HostContext
 import org.jsoup.Jsoup
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -16,13 +17,15 @@ class SaPrintingPreferenceExpiredEmailSpec
     extends PlaySpec with GuiceOneAppPerSuite with LanguageHelper with ConfigHelper {
 
   override implicit lazy val app: Application = fakeApp
+  implicit val hostContext: HostContext = new HostContext(returnUrl = "", returnLinkText = "")
   val saPrintingPreferenceExpiredEmail =
     app.injector.instanceOf[sa_printing_preference_expired_email]
 
   "printing preferences expired emai; template" should {
     "render the correct content in english" in {
-      val foo = saPrintingPreferenceExpiredEmail()(engRequest, messagesInEnglish()).toString()
-      val document = Jsoup.parse(saPrintingPreferenceExpiredEmail()(engRequest, messagesInEnglish()).toString())
+      val foo = saPrintingPreferenceExpiredEmail()(engRequest, messagesInEnglish(), hostContext).toString()
+      val document =
+        Jsoup.parse(saPrintingPreferenceExpiredEmail()(engRequest, messagesInEnglish(), hostContext).toString())
 
       document
         .getElementById("link-to-home")
@@ -33,7 +36,8 @@ class SaPrintingPreferenceExpiredEmailSpec
     }
 
     "render the correct content in welsh" in {
-      val document = Jsoup.parse(saPrintingPreferenceExpiredEmail()(welshRequest, messagesInWelsh()).toString())
+      val document =
+        Jsoup.parse(saPrintingPreferenceExpiredEmail()(welshRequest, messagesInWelsh(), hostContext).toString())
 
       document.getElementsByTag("title").first().text() mustBe "NID yw'ch cyfeiriad e-bost wedi'i ddilysu"
       document

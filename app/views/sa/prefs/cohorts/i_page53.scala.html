@@ -12,7 +12,9 @@
         govukButton: GovukButton,
         govukCheckboxes: GovukCheckboxes,
         govukInput: GovukInput)
-@(optinForm: Form[_], submitPrefsFormAction: Call)(implicit request: AuthenticatedRequest[_], messages: Messages)
+
+@(optinForm: Form[_], submitPrefsFormAction: Call)(implicit request: AuthenticatedRequest[_], messages: Messages, hostContext: model.HostContext)
+
 @import uk.gov.hmrc.urls.Link
 @import uk.gov.hmrc.play.views.html.helpers._
 @import uk.gov.hmrc.govukfrontend.views.html.components.implicits._
