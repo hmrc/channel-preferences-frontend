@@ -63,7 +63,6 @@ lazy val microservice = Project(appName, file("."))
     evictionWarningOptions in update :=
       EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
     resolvers ++= Seq(
-      Resolver.bintrayRepo("hmrc", "releases"),
       Resolver.jcenterRepo
     ),
     // ***************
@@ -121,11 +120,12 @@ lazy val microservice = Project(appName, file("."))
       "-Ywarn-unused:privates", // Warn if a private member is unused.
       "-Ywarn-value-discard" // Warn when non-Unit expression results are unused.
     ),
+    // ***************
     libraryDependencies ++= Seq(
       compilerPlugin("com.github.ghik" % "silencer-plugin" % silencerVersion cross CrossVersion.full),
       "com.github.ghik" % "silencer-lib" % silencerVersion % Provided cross CrossVersion.full
-    )
-    // ***************
+    ),
+    dependencyUpdatesFilter -= moduleFilter(organization = "uk.gov.hmrc")
   )
   .settings(
     resolvers += Resolver.jcenterRepo,
