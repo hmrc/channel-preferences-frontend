@@ -16,7 +16,6 @@
 
 import uk.gov.hmrc.DefaultBuildSettings.{ defaultSettings, integrationTestSettings, scalaSettings }
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
-import com.lucidchart.sbt.scalafmt.ScalafmtCorePlugin.autoImport._
 import uk.gov.hmrc.ExternalService
 import uk.gov.hmrc.SbtBobbyPlugin.BobbyKeys.bobbyRulesURL
 import uk.gov.hmrc.ServiceManagerPlugin.Keys.itDependenciesList
@@ -131,7 +130,6 @@ lazy val microservice = Project(appName, file("."))
   .settings(
     resolvers += Resolver.jcenterRepo,
     inConfig(IntegrationTest)(
-      scalafmtCoreSettings ++
         Seq(compileInputs in compile := Def.taskDyn {
           val task = test in (resolvedScoped.value.scope in scalafmt.key)
           val previousInputs = (compileInputs in compile).value

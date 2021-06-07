@@ -23,7 +23,7 @@ import play.api.mvc._
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 @Singleton
-class ApiSpecsController @Inject()(
+class ApiSpecsController @Inject() (
   mcc: MessagesControllerComponents
 ) extends FrontendController(mcc) {
 
@@ -33,7 +33,8 @@ class ApiSpecsController @Inject()(
     com.iheart.playSwagger.SwaggerSpecGenerator(
       swaggerV3 = true,
       modelQualifier = PrefixDomainModelQualifier(domainPackage),
-      apiVersion = Some(uk.gov.hmrc.channelpreferencesfrontend.BuildInfo.version))
+      apiVersion = Some(uk.gov.hmrc.channelpreferencesfrontend.BuildInfo.version)
+    )
 
   lazy val swagger = Action { _ =>
     generator
