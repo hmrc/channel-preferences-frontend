@@ -34,9 +34,12 @@ class LanguageSwitchController @Inject() (appConfig: AppConfig, languageUtils: L
 
   def selectLanguage(language: Language): Action[AnyContent] = super.switchToLanguage(language.lang.code)
 
+  // @formatter:off
   override protected def languageMap: Map[String, Lang] =
-    if (appConfig.languageTranslationEnabled)
+    if (appConfig.languageTranslationEnabled) {
       Map(en -> Lang(en), cy -> Lang(cy))
-    else
+    } else {
       Map(en -> Lang(en))
+    }
+  // @formatter:on
 }
