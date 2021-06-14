@@ -38,10 +38,10 @@ object AppDependencies {
     "com.typesafe.play"      %% "play-test"              % current % Test,
     "org.scalatestplus.play" %% "scalatestplus-play"     % "4.0.3" % "test, it",
     "org.jsoup"              % "jsoup"                   % "1.13.1" % Test,
-    "org.mockito"            % "mockito-core"            % "3.11.0",
+    "org.mockito"            % "mockito-core"            % "3.11.1",
     "com.vladsch.flexmark"   % "flexmark-all"            % "0.36.8" % "test, it",
     "org.pegdown"            % "pegdown"                 % "1.6.0" % "test, it",
-    "com.github.tomakehurst" % "wiremock-jre8"           % "2.28.0" % "test,it"
+    "com.github.tomakehurst" % "wiremock-jre8"           % "2.28.1" % "test,it"
   )
 
   val dependencyOverrides = Seq(
