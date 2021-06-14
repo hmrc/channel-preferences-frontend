@@ -41,7 +41,7 @@ class ApiSpecsNotInProdISpec extends PlaySpec with GuiceOneAppPerSuite {
       val fakeRequest = FakeRequest(GET, s"/channel-preferences-frontend/api/schema.json")
         .withHeaders("Csrf-Token" -> "nocheck")
 
-      route(app, fakeRequest).map(status(_) mustBe NOT_FOUND)
+      route(app, fakeRequest).map(status(_) mustBe INTERNAL_SERVER_ERROR)
     }
   }
 }
